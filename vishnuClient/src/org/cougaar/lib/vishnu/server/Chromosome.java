@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Chromosome.java,v 1.2 2001-04-06 18:50:31 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Chromosome.java,v 1.3 2001-04-12 17:50:30 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -6,13 +6,11 @@ package org.cougaar.lib.vishnu.server;
  * Base class for the chromosome for the genetic algorithm.  The
  * particular implementation must extend this class.
  *
- * <copyright>
- *  Copyright 2000-2001 Defense Advanced Research Projects
- *  Agency (DARPA) and ALPINE (a BBN Technologies (BBN) and
- *  Raytheon Systems Company (RSC) Consortium).
- *  This software to be used only in accordance with the
- *  COUGAAR license agreement.
- * </copyright>
+ * This software is to be used in accordance with the COUGAAR license
+ * agreement. The license agreement and other information can be found at
+ * http://www.cougaar.org.
+ *
+ * Copyright 2001 BBNT Solutions LLC
  */
 
 public abstract class Chromosome {
