@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedDecoder.java,v 1.13 2001-06-28 17:57:23 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedDecoder.java,v 1.14 2001-07-03 18:05:32 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -71,8 +71,8 @@ public class OrderedDecoder implements GADecoder {
         // if only one capable resource, just do assignment
         if (resources.length == 1) {
           if (resources[0].enoughCapacity (task.getCapacityContribs()) &&
-              makeAssignment (task, resources[0], prereqs,
-                              specs, data, true, true, linked)) {
+              (makeAssignment (task, resources[0], prereqs,
+                               specs, data, true, true, linked) != null)) {
             float delta = specs.evaluateSingleAssignment (task, resources[0]);
             if (delta != 0.0f)
               resources[0].addDelta (delta);
@@ -89,10 +89,11 @@ public class OrderedDecoder implements GADecoder {
             Resource resource = resources[j];
             if (! resource.enoughCapacity (task.getCapacityContribs()))
               continue;
-            boolean ok = makeAssignment (task, resource, prereqs, specs,
-                                         data, false, computeUnavail, linked);
+            Resource.Block b =
+              makeAssignment (task, resource, prereqs, specs,
+                              data, false, computeUnavail, linked);
             computeUnavail = false;
-            if (! ok)
+            if (b == null)
               continue;
             float delta = specs.evaluateSingleAssignment (task, resource);
             if ((bestResource == null) ||
@@ -101,7 +102,7 @@ public class OrderedDecoder implements GADecoder {
               bestResource = resource;
               bestDelta = delta;
             }
-            removeAssignment (task, resource);
+            removeAssignment (task, resource, b);
           }
           if (bestResource != null) {
             makeAssignment (task, bestResource, prereqs, specs, data,
@@ -116,10 +117,15 @@ public class OrderedDecoder implements GADecoder {
     }
   }
 
-  private void removeAssignment (Task task, Resource resource) {
+  private void removeAssignment (Task task, Resource resource,
+                                 Resource.Block block) {
     task.setAssignment (null);
     resource.removeAssignment (task.getKey(),
                                ! (ignoringTime || multitask || grouped));
+    if (block.preAssignment != null)
+      block.preAssignment.setEndTime (block.preWrapup);
+    if (block.postAssignment != null)
+      block.postAssignment.setStartTime (block.postSetup);
   }
 
   int visits = 0;
@@ -139,7 +145,7 @@ public class OrderedDecoder implements GADecoder {
    *  If looking in two directions, use delta criterion to determine
    *  which is better.
    */
-  private boolean makeAssignment (Task task, Resource resource,
+  private Resource.Block makeAssignment (Task task, Resource resource,
                                   Task[] prereqs, SchedulingSpecs specs,
                                   SchedulingData data, boolean doUpdates,
                                   boolean firstResource, Task[] linked) {
@@ -175,12 +181,13 @@ public class OrderedDecoder implements GADecoder {
           block = block2;
         else if ((block2 != null) &&
                  (block.start != block2.start)) {
-          makeAssignment2 (task, resource, block, false, false);
+          Resource.Block b =
+            makeAssignment2 (task, resource, block, false, false);
           float d1 = specs.evaluateSingleAssignment (task, resource);
-          removeAssignment (task, resource);
-          makeAssignment2 (task, resource, block2, false, false);
+          removeAssignment (task, resource, b);
+          b = makeAssignment2 (task, resource, block2, false, false);
           float d2 = specs.evaluateSingleAssignment (task, resource);
-          removeAssignment (task, resource);
+          removeAssignment (task, resource, b);
           if (specs.isMinimizing() ^
               ((d1 < d2) || ((d1 == d2) && ((block.start - bestTime) <
                                             (bestTime - block2.start)))))
@@ -188,21 +195,37 @@ public class OrderedDecoder implements GADecoder {
         }
       }
       if (block == null)
-        return false;
+        return null;
     }
-    makeAssignment2 (task, resource, block, doUpdates, false);
+    Resource.Block ret =
+      makeAssignment2 (task, resource, block, doUpdates, false);
     if (doUpdates) {
       for (int j = 0; j < linked.length; j++) {
         int timeDiff = data.cachedLinkTimeDiff (task, linked[j]);
         assignAtTime (linked[j], block.start - timeDiff, data, specs);
       }
     }
-    return true;
+    return ret;
   }
 
-  private void makeAssignment2 (Task task, Resource resource,
-                                Resource.Block block, boolean doUpdates,
-                                boolean frozen) {
+  private Resource.Block makeAssignment2 (Task task, Resource resource,
+                                          Resource.Block block,
+                                          boolean doUpdates, boolean frozen) {
+    Resource.Block ret = null;
+    if (block != null) {
+      ret = new Resource.Block();
+      ret.preAssignment = block.preAssignment;
+      ret.postAssignment = block.postAssignment;
+      if (ret.preAssignment != null) {
+        ret.preWrapup = ret.preAssignment.getEndTime();
+        block.preAssignment.setEndTime (block.preWrapup);
+      }
+      if (ret.postAssignment != null) {
+        ret.postSetup = ret.postAssignment.getStartTime();
+        block.postAssignment.setStartTime (block.postSetup);
+      }
+    }
+
     Assignment a = (ignoringTime ?
                     new Assignment (task, resource, 0, 0, 0, 0,
                                     frozen, timeOps) :
@@ -218,13 +241,9 @@ public class OrderedDecoder implements GADecoder {
         resource.addGroupedContrib (a, block.groupedAssignment);
       else
         resource.addCapacityContribs (task.getCapacityContribs());
-      if (block != null) {
-        if (block.preAssignment != null)
-          block.preAssignment.setEndTime (block.preWrapup);
-        if (block.postAssignment != null)
-          block.postAssignment.setStartTime (block.postSetup);
-      }
     }
+
+    return ret;
   }
 
   private void assignFrozen (SchedulingData data, SchedulingSpecs specs) {
@@ -321,7 +340,8 @@ public class OrderedDecoder implements GADecoder {
         (task, dur, unavail, specs, multitask, grouped,
          time, data.getStartTime(), SchedulingData.emptyTaskArray, data);
       if (block.start == time) {
-        makeAssignment2 (task, resource, block, false, false);
+        Resource.Block b =
+          makeAssignment2 (task, resource, block, false, false);
         float delta = specs.evaluateSingleAssignment (task, resource);
         if ((bestResource == null) ||
             (specs.isMinimizing() && (delta < bestDelta)) ||
@@ -330,7 +350,7 @@ public class OrderedDecoder implements GADecoder {
           bestDelta = delta;
           bestBlock = block;
         }
-        removeAssignment (task, resource);
+        removeAssignment (task, resource, b);
       }
     }
     if (bestResource != null)
