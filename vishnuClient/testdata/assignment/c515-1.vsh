@@ -80,7 +80,7 @@
 </OPERATOR>
 </CAPACITYTHRESH>
 </SPECS>
-<GAPARMS pop_size="1000" parent_scalar="0.99" max_evals="10000" max_time="120" max_duplicates="3000" max_top_dog_age="3000" initializer="org.cougaar.lib.vishnu.server.OrderedInitializer" decoder="org.cougaar.lib.vishnu.server.OrderedDecoder" >
+<GAPARMS pop_size="500" parent_scalar="0.98" max_evals="2500" max_time="120" max_duplicates="2500" max_top_dog_age="2500" report_interval="5" initializer="org.cougaar.lib.vishnu.server.OrderedInitializer" decoder="org.cougaar.lib.vishnu.server.OrderedDecoder" >
 <GAOPERATORS>
 <GAOPERATOR name="org.cougaar.lib.vishnu.server.OrderedMutation" prob="0.50" parms="0.8" />
 <GAOPERATOR name="org.cougaar.lib.vishnu.server.OrderedCrossover" prob="0.50" />
