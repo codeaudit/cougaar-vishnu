@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/TimeOps.java,v 1.4 2001-04-12 17:50:31 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/TimeOps.java,v 1.5 2001-07-29 19:30:46 gvidaver Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -23,7 +23,9 @@ import java.text.SimpleDateFormat;
 
 public class TimeOps {
 
-  private static final SimpleDateFormat format =
+  // should not be static -- 
+  // introduces intermittent problems when running multiple schedulers simulataneously
+  private final SimpleDateFormat format =
     new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");
 
   private long baseTime = Long.MIN_VALUE;
