@@ -1,11 +1,15 @@
 package org.cougaar.lib.vishnu.server;
 
 import org.apache.xerces.parsers.SAXParser;
+
 import org.xml.sax.helpers.DefaultHandler;
-import org.xml.sax.SAXException;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
 import java.io.*;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -455,16 +459,9 @@ public class Scheduler {
    */
   public void setupInternal (String problem, boolean initialize) {
     try {
-      if (initialize) {
-        timeOps = new TimeOps();
-        specs = new SchedulingSpecs (timeOps);
-        ga = new GeneticAlgorithm (this);
-        data = new SchedulingData (timeOps);
-        parser = new SAXParser();
-        parser.setContentHandler (new InternalRequestHandler());
-        parser.setFeature("http://xml.org/sax/features/validation",
-                          validatingInternalParser);
-      }
+      if (initialize)
+		setupInternalObjects ();
+
       Date start = null;
       if (reportTiming) start = new Date ();
       parser.parse (new InputSource (new StringReader (problem)));
@@ -474,6 +471,26 @@ public class Scheduler {
     } catch (Exception e) {
       System.err.println (e.getMessage());
       e.printStackTrace();
+    }
+  }
+
+  /** 
+   * sets up Scheduler -- after this is called can add tasks, resources, etc.
+   * either directly or from parsing XML.
+   **/
+  public void setupInternalObjects () {
+	timeOps = new TimeOps();
+	specs = new SchedulingSpecs (timeOps);
+	ga = new GeneticAlgorithm (this);
+	data = new SchedulingData (timeOps);
+	parser = new SAXParser();
+	parser.setContentHandler (new InternalRequestHandler());
+    try {
+	  parser.setFeature("http://xml.org/sax/features/validation",
+						validatingInternalParser);
+    } catch (SAXException sax) {
+      System.err.println (sax.getMessage());
+      sax.printStackTrace();
     }
   }
 
