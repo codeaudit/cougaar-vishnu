@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.21 2001-06-20 21:52:39 gvidaver Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.22 2001-06-22 16:40:09 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -66,6 +66,12 @@ public class SchedulingData {
     return (Task) tasks.get (key);
   }
 
+  public void addTask (Task task) {
+    Object key = task.getKey();
+    tasks.put (key, task);
+    primaryTasks.add (task);
+  }
+
   public Task[] getTasks() {
     Task[] arr = new Task [tasks.size()];
     return (Task[]) tasks.values().toArray (arr);
@@ -124,6 +130,10 @@ public class SchedulingData {
     return (Resource) resources.get (key);
   }
 
+  public void addResource (Resource r) {
+    resources.put (r.getKey(), r);
+  }
+
   public Resource[] getResources() {
     Resource[] arr = new Resource [resources.size()];
     return (Resource[]) resources.values().toArray (arr);
@@ -135,6 +145,11 @@ public class SchedulingData {
 
   public HashMap getGlobals() {
     return (HashMap) globals.clone();
+  }
+
+  public void addGlobal (String name, String type, SchObject obj) {
+    globals.put (name, obj);
+    globalTypes.put (name, type);
   }
 
   public String typeForGlobal (String global) {
@@ -537,9 +552,7 @@ public class SchedulingData {
           object.addField (prefix + fieldname, ff.datatype,
                            atts.getValue ("value"), ff.is_key, false);
           if (ff.is_key && (object instanceof Task)) {
-            Object key = ((Task) object).getKey();
-            tasks.put (key, object);
-            primaryTasks.add (tasks.get (key));
+            addTask ((Task) object);
           }
           if (ff.is_key && (object instanceof Resource))
             resources.put (((Resource) object).getKey(), object);
@@ -569,8 +582,7 @@ public class SchedulingData {
           }
         }
         if (globalName != null) {
-          globals.put (globalName, object);
-          globalTypes.put (globalName, objectType);
+          addGlobal (globalName, objectType, object);
           globalName = null;
         }
       }

@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Scheduler.java,v 1.18 2001-05-31 22:32:11 gvidaver Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Scheduler.java,v 1.19 2001-06-22 16:40:09 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -393,6 +393,88 @@ public class Scheduler {
   }
 
 
+  /*
+   * Functions for running the scheduler internal to a process
+   */
+
+  public SchedulingData getSchedulingData() {
+    return data;
+  }
+
+  public TimeOps getTimeOps() {
+    return timeOps;
+  }
+
+  public boolean assignmentsMultitask() {
+    return specs.getMultitasking() == SchedulingSpecs.MULTITASKING_GROUPED;
+  }
+
+  public ArrayList getAssignments() {
+    ArrayList assigns = new ArrayList();
+    if (! assignmentsMultitask()) {
+      Task[] tasks = data.getTasks();
+      for (int i = 0; i < tasks.length; i++) {
+        Assignment assign = tasks[i].getAssignment();
+        if (assign != null)
+          assigns.add (assign);
+      }
+    } else {
+      Resource[] resources = data.getResources();
+      for (int i = 0; i < resources.length; i++) {
+        MultitaskAssignment[] multi = resources[i].getMultitaskAssignments();
+        for (int j = 0; j < multi.length; j++)
+          assigns.add (multi[j]);
+      }
+    }
+    return assigns;
+  }
+
+  /** if using direct object input, call this first
+   * @param problem XML representation of the problem description
+   */
+  public void setupInternal (String problem) {
+    try {
+      timeOps = new TimeOps();
+      specs = new SchedulingSpecs (timeOps);
+      ga = new GeneticAlgorithm (this);
+      data = new SchedulingData (timeOps);
+      SAXParser parser = new SAXParser();
+      parser.setContentHandler (new InternalRequestHandler());
+      Date start = null;
+      if (reportTiming) start = new Date ();
+      parser.parse (new InputSource (new StringReader (problem)));
+      if (reportTiming)
+        reportTime ("Scheduler.runInternalToProcess - scheduler " +
+                    "read data in ", start);
+    } catch (Exception e) {
+      System.err.println (e.getMessage());
+      e.printStackTrace();
+    }
+  }
+
+  /** if using direct object input (without XML), call this after
+   * first calling setupInternal and then putting in the data */
+  public void scheduleInternal() {
+    Date start = null;
+    if (reportTiming) start = new Date ();
+    specs.initializeData (data);
+    if (reportTiming)
+      reportTime ("Scheduler.runInternalToProcess - specs initialized " +
+                  "data in ", start);
+    if (reportTiming) start = new Date ();
+    data.initialize (specs);
+    if (reportTiming)
+      reportTime ("Scheduler.runInternalToProcess - data initialized " +
+                  " with specs in ", start);
+    if (reportTiming) start = new Date ();
+    ga.execute (data, specs);
+    if (reportTiming)
+      reportTime ("Scheduler.runInternalToProcess - ga ran in ", start);
+  }
+
+
+
+
   /**
    * The function called to run the scheduler internal to a process
    * @param problem XML representation of the problem description
@@ -400,36 +482,9 @@ public class Scheduler {
    */
   public String runInternalToProcess (String problem) {
     try {
-	  Date beginning = new Date ();
-
-      timeOps = new TimeOps();
-      specs = new SchedulingSpecs (timeOps);
-      ga = new GeneticAlgorithm (this);
-      data = new SchedulingData (timeOps);
-      SAXParser parser = new SAXParser();
-      parser.setContentHandler (new InternalRequestHandler());
-
-      Date start = null;
-      if (reportTiming) start = new Date ();
-      parser.parse (new InputSource (new StringReader (problem)));
-      if (reportTiming)
-        reportTime ("Scheduler.runInternalToProcess - scheduler " +
-                    "read data in ", start);
-
-      if (reportTiming) start = new Date ();
-      specs.initializeData (data);
-      if (reportTiming)
-        reportTime ("Scheduler.runInternalToProcess - specs initialized " +
-                    "data in ", start);
-      if (reportTiming) start = new Date ();
-      data.initialize (specs);
-      if (reportTiming)
-        reportTime ("Scheduler.runInternalToProcess - data initialized " +
-                    " with specs in ", start);
-      if (reportTiming) start = new Date ();
-      ga.execute (data, specs);
-      if (reportTiming)
-        reportTime ("Scheduler.runInternalToProcess - ga ran in ", start);
+      Date beginning = new Date ();
+      setupInternal (problem);
+      scheduleInternal();
       Task[] tasks = data.getTasks();
       StringBuffer text = new StringBuffer (tasks.length * 150);
       text.append ("<?xml version='1.0'?>\n<ASSIGNMENTS>\n");
