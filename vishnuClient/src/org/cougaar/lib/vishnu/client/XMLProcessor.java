@@ -685,6 +685,21 @@ public class XMLProcessor {
 	return dataDoc;
   }
 
+  protected Document getVanillaHeader () {
+	Document doc = new DocumentImpl(); 
+	Element root = doc.createElement("PROBLEM");
+	root.setAttribute ("NAME", comm.getProblem ());
+	doc.appendChild (root);
+	Element df   = doc.createElement("DATA");
+	root.appendChild(df);
+    Element window = doc.createElement("WINDOW");
+    df.appendChild (window);
+
+	setDocHeader (doc, false);
+	
+	return doc;
+  }
+  
   /** 
    * Sets the vishnu epoch start and end time and the proper problem name.
    * If clearDatabase is true, appends CLEARDATABASE tag. 
@@ -752,7 +767,7 @@ public class XMLProcessor {
 
 	return doc;
   }
-  
+
   /**
    * <pre>
    * Append any global other data
