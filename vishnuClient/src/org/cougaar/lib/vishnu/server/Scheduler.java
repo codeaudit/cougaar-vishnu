@@ -451,10 +451,11 @@ public class Scheduler {
       if (reportTiming) start = new Date ();
       parser.parse (new InputSource (new StringReader (problem)));
       if (reportTiming)
-        reportTime ("Scheduler.runInternalToProcess - scheduler " +
+        reportTime ("Scheduler.setupInternal - scheduler " +
                     "read data in ", start);
     } catch (Exception e) {
-      System.err.println (e.getMessage());
+      System.err.println ("Scheduler.setupInternal - ERROR, got " + e.getMessage() + " reading\n" + 
+						  problem);
       e.printStackTrace();
     }
   }
