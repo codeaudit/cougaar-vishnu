@@ -126,6 +126,10 @@ public abstract class VishnuPlugIn
 		   getMyParams().getBooleanParam("useStoredFormat");}    
     catch(Exception e) {useStoredFormat = false;}
 
+    try {stopOnFailure = 
+		   getMyParams().getBooleanParam("stopOnFailure");}    
+    catch(Exception e) {stopOnFailure = false;}
+
     // how many of the input tasks to use as templates when producing the 
 	// OBJECT FORMAT for tasks
     try {firstTemplateTasks = getMyParams().getIntParam("firstTemplateTasks");}    
@@ -343,8 +347,9 @@ public abstract class VishnuPlugIn
    * @param tasks the tasks to handle
    */
   public void processTasks (List tasks) {
+	total += tasks.size();
 	System.out.println (getName () + ".processTasks - received " + 
-						tasks.size () + " tasks");
+						tasks.size () + " tasks, " + total + " total so far.");
 	if (runInternal)
 	  internalBuffer.append ("<root>");
 
@@ -918,10 +923,15 @@ public abstract class VishnuPlugIn
 						  ".handleImpossibleTasks - failing " + 
 						  impossibleTasks.size () + 
 						  " tasks.");
-	
+
 	for (Iterator iter = impossibleTasks.iterator (); iter.hasNext ();)
 	    publishAdd (UTILAllocate.makeFailedDisposition (this, ldmf, 
 							    (Task) iter.next ()));
+
+	if (stopOnFailure && !impossibleTasks.isEmpty()) {
+	  System.out.println (getName() + ".handleImpossibleTasks - stopping on failure!");
+	  System.exit (-1);
+	}
   }
 
   /** 
@@ -1142,6 +1152,7 @@ public abstract class VishnuPlugIn
 	return preps;
   }
 
+  protected int total = 0;
   protected boolean runInternal = true;
   protected StringBuffer internalBuffer = new StringBuffer ();
   protected Map myNameToDescrip;
@@ -1163,6 +1174,7 @@ public abstract class VishnuPlugIn
 
   protected boolean makeSetupAndWrapupTasks = true;
   protected boolean useStoredFormat = false;
+  protected boolean stopOnFailure = false;
 
   private boolean debugParseAnswer = false;
 
