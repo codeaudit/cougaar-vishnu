@@ -553,6 +553,19 @@ displayed on the schedule graphic.
  </tr>
  <tr>
   <td width=109 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
+        Best Time</td>
+  <td width=72 style='padding:0in 5.4pt 0in 5.4pt' align=center
+        valign=top>datetime</td>
+  <td width=102 style='padding:0in 5.4pt 0in 5.4pt' align=center
+        valign=top>task, resouce</td>
+  <td width=66 style='padding:0in 5.4pt 0in 5.4pt' align=center
+        valign=top>start_time</td>
+  <td width=241 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
+        Optimal time for the task to begin
+  </td>
+ </tr>
+ <tr>
+  <td width=109 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
         Capability</td>
   <td width=72 style='padding:0in 5.4pt 0in 5.4pt' align=center
         valign=top>boolean</td>
