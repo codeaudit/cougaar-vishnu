@@ -17,7 +17,7 @@
 <FIELDFORMAT name="depot_location" datatype="xy_coord" is_subobject="true" is_list="false" is_key="false" />
 </OBJECTFORMAT>
 </DATAFORMAT>
-<SPECS direction="minimize" setupdisplay="line" >
+<SPECS direction="minimize" setupdisplay="line" wrapupdisplay="line" >
 <OPTCRITERION>
 <OPERATOR operation="+" >
 <OPERATOR operation="sumover" >
