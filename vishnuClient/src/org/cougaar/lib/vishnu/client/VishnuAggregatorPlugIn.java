@@ -465,9 +465,11 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
 	  boolean isMPTask = (obj instanceof MPTask);
 	  if (!isMPTask) return false;
 	  boolean match = ((MPTask) obj).getUID ().toString().equals (parentUID.toString());
+	  /*
 	  System.out.println (getName () + ".getMPTask - Comparing uid " +
 			      ((MPTask) obj).getUID ().toString() + " with key " + parentUID + 
 			      ((match) ? " MATCH! " : " no match"));
+	  */
 	  return match;
 	}
       });
