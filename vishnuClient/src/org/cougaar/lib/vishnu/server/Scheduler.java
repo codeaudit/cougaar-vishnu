@@ -504,16 +504,8 @@ public class Scheduler {
    * if using regular internal scheduling, call right after setupInternal */
   public void scheduleInternal() {
     Date start = null;
-    if (reportTiming) start = new Date ();
     specs.initializeData (data);
-    if (reportTiming)
-      reportTime ("Scheduler.runInternalToProcess - specs initialized " +
-                  "data in ", start);
-    if (reportTiming) start = new Date ();
     data.initialize (specs);
-    if (reportTiming)
-      reportTime ("Scheduler.runInternalToProcess - data initialized " +
-                  " with specs in ", start);
     if (reportTiming) start = new Date ();
     ga.execute (data, specs);
     if (reportTiming)
