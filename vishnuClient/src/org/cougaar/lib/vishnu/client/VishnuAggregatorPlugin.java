@@ -193,8 +193,8 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 	      MPTask mpt = (MPTask) removedtasks.nextElement();
 
 	      if (uidToMPTask.remove (mpt.getUID()) == null) {
-		if (isWarnEnabled ()) {
-		  warn ("no mp task in map with uid " + mpt.getUID ());
+		if (isDebugEnabled ()) {
+		  debug ("no mp task in map with uid " + mpt.getUID ());
 		}
 	      }
 	      else {
