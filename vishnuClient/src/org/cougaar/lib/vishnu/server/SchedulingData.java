@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.1 2001-01-10 19:29:55 rwu Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.2 2001-01-15 15:36:59 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -366,6 +366,9 @@ public class SchedulingData {
         fieldname = atts.getValue ("name");
         FieldFormat ff = (FieldFormat)
           ((HashMap) formats.get (objectType)).get (fieldname);
+        if (ff == null)
+          throw new RuntimeException ("Undefined field named " + fieldname +
+                                      " for object type " + objectType);
         prefixes.push (prefix);
         if (ff.is_list) {
           listFormats.push (listFormat);
