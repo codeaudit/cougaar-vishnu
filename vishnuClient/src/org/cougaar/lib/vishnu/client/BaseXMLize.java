@@ -69,30 +69,30 @@ public abstract class BaseXMLize {
 	commonUnitToNoUnders = new HashMap ();
   }
 
-  public Element getPlanObjectXML(Object obj, Document doc) {
-    return getPlanObjectXML (obj, doc, DEFAULT_UID_DEPTH);
+  public Element getPlanObjectXML(Object obj, Document doc, String resourceClassName) {
+    return getPlanObjectXML (obj, doc, DEFAULT_UID_DEPTH, resourceClassName);
   }
 
-  public Element getPlanObjectXML(Object obj, Document doc, 
-								  int searchDepth) {
-    Collection nodes = getPlanObjectXMLNodes (obj, doc, DEFAULT_UID_DEPTH);
+  public Element getPlanObjectXML(Object obj, Document doc,
+								  int searchDepth, String resourceClassName) {
+    Collection nodes = getPlanObjectXMLNodes (obj, doc, DEFAULT_UID_DEPTH, resourceClassName);
 	if (nodes.isEmpty ())
 	  return null;
 	return (Element) nodes.iterator().next ();
   }
   
-  public Collection getPlanObjectXMLNodes (Object obj, Document doc) {
-    return getPlanObjectXMLNodes (obj, doc, DEFAULT_UID_DEPTH);
+  public Collection getPlanObjectXMLNodes (Object obj, Document doc, String resourceClassName) {
+    return getPlanObjectXMLNodes (obj, doc, DEFAULT_UID_DEPTH, resourceClassName);
   }
 
   public Collection getPlanObjectXMLNodes(Object obj, Document doc, 
-										  int searchDepth) {
+										  int searchDepth, String resourceClassName) {
     String tag;
 	boolean isResource = false;
 	boolean isTask  = false;
 	
     if (Asset.class.isInstance(obj)) {
-      tag = "Asset";
+	  tag = "Asset";
 	  isResource = true;
 	  if (debug) System.out.println ("BaseXMLize - getPlanObjectXMLNodes thinks " + obj + " is a resource");
     } else if (Task.class.isInstance(obj)) {
@@ -112,7 +112,7 @@ public abstract class BaseXMLize {
 	  if (debug) System.out.println ("BaseXMLize - getPlanObjectXMLNodes thinks " + obj + 
 									 " is neither a task nor a resource.");
     }
-	Element root = createRootNode(doc, tag, isTask, isResource, obj);
+	Element root = createRootNode(doc, tag, isTask, isResource, obj, resourceClassName);
 	Set createdNodes = new HashSet ();
 	createdNodes.add (root);
     addNodes(doc, obj, root, searchDepth, createdNodes);
@@ -124,7 +124,8 @@ public abstract class BaseXMLize {
 											 String tag,
 											 boolean isTask,
 											 boolean isResource,
-											 Object obj);
+											 Object obj,
+											 String resourceClassName);
   
   /** 
    * <b>Recursively</b> introspect and add nodes to the XML document.
@@ -140,7 +141,7 @@ public abstract class BaseXMLize {
   protected void addNodes(
       Document doc, Object obj, 
       Element parentElement, 
-      int searchDepth,
+      int searchDepth, 
 	  Collection createdNodes) {
     if (obj == null) {
       return;
@@ -167,7 +168,7 @@ public abstract class BaseXMLize {
   protected void generateElem (Document doc, Element parentElement, 
 							   String propertyName, Object propertyValue,
 							   int searchDepth,
-							   boolean isList, boolean isFirst,
+							   boolean isList, boolean isFirst, 
 							   Collection createdNodes) {
 	// check if this should be a leaf
 	boolean isLeaf = !isList &&
@@ -196,7 +197,7 @@ public abstract class BaseXMLize {
   protected abstract void generateNonLeaf (Document doc, Element parentElement, 
 										   String propertyName, Object propertyValue,
 										   int searchDepth,
-										   boolean isList, boolean isFirst,
+										   boolean isList, boolean isFirst, 
 										   Collection createdNodes);
 
   protected boolean isUniqueObject (Object obj) {
