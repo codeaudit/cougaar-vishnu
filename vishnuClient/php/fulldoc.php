@@ -1511,7 +1511,7 @@ allocated to the assigned resource. </p>
 <TD WIDTH="50%" VALIGN="TOP">
 <B><P>Use</B></TD>
 <TD WIDTH="29%" VALIGN="TOP">
-<B><P>Default Value</B></TD>
+<B><P>Default Value</B> (These values are examples, not, in general, viable settings.)</TD>
 </TR>
 <TR><TD WIDTH="21%" VALIGN="TOP">
 <P>hostName</TD>
@@ -1607,7 +1607,7 @@ allocated to the assigned resource. </p>
 <TD WIDTH="54%" VALIGN="TOP">
 <P>Clear the assets and tasks from previous jobs.</TD>
 <TD WIDTH="19%" VALIGN="TOP">
-<P>false</TD>
+<P>true</TD>
 </TR>
 <TR><TD WIDTH="26%" VALIGN="TOP">
 <P>waitTime</TD>
