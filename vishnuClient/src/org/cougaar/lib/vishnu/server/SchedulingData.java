@@ -63,7 +63,7 @@ public class SchedulingData {
   private int endTime = Integer.MAX_VALUE;
   private TimeOps timeOps;
   public static boolean reportUnknownTaskToUnfreeze =
-    ("true".equals (System.getProperty ("vishnu.reportUnknownTaskToUnfreeze")));
+    ("true".equals (System.getProperty ("vishnu.reportUnknownTaskToUnfreeze","false")));
   public static boolean debug = 
     ("true".equals (System.getProperty ("vishnu.debug")));
   private static boolean throwExceptionOnMissingField =
