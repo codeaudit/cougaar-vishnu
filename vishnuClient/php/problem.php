@@ -47,9 +47,7 @@
     mysql_free_result ($result);
 ?>
 
-<font size=+3 color="#000099">Vishnu Scheduler<br></font>
-<TABLE CELLPADDING=2><TR><TD><TD></TR></TABLE>
-<font size=+2>problem<br>
+<font size=+3>Viewing problem<br>
 <i><font color="000099"><? echo $problem ?></font></i><br>
 <TABLE CELLPADDING=1><TR><TD><TD></TR></TABLE>
 
