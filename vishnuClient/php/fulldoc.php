@@ -1620,15 +1620,114 @@ Returns the sum of all delta evaluations for all the tasks already assigned to a
 <p>The following is a DTD showing the expected XML data formats
 for specifying a problem.<br>
 <br><pre>
-&lt;!-- Grammar specification for XML Problem Specification --&gt;
+&lt;?xml version='1.0' standalone='yes' ?&gt;
+&lt;!-- Vishnu Problem Specification --&gt;
 
-&lt;!ELEMENT PROBLEM (DATAFORMAT,
-                   SPECS,
-                   GAPARMS)&gt;
+&lt;!ELEMENT PROBLEM (DATAFORMAT, SPECS, GAPARMS, (DATA)?)&gt;
+&lt;!ATTLIST PROBLEM
+          name CDATA #REQUIRED >
 
 &lt;!-- sets up the object formats, i.e. metadata --&gt;
-&lt;!ELEMENT DATAFORMAT ()&gt;
-&lt;!ELEMENT messageType (#PCDATA)&gt;
+&lt;!ELEMENT DATAFORMAT (OBJECTFORMAT)*&gt;
+&lt;!ELEMENT OBJECTFORMAT (FIELDFORMAT)*&gt;
+&lt;!ATTLIST OBJECTFORMAT
+          name CDATA #REQUIRED
+          is_task (true|false) #REQUIRED
+          is_resource (true|false) #REQUIRED &gt;
+&lt;!ELEMENT FIELDFORMAT EMPTY&gt;
+&lt;!ATTLIST FIELDFORMAT
+          name CDATA #REQUIRED
+          datatype CDATA #REQUIRED
+          is_subobject (true|false) "false"
+          is_list (true|false) "false"
+          is_key (true|false) "false"
+          is_globalptr (true|false) "false" &gt;
+
+&lt;!-- sets up scheduling specifications --&gt;
+&lt;!ELEMENT SPECS (OPTCRITERION|DELTACRITERION|BESTTIME|CAPABILITY|
+                 TASKDURATION|SETUPDURATION|WRAPUPDURATION|PREREQUISITES|
+                 TASKUNAVAIL|RESOURCEUNAVAIL|CAPACITYCONTRIB|CAPACITYTHRESH|
+                 GROUPABLE|TASKTEXT|GROUPEDTEXT|ACTIVITYTEXT|COLORTESTS)*&gt;
+&lt;!ATTLIST SPECS
+          direction (minimize|maximize) "minimize"
+          multitasking (none|grouped|ungrouped|ignoring_time) "none"
+          setupdisplay (striped|line) "striped"
+          taskobject CDATA #IMPLIED
+          resourceobject CDATA #IMPLIED >
+&lt;!ELEMENT OPTCRITERION (OPERATOR|LITERAL) &gt;
+&lt;!ELEMENT DELTACRITERION (OPERATOR|LITERAL) &gt;
+&lt;!ELEMENT BESTTIME (OPERATOR|LITERAL) &gt;
+&lt;!ELEMENT CAPABILITY (OPERATOR|LITERAL) &gt;
+&lt;!ELEMENT TASKDURATION (OPERATOR|LITERAL) &gt;
+&lt;!ELEMENT SETUPDURATION (OPERATOR|LITERAL) &gt;
+&lt;!ELEMENT WRAPUPDURATION (OPERATOR|LITERAL) &gt;
+&lt;!ELEMENT PREREQUISITES (OPERATOR|LITERAL) &gt;
+&lt;!ELEMENT TASKUNAVAIL (OPERATOR|LITERAL) &gt;
+&lt;!ELEMENT RESOURCEUNAVAIL (OPERATOR|LITERAL) &gt;
+&lt;!ELEMENT CAPACITYCONTRIB (OPERATOR|LITERAL) &gt;
+&lt;!ELEMENT CAPACITYTHRESH (OPERATOR|LITERAL) &gt;
+&lt;!ELEMENT GROUPABLE (OPERATOR|LITERAL) &gt;
+&lt;!ELEMENT TASKTEXT (OPERATOR|LITERAL) &gt;
+&lt;!ELEMENT GROUPEDTEXT (OPERATOR|LITERAL) &gt;
+&lt;!ELEMENT ACTIVITYTEXT (OPERATOR|LITERAL) &gt;
+&lt;!ELEMENT OPERATOR (OPERATOR|LITERAL)* &gt;
+&lt;!ATTLIST OPERATOR
+          operation CDATA #REQUIRED &gt;
+&lt;!ELEMENT LITERAL EMPTY &gt;
+&lt;!ATTLIST LITERAL
+          value CDATA #REQUIRED
+          type (constant|variable) #REQUIRED
+          datatype CDATA #REQUIRED &gt;
+&lt;!ELEMENT COLORTESTS (COLORTEST)* &gt;
+&lt;!ELEMENT COLORTEST (OPERATOR|LITERAL) &gt;
+&lt;!ATTLIST COLORTEST
+          color CDATA #REQUIRED
+          obj_type CDATA #REQUIRED
+          title CDATA #REQUIRED &gt;
+
+&lt;!-- sets up genetic algorithm specifications --&gt;
+&lt;!ELEMENT GAPARMS (GAOPERATORS) &gt;
+&lt;!ATTLIST GAPARMS
+          pop_size CDATA #REQUIRED
+          parent_scalar CDATA #REQUIRED
+          max_evals CDATA #REQUIRED
+          max_time CDATA #REQUIRED
+          max_duplicates CDATA #REQUIRED
+          max_top_dog_age CDATA #REQUIRED
+          initializer CDATA #REQUIRED
+          decoder CDATA #REQUIRED &gt;
+&lt;!ELEMENT GAOPERATORS (GAOPERATOR)+ &gt;
+&lt;!ELEMENT GAOPERATOR EMPTY &gt;
+&lt;!ATTLIST GAOPERATOR
+          name CDATA #REQUIRED
+          prob CDATA #REQUIRED
+          parms CDATA #IMPLIED &gt;
+
+&lt;!-- sets up data --&gt;
+&lt;!ELEMENT DATA (CLEARDATABASE?, WINDOW?, NEWOBJECTS?,
+                CHANGEDOBJECTS?, DELETEDOBJECTS?) &gt;
+&lt;!ELEMENT CLEARDATABASE EMPTY &gt;
+&lt;!ELEMENT WINDOW EMPTY &gt;
+&lt;!ATTLIST WINDOW
+          starttime CDATA #IMPLIED
+          endtime CDATA #IMPLIED &gt;
+&lt;!ELEMENT NEWOBJECTS (OBJECT|GLOBAL)* &gt;
+&lt;!ELEMENT CHANGEDOBJECTS (OBJECT|GLOBAL)* &gt;
+&lt;!ELEMENT DELETEDOBJECTS (OBJECT|GLOBAL)* &gt;
+&lt;!ELEMENT GLOBAL (OBJECT) &gt;
+&lt;!ATTLIST GLOBAL
+          name CDATA #REQUIRED &gt;
+&lt;!ELEMENT OBJECT (FIELD)* &gt;
+&lt;!ATTLIST OBJECT
+          type CDATA #REQUIRED &gt;
+&lt;!ELEMENT FIELD (OBJECT|LIST)? &gt;
+&lt;!ATTLIST FIELD
+          name CDATA #REQUIRED
+          value CDATA #IMPLIED &gt;
+&lt;!ELEMENT LIST (VALUE)* &gt;
+&lt;!ELEMENT VALUE (OBJECT)? &gt;
+&lt;!ATTLIST VALUE
+          value CDATA #IMPLIED &gt;
 </pre>
 
 <? makeSection ("Test Problem Descriptions", "c", "C"); ?>
