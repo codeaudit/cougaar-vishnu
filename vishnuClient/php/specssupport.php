@@ -1,4 +1,6 @@
 <?
+  // Write out an XML representation of the scheduling specifications
+
   function printobj ($type, $id) {
     global $problem;
     if ($type == "operator") {

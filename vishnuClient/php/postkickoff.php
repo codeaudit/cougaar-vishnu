@@ -1,13 +1,11 @@
 <?
+  // An external client uses this URL to request a scheduler to run
+
   Header("Content-Type: text/plain");
   require ("utilities.php");
+  require ("clientlink.php");
 
-  if ($password == "nopassword")
-    $password = "";
-
-  $mysql_link = mysql_connect ("localhost",$username,$password);
   $value = getschedulerstatus ($problem);
-
   if ($value && ($value["percent_complete"] != 100) &&
       ($value["percent_complete"] != -1)) {
     $result = "FAILURE: username=" . $value["username"] .

@@ -6,8 +6,6 @@
 
   Header("Content-Type: text/xml");
   require ("utilities.php");
-  if ($password == "nopassword")
-    $password = "";
   require ("clientlink.php");
 
   $grouped = isgrouped ($problem);

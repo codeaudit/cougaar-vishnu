@@ -1,4 +1,7 @@
 <?
+  // Load a problem from file.
+
+  require ("browserlink.php");
   require_once ("utilities.php");
   require ("parseproblem.php");
   require ("navigation.php");
@@ -6,15 +9,16 @@
   function getTitle () {
     echo "Result of loading problem";
   }
+
   function getHeader() {
   }
+
   function mainContent () {
   }
 
   function getSubheader() { 
     global $problem, $userfile, $userfile_name, $userfile_size;
-    global $PHP_AUTH_USER, $PHP_AUTH_PW, $HTTP_COOKIE_VARS;
-    global $specifiedname, $usedefaultname;
+    global $specifiedname;
 
     $specifiedname = trim ($specifiedname);
     if ($specifiedname && (! isNameLegal ($specifiedname))) {
@@ -34,11 +38,7 @@
     else {
       $fp = fopen ($userfile, "r");
       $data = fread ($fp, $userfile_size);
-      $user = isset ($PHP_AUTH_USER) ? $PHP_AUTH_USER :
-              $HTTP_COOKIE_VARS["VishnuUser"];
-      $password = isset ($PHP_AUTH_PW) ? $PHP_AUTH_PW :
-                  $HTTP_COOKIE_VARS["VishnuPassword"];
-      $problem = parseproblem ($data, $user, $password, $specifiedname);
+      $problem = parseproblem ($data, $specifiedname);
       if ($problem) {
         echo "Problem $problem from file $userfile_name " .
              "loaded successfully.\n";

@@ -1,4 +1,6 @@
 <?
+  // Displays all the data that are not tasks or resources
+
   require ("browserlink.php");
   require_once ("utilities.php");
   require ("editobject.php");

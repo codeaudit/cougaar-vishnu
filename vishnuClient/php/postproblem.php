@@ -1,9 +1,7 @@
 <?
+  // An external client uses this URL to write a problem into the database
+
   Header("Content-Type: text/plain");
   require ("parseproblem.php");
-	
-  if ($user)
-    echo parseproblem ($data, $user, $password) . "\n";
-  else
-    echo parseproblem ($data) . "\n";
+  echo parseproblem ($data) . "\n";
 ?>

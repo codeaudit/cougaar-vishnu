@@ -1,4 +1,7 @@
 <?
+  // The schedule graphic for the case when there is ungrouped multitasking.
+  // Displays the percent of capacity versus time for each resource.
+
   require ("browserlink.php");
   require ("utilities.php");
   Header("Content-Type: image/png");

@@ -1,4 +1,8 @@
 <?
+  // Creates the legend for the schedule graphic.
+  // The variable data should contain all the information needed
+  // to create the image.
+
   Header("Content-Type: image/png");
   require ("utilities.php");
   $width = getimagewidth();

@@ -1,4 +1,7 @@
 <?
+  // For editing of the data.
+  // It handles all of the different operations.
+
   require_once ("utilities.php");
 
   $textsize = 50;

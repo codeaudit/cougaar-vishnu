@@ -1,4 +1,6 @@
 <?
+  // An image that is all a single color
+
   Header("Content-Type: image/png");
   if (! $width)
     $width = 8;

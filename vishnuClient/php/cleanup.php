@@ -1,4 +1,8 @@
 <?
+  // cleanup.php handles deleting of problems.
+  // It first displays a list to choose from and, after the user has
+  // made his/her selections, then does the deletions.
+
   require ("browserlink.php");
   require ("navigation.php");
 
@@ -6,6 +10,7 @@
     global $HTTP_POST_VARS;
     echo sizeof ($HTTP_POST_VARS) ? "Deleted problems" : "Deleting problems";
   }
+
   function getHeader() {
     global $HTTP_POST_VARS;
     if (! sizeof ($HTTP_POST_VARS)) 
@@ -18,6 +23,7 @@
     }
     echo "Deleted selected problems";
   }
+
   function getSubheader() { 
   }
 

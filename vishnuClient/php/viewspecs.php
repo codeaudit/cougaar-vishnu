@@ -1,4 +1,7 @@
 <?
+  // Display all the values of the constraint in the scheduling
+  // specifications in tabular format
+
   require ("browserlink.php");
   require ("utilities.php");
 
@@ -12,8 +15,10 @@
     global $problem;
     echo "Scheduling specs for $problem";
   }
+
   function getHeader() {
   }
+
   function getSubheader() { 
     global $problem;
     echo "Scheduling specifications for <font color=\"green\">" .
@@ -239,29 +244,29 @@
 
   function mainContent () { 
     global $problem, $constraints;
-  echo "<TABLE BORDER=1>\n";
-  tableentry ("Optimization Criterion", "opt_criterion");
-  tableentry2 ("Optimization Direction", "opt_direction");
-  tableentry ("Delta Criterion", "delta_criterion");
-  tableentry ("Best Time", "best_time");
-  tableentry2 ("Multitasking", "multitasking");
-  tableentry ("Capability Criterion", "capability");
-  tableentry ("Task Duration", "task_duration");
-  tableentry ("Setup Duration", "setup_duration");
-  tableentry ("Wrapup Duration", "wrapup_duration");
-  tableentry ("Prerequisites", "prerequisites");
-  tableentry ("Resource Unavailable Times", "resource_unavail");
-  tableentry ("Task Unavailable Times", "task_unavail");
-  tableentry ("Capacity Contributions", "capacity_contrib");
-  tableentry ("Capacity Thresholds", "capacity_thresh");
-  tableentry ("Groupable", "groupable");
-  tableentry ("Linked", "linked");
-  tableentry ("Link Time Difference", "link_time_diff");
-  tableentry ("Task Text", "task_text");
-  tableentry ("Grouped Tasks Text", "grouped_text");
-  tableentry ("Activity Text", "activity_text");
-  tableentry2 ("Setup/Wrapup Display", "setup_wrapup_display");
-  echo "</TABLE>\n";
+    echo "<TABLE BORDER=1>\n";
+    tableentry ("Optimization Criterion", "opt_criterion");
+    tableentry2 ("Optimization Direction", "opt_direction");
+    tableentry ("Delta Criterion", "delta_criterion");
+    tableentry ("Best Time", "best_time");
+    tableentry2 ("Multitasking", "multitasking");
+    tableentry ("Capability Criterion", "capability");
+    tableentry ("Task Duration", "task_duration");
+    tableentry ("Setup Duration", "setup_duration");
+    tableentry ("Wrapup Duration", "wrapup_duration");
+    tableentry ("Prerequisites", "prerequisites");
+    tableentry ("Resource Unavailable Times", "resource_unavail");
+    tableentry ("Task Unavailable Times", "task_unavail");
+    tableentry ("Capacity Contributions", "capacity_contrib");
+    tableentry ("Capacity Thresholds", "capacity_thresh");
+    tableentry ("Groupable", "groupable");
+    tableentry ("Linked", "linked");
+    tableentry ("Link Time Difference", "link_time_diff");
+    tableentry ("Task Text", "task_text");
+    tableentry ("Grouped Tasks Text", "grouped_text");
+    tableentry ("Activity Text", "activity_text");
+    tableentry2 ("Setup/Wrapup Display", "setup_wrapup_display");
+    echo "</TABLE>\n";
 ?>
 
 <BR><BR><FORM METHOD=post ACTION="editspec.php">
@@ -275,38 +280,38 @@
 </FORM>
 
 <?
-  $args = "problem=" . $problem;
-  echo "<BR><BR><TABLE BORDER=1>\n";
-  $result = mysql_db_query ("vishnu_prob_" . $problem,
-                            "select * from color_tests;");
-  while ($value = mysql_fetch_array ($result)) {
-    $result2 = mysql_db_query ("vishnu_central",
-                  "select * from color_defs where name = \"" .
-                  $value["color"] . "\";");
-    $value2 = mysql_fetch_array ($result2);
-    mysql_free_result ($result2);
-    $color = "#" . dechex2 ($value2["red"]) .
-             dechex2 ($value2["green"]) . dechex2 ($value2["blue"]);
-    $exp = treetostring (array ($value["test_type"],
-                                $value["test_id"]), 1000, 1);
-    $href = "editcolorspec.php?color=" . $value["color"] . "&" .
-            $args . "&title=" . urlencode ($value["title"]) .
-            "&expression=" . urlencode (encodeexp ($exp));
-    $href = htmlspecialchars ($href);
-    echo "<TR><TD bgcolor=\"#e1e1e1\">" .
-         "<A HREF=\"" . $href . "\"><IMG SRC=\"rect.php?red=" .
-         $value2["red"] . "&green=" . $value2["green"] . "&blue=" .
-         $value2["blue"] . "\"></A>" .
-         "<FONT color=\"" . $color . "\">&nbsp;" .
-         $value["color"] . "</FONT></TD><TD>" . $value["obj_type"] .
-         "</TD><TD>" . $value["title"] .
-         "</TD><TD><FONT face=\"courier\">" . $exp . "</font></TD></TR>\n";
-  }
-  echo "</TABLE>\n";
-  echo "<BR>Click on colored box to edit/delete color spec or <A HREF=" .
-       "\"editcolorspec.php?" . $args .
-       "\">click here</A> to add new color spec.<BR><BR>\n";
-  mysql_close();
-  linkToProblem ($problem);
+    $args = "problem=" . $problem;
+    echo "<BR><BR><TABLE BORDER=1>\n";
+    $result = mysql_db_query ("vishnu_prob_" . $problem,
+                              "select * from color_tests;");
+    while ($value = mysql_fetch_array ($result)) {
+      $result2 = mysql_db_query ("vishnu_central",
+                    "select * from color_defs where name = \"" .
+                    $value["color"] . "\";");
+      $value2 = mysql_fetch_array ($result2);
+      mysql_free_result ($result2);
+      $color = "#" . dechex2 ($value2["red"]) .
+               dechex2 ($value2["green"]) . dechex2 ($value2["blue"]);
+      $exp = treetostring (array ($value["test_type"],
+                                  $value["test_id"]), 1000, 1);
+      $href = "editcolorspec.php?color=" . $value["color"] . "&" .
+              $args . "&title=" . urlencode ($value["title"]) .
+              "&expression=" . urlencode (encodeexp ($exp));
+      $href = htmlspecialchars ($href);
+      echo "<TR><TD bgcolor=\"#e1e1e1\">" .
+           "<A HREF=\"" . $href . "\"><IMG SRC=\"rect.php?red=" .
+           $value2["red"] . "&green=" . $value2["green"] . "&blue=" .
+           $value2["blue"] . "\"></A>" .
+           "<FONT color=\"" . $color . "\">&nbsp;" .
+           $value["color"] . "</FONT></TD><TD>" . $value["obj_type"] .
+           "</TD><TD>" . $value["title"] .
+           "</TD><TD><FONT face=\"courier\">" . $exp . "</font></TD></TR>\n";
+    }
+    echo "</TABLE>\n";
+    echo "<BR>Click on colored box to edit/delete color spec or <A HREF=" .
+         "\"editcolorspec.php?" . $args .
+         "\">click here</A> to add new color spec.<BR><BR>\n";
+    mysql_close();
+    linkToProblem ($problem);
   }
 ?>

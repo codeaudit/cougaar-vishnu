@@ -1,4 +1,7 @@
 <?
+  // This URL writes the problem specifications, or some portion of
+  // them, to a file.
+
   require ("browserlink.php");
   require ("specssupport.php");
   require ("gaparmssupport.php");

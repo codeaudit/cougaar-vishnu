@@ -1,4 +1,6 @@
 <?
+//  Lays out the format of the page including the navigation bar.
+//
 //  files that require this file should define functions :
 //  getTitle     -- title of the page
 //  getHeader    -- the header that goes at the top of the page

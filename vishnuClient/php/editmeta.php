@@ -1,4 +1,7 @@
 <?
+  // For editing of the metadata (i.e., object formats).
+  // It handles all of the different operations.
+
   require ("browserlink.php");
   require_once ("utilities.php");
   require ("parseproblem.php");
@@ -61,7 +64,7 @@
   }
 
   function getHeader() {
-    global $object, $action, $problem, $trtype, $user, $password;
+    global $object, $action, $problem, $trtype;
     global $isatomic, $field, $datatype, $listglob;
     global $field2, $keyname;
     $list = $listglob == "list";
@@ -99,7 +102,7 @@
              (($trtype == "resource") ? "true" : "false") . "\">\n" .
              $keystr . "</OBJECTFORMAT>\n</DATAFORMAT>\n";
       echo $xml;
-      parseproblem ($xml, $user, $password);
+      parseproblem ($xml);
       echo "Created object $object. Now specify the fields one at a time.";
     }
 

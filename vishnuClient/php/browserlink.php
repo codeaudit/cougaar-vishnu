@@ -1,4 +1,17 @@
 <?
+  // browserlink.php should be included in all other php files that
+  // access the database and are meant to be accessed via a browser.
+  // It performs basic authentication and establishes the database
+  // connection.
+  // The authentication is based on the ability to access the database
+  // vishnu_central using the given user and password.
+  // Cookies are set up so that the values are remembered between sessions.
+  //
+  // If the variable $login is set, then it automatically fails in order
+  // to allow login under a different user and password.
+
+  $cookieLifetime = 864000;   // 10 days
+  $loginCookieLifetime = 120;
 
   function fail() {
     Header("HTTP/1.1 401 Unauthorized");
@@ -11,7 +24,7 @@
   }
 
   if ($login && (! $HTTP_COOKIE_VARS["VishnuLogin"])) {
-    setcookie ("VishnuLogin", 1, time() + 120);
+    setcookie ("VishnuLogin", 1, time() + $loginCookieLifetime);
     fail();
   }
 
@@ -23,17 +36,16 @@
   if (! isset ($user))
     fail();
 
-  $mysql_link = @mysql_connect ("localhost", $user, $password);
-  if (! $mysql_link)
+  if (! @mysql_connect ("localhost", $user, $password))
     fail();
 
-  $result = mysql_select_db ("vishnu_central");
+  mysql_select_db ("vishnu_central");
   if (mysql_errno())
     fail();
 
   if (! $nocookie) {
-    setcookie ("VishnuUser", $user, time() + 864000);
-    setcookie ("VishnuPassword", $password, time() + 864000);
+    setcookie ("VishnuUser", $user, time() + $cookieLifetime);
+    setcookie ("VishnuPassword", $password, time() + $cookieLifetime);
     setcookie ("VishnuLogin");
   }
 

@@ -1,4 +1,6 @@
 <?
+  // Displays the genetic algorithm and scheduling window parameters
+
   require ("browserlink.php");
   require ("navigation.php");
 

@@ -1,4 +1,6 @@
 <?
+  // Accept edits on the parameters and write to database
+
   require ("browserlink.php");
   require ("utilities.php");
   require ("navigation.php");
@@ -7,8 +9,10 @@
     global $problem;
     echo "Updated parameters for " . $problem;
   }
+
   function mainContent () {
   } 
+
   function getSubheader() {
     global $problem;
     echo "<BR><A href=\"parameters.php?problem=" . $problem . "\">" .

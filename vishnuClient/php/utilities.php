@@ -1,4 +1,5 @@
 <?
+  // A whole variety of functions used by other URLs
 
   // get the field names of a particular object type and put in $fields
   function fieldsfortype ($problem, $objecttype, $prefix,
@@ -115,6 +116,7 @@
   }
 
 
+  // Which object types to display in non-standard way
   function specialdisplaytypes() {
     return array ("xy_coord"=>1, "latlong"=>1, "matrix"=>1);
   }
@@ -346,6 +348,7 @@
   }
 
 
+  // Buttons and links for zooming and panning
   function imageControls ($page, $problem, $resourceobject, $taskobject,
                           $resourcekey, $taskkey,
                           $resourcename, $start_time, $end_time,
@@ -399,39 +402,6 @@
   <INPUT TYPE=submit VALUE="Select New Time Range">
 </FORM>
 <?
-//    $second = 1;
-//    $minute = 60;
-//    $hour = 3600;
-//    $day = 24*$hour;
-//    $week = 7*$day;
-//    $month = 4*$week;
-//    $year = 52*$week;
-//
-//    $times  = array ($second,  $minute,  $hour,  $day,  $week,  $month,  $year);
-//    $labels = array ("second", "minute", "hour", "day", "week", "month", "year");
-//
-//    for ($i = 0; $i < sizeof($times)-1; $i++) {
-//      if (makeZoomLink ($text, $tdiff, $start_time, $end_time,
-//	                $times[$i], $times[$i+1], $labels[$i], $labels[$i+1]))
-//	break;
-//    }
-//	
-//    echo "<BR><BR>\n";
-  }
-
-  function makeZoomLink ($text, $tdiff, $start_time, $end_time, $in_time, $out_time, $in_label, $out_label) {
-    // echo "<br>tdiff " . $tdiff . " in " . $in_time . " out " . $out_time . "<br>";
-    if (($tdiff > $in_time) && ($tdiff <= $out_time)) {
-      $tin = ($tdiff - $in_time)/2;
-      $tout = ($out_time)/2;
-      echo $text . "&start_time=" . ($start_time + $tin) . "&end_time=" .
-           ($end_time - $tin) . "\">" . "Zoom to " . $in_label . "</A>\n";
-      echo " | ";
-      echo $text . "&start_time=" . ($start_time - $tout) . "&end_time=" .
-           ($end_time + $tout) . "\">" . "Zoom to " . $out_label . "</A>\n";
-      return true;
-    } 
-    return false;
   }
 
   // make image map for resource
@@ -705,12 +675,10 @@
 
   function reportSqlError ($database, $sql) {
     if (mysql_errno()) {
-	$report = "Sql error - ";
-	$report .= mysql_errno () . ": " . mysql_error ();
-	$report .= ", user=" . $username . " password=" . $password;
-	$report .= ", sql was (database = " . $database . ") " . $sql;
-
-	return $report;
+      $report = "Sql error - ";
+      $report .= mysql_errno () . ": " . mysql_error ();
+      $report .= ", sql was (database = " . $database . ") " . $sql;
+      return $report;
     }
     return "";
   }

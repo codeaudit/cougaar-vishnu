@@ -1,4 +1,9 @@
 <?
+  // Dynamic generation of FAQ.
+  // Note that to get the non-dynamic version, save the web page as
+  // faq.html, replace all references to faq.php and fulldoc.php
+  // with faq.html and fulldoc.html, and remove the reference to "Home".
+
   $qs = array();
   function addq ($question, $answer, $name="", $putbrs=1) {
     global $qs;

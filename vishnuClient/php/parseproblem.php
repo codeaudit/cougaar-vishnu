@@ -1,4 +1,6 @@
 <?
+  // Parsing of XML specifying all aspect of a problem
+
   require_once ("utilities.php");
   require ("parsedata.php");
 
@@ -6,10 +8,10 @@
 
   // function to take problem specs in XML format and put into database
   // everything else below is just support
-  function parseproblem ($data, $user="vishnu", $password="vishnu",
-                         $specifiedname="") {
-    global $problem, $continue;
-    $problem = $specifiedname;
+  function parseproblem ($data, $specifiedname="") {
+    global $problem, $continue, $user, $password;
+    if ($specifiedname)
+      $problem = $specifiedname;
 
     $data = StripSlashes ($data);
     $data2 = strstr ($data, "<DATA>");
@@ -20,11 +22,7 @@
       $data2 = substr ($data2, 0, strlen($data2) - strlen($data3) + 7);
     }
 
-    $result = db_connect ($user, $password);
-    if ($result) {
-      echo $result . "<BR>\n";
-      return;
-    }
+    require ("clientlink.php");
 
     $parser = setup_xml_parser ("probStartHandler", "probEndHandler");
     if (! $parser)
@@ -40,7 +38,6 @@
     if ($data2)
       parsedata ($data2, $problem, 0);
 
-    mysql_close();
     return $problem;
   }
 

@@ -13,9 +13,9 @@
   // canceled by a user, thus indicating to the scheduler to stop.
 
   require ("utilities.php");
+  require ("clientlink.php");
   $max_traces = 20;   // maximum number of stack traces to keep
 
-  $mysql_link = mysql_connect ("localhost", $user, $password);
   $result = mysql_db_query ("vishnu_central",
               "select percent_complete from scheduler_request where " .
               "problem = \"" . $problem ."\" and number = $number;");

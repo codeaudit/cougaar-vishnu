@@ -1,4 +1,7 @@
 <?
+  // Call the function writegaparms to output the genetic algorithm
+  // parameters in XML format
+
   function printattr ($attr) {
     global $value;
     if ($value[$attr] && ($value[$attr] != "NULL"))

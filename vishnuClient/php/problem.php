@@ -1,4 +1,6 @@
 <?
+  // The main page for viewing a particular problem
+
   require ("browserlink.php");
   require ("utilities.php");
   require ("navigation.php");
@@ -7,8 +9,10 @@
     global $problem;
     echo "Problem " . $problem;
   }
+
   function getHeader() {
   }
+
   function getSubheader() { 
   }
 
@@ -28,19 +32,19 @@
   function mainContent () {
     global $problem;
 
-  $arr = gettaskandresourcetypes ($problem);
-  $taskobject = $arr[0];
-  $resourceobject = $arr[1];
+    $arr = gettaskandresourcetypes ($problem);
+    $taskobject = $arr[0];
+    $resourceobject = $arr[1];
 
-  $result = mysql_db_query ("vishnu_prob_" . $problem,
-               "select * from object_fields where is_key=\"true\";");
-  while ($value = mysql_fetch_array ($result)) {
-    if ($value["object_name"] == $taskobject)
-      $taskkey = $value["field_name"];
-    if ($value["object_name"] == $resourceobject)
-      $resourcekey = $value["field_name"];
-  }
-  mysql_free_result ($result);
+    $result = mysql_db_query ("vishnu_prob_" . $problem,
+                 "select * from object_fields where is_key=\"true\";");
+    while ($value = mysql_fetch_array ($result)) {
+      if ($value["object_name"] == $taskobject)
+        $taskkey = $value["field_name"];
+      if ($value["object_name"] == $resourceobject)
+        $resourcekey = $value["field_name"];
+    }
+    mysql_free_result ($result);
 ?>
 
 <font size=+3 color="#000099">Vishnu Scheduler<br></font>
@@ -64,10 +68,10 @@
 <tr>
 <td ALIGN=center valign=top>
 <?
- if ($taskobject) {
-  $result = mysql_db_query ("vishnu_prob_" . $problem,
-              "select obj_" . $taskkey . " from obj_" . $taskobject .
-              " order by obj_" . $taskkey . ";");
+   if ($taskobject) {
+    $result = mysql_db_query ("vishnu_prob_" . $problem,
+                "select obj_" . $taskkey . " from obj_" . $taskobject .
+                " order by obj_" . $taskkey . ";");
 ?>
 <FORM METHOD="get" ACTION="task.php">
   <SELECT NAME="taskname">
@@ -91,10 +95,10 @@
 
 <td ALIGN=center valign=top>
 <?
- if ($resourceobject) {
-  $result = mysql_db_query ("vishnu_prob_" . $problem,
-                 "select obj_" . $resourcekey . " from obj_" .
-                 $resourceobject . " order by obj_" . $resourcekey . ";");
+   if ($resourceobject) {
+    $result = mysql_db_query ("vishnu_prob_" . $problem,
+                   "select obj_" . $resourcekey . " from obj_" .
+                   $resourceobject . " order by obj_" . $resourcekey . ";");
 ?>
 <FORM METHOD="get" ACTION="resource.php">
   <SELECT NAME="resourcename">
@@ -117,9 +121,9 @@
 </tr>
 
 <?
-  $showutil = isgrouped ($problem) || ismultitask($problem);
-  // temporarily don't use asset utilization display
-  $showutil = 0;
+    $showutil = isgrouped ($problem) || ismultitask($problem);
+    // temporarily don't use asset utilization display
+    $showutil = 0;
 ?>
 
 <tr>
@@ -165,23 +169,23 @@
 </td>
 
 <?
-  if ($showutil) {
+    if ($showutil) {
 ?>
 <td ALIGN=CENTER>
 <font size=+2>
 <? 
-  $url = "assets.php?";
-  $url .= "problem=" . $problem . "&";
-  $url .= "resourceobject=" . $resourceobject . "&";
-  $url .= "taskobject=" . $taskobject . "&";
-  $url .= "resourcekey=" . $resourcekey . "&";
-  $url .= "taskkey=" . $taskkey;
- ?>
+      $url = "assets.php?";
+      $url .= "problem=" . $problem . "&";
+      $url .= "resourceobject=" . $resourceobject . "&";
+      $url .= "taskobject=" . $taskobject . "&";
+      $url .= "resourcekey=" . $resourcekey . "&";
+      $url .= "taskkey=" . $taskkey;
+  ?>
 <a href="<? echo $url; ?>"/>Resource Utilization</a>
 </font>
 </td>
 <?
-  }
+    }
 ?>
 </tr>
 
@@ -195,13 +199,13 @@
 <td ALIGN=CENTER>
 <font size=+2>
 <? 
-  $url = "schedule.php?";
-  $url .= "problem=" . $problem . "&";
-  $url .= "resourceobject=" . $resourceobject . "&";
-  $url .= "taskobject=" . $taskobject . "&";
-  $url .= "resourcekey=" . $resourcekey . "&";
-  $url .= "taskkey=" . $taskkey;
- ?>
+    $url = "schedule.php?";
+    $url .= "problem=" . $problem . "&";
+    $url .= "resourceobject=" . $resourceobject . "&";
+    $url .= "taskobject=" . $taskobject . "&";
+    $url .= "resourcekey=" . $resourcekey . "&";
+    $url .= "taskkey=" . $taskkey;
+?>
 <a href="<? echo $url; ?>"/>Full Schedule</a>
 </font>
 </td>
@@ -236,8 +240,8 @@
 <td ALIGN=CENTER>
 <font size=+2>
 <? 
-  $url = "status.php?problem=" . $problem;
- ?>
+    $url = "status.php?problem=" . $problem;
+?>
 <a href="<? echo $url; ?>"/>Status</a>
 </font>
 </td>

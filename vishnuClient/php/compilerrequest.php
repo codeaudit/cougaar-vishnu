@@ -1,26 +1,18 @@
 <?
+  // The expression compiler accesses this URL to find out the next
+  // expression for it to compile.
+  // Along with the expression is the context of the problem.
+  // It is all specified in XML format.
+
   Header("Content-Type: text/xml");
   require ("utilities.php");
+  require ("clientlink.php");
   echo "<?xml version='1.0'?>\n";
   echo "<COMPILERREQUEST>\n";
-
-  // user and password are global post variables
-  $mysql_link = mysql_connect ("localhost", $user, $password);
 
   $result = mysql_db_query ("vishnu_central",
                             "select * from compiler_request where " .
                             "status = \"outstanding\";");
-    if (mysql_errno()) {
-	$report = "Could not connect to database, ";
-	$report .= mysql_errno () . ": " . mysql_error ();
-	$report .= ", user=" . $user . " password=" . $password;
-	$report .= ", sql was (database = " . "vishnu_central" . ") " .
-                   "select * from compiler_request where " .
-                   "status = \"outstanding\";";
-
-	return $report;
-    }
-
   $earliest = 0;
   while ($value = mysql_fetch_array ($result)) {
     $timestamp = maketime ($value["request_time"]);

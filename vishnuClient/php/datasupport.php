@@ -1,4 +1,8 @@
 <?
+  // This file provides functions for writing of metadata and data.
+  // It is in the form fed into the web server, not the format fed
+  // into the scheduler.
+
   function writedataformat ($problem) {
     echo "<DATAFORMAT>\n";
     $result = mysql_db_query ("vishnu_prob_" . $problem,

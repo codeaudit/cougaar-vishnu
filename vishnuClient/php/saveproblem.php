@@ -1,4 +1,6 @@
 <?
+  // Set up which parts of a particular problem to download to a file
+
   require ("browserlink.php");
   require ("navigation.php");
 
@@ -6,8 +8,10 @@
     global $problem;
     echo "Saving " . $problem;
   }
+
   function getHeader() {
   }
+
   function getSubheader() { 
     global $problem;
     echo "Select what to save for problem " . $problem;

@@ -1,4 +1,6 @@
 <?
+  // This is not currently used.
+
 	echo "<HTML><HEAD><TITLE>calendar test</TITLE>\n";
 	echo "<SCRIPT LANGUAGE=\"JavaScript\" SRC=\"calendar.js\"></SCRIPT>\n";
 

@@ -1,4 +1,6 @@
 <?
+  // For editing one constraint in the scheduling specifications.
+
   require ("browserlink.php");
   require ("utilities.php");
 
@@ -27,10 +29,12 @@
     global $name;
     echo "Editing spec " . $name;
   }
+
   function getHeader() {
     global $problem;
     echo "Problem <font color=\"green\">" . $problem . "</font>\n";
   }
+
   function getSubheader() { 
     global $name;
     echo "Editing the specification for <font color=\"green\">" .
@@ -86,54 +90,59 @@
 	"&resourceobject=" . $resourceobject .
 	"&resourcekey=" . $resourcekey .
 	"&taskname=" . urlencode ($taskname);
-   echo "<a href=\"" . $url . "\"><h3>" . "Typical task fields" . "</h3></a>";
-	echo "</td><td align=center>";
+   echo "<a href=\"" . $url . "\"><h3>" . "Typical task fields" .
+        "</h3></a>" . "</td><td align=center>";
    $url = "resource.php?problem=" . $problem .
 	"&taskobject=" . $taskobject .
 	"&taskkey=" . $taskkey .
 	"&resourceobject=" . $resourceobject .
 	"&resourcekey=" . $resourcekey .
 	"&resourcename=" . urlencode ($resourcename);
-   echo "<a href=\"" . $url . "\"><h3>" . "Typical resource fields" . "</h3></a>";
-	echo "</td></tr></table>";
+   echo "<a href=\"" . $url . "\"><h3>" . "Typical resource fields" .
+        "</h3></a>" . "</td></tr></table>";
   }
 
   function mainContent () { 
     global $problem, $name, $specname, $spec, $value;
-echo "<a href=\"fulldoc.php#a\"/>What functions can I use?</a>";
-echo "<FORM METHOD=post ACTION=\"updatespec.php\">\n";
+    echo "<a href=\"fulldoc.php#a\"/>What functions can I use?</a>";
+    echo "<FORM METHOD=post ACTION=\"updatespec.php\">\n";
 
-  /** show constraint description table */
+    /** show constraint description table */
+    $result = mysql_db_query ("vishnu_central",
+                  "select * from constraint_descrip where name='" .
+                  $spec . "';");
 
-  $result = mysql_db_query ("vishnu_central",
-    	                    "select * from constraint_descrip where name='" . $spec . "';");
+    echo "<table border=1 cellspacing=0>";
+    while ($row = mysql_fetch_array ($result)) {
+      echo "<tr><td width=100 BGCOLOR=#DBDBDB><b>Description</b>" .
+           "</td><td BGCOLOR=#CCCCCC>" . $row["description"] . "</td></tr>";
+      if (strcmp ($row["defined_vars"], "N/A") != 0)
+	$appendText = ", tasks, resources, start_time, end_time";
+      echo "<tr><td BGCOLOR=#DBDBDB><b>Defined Variables</b>" .
+           "</td><td BGCOLOR=#CCCCCC>" . $row["defined_vars"] .
+           $appendText . "</td></tr>";
+      echo "<tr><td BGCOLOR=#DBDBDB><b>Return Type</b></td>" .
+           "<td BGCOLOR=#CCCCCC>" . $row["return_type"] . "</td></tr>";
+      echo "<tr><td BGCOLOR=#DBDBDB><b>Default Value</b></td>" .
+           "<td BGCOLOR=#CCCCCC>" .
+           (($row["default_value"] == "") ?
+            "&nbsp;" : $row["default_value"]) . "</td></tr>";
+    }
+    echo "</table><br>";
+    mysql_free_result ($result);	
 
-  echo "<table border=1 cellspacing=0>";
-  while ($row = mysql_fetch_array ($result)) {
-      echo "<tr><td width=100 BGCOLOR=#DBDBDB><b>Description</b></td><td BGCOLOR=#CCCCCC>" . $row["description"] . "</td></tr>";
-	if (strcmp($row["defined_vars"],"N/A") != 0)
-	   $appendText = ", tasks, resources, start_time, end_time";
-      echo "<tr><td BGCOLOR=#DBDBDB><b>Defined Variables</b></td><td BGCOLOR=#CCCCCC>" . $row["defined_vars"] . 
-	   $appendText .
-	   "</td></tr>";
-      echo "<tr><td BGCOLOR=#DBDBDB><b>Return Type</b></td><td BGCOLOR=#CCCCCC>" . $row["return_type"] . "</td></tr>";
-      echo "<tr><td BGCOLOR=#DBDBDB><b>Default Value</b></td><td BGCOLOR=#CCCCCC>" . (($row["default_value"] == "") ? "&nbsp;" : $row["default_value"]) . "</td></tr>";
- }
-  echo "</table><br>";
-  mysql_free_result ($result);	
+    if ($spec == "opt_direction")
+      multiplechoice (array ("minimize", "maximize"), $value);
+    else if ($spec == "multitasking")
+      multiplechoice (array ("none", "grouped", "ungrouped",
+                             "ignoring_time"), $value);
+    else if ($spec == "setup_wrapup_display")
+      multiplechoice (array ("striped", "line"), $value);
+    else
+      echo "<TEXTAREA NAME=\"text\" ROWS=10 COLS=80>\n" . $value .
+           "\n</TEXTAREA>\n";
 
-  if ($spec == "opt_direction")
-    multiplechoice (array ("minimize", "maximize"), $value);
-  else if ($spec == "multitasking")
-    multiplechoice (array ("none", "grouped", "ungrouped",
-                           "ignoring_time"), $value);
-  else if ($spec == "setup_wrapup_display")
-    multiplechoice (array ("striped", "line"), $value);
-  else
-    echo "<TEXTAREA NAME=\"text\" ROWS=10 COLS=80>\n" . $value .
-         "\n</TEXTAREA>\n";
-
-  showTaskAndResource ($problem);
+    showTaskAndResource ($problem);
 ?>
 
   <INPUT TYPE=hidden NAME="spec" VALUE="<? echo $spec ?>">

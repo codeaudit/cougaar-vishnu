@@ -1,9 +1,11 @@
 <?
+  // Returns the XML for the data in the form that the scheduler likes
+  // to see it.  Note that this is different from how the database likes
+  // to read it originally, which is why this cannot just use datasupport.php.
+
   Header("Content-Type: text/xml");
   require ("utilities.php");
-
-  echo "<?xml version='1.0'?>\n";
-  $mysql_link = mysql_connect ("localhost", $user, $password);
+  require ("clientlink.php");
 
   // get data about task/resource object (name and key to access)
   $arr = gettaskandresourcetypes ($problem);
@@ -39,6 +41,7 @@
 
   $formats = array();
 
+  echo "<?xml version='1.0'?>\n";
   echo "<DATA>\n";
 
   // write scheduling window

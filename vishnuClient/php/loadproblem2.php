@@ -1,4 +1,6 @@
 <?
+  // Set up the loading of data from a file.
+
   require ("browserlink.php");
   require ("navigation.php");
 

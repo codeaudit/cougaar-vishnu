@@ -1,14 +1,18 @@
 <?
+  // Top-level page
+
   require ("browserlink.php");
   require ("navigation.php");
 
   function getTitle () {
     echo "Vishnu Reconfigurable Scheduler Home Page";
   }
+
   function getHeader() {
     echo "Welcome to the <font color=\"000099\">Vishnu</font><br>" .
          " Reconfigurable Scheduling System.";
   }
+
   function getSubheader() { 
   }
 
@@ -23,27 +27,27 @@
 
 <TABLE WIDTH="<? echo $width; ?>" >
 <?
-  $result = mysql_db_query ("vishnu_central",
-              "select name from problems order by name;");
-  $numRows = mysql_num_rows ($result);
-  while ($value = mysql_fetch_row ($result))
-    $problem_list[] = $value;
-
-  $half = ceil ($numRows / 2);
-  for ($i = 0; $i < $numRows/2; $i++) {
-    echo "<tr>";
-    echo "<td width=50%><font size=+1><a href=\"problem.php?problem=" .
-          $problem_list[$i][0] . "\">" . $problem_list[$i][0] .
-          "</font></a></td>";
-    if ($i+$half < $numRows)
+    $result = mysql_db_query ("vishnu_central",
+                "select name from problems order by name;");
+    $numRows = mysql_num_rows ($result);
+    while ($value = mysql_fetch_row ($result))
+      $problem_list[] = $value;
+  
+    $half = ceil ($numRows / 2);
+    for ($i = 0; $i < $numRows/2; $i++) {
+      echo "<tr>";
       echo "<td width=50%><font size=+1><a href=\"problem.php?problem=" .
-            $problem_list[$i + $half][0] . "\">" .
-            $problem_list[$i + $half][0] . "</font></a></td>";
-    echo "</tr>";
-  }
+            $problem_list[$i][0] . "\">" . $problem_list[$i][0] .
+            "</font></a></td>";
+      if ($i+$half < $numRows)
+        echo "<td width=50%><font size=+1><a href=\"problem.php?problem=" .
+              $problem_list[$i + $half][0] . "\">" .
+              $problem_list[$i + $half][0] . "</font></a></td>";
+      echo "</tr>";
+    }
 
-  mysql_free_result ($result);
-  mysql_close();
+    mysql_free_result ($result);
+    mysql_close();
 ?>
 </TABLE><BR>
 
@@ -91,5 +95,5 @@ Load Problem from File</font></TD></TR>
 </TABLE>
 
 <?
- }
+  }
  ?>

@@ -1,4 +1,9 @@
 <?
+  // Dynamic generation of full documentation.
+  // Note that to get the non-dynamic version, save the web page as
+  // faq.html, replace all references to faq.php and fulldoc.php
+  // with faq.html and fulldoc.html, and remove the reference to "Home".
+
   $norightbar = 1;
   require ("navigation.php");
 

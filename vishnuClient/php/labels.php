@@ -1,4 +1,7 @@
 <?
+  // Creates the labels for the time axis of the schedule graphic
+  // Set the variables start_time and end_time as arguments in the URL
+
   Header("Content-Type: image/png");
   require ("utilities.php");
   $tics = getticmarks ($start_time, $end_time);

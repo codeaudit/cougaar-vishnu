@@ -1,4 +1,6 @@
 <?
+  // Create a new problem from scratch.
+
   require ("browserlink.php");
   require ("utilities.php");
   require ("parseproblem.php");
@@ -13,7 +15,7 @@
   }
 
   function getHeader() {
-    global $problem, $error, $user, $password;
+    global $problem, $error;
     if (! $problem) {
       echo "Select name of new problem to create";
       return;
@@ -34,7 +36,7 @@
            "prob=\"0.50\" parms=\"1.0\" />\n<GAOPERATOR " .
            "name=\"org.cougaar.lib.vishnu.server.OrderedCrossover\" " .
            "prob=\"0.50\" />\n</GAOPERATORS>\n</GAPARMS>\n</PROBLEM>\n";
-    parseproblem ($str, $user, $password);
+    parseproblem ($str);
     echo "Created problem $problem";
   }
 

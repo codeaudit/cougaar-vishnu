@@ -1,4 +1,8 @@
 <?
+  // Creates an image that is the schedule graphic.
+  // Include the variables problem, resourcename, start_time, and
+  // end_time in the arguments of the URL
+
   require ("browserlink.php");
   require ("utilities.php");
   Header("Content-Type: image/png");

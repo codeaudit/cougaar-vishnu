@@ -1,4 +1,6 @@
 <?
+  // Not currently in use
+
   Header("Content-Type: image/png");
   require ("assetutil.php");
 

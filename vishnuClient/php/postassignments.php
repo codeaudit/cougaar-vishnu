@@ -1,9 +1,11 @@
 <?
+  // Scheduler uses this URL to write its assignments to the database
+
   Header("Content-Type: text/plain");
-  $mysql_link = mysql_connect ("localhost",$user,$password);
+  require ("clientlink.php");
+
   $result = mysql_db_query ("vishnu_prob_" . $problem,
                             "delete from assignments;");
-
   $result = mysql_db_query ("vishnu_prob_" . $problem,
                             "delete from multitaskassignments;");
   $result = mysql_db_query ("vishnu_prob_" . $problem,

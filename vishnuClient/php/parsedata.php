@@ -1,19 +1,15 @@
 <?
-  require ("database.php");
+  // Parsing of XML specifying the data
+
   require_once ("utilities.php");
 
   // function to take data in XML format and put into database
   // everything else below is just support
-  function parsedata ($data, $theproblem, $openconn,
-                      $user="root", $password="") {
-    global $problem;
+  function parsedata ($data, $theproblem, $openconn) {
+    global $problem, $user, $password;
     $problem = $theproblem;
     if ($openconn) {
-      $result = db_connect ($user, $password);
-      if ($result) {
-        echo $result . "<BR>\n";
-        return;
-      }
+      require ("clientlink.php");
     }
     $parser = setup_xml_parser ("startHandler", "endHandler");
     if (! $parser)
@@ -39,6 +35,35 @@
     if ($result["error"])
       echo $result["error"];
     return $result["result"];
+  }
+
+  // do database query catching errors if fails; if succeeds, return
+  // array with result otherwise return array with error
+  function safe_query ($db, $context, $action, $ident, $command) {
+    $result = mysql_db_query ("vishnu_" . $db, $command);
+    if (mysql_errno() == 0)
+      return array ("result"=>$result);
+    $text = "Error has occurred<BR>\n<DIV align=left>\nContext: " .
+            $context . "<BR>\nAction: " . $action .
+            "<BR>\nIdentifier: " . $ident . "<BR>\nCommand: " . $command .
+            "<BR>\nDatabase: vishnu_" . $db .
+            "<BR>\nError Text: " . mysql_error() . "<BR><BR>\n</DIV>\n";
+    return array ("error"=>$text);
+  }
+
+
+  function setup_xml_parser ($startHandler, $endHandler) {
+    $parser = xml_parser_create();
+    if (! $parser) {
+      echo "Could not create parser<BR>\n";
+      return;
+    }
+    $result = xml_set_element_handler ($parser, $startHandler, $endHandler);
+    if (! $result) {
+      echo "Parser not valid<BR>\n";
+      return;
+    }
+    return $parser;
   }
 
 

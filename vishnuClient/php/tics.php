@@ -1,4 +1,6 @@
 <?
+  // Display the tic marks for the time axis of a schedule graphic
+
   Header("Content-Type: image/png");
   require ("utilities.php");
   $width = getimagewidth();

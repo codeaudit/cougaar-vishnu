@@ -1,4 +1,6 @@
 <?
+  // Accept the edits on an object and write to database
+
   require ("browserlink.php");
   require_once ("utilities.php");
   require ("parsedata.php");
@@ -11,6 +13,7 @@
     else if ($action == "Create")
       echo "Results of creation";
   }
+
   function getHeader () {
     global $objectname, $objecttype, $action, $global;
     if ($global)
@@ -21,6 +24,7 @@
     else if ($action == "Create")
       echo "Results of creating new " . $objecttype;
   } 
+
   function getSubheader() { 
   }
 
@@ -131,7 +135,7 @@
         $xml .= "<OBJECT type=\"" . $objecttype . "\">\n<FIELD name=\"" .
                 $key . "\" value=\"" . $objectname . "\" />\n</OBJECT>\n";
       $xml .= "</DELETEDOBJECTS>\n</DATA>\n";
-      parsedata ($xml, $problem, 0, $user, $password);
+      parsedata ($xml, $problem, 0);
     }
 
     if (! $delete) {
@@ -142,7 +146,7 @@
       if ($global)
         $xml .= "</GLOBAL>\n";
       $xml .= "</NEWOBJECTS>\n</DATA>\n";
-      parsedata ($xml, $problem, 0, $user, $password);
+      parsedata ($xml, $problem, 0);
     }
 
     echo "<h2>" . $action . " " . ($global ? $global : $objecttype) .
