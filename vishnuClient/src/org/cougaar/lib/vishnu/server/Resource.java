@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Resource.java,v 1.1 2001-01-10 19:29:55 rwu Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Resource.java,v 1.2 2001-01-29 20:00:47 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -239,14 +239,18 @@ public class Resource extends SchObject {
                                        TimeBlock[] unavail,
                                        SchedulingSpecs specs,
                                        boolean multitask, boolean grouped,
-                                       int notEarlierThan, int startTime) {
+                                       int notEarlierThan, int startTime,
+                                       Task[] linked,
+                                       SchedulingData data) {
     if (specs.alwaysCompact())
       return putAtEnd (task, duration, unavail, specs);
     Iterator iter = multitask ? getMultitaskIter (task) : schedule.iterator();
     int[] earliest = {Integer.MIN_VALUE, Integer.MIN_VALUE, 0};
     Block block = new Block();
     TimeBlock curr = null, prev = null;
-    if (adjustEarliestInterval (unavail, earliest, duration, notEarlierThan))
+    if (adjustEarliestInterval (task, unavail, earliest, duration,
+                                notEarlierThan, linked, data, specs,
+                                multitask, grouped))
       return null;
     while (iter.hasNext()) {
       if (grouped && fitsGroup (task, curr, unavail, duration))
@@ -254,8 +258,9 @@ public class Resource extends SchObject {
       prev = curr;
       curr = (TimeBlock) iter.next();
       if (prev != null)
-        if (adjustEarliestInterval (unavail, earliest, duration,
-                                    prev.getEndTime()))
+        if (adjustEarliestInterval (task, unavail, earliest, duration,
+                                    prev.getEndTime(), linked, data, specs,
+                                    multitask, grouped))
           return null;
       if (curr.getStartTime() < (earliest[0] + duration))
         continue;
@@ -265,8 +270,9 @@ public class Resource extends SchObject {
         if ((block.wrapup == Integer.MAX_VALUE) ||
             (block.end <= earliest[1]))
           break;
-        if (adjustEarliestInterval (unavail, earliest, duration,
-                                    block.start))
+        if (adjustEarliestInterval (task, unavail, earliest, duration,
+                                    block.start, linked, data, specs,
+                                    multitask, grouped))
           return null;
       }
       if (block.wrapup <= curr.getStartTime())
@@ -280,8 +286,32 @@ public class Resource extends SchObject {
             (block.end < block.start)) ? null : block;
   }
 
-  private boolean adjustEarliestInterval (TimeBlock[] unavail, int[] interval,
-                                          int duration, int earliest) {
+  private boolean adjustEarliestInterval (Task task, TimeBlock[] unavail,
+                                          int[] interval, int duration,
+                                          int earliest, Task[] linked,
+                                          SchedulingData data,
+                                          SchedulingSpecs specs,
+                                          boolean multitask, boolean grouped) {
+    while (! adjustEarliest2 (unavail, interval, duration, earliest)) {
+      boolean found = false;
+      for (int i = 0; i < linked.length; i++) {
+        int time = interval[0] + data.cachedLinkTimeDiff (task, linked[i]);
+        int time2 = OrderedDecoder.findEarliestTime
+          (linked[i], time, data, specs, multitask, grouped);
+        if (time != time2) {
+          found = true;
+          earliest += (time2 - time);
+          break;
+        }
+      }
+      if (! found)
+        return false;
+    }
+    return true;
+  }
+
+  private boolean adjustEarliest2 (TimeBlock[] unavail, int[] interval,
+                                   int duration, int earliest) {
     if (interval[0] > earliest)
       return false;
     for (int j = interval[2]; j < unavail.length; j++) {
@@ -385,13 +415,16 @@ public class Resource extends SchObject {
                                      TimeBlock[] unavail,
                                      SchedulingSpecs specs,
                                      boolean multitask, boolean grouped,
-                                     int notLaterThan, int endTime) {
+                                     int notLaterThan, int endTime,
+                                     Task[] linked, SchedulingData data) {
     Iterator iter = multitask ? getMultitaskIter (task) : schedule.iterator();
     iter = reverseIter (iter);
     int[] latest = {Integer.MAX_VALUE, Integer.MAX_VALUE, unavail.length - 1};
     Block block = new Block();
     TimeBlock curr = null, prev = null;
-    if (adjustLatestInterval (unavail, latest, duration, notLaterThan))
+    if (adjustLatestInterval (task, unavail, latest, duration,
+                              notLaterThan, linked, data, specs,
+                              multitask, grouped))
       return null;
     while (iter.hasNext()) {
       if (grouped && fitsGroup (task, curr, unavail, duration))
@@ -399,8 +432,9 @@ public class Resource extends SchObject {
       prev = curr;
       curr = (TimeBlock) iter.next();
       if (prev != null)
-        if (adjustLatestInterval (unavail, latest, duration,
-                                  prev.getStartTime()))
+        if (adjustLatestInterval (task, unavail, latest, duration,
+                                  prev.getStartTime(), linked, data, specs,
+                                  multitask, grouped))
           return null;
       if (curr.getEndTime() > (latest[0] - duration))
         continue;
@@ -410,7 +444,9 @@ public class Resource extends SchObject {
         if ((block.setup == Integer.MIN_VALUE) ||
             (block.start >= latest[1]))
           break;
-        if (adjustLatestInterval (unavail, latest, duration, block.end))
+        if (adjustLatestInterval (task, unavail, latest, duration,
+                                  block.end, linked, data, specs,
+                                  multitask, grouped))
           return null;
       }
       if (block.setup >= curr.getEndTime())
@@ -424,8 +460,32 @@ public class Resource extends SchObject {
             (block.end < block.start)) ? null : block;
   }
 
-  private boolean adjustLatestInterval (TimeBlock[] unavail, int[] interval,
-                                        int duration, int latest) {
+  private boolean adjustLatestInterval (Task task, TimeBlock[] unavail,
+                                        int[] interval, int duration,
+                                        int latest, Task[] linked,
+                                        SchedulingData data,
+                                        SchedulingSpecs specs,
+                                        boolean multitask, boolean grouped) {
+    while (! adjustLatest2 (unavail, interval, duration, latest)) {
+      boolean found = false;
+      for (int i = 0; i < linked.length; i++) {
+        int time = interval[0] + data.cachedLinkTimeDiff (task, linked[i]);
+        int time2 = OrderedDecoder.findLatestTime
+          (linked[i], time, data, specs, multitask, grouped);
+        if (time != time2) {
+          found = true;
+          latest += (time2 - time);
+          break;
+        }
+      }
+      if (! found)
+        return false;
+    }
+    return true;
+  }
+
+  private boolean adjustLatest2 (TimeBlock[] unavail, int[] interval,
+                                 int duration, int latest) {
     if (interval[0] < latest)
       return false;
     for (int j = interval[2]; j >= 0; j--) {

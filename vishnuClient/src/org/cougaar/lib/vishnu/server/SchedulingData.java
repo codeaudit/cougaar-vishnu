@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.5 2001-01-26 22:02:04 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.6 2001-01-29 20:00:47 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -85,6 +85,23 @@ public class SchedulingData {
     float f1 = ((Float) group.get (task1)).floatValue();
     Float f2 = (Float) group.get (task2);
     return (f2 == null) ? 0 : (int) (f1 - f2.floatValue());
+  }
+
+  public static final Task[] emptyTaskArray = new Task[0];
+
+  public Task[] getLinkedTasks (Task task) {
+    HashMap group = (HashMap) linkedGroupMap.get (task);
+    if (group == null)
+      return emptyTaskArray;
+    Task[] arr = new Task [group.size() - 1];
+    int i = 0;
+    java.util.Iterator iter = group.keySet().iterator();
+    while (iter.hasNext()) {
+      Task o = (Task) iter.next();
+      if (o != task)
+        arr[i++] = o;
+    }
+    return arr;
   }
 
   public Resource getResource (String key) {

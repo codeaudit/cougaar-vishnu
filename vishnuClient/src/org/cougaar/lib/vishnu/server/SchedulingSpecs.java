@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingSpecs.java,v 1.3 2001-01-25 20:49:38 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingSpecs.java,v 1.4 2001-01-29 20:00:47 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -355,7 +355,8 @@ public class SchedulingSpecs {
     return ((taskUnavailableTimesCache == null) &&
             (resourceUnavailableTimes == null) &&
             (bestTimeCache == null) &&
-            (multitasking == MULTITASKING_NONE));
+            (multitasking == MULTITASKING_NONE)  &&
+            (linked == null));
   }
 
   public TimeBlock[] taskUnavailableTimes (Task task, Task[] prereqs,

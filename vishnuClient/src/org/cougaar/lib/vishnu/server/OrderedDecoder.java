@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedDecoder.java,v 1.5 2001-01-29 14:57:24 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedDecoder.java,v 1.6 2001-01-29 20:00:47 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -152,12 +152,15 @@ public class OrderedDecoder implements GADecoder {
 	  
       block = resource.earliestAvailableBlock (task, dur, unavail, specs,
                                                multitask, grouped, bestTime,
-                                               data.getStartTime());
+                                               data.getStartTime(),
+                                               SchedulingData.emptyTaskArray,
+                                               data);
       if (bestTime > data.getStartTime()) {
         Resource.Block block2 =
           resource.latestAvailableBlock (task, dur, unavail, specs,
                                          multitask, grouped, bestTime + dur,
-                                         data.getEndTime());
+                                         data.getEndTime(),
+                                         SchedulingData.emptyTaskArray, data);
         if (block == null)
           block = block2;
         else if ((block2 != null) &&
@@ -233,14 +236,17 @@ public class OrderedDecoder implements GADecoder {
       Task task2 = (Task) linked.get (task);
       int start = (task2.getAssignment().getTaskStartTime() + 
                    data.cachedLinkTimeDiff (task, task2));
-      int start2 = findEarliestTime (task, start, data, specs);
+      int start2 = findEarliestTime (task, start, data, specs,
+                                     multitask, grouped);
       if (start == start2)
         assignAtTime (task, start, data, specs);
     }
   }
 
-  private int findEarliestTime (Task task, int notBefore,
-                                SchedulingData data, SchedulingSpecs specs) {
+  public static int findEarliestTime (Task task, int notBefore,
+                                      SchedulingData data,
+                                      SchedulingSpecs specs,
+                                      boolean multitask, boolean grouped) {
     Resource[] resources = specs.capableResources (task, data);
     Task[] prereqs = new Task[0];
     int bestTime = Integer.MAX_VALUE;
@@ -252,15 +258,17 @@ public class OrderedDecoder implements GADecoder {
          resource, i == 0);
       Resource.Block block = resource.earliestAvailableBlock
         (task, dur, unavail, specs, multitask, grouped,
-         notBefore, data.getStartTime());
+         notBefore, data.getStartTime(), SchedulingData.emptyTaskArray, data);
       if (block.start < bestTime)
         bestTime = block.start;
     }
     return bestTime;
   }
 
-  private int findLatestTime (Task task, int notAfter,
-                              SchedulingData data, SchedulingSpecs specs) {
+  public static int findLatestTime (Task task, int notAfter,
+                                    SchedulingData data,
+                                    SchedulingSpecs specs,
+                                    boolean multitask, boolean grouped) {
     Resource[] resources = specs.capableResources (task, data);
     Task[] prereqs = new Task[0];
     int bestTime = Integer.MIN_VALUE;
@@ -271,8 +279,8 @@ public class OrderedDecoder implements GADecoder {
         (task, prereqs, data.getStartTime(), data.getEndTime(),
          resource, i == 0);
       Resource.Block block = resource.latestAvailableBlock
-        (task, dur, unavail, specs, multitask, grouped,
-         notAfter + dur, data.getEndTime());
+        (task, dur, unavail, specs, multitask, grouped, notAfter,
+         data.getEndTime(), SchedulingData.emptyTaskArray, data);
       if (block.end > bestTime)
         bestTime = block.end;
     }
@@ -294,7 +302,7 @@ public class OrderedDecoder implements GADecoder {
          resource, i == 0);
       Resource.Block block = resource.earliestAvailableBlock
         (task, dur, unavail, specs, multitask, grouped,
-         time, data.getStartTime());
+         time, data.getStartTime(), SchedulingData.emptyTaskArray, data);
       if (block.start == time) {
         makeAssignment2 (task, resource, block, false, false);
         float delta = specs.evaluateSingleAssignment (task, resource);
