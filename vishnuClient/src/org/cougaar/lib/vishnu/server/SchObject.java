@@ -1,7 +1,8 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchObject.java,v 1.6 2001-08-07 18:27:02 gvidaver Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchObject.java,v 1.7 2001-08-07 23:31:39 gvidaver Exp $
 
 package org.cougaar.lib.vishnu.server;
 
+import java.util.Date;
 import java.util.Iterator;
 import java.util.HashMap;
 import java.util.ArrayList;
@@ -38,28 +39,28 @@ public class SchObject {
     if (value instanceof String) {
       String v = (String) value;
       if (type.equals ("number")) {
-	try {
-	  value = new Reusable.RFloat (Float.parseFloat (v));
-	} catch (NumberFormatException nfe) {
-	  value = new Reusable.RFloat (0.0f);
-	  System.out.println ("SchObject.addField - <" + name + ">" +
-			      " type " + type +
-			      " value <" + v +
-			      "> had a bad format.");
-	}
+		try {
+		  value = new Reusable.RFloat (Float.parseFloat (v));
+		} catch (NumberFormatException nfe) {
+		  value = new Reusable.RFloat (0.0f);
+		  System.out.println ("SchObject.addField - <" + name + ">" +
+							  " type " + type +
+							  " value <" + v +
+							  "> had a bad format.");
+		}
       }
       else if (type.equals ("boolean"))
         value = v.equals ("true") ? Operator.TRUE : Operator.FALSE;
       else if (type.equals ("datetime")) {
-	try {
-	  value = new Reusable.RInteger (timeOps.stringToTime (v));
-	} catch (NumberFormatException nfe) {
-	  value = new Reusable.RInteger (0);
-	  System.out.println ("SchObject.addField - <" + name + ">" +
-			      " type " + type +
-			      " value " + v +
-			      " : value not in number format.");
-	}
+		try {
+		  value = new Reusable.RInteger (timeOps.stringToTime (v));
+		} catch (NumberFormatException nfe) {
+		  value = new Reusable.RInteger (0);
+		  System.out.println ("SchObject.addField - <" + name + ">" +
+							  " type " + type +
+							  " value " + v +
+							  " : value not in number format.");
+		}
       }
       if (iskey)
         key = v;
@@ -68,15 +69,31 @@ public class SchObject {
       List elementList = (List) data.get (name);
       elementList.add (value);
       if (debug)
-	System.out.println ("SchObject.addField - adding " + name + 
-			    "->" + value + 
-			    " (" + elementList.size () + 
-			    " total)");
+		System.out.println ("SchObject.addField - adding " + name + 
+							"->" + value + 
+							" (" + elementList.size () + 
+							" total)");
     }
     else
       data.put (name, value);
   }
 
+  public void addFloat (String name, float value) {
+	data.put (name, new Reusable.RFloat (value));
+  }
+
+  public void addBoolean (String name, boolean val) {
+	data.put (name, ((val) ? Operator.TRUE : Operator.FALSE));
+  }
+  
+  public void addDate (String name, Date date) {
+	data.put (name, new Reusable.RInteger (timeOps.dateToTime (date)));
+  }
+
+  public void addDateMillis (String name, long millis) {
+	data.put (name, new Reusable.RInteger (timeOps.millisToTime (millis)));
+  }
+  
   public void addListField (String name) {
     if (debug)
       System.out.println ("SchObject.addListField - adding " + name);
