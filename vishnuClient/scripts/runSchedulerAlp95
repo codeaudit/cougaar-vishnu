@@ -1,5 +1,5 @@
 java -green \
--Dvishnu.host=alp-69.alp.isotic.org \
+-Dvishnu.host=alp-95.alp.isotic.org \
 -Dvishnu.path="/php/" \
 -Dvishnu.debug=false \
 -Dvishnu.Scheduler.debug=true \
