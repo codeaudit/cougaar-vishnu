@@ -50,7 +50,7 @@ import java.util.Vector;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
-import org.xml.sax.AttributeList;
+import org.xml.sax.Attributes;
 
 import org.cougaar.util.StringKey;
 
@@ -267,9 +267,9 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
   protected Vector alpTasks = new Vector ();
 
   /**
-   * BOZO - must do something with start and end.
+   * 
    */
-  protected void parseStartElement (String name, AttributeList atts) {
+  protected void parseStartElement (String name, Attributes atts) {
 	try {
 	  if (myExtraExtraOutput || debugParseAnswer)
 		System.out.println ("VishnuAggregatorPlugIn.parseStartElement got " + name);
@@ -646,8 +646,7 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
 		}
 	  }
 	  else if (next_o instanceof Composition) {
-		if (propagateRescindPastAggregation)
-		  ((NewComposition) next_o).setIsPropagating();
+		((NewComposition) next_o).setIsPropagating(propagateRescindPastAggregation);
 	  }
 	  
       boolean success = publishAdd(next_o);
