@@ -835,11 +835,12 @@ order.  The initial population generator creates random orderings of the tasks. 
 (that in general are not contiguous) and shuffles their order to create the child.  The crossover operator picks some of the elements of the first parent's
 list and puts them in the order they are in the second parent.  A decoder (which is the complicated part and which we describe in more detail below)
 translates each ordering of tasks into a schedule.  The optimization criterion is used to evaluate the schedule corresponding to each chromosome.
- 
+
 <p>The decoder iterates performing the following procedure until all tasks are scheduled (or deemed unscheduled).  Take the first element in the list that is
 not yet scheduled (or marked unscheduled) and for which all of the tasks in its lists of prerequisites are already scheduled.  Try assigning this task to
 each of the resources capable of performing this task at the earliest possible time, and evaluate how good this assignment is using the delta criterion. 
 Keep the assignment to that resource that is the best (i.e., perform a greedy selection of resource).
+
  
 <p>The decoder uses the constraints to ensure that the schedule conforms to the problem requirements.  The prerequisites constraint determines which
 tasks need to be scheduled before a particular task.  The capability constraint determines which resources can perform a particular task.  The task
@@ -853,6 +854,14 @@ grouped multitasking and determines when two tasks can be performed by a single 
 threshold constraints apply differently depending on whether or not there is multitasking.  When there is multitasking, the capacity constraints ensure that
 none of the different types of capacities are exceeded at any given time.  When there is no multitasking, these constraints ensure that the capacities are
 not exceeded over the history of the resource.
+
+<p>[NOTE: The fact that the decoder itself does a simple optimization
+means that the genetic algorithm does not have to work as hard.  Even if
+the genetic algorithm generates just a single individual, this
+individual will generally always be a much-better-than-average schedule
+and can potentially even be optimal if there is little or no contention
+for resources.  This is important to keep in mind when choosing genetic
+algorithm parameters.]
  
 <p>The scheduler stops running when any of the following four quantities exceed their specified limit: (1) the elapsed time for the run, (2) the total number
 of individuals evaluated, (3) the number of consecutive evaluations without an improvement to the best individual, and (4) the number of duplicate
@@ -861,6 +870,96 @@ individuals generated.
 <p>When the scheduler stops running, it writes the following information back to the database: (1) the set of all assignments of tasks to resources, including
 the times (setup start, task start, task end, and wrapup end) and the color and text to be displayed and (2) the set of non-task activities for each
 resource, including times, color and text.
+
+<a name="gaparameters"></a>
+<p>The following table provides the parameters that can be varied to control
+the genetic algorithm performance:
+
+<p><div align=center>
+<table border cellspacing=1 cellpadding=0>
+ <tr>
+  <td width=80 bgcolor=black align=center>
+        <font color=white><b>Parameter Name</b></font></td>
+  <td width=460 bgcolor=black align=center>
+        <font color=white><b>Description</b></font></td>
+ </tr>
+ <tr>
+  <td width=80 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
+        Population Size</td>
+  <td width=460 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
+        Number of individuals in the population at any one time; they are
+        generated randomly for the initial population and then
+        gradually replaced by their descendants; make this larger in
+        order to run the genetic algorithm longer and find a better solution
+  </td>
+ </tr>
+ <tr>
+  <td width=80 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
+        Parent Scalar</td>
+  <td width=460 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
+        This parameter controls the fitness pressure; the kth best
+        individual in the population is this times less likely than the
+        (k-1)st to be selected as a parent; this should always be less than
+        1; making this closer to 1 decreases the pressure and allows the
+        genetic algorithm to search longer before converging on a single
+        solution
+  </td>
+ </tr>
+ <tr>
+  <td width=80 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
+        Maximum Evaluations</td>
+  <td width=460 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
+        Limit on the number of individuals that the genetic algorithm can
+        generate before being forced to stop
+  </td>
+ </tr>
+ <tr>
+  <td width=80 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
+        Maximum Time</td>
+  <td width=460 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
+        Limit on the number of seconds that the genetic algorithm can
+        execute before being forced to stop
+  </td>
+ </tr>
+ <tr>
+  <td width=80 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
+        Maximum Top Dog Age</td>
+  <td width=460 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
+        Limit on the number of consecutive individuals that the
+        genetic algorithm can generate without generating one better than
+        the current best individual before being forced to stop
+  </td>
+ </tr>
+ <tr>
+  <td width=80 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
+        Crossover Probability</td>
+  <td width=460 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
+        Probability of choosing crossover as the genetic operator used
+        to generate the next child (should sum to 1 with the mutation
+        probability)
+  </td>
+ </tr>
+ <tr>
+  <td width=80 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
+        Mutation Probability</td>
+  <td width=460 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
+        Probability of choosing mutation as the genetic operator used
+        to generate the next child (should sum to 1 with the crossover
+        probability)
+  </td>
+ </tr>
+ <tr>
+  <td width=80 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
+        Maximum Fraction Mutated</td>
+  <td width=460 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
+        The mutation operator will randomly choose some fraction of
+        the chromosome to mutate, and this paramater sets the upper
+        limit on this fraction
+  </td>
+ </tr>
+</table>
+</div>
+
 
 <? makeSection ("Using the Browser-Based GUI", "gui"); ?>
 
