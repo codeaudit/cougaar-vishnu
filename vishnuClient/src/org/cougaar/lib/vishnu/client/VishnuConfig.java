@@ -284,14 +284,15 @@ public class VishnuConfig {
     String envFile  = null;
 	
     try {
-      envFile = getMyParams().getStringParam (paramName);
-      if (logger.isInfoEnabled())
-	logger.info ("VishnuConfig.getNeededFile - envFile = " + envFile + 
-		     " - paramName - " + paramName);
-    } 
-    catch (Exception pe) { // no parameter, try default
-      envFile = getClusterName () + defaultSuffix;
-    }
+      if (getMyParams().hasParam (paramName)) {
+	envFile = getMyParams().getStringParam (paramName);
+	if (logger.isInfoEnabled())
+	  logger.info ("VishnuConfig.getNeededFile - envFile = " + envFile + 
+		       " - paramName - " + paramName);
+      } 
+      else
+	envFile = getClusterName () + defaultSuffix; // no parameter, try default
+    } catch (Exception pe) {}
 	
     return envFile;
   }

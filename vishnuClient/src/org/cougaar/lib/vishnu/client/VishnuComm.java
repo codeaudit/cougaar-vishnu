@@ -372,23 +372,24 @@ public class VishnuComm {
     try {
       if (getMyParams().hasParam("problemName"))
 	myProblem = getMyParams().getStringParam("problemName");
-    } catch(Exception e) {
-      myProblem = getClusterName();
+      else { 
+	myProblem = getClusterName();
 
-      synchronized (clusterToInstance) {
-	if (((List) clusterToInstance.get (getClusterName ())).size () > 1) {
-	  myProblem = myProblem + "_" + 
-	    ((List) clusterToInstance.get (getClusterName ())).indexOf (this);
-	  if (logger.isDebugEnabled())
-	    logger.debug (getName ()+ ".localSetup - this " + this + " is " + 
-			  ((List) clusterToInstance.get (getClusterName ())).indexOf (this) +
-			  " of " + 
-			  ((List) clusterToInstance.get (getClusterName ())).size ());
+	synchronized (clusterToInstance) {
+	  if (((List) clusterToInstance.get (getClusterName ())).size () > 1) {
+	    myProblem = myProblem + "_" + 
+	      ((List) clusterToInstance.get (getClusterName ())).indexOf (this);
+	    if (logger.isDebugEnabled())
+	      logger.debug (getName ()+ ".localSetup - this " + this + " is " + 
+			    ((List) clusterToInstance.get (getClusterName ())).indexOf (this) +
+			    " of " + 
+			    ((List) clusterToInstance.get (getClusterName ())).size ());
+	  }
 	}
+	// mysql doesn't like -'s
+	myProblem = myProblem.replace('-', '_');
       }
-      // mysql doesn't like -'s
-      myProblem = myProblem.replace('-', '_');
-    }
+    } catch (Exception e) {}
 	
     try {
       String machineName = java.net.InetAddress.getLocalHost().getHostName ().replace('-', '_');
