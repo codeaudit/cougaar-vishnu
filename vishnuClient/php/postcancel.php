@@ -10,14 +10,12 @@
   mysql_db_query ("vishnu_central",
                   "update scheduler_request set percent_complete=-1 " .
                   "where  problem = \"" . $problem . "\";");
-/*
   $result = mysql_db_query ("vishnu_central",
               "select percent_complete from scheduler_request where " .
               "problem = \"" . $problem ."\" and number = -1;");
   $value = mysql_fetch_row ($result);
 
-  echo "<message>Now " . $value . "</message>";
-*/
-  echo "OK";
+  echo "<message>OK, now " . $value[0] . "</message>";
+
   mysql_close();
 ?>
