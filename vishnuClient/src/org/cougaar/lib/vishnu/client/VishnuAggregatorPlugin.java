@@ -367,6 +367,13 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
     removedTasks.add(agg.getTask());
 
     handleRemovedTasks(removedTasks.elements());
+    
+    MPTask mpTask = agg.getComposition ().getCombinedTask ();
+    if (mpTask == null)
+      error ("no mp task on aggregation of " + agg.getTask().getUID());
+    else {
+      removeFromDirectObject (agg.getTask(), mpTask); // ignore returned asset group
+    }
   }
 
   /** implemented for AggregationListener */
@@ -866,6 +873,29 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
       info (getName() + " - publish changing " + task.getUID());
     }
     publishChange (task);
+    return group;
+  }
+
+  /**
+   * Remove the parent task's direct object from the child mpTask's group
+   * of direct objects.
+   *
+   * @param removedTask to task with the direct object to remove
+   * @param mpTask to remove the direct object from
+   * @return AssetGroup with objects removed from it
+   */
+  protected AssetGroup removeFromDirectObject (Task removedTask, MPTask mpTask) {
+    AssetGroup group = (AssetGroup) mpTask.getDirectObject ();
+    Vector assetsInGroup = group.getAssets ();
+    assetsInGroup.remove (removedTask.getDirectObject());
+    if (isInfoEnabled ()) {
+      info (getName() + 
+	    " - removing " + removedTask.getUID () + 
+	    "'s direct object " + removedTask.getDirectObject () + 
+	    " from mptask " + mpTask.getUID() + "'s direct object");
+    }
+    publishChange (mpTask);
+
     return group;
   }
 
