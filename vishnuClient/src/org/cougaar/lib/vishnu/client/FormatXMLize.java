@@ -57,7 +57,7 @@ public class FormatXMLize extends BaseXMLize {
   // any field of type string is no shorter than this
   private static final int MIN_STRING_LENGTH=16;
   // controls how deep down the object hierarchy to go
-  protected final int RECURSION_DEPTH=6;
+  protected final int RECURSION_DEPTH=9;
   // the first instance of a string field found will have it's length multiplied by this
   protected final int MULTIPLIER = 4;
   
@@ -106,6 +106,14 @@ public class FormatXMLize extends BaseXMLize {
 	  }
 	}
 	  
+	if (debug)
+	  System.out.println ("addNodes - class " + obj.getClass ());
+	
+	if (ignoreClass (obj.getClass())) {
+	  if (debug) System.out.println ("----> ignored!");
+	  return;
+	}
+
 	//	System.out.println ("Search depth " + searchDepth);
     if (searchDepth <= 0) {
 	  generateElementReachedMaxDepth (doc, parentElement, obj);
@@ -192,7 +200,7 @@ public class FormatXMLize extends BaseXMLize {
 
 	  parentElement.appendChild(item);
 	} else {
-	  parentElement.appendChild(createFieldFormat(doc, obj.toString(), obj, false, false));
+	  parentElement.appendChild(createFieldFormat(doc, getTypeFor(obj), obj, false, false));
 	  if (debug) 
 		System.out.println ("maxDepth - " + obj);
 	}
@@ -256,13 +264,28 @@ public class FormatXMLize extends BaseXMLize {
 		  System.out.println ("nonLeaf - REMOVING? - " + propertyName + " - " + propertyValue);
 
 	  }
-	  if ((propertyName.charAt(0) == 'r') && propertyName.equals ("roleSchedule"))
+	  if ((propertyName.charAt(0) == 'r') && propertyName.equals ("roleSchedule")) {
+		removeChildNamed (item, "scheduleElements");
 	  	addScheduleElements (doc, item);
+	  }
 
 	  globals.add (propertyValue);
 	}
   }
 
+  protected void removeChildNamed (Element roleScheduleImpl, String childName){
+	NodeList children = roleScheduleImpl.getChildNodes ();
+	for (int i = 0; i < children.getLength (); i++) {
+	  Element child = (Element) children.item (i);
+	  if (child.getAttribute("name").equals (childName)) {
+		if (debug) System.out.println ("found " + childName + ", removing.");
+		
+		roleScheduleImpl.removeChild (child);
+		break;
+	  }
+	}
+  }
+	  
   /** all property groups become globals, except for item id pg */
   protected boolean isGlobal (Object obj) {
 	boolean isPropertyGroup = (obj instanceof org.cougaar.domain.planning.ldm.asset.PropertyGroup);
@@ -282,10 +305,15 @@ public class FormatXMLize extends BaseXMLize {
 	  item.setAttribute ("is_key", "false");
 	}
 	
-	if (debug) 
-	  System.out.println ("generateLeaf - parent task " + parentElement.getAttribute ("is_task").charAt (0) +
-						  " resource " + parentElement.getAttribute ("is_resource").charAt (0) +
-						  " item key " + item.getAttribute ("is_key").charAt (0));
+	if (debug) {
+	  boolean allFalse = parentElement.getAttribute ("is_task").charAt (0) == 'f' &
+		parentElement.getAttribute ("is_resource").charAt (0) == 'f' &
+		item.getAttribute ("is_key").charAt (0) == 'f';
+	  if (!allFalse)
+		System.out.println ("generateLeaf - parent task " + parentElement.getAttribute ("is_task").charAt (0) +
+							" resource " + parentElement.getAttribute ("is_resource").charAt (0) +
+							" item key " + item.getAttribute ("is_key").charAt (0));
+	}
   }
 
   /** 
@@ -400,8 +428,8 @@ public class FormatXMLize extends BaseXMLize {
 	
 	if (((firstChar == 't') || (firstChar == 'f')) &&
 		(objAsString.equals ("true") || objAsString.equals ("false"))) {
-	  if (debug)
-		System.out.println ("got here - " + objAsString + " but not boolean - " + theObj.getClass ());
+	  //	  if (debug)
+	  //		System.out.println ("got here - " + objAsString + " but not boolean - " + theObj.getClass ());
 	  return booleanString;
 	}
 
@@ -417,8 +445,8 @@ public class FormatXMLize extends BaseXMLize {
 		isNumber = true;
 	  } catch (NumberFormatException nfe) {}
 	  if (isNumber) {
-		if (debug)
-		  System.out.println ("got here - " + objAsString + " but not number - " + theObj.getClass ());
+		//		if (debug)
+		//		  System.out.println ("got here - " + objAsString + " but not number - " + theObj.getClass ());
 		return numberString;
 	  }
 	}
@@ -439,8 +467,8 @@ public class FormatXMLize extends BaseXMLize {
 	  return "string(" + len + ")";
 	}
 
-	if (debug)
-	  System.out.println ("got here - " + objAsString + " - " + theObj.getClass ());
+	//	if (debug)
+	//	  System.out.println ("got here - " + objAsString + " - " + theObj.getClass ());
 	
 	int len = MULTIPLIER*objAsString.length();
 	if (len > 255)
