@@ -390,7 +390,7 @@ public class VishnuComm {
     StringBuffer sb = new StringBuffer ();
     sb.append ("?" + "bogus=ferris&"); 
     sb.append (getProblemPostVar  () + "&");
-    sb.append ("username=" + myUser + "&");
+    sb.append ("user=" + myUser + "&");
     sb.append ("password=" + myPassword);
 
     if (myExtraOutput)
