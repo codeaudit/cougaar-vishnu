@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Scheduler.java,v 1.6 2001-02-12 03:06:39 gvidaver Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Scheduler.java,v 1.7 2001-02-16 22:04:21 gvidaver Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -50,7 +50,7 @@ public class Scheduler {
   private List ignoredProblems = null;
   
   public Scheduler () {
-    if (onlyTheseProblems != null) {
+    if (onlyTheseProblems != null && onlyTheseProblems.length () > 1) {
 	  getNames (allowedProblems, onlyTheseProblems);
       System.out.println ("Scheduler will only process these problems:" + allowedProblems);
     }
