@@ -136,36 +136,36 @@ public abstract class VishnuPlugIn
 
     try {showTiming = 
 		   getMyParams().getBooleanParam("showTiming");}    
-    catch(Exception e) {showTiming = true;}
-
-    try {makeSetupAndWrapupTasks = 
-		   getMyParams().getBooleanParam("makeSetupAndWrapupTasks");}    
-    catch(Exception e) {makeSetupAndWrapupTasks = true;}
-
-    try {useStoredFormat = getMyParams().getBooleanParam("useStoredFormat");}    
-    catch(Exception e) {  useStoredFormat = false;	}
-
-    try {stopOnFailure = 
-		   getMyParams().getBooleanParam("stopOnFailure");}    
-    catch(Exception e) {stopOnFailure = false;}
-
-    try {debugParseAnswer = 
-		   getMyParams().getBooleanParam("debugParseAnswer");}    
-    catch(Exception e) {debugParseAnswer = false;}
-
-    // how many of the input tasks to use as templates when producing the 
-	// OBJECT FORMAT for tasks
-    try {firstTemplateTasks = getMyParams().getIntParam("firstTemplateTasks");}    
-    catch(Exception e) {firstTemplateTasks = 2;}
-
-    try {sendDataChunkSize = getMyParams().getIntParam("sendDataChunkSize");}    
-    catch(Exception e) {sendDataChunkSize = 100;}
+    catch(Exception e) {  showTiming = true; }
 	
+	try {makeSetupAndWrapupTasks = 
+		   getMyParams().getBooleanParam("makeSetupAndWrapupTasks");}    
+	catch(Exception e) {makeSetupAndWrapupTasks = true;}
+
+	try {useStoredFormat = getMyParams().getBooleanParam("useStoredFormat");}    
+	catch(Exception e) {  useStoredFormat = false;	}
+
+	try {stopOnFailure = 
+		   getMyParams().getBooleanParam("stopOnFailure");}    
+	catch(Exception e) {stopOnFailure = false;}
+
+	try {debugParseAnswer = 
+		   getMyParams().getBooleanParam("debugParseAnswer");}    
+	catch(Exception e) {debugParseAnswer = false;}
+
+	// how many of the input tasks to use as templates when producing the 
+	// OBJECT FORMAT for tasks
+	try {firstTemplateTasks = getMyParams().getIntParam("firstTemplateTasks");}    
+	catch(Exception e) {firstTemplateTasks = 2;}
+
+	try {sendDataChunkSize = getMyParams().getIntParam("sendDataChunkSize");}    
+	catch(Exception e) {sendDataChunkSize = 100;}
+
 	domUtil = createVishnuDomUtil ();
 	comm    = createVishnuComm ();
 	xmlProcessor = createXMLProcessor ();
 	config  = createVishnuConfig ();
-	
+
 	// helpful for debugging connection configuration problems
 	if (runInternal) {
 	  if (runDirectly)
@@ -175,7 +175,7 @@ public abstract class VishnuPlugIn
 	}
 	else {
 	  System.out.print (getName () + " - will try to connect to Vishnu Web Server : " + 
-						  hostName + ".");
+						hostName + ".");
 	}
 	if (useStoredFormat)
 	  System.out.println (" Will send stored object format.");
@@ -190,521 +190,568 @@ public abstract class VishnuPlugIn
 	return new VishnuComm    (getMyParams(), getName(), getClusterName(), domUtil, runInternal); 
   }
   protected XMLProcessor  createXMLProcessor  () { 
-    if (myExtraOutput)
-      System.out.println (getName () + ".createXMLProcessor - creating vanilla xml processor.");
+	if (myExtraOutput)
+	  System.out.println (getName () + ".createXMLProcessor - creating vanilla xml processor.");
 	return new XMLProcessor (getMyParams(), getName(), getClusterName(), domUtil, comm, getConfigFinder()); 
   }
 
   public XMLizer getDataXMLizer () {
 	return xmlProcessor.getDataXMLizer();
   }
-  
+
   protected VishnuConfig createVishnuConfig () { 
 	return new VishnuConfig  (getMyParams(), getName(), getClusterName()); 
   }
-  
+
   public boolean getRunDirectly () {
 	return runDirectly;
   }
-  
-  /****************************************************************
-   ** Setup Filters...
-   **/
 
-  public void setupFilters () {
-    super.setupFilters ();
+   /****************************************************************
+	** Setup Filters...
+	**/
 
-    if (myExtraOutput)
-      System.out.println (getName () + " : Filtering for generic Assets...");
+   public void setupFilters () {
+	 super.setupFilters ();
 
-    addFilter (myAssetCallback    = createAssetCallback    ());
-  }
+	 if (myExtraOutput)
+	   System.out.println (getName () + " : Filtering for generic Assets...");
 
-  /**
-   * Is the task interesting to the plugin?  This is the inner-most part of <br> 
-   * the predicate.                                                         <br>
-   * By default, it ignores tasks produced from this plugin                 <br>                    
-   * If you redefine this, it's good to call this using super.
-   *
-   * @param t - the task begin checked
-   */
-  public boolean interestingTask (Task t) { 
-	PrepositionalPhrase pp = UTILPrepPhrase.getPrepNamed (t, "VISHNU"); 
-	if (pp != null && ((String) pp.getIndirectObject()).equals (getClassName(this)))
-	  return false;
-	return true;
-  }
+	 addFilter (myAssetCallback    = createAssetCallback    ());
+   }
 
-  public void handleIllFormedTask (Task t) {}
+   /**
+	* Is the task interesting to the plugin?  This is the inner-most part of <br> 
+	* the predicate.                                                         <br>
+	* By default, it ignores tasks produced from this plugin                 <br>                    
+	* If you redefine this, it's good to call this using super.
+	*
+	* @param t - the task begin checked
+	*/
+   public boolean interestingTask (Task t) { 
+	 PrepositionalPhrase pp = UTILPrepPhrase.getPrepNamed (t, "VISHNU"); 
+	 if (pp != null && ((String) pp.getIndirectObject()).equals (getClassName(this)))
+	   return false;
+	 return true;
+   }
 
-  protected UTILAssetCallback getAssetCallback    () { return myAssetCallback; }
+   public void handleIllFormedTask (Task t) {}
 
-  /**
-   * Standard Asset callback
-   *
-   * @see org.cougaar.lib.callback.UTILPhysicalAssetCallback
-   * @see org.cougaar.lib.callback.UTILNotOrganizationCallback
-   */
-  protected UTILAssetCallback createAssetCallback () { 
-    return new UTILAssetCallback  (this); 
-  } 
+   protected UTILAssetCallback getAssetCallback    () { return myAssetCallback; }
 
-  /**
-   * <pre>
-   * Implemented for UTILAssetListener
-   *
-   * OVERRIDE to see which assets you
-   * think are interesting
-   * </pre>
-   * @param a asset to check for notification
-   * @return boolean true if asset is interesting
-   */
-  public boolean interestingAsset(Asset a) {
-    return true;
-  }
+   /**
+	* Standard Asset callback
+	*
+	* @see org.cougaar.lib.callback.UTILPhysicalAssetCallback
+	* @see org.cougaar.lib.callback.UTILNotOrganizationCallback
+	*/
+   protected UTILAssetCallback createAssetCallback () { 
+	 return new UTILAssetCallback  (this); 
+   } 
 
-  /**
-   * <pre>
-   * Place to handle new assets.
-   *
-   * Does nothing by default - reports new assets when myExtraOutput set.
-   *
-   * </pre>
-   * @param newAssets new assets found in the container
-   */
-  public void handleNewAssets(Enumeration newAssets) {
-	if (myExtraOutput) {
-	  Set changed = new HashSet ();
-	  for (; newAssets.hasMoreElements (); ){
-		Object asset = newAssets.nextElement ();
-		changed.add (asset);
-	  }
-	  System.out.println (getName () + ".handleNewAssets - got new assets = " + changed);
-	}
-  }
+   /**
+	* <pre>
+	* Implemented for UTILAssetListener
+	*
+	* OVERRIDE to see which assets you
+	* think are interesting
+	* </pre>
+	* @param a asset to check for notification
+	* @return boolean true if asset is interesting
+	*/
+   public boolean interestingAsset(Asset a) {
+	 return true;
+   }
 
-  /**
-   * <pre>
-   * Place to handle changed assets.
-   *
-   * Does nothing by default - reports changed assets when myExtraOutput set.
-   *
-   * </pre>
-   * @param newAssets changed assets found in the container
-   */
-  public void handleChangedAssets(Enumeration changedAssets) {
-	if (myExtraOutput)
-	  System.out.println (getName () + ".handleChangedAssets - got changed assets.");
-  }
+   /**
+	* <pre>
+	* Place to handle new assets.
+	*
+	* Does nothing by default - reports new assets when myExtraOutput set.
+	*
+	* </pre>
+	* @param newAssets new assets found in the container
+	*/
+   public void handleNewAssets(Enumeration newAssets) {
+	 if (myExtraOutput) {
+	   Set changed = new HashSet ();
+	   for (; newAssets.hasMoreElements (); ){
+		 Object asset = newAssets.nextElement ();
+		 changed.add (asset);
+	   }
+	   System.out.println (getName () + ".handleNewAssets - got new assets = " + changed);
+	 }
+   }
 
-  /**
-   * <pre>
-   * Place to handle rescinded tasks.
-   *
-   * Sends XML to unfreeze the task assignment and delete it.
-   *
-   * </pre>
-   * @param newAssets changed assets found in the container
-   */
-  protected void handleRemovedTasks(Enumeration removedTasks) {
-    if (incrementalScheduling) {
-      Document docToSend = xmlProcessor.prepareRescind(removedTasks);
-      
-      comm.serializeAndPostData (docToSend, runInternal, internalBuffer);
-    }
-  }
+   /**
+	* <pre>
+	* Place to handle changed assets.
+	*
+	* Does nothing by default - reports changed assets when myExtraOutput set.
+	*
+	* </pre>
+	* @param newAssets changed assets found in the container
+	*/
+   public void handleChangedAssets(Enumeration changedAssets) {
+	 if (myExtraOutput)
+	   System.out.println (getName () + ".handleChangedAssets - got changed assets.");
+   }
+
+   /**
+	* <pre>
+	* Place to handle rescinded tasks.
+	*
+	* Sends XML to unfreeze the task assignment and delete it.
+	*
+	* </pre>
+	* @param newAssets changed assets found in the container
+	*/
+   protected void handleRemovedTasks(Enumeration removedTasks) {
+	 if (incrementalScheduling) {
+	   Document docToSend = xmlProcessor.prepareRescind(removedTasks);
+
+	   comm.serializeAndPostData (docToSend, runInternal, internalBuffer);
+	 }
+   }
 
 
-  
-  /**
-   * <pre>
-   * To be called from handleSuccessfulXXX methods in allocator, aggregator, 
-   * and expander.
-   *
-   * It's up to them to take apart plan element to send task->asset mappings.
-   * 
-   * Inefficient for large numbers of tasks that could go in one batch to the 
-   * web server.
-   *
-   * If sendRoleScheduleUpdates is false, this method is ignored.
-   *
-   * </pre>
-   * @param changedAsset -- the asset that has been allocated to, with an 
-   *        updated role schedule
-   * @param assignedTask -- the task that was frozen, now should be unfrozen
-   */
-  /*
-  protected void sendUpdatedRoleSchedule(PlanElement pe, Asset changedAsset, 
-										 Collection assignedTasks) {
-	if (!sendRoleScheduleUpdates)
-	  return;
-	
-	if (myExtraOutput) {
-	  System.out.println (getName () + 
-						  ".sendUpdatedRoleSchedule - got changed asset = " + 
-						  changedAsset);
-	}
-	
-	Set frozenTasks = new HashSet (myFrozenTasks);
-	frozenTasks.retainAll (assignedTasks);
 
-	if (frozenTasks.isEmpty ()) 
-	  return;
-	
-	Document doc = new DocumentImpl ();
-    Element newRoot = doc.createElement("PROBLEM");
-	newRoot.setAttribute ("NAME", comm.getProblem());
-    doc.appendChild(newRoot);
-	
-	for (Iterator iter = frozenTasks.iterator (); iter.hasNext (); ) {
-	  UniqueObject task = (UniqueObject) iter.next ();
-	  Element unfreeze = doc.createElement("UNFREEZE");
-	  unfreeze.setAttribute ("TASK", task.getUID ().getUID());
-	  newRoot.appendChild (unfreeze);
-	  if (myExtraOutput)
-		System.out.println (getName () + 
-							".sendUpdatedRoleSchedule - unfreezing " + 
-							task.getUID ());
-	}
-	
-	if (myExtraOutput)
-	  System.out.println (getName () + 
-						  ".sendUpdatedRoleSchedule - sending " + 
-						  frozenTasks.size () + 
-						  " changed assets.");
+   /**
+	* <pre>
+	* To be called from handleSuccessfulXXX methods in allocator, aggregator, 
+	* and expander.
+	*
+	* It's up to them to take apart plan element to send task->asset mappings.
+	* 
+	* Inefficient for large numbers of tasks that could go in one batch to the 
+	* web server.
+	*
+	* If sendRoleScheduleUpdates is false, this method is ignored.
+	*
+	* </pre>
+	* @param changedAsset -- the asset that has been allocated to, with an 
+	*        updated role schedule
+	* @param assignedTask -- the task that was frozen, now should be unfrozen
+	*/
+   /*
+   protected void sendUpdatedRoleSchedule(PlanElement pe, Asset changedAsset, 
+										  Collection assignedTasks) {
+	 if (!sendRoleScheduleUpdates)
+	   return;
 
-	serializeAndPostData (doc);
+	 if (myExtraOutput) {
+	   System.out.println (getName () + 
+						   ".sendUpdatedRoleSchedule - got changed asset = " + 
+						   changedAsset);
+	 }
 
-	if (myExtraOutput)
-	  System.out.println (getName () + 
-						  ".sendUpdatedRoleSchedule - sending updated asset " +
-						  changedAsset.getUID ());
+	 Set frozenTasks = new HashSet (myFrozenTasks);
+	 frozenTasks.retainAll (assignedTasks);
 
-	List changed = new ArrayList ();
-	changed.add (changedAsset);
-    sendDataToVishnu (changed, myNameToDescrip, 
-					  false, // don't clear database
-					  true, // send assets as CHANGEDOBJECTS
-					  singleAssetClassName);
+	 if (frozenTasks.isEmpty ()) 
+	   return;
 
-	myFrozenTasks.removeAll (frozenTasks);
-  }
-*/
+	 Document doc = new DocumentImpl ();
+	 Element newRoot = doc.createElement("PROBLEM");
+	 newRoot.setAttribute ("NAME", comm.getProblem());
+	 doc.appendChild(newRoot);
 
-  /**
-   * <pre>
-   * Deal with the tasks that we have accumulated.
-   * 
-   * Does, in order: 
-   * 1) Sends the problem's object format, if it hasn't already been sent.
-   * 2) Records tasks so can unfreeze them later.
-   * 3) Sends the data (obtained from tasks and assets)
-   * 4) Starts the scheduler
-   * 5) Waits for a result
-   * 
-   * </pre>
-   *
-   * @param tasks the tasks to handle
-   */
-  public void processTasks (List tasks) {
-	total += tasks.size();
-	System.out.println (getName () + ".processTasks - received " + 
-						tasks.size () + " tasks, " + total + " total so far.");
-	if (runInternal)
-	  internalBuffer.append ("<root>");
+	 for (Iterator iter = frozenTasks.iterator (); iter.hasNext (); ) {
+	   UniqueObject task = (UniqueObject) iter.next ();
+	   Element unfreeze = doc.createElement("UNFREEZE");
+	   unfreeze.setAttribute ("TASK", task.getUID ().getUID());
+	   newRoot.appendChild (unfreeze);
+	   if (myExtraOutput)
+		 System.out.println (getName () + 
+							 ".sendUpdatedRoleSchedule - unfreezing " + 
+							 task.getUID ());
+	 }
 
-	Date start = new Date();
-      
-	Document objectFormatDoc = null;
-	
-	if (useStoredFormat)
-	  objectFormatDoc = prepareStoredObjectFormat (tasks);
-	else 
-	  prepareObjectFormat (tasks);
-      
-	setUIDToObjectMap (tasks, myTaskUIDtoObject);
+	 if (myExtraOutput)
+	   System.out.println (getName () + 
+						   ".sendUpdatedRoleSchedule - sending " + 
+						   frozenTasks.size () + 
+						   " changed assets.");
 
-	if (myExtraOutput)
-	  System.out.println (getName () + ".processTasks - sending " + 
-						  myTaskUIDtoObject.values ().size () + " tasks.");
-      
-	int numTasks = myTaskUIDtoObject.values ().size ();
-	Date dataStart = new Date();
-      
-	prepareData (tasks, objectFormatDoc);
-	  
-	if (showTiming) {
-	  domUtil.reportTime (" - Vishnu completed data XML processing in ", dataStart);
-	  domUtil.reportTime (" - Vishnu completed XML processing in ", start);
-	}
+	 serializeAndPostData (doc);
 
-	waitForAnswer ();
-	  
-	if (showTiming)
-	  domUtil.reportTime (" - Vishnu did " + numTasks + " tasks in ", start);
-  }
+	 if (myExtraOutput)
+	   System.out.println (getName () + 
+						   ".sendUpdatedRoleSchedule - sending updated asset " +
+						   changedAsset.getUID ());
 
-  
-  protected void prepareObjectFormat (List tasks) {
-	Date start = new Date();
+	 List changed = new ArrayList ();
+	 changed.add (changedAsset);
+	 sendDataToVishnu (changed, myNameToDescrip, 
+					   false, // don't clear database
+					   true, // send assets as CHANGEDOBJECTS
+					   singleAssetClassName);
 
-	// The problem format, as opposed to the data, is not cleared on the <CLEARDATABASE>
-	// call.  Hence, there is no need to resend the format even when not doing incremental
-	// scheduling.  The only time the problem format needs to be resent is when running
-	// internally.  
-	if (!sentFormatAlready) {
-	  if (myExtraOutput)
-		System.out.println (getName () + ".prepareObjectFormat - discovering object format introspectively.");
+	 myFrozenTasks.removeAll (frozenTasks);
+   }
+ */
 
-	  List assetClassName = new ArrayList(); // just a way of returning a second return value from function
-	  Collection formatTemplates = config.getAssetTemplatesForTasks(tasks, assetClassName, getAllAssets());
-	  singleAssetClassName = (String) assetClassName.get(0);
-		
-	  formatTemplates.addAll (config.getTemplateTasks(tasks, firstTemplateTasks));
+   /**
+	* <pre>
+	* Deal with the tasks that we have accumulated.
+	* 
+	* Does, in order: 
+	* 1) Sends the problem's object format, if it hasn't already been sent.
+	* 2) Records tasks so can unfreeze them later.
+	* 3) Sends the data (obtained from tasks and assets)
+	* 4) Starts the scheduler
+	* 5) Waits for a result
+	* 
+	* </pre>
+	*
+	* @param tasks the tasks to handle
+	*/
+   public void processTasks (List tasks) {
+	 total += tasks.size();
+	 System.out.println (getName () + ".processTasks - received " + 
+						 tasks.size () + " tasks, " + total + " total so far.");
+	 if (runInternal)
+	   internalBuffer.append ("<root>");
 
-	  if (myExtraOutput) {
-		System.out.println (getName () + ".processTasks - " + formatTemplates.size() + " unique assets : ");
-		for (Iterator iter = formatTemplates.iterator (); iter.hasNext(); )
-		  System.out.print ("\t" + iter.next().getClass ());
-		System.out.println ("");
-	  }
+	 Date start = new Date();
 
-	  myNameToDescrip = sendFormat (formatTemplates, singleAssetClassName);
+	 Document objectFormatDoc = null;
 
-	  // only create data xmlizer once -- remembers references to globals throughout its lifetime
-	  xmlProcessor.createDataXMLizer (myNameToDescrip, singleAssetClassName);
-	  
-	  if (!runInternal)
-		sentFormatAlready = true;
-	  if (showTiming)
-		domUtil.reportTime (" - Vishnu completed format XML processing in ", start);
-	}
-  }
-  
-  /** 
-   * Like VishnuPlugIn.prepareObjectFormat                           <p>
-   *
-   * Send the file called <Cluster>.dff.xml as the default object format 
-   * for the problem.                                                     <p>
-   * Does NOT discover the object format from sampling the tasks.         <p>
-   * 
-   * This file can also be indicated by setting the parameter <code>defaultFormat</code>.
-   *
-   * @param ignoredTasks does NOT use the input tasks to discover format
-   **/
-  protected Document prepareStoredObjectFormat (List ignoredTasks) {
-	Date start = new Date();
+	 if (useStoredFormat)
+	   objectFormatDoc = prepareStoredObjectFormat (tasks);
+	 else 
+	   prepareObjectFormat (tasks);
 
-	xmlProcessor.createDataXMLizer (myNameToDescrip, singleAssetClassName);
-	Document formatDoc = null;
-	
-	try {
-	  if (!sentFormatAlready) {
-		String defaultFormat = config.getNeededFile ("defaultFormat", ".dff.xml");
+	 setUIDToObjectMap (tasks, myTaskUIDtoObject);
 
-		if (myExtraOutput)
-		  System.out.println (getName () + ".prepareStoredObjectFormat - sending format file " + defaultFormat);
+	 if (myExtraOutput)
+	   System.out.println (getName () + ".processTasks - sending " + 
+						   myTaskUIDtoObject.values ().size () + " tasks.");
 
-		DOMParser parser = new DOMParser ();
-		InputStream inputStream = getConfigFinder().open(defaultFormat);
-		parser.parse (new InputSource(inputStream));
-		formatDoc = parser.getDocument ();
-		Element formatDocRoot = formatDoc.getDocumentElement ();
-		formatDocRoot.setAttribute ("name", comm.getProblem());
+	 int numTasks = myTaskUIDtoObject.values ().size ();
+	 Date dataStart = new Date();
 
-		attachAssociatedFiles (formatDoc); // attach vsh.xml, ga.xml, odf.xml files
+	 prepareData (tasks, objectFormatDoc);
 
-		comm.serializeAndPost (formatDoc, false, runInternal, internalBuffer);
+	 if (showTiming) {
+	   domUtil.reportTime (" - Vishnu completed data XML processing in ", dataStart);
+	   domUtil.reportTime (" - Vishnu completed XML processing in ", start);
+	 }
 
-		if (!runInternal)
-		  sentFormatAlready = true;
-	  }
+	 waitForAnswer ();
 
-	  if (showTiming)
-		domUtil.reportTime (" - Vishnu completed format XML processing in ", start);
-	} catch (Exception e) {
-	  System.out.println (getName () + ".prepareStoredObjectFormat - ERROR with file " + e.getMessage());
-	}
+	 if (showTiming)
+	   domUtil.reportTime (" - Vishnu did " + numTasks + " tasks in ", start);
+   }
 
-	return formatDoc;
-  }
-  
-  /**
-   *
-   */
-  protected void prepareData (List stuffToSend, Document objectFormatDoc) {
-    // Add assets to the data unless you're scheduling incrementally
-    // and the assets have already been sent
-    if (!(incrementalScheduling && sentAssetsAlready)) {
-      Collection allAssets = getAllAssets();
-      if (myExtraOutput)
-	System.out.println (getName () + ".processTasks - sending " + 
-			    allAssets.size () + " assets.");
-      
-      stuffToSend.addAll (allAssets);
-      if (!runInternal)
-	sentAssetsAlready = true;
-      
-      setUIDToObjectMap (allAssets, myAssetUIDtoObject);
-    }
-	  
-    if (myExtraExtraOutput) {
-      for (Iterator iter = stuffToSend.iterator (); iter.hasNext (); ) {
-	Object obj = iter.next ();
-	
-	System.out.println (getName () + ".processTasks sending stuff " + 
-			    ((UniqueObject) obj).getUID ());
-      }
-    }
 
-    // Send problem data to vishnu
-	if (runDirectly) {
-	  sched = new Scheduler ();
-	  sched.setupInternalObjects ();
-	  
-	  vishnuTasks     = new ArrayList ();
-	  vishnuResources = new ArrayList ();
-	  
-	  prepareVishnuObjects (stuffToSend, vishnuTasks, vishnuResources, objectFormatDoc, sched.getTimeOps());
+   protected void prepareObjectFormat (List tasks) {
+	 Date start = new Date();
 
-	  comm.serializeAndPostData (xmlProcessor.getVanillaHeader (), 
-								 runInternal, 
-								 internalBuffer);
+	 // The problem format, as opposed to the data, is not cleared on the <CLEARDATABASE>
+	 // call.  Hence, there is no need to resend the format even when not doing incremental
+	 // scheduling.  The only time the problem format needs to be resent is when running
+	 // internally.  
+	 if (!sentFormatAlready) {
+	   if (myExtraOutput)
+		 System.out.println (getName () + ".prepareObjectFormat - discovering object format introspectively.");
 
-	  // send other data
-	  comm.serializeAndPostData (xmlProcessor.getOtherDataDoc (config.getOtherData ()), 
-								 runInternal, 
-								 internalBuffer);
-	}
-	else 
-	  sendDataToVishnu (stuffToSend, 
-						myNameToDescrip, 
-						alwaysClearDatabase,
-						false, // send assets as NEWOBJECTS
-						singleAssetClassName);
-  }
-  
-  protected void waitForAnswer () {
-    if (runInternal) {
-	  if (runDirectly) 
-		runDirectly();
-	  else
-		runInternally ();
-    } else {
-      comm.startScheduling ();
-      
-      if (!waitTillFinished ())
-		showTimedOutMessage ();
-    }
-  }
-  
-  private void showTimedOutMessage () {
-	System.out.println (getName () + ".processTasks -- ERROR -- " + 
-						"Timed out waiting for scheduler to finish.\n" +
-						"Is there a scheduler running?\n" + 
-						"See vishnu/scripts/runScheduler in the vishnu distribution.\n" +
-						"It's good to set the machines property to include only\n" + 
-						"those machines you are running from, or else the scheduler\n" +
-						"could process any job posted by anyone to the web server.\n" +
-						"For more information, contact gvidaver@bbn.com or dmontana@bbn.com");
-  }
+	   List assetClassName = new ArrayList(); // just a way of returning a second return value from function
+	   Collection formatTemplates = config.getAssetTemplatesForTasks(tasks, assetClassName, getAllAssets());
+	   singleAssetClassName = (String) assetClassName.get(0);
 
-  /** 
-   * Run internally.  Create a new scheduler, and give it the contents of <p>
-   * the internalBuffer, which has captured all the xml output that would <p>
-   * normally go to the various URLs.  Then, parse the results using a SAX <p>
-   * Parser and the AssignmentHandler, which just calls parseStartElement and <p>
-   * parseEndElement.  The AssignmentHandler will create plan elements for
-   * each assignment.
-   *
-   * @see #parseStartElement
-   * @see #parseEndElement
-   */
-  protected void runInternally () {
-	  Scheduler internal = new Scheduler ();
-	  internalBuffer.append ("</root>");
-	  if (myExtraExtraOutput)
-		System.out.println(getName () + ".runInternally - sending stuff " + internalBuffer.toString());
+	   formatTemplates.addAll (config.getTemplateTasks(tasks, firstTemplateTasks));
 
-	  int unhandledTasks = myTaskUIDtoObject.size ();
+	   if (myExtraOutput) {
+		 System.out.println (getName () + ".processTasks - " + formatTemplates.size() + " unique assets : ");
+		 for (Iterator iter = formatTemplates.iterator (); iter.hasNext(); )
+		   System.out.print ("\t" + iter.next().getClass ());
+		 System.out.println ("");
+	   }
 
-	  String assignments = internal.runInternalToProcess (internalBuffer.toString());
-	  if (myExtraOutput)
-		System.out.println(getName () + ".runInternally - scheduled assignments were : " + assignments);
-	
-	  SAXParser parser = new SAXParser();
-	  //	parser.setDocumentHandler (new AssignmentHandler ());
-	  parser.setContentHandler (new AssignmentHandler ());
-	  try {
-		parser.parse (new InputSource (new StringReader (assignments)));
-	  } catch (SAXException sax) {
-		System.out.println (getName () + ".runInternally - Got sax exception:\n" + sax);
-	  } catch (IOException ioe) {
-		System.out.println (getName () + ".runInternally - Could not open file : \n" + ioe);
-	  } catch (NullPointerException npe) {
-		System.out.println (getName () + ".runInternally - ERROR - no assignments were made, badly confused : \n" + npe);
-	  }
-	  clearInternalBuffer ();
+	   myNameToDescrip = sendFormat (formatTemplates, singleAssetClassName);
 
-	  if (myExtraOutput || true)
-		System.out.println (getName () + ".runInternally - created successful plan elements for " +
-							(unhandledTasks-myTaskUIDtoObject.size ()) + " tasks.");
+	   // only create data xmlizer once -- remembers references to globals throughout its lifetime
+	   xmlProcessor.createDataXMLizer (myNameToDescrip, singleAssetClassName);
 
-	  handleImpossibleTasks (myTaskUIDtoObject.values ());
-	  myTaskUIDtoObject.clear ();
-  }
+	   if (!runInternal)
+		 sentFormatAlready = true;
+	   if (showTiming)
+		 domUtil.reportTime (" - Vishnu completed format XML processing in ", start);
+	 }
+   }
 
-  protected void runDirectly () {
-	//	Scheduler sched = new Scheduler ();
-	internalBuffer.append ("</root>");
-	if (myExtraExtraOutput)
-	  System.out.println(getName () + ".runDirectly - sending stuff " + internalBuffer.toString());
+   /** 
+	* Like VishnuPlugIn.prepareObjectFormat                           <p>
+	*
+	* Send the file called <Cluster>.dff.xml as the default object format 
+	* for the problem.                                                     <p>
+	* Does NOT discover the object format from sampling the tasks.         <p>
+	* 
+	* This file can also be indicated by setting the parameter <code>defaultFormat</code>.
+	*
+	* @param ignoredTasks does NOT use the input tasks to discover format
+	**/
+   protected Document prepareStoredObjectFormat (List ignoredTasks) {
+	 Date start = new Date();
 
-	int unhandledTasks = myTaskUIDtoObject.size ();
+	 xmlProcessor.createDataXMLizer (myNameToDescrip, singleAssetClassName);
+	 Document formatDoc = null;
 
-	// Call setupInternal before adding the data
-	sched.setupInternal (new String(internalBuffer), false);
+	 try {
+	   if (!sentFormatAlready) {
+		 String defaultFormat = config.getNeededFile ("defaultFormat", ".dff.xml");
 
-	// These are things created by the scheduler during setup that
-	// are needed for direct object writing.
-	TimeOps timeOps = sched.getTimeOps();
-	SchedulingData data = sched.getSchedulingData();
+		 if (myExtraOutput)
+		   System.out.println (getName () + ".prepareStoredObjectFormat - sending format file " + defaultFormat);
 
-	if (myExtraOutput || true) 
-	  System.out.println(getName () + ".runDirectly - adding " + 
-						 vishnuTasks.size() + " tasks, " +
-						 vishnuResources.size () + " resources to scheduler data.");
-	  
-	for (int i = 0; i < vishnuTasks.size (); i++) {
-	  Object vishnuObject = vishnuTasks.get(i);
-	  data.addTask ((org.cougaar.lib.vishnu.server.Task) vishnuObject);
-	}
-	for (int i = 0; i < vishnuResources.size (); i++) {
-	  Object vishnuObject = vishnuResources.get(i);
-	  data.addResource ((Resource) vishnuObject);
-	}
-	if (vishnuTasks.size () != data.getTasks().length)
-	  System.out.println(getName () + ".runDirectly - ERROR - data says only " + 
-						 data.getTasks().length + " tasks.");
-	
-	if (vishnuResources.size () != data.getResources().length)
-	  System.out.println(getName () + ".runDirectly - ERROR - data says only " + 
-						 data.getResources().length + " resources.");
-	
+		 DOMParser parser = new DOMParser ();
+		 InputStream inputStream = getConfigFinder().open(defaultFormat);
+		 parser.parse (new InputSource(inputStream));
+		 formatDoc = parser.getDocument ();
+		 Element formatDocRoot = formatDoc.getDocumentElement ();
+		 formatDocRoot.setAttribute ("name", comm.getProblem());
 
-	// Call scheduleInternal after adding all the data
-	sched.scheduleInternal();
+		 attachAssociatedFiles (formatDoc); // attach vsh.xml, ga.xml, odf.xml files
 
-	// This shows how to extract the assignments after scheduling.
-	// When sched.assignmentsMultitask() is true, the assignments
-	// will actually be MultitaskAssignment objects instead.
-    if (! sched.assignmentsMultitask()) {
-      org.cougaar.lib.vishnu.server.Task[] tasks = data.getTasks();
-      for (int i = 0; i < tasks.length; i++) {
-        Assignment assign = tasks[i].getAssignment();
-		parseAssignment (assign.getTask().getKey(), assign.getResource().getKey(),
-						 timeOps.timeToDate (assign.getTaskStartTime()),
-						 timeOps.timeToDate (assign.getTaskEndTime()),
+		 comm.serializeAndPost (formatDoc, false, runInternal, internalBuffer);
+
+		 if (!runInternal)
+		   sentFormatAlready = true;
+	   }
+
+	   if (showTiming)
+		 domUtil.reportTime (" - Vishnu completed format XML processing in ", start);
+	 } catch (Exception e) {
+	   System.out.println (getName () + ".prepareStoredObjectFormat - ERROR with file " + e.getMessage());
+	 }
+
+	 return formatDoc;
+   }
+
+   /**
+	*
+	*/
+   protected void prepareData (List stuffToSend, Document objectFormatDoc) {
+	 // Add assets to the data unless you're scheduling incrementally
+	 // and the assets have already been sent
+	 if (!(incrementalScheduling && sentAssetsAlready)) {
+	   Collection allAssets = getAllAssets();
+	   if (myExtraOutput)
+	 System.out.println (getName () + ".processTasks - sending " + 
+				 allAssets.size () + " assets.");
+
+	   stuffToSend.addAll (allAssets);
+	   if (!runInternal)
+	 sentAssetsAlready = true;
+
+	   setUIDToObjectMap (allAssets, myAssetUIDtoObject);
+	 }
+
+	 if (myExtraExtraOutput) {
+	   for (Iterator iter = stuffToSend.iterator (); iter.hasNext (); ) {
+	 Object obj = iter.next ();
+
+	 System.out.println (getName () + ".processTasks sending stuff " + 
+				 ((UniqueObject) obj).getUID ());
+	   }
+	 }
+
+	 // Send problem data to vishnu
+	 if (runDirectly) {
+	   sched = new Scheduler ();
+	   sched.setupInternalObjects ();
+
+	   vishnuTasks     = new ArrayList ();
+	   vishnuResources = new ArrayList ();
+
+	   Date start = new Date ();
+	   
+	   prepareVishnuObjects (stuffToSend, vishnuTasks, vishnuResources, objectFormatDoc, sched.getTimeOps());
+
+	   if (showTiming)
+		 domUtil.reportTime (".prepareData - prepared vishnu objects in ", start);
+	   
+	   comm.serializeAndPostData (xmlProcessor.getVanillaHeader (), 
+								  runInternal, 
+								  internalBuffer);
+
+	   // send other data
+	   comm.serializeAndPostData (xmlProcessor.getOtherDataDoc (config.getOtherData ()), 
+								  runInternal, 
+								  internalBuffer);
+	 }
+	 else 
+	   sendDataToVishnu (stuffToSend, 
+						 myNameToDescrip, 
+						 alwaysClearDatabase,
+						 false, // send assets as NEWOBJECTS
+						 singleAssetClassName);
+   }
+
+   protected void waitForAnswer () {
+	 if (runInternal) {
+	   if (runDirectly) 
+		 runDirectly();
+	   else
+		 runInternally ();
+	 } else {
+	   comm.startScheduling ();
+
+	   if (!waitTillFinished ())
+		 showTimedOutMessage ();
+	 }
+   }
+
+   private void showTimedOutMessage () {
+	 System.out.println (getName () + ".processTasks -- ERROR -- " + 
+						 "Timed out waiting for scheduler to finish.\n" +
+						 "Is there a scheduler running?\n" + 
+						 "See vishnu/scripts/runScheduler in the vishnu distribution.\n" +
+						 "It's good to set the machines property to include only\n" + 
+						 "those machines you are running from, or else the scheduler\n" +
+						 "could process any job posted by anyone to the web server.\n" +
+						 "For more information, contact gvidaver@bbn.com or dmontana@bbn.com");
+   }
+
+   /** 
+	* Run internally.  Create a new scheduler, and give it the contents of <p>
+	* the internalBuffer, which has captured all the xml output that would <p>
+	* normally go to the various URLs.  Then, parse the results using a SAX <p>
+	* Parser and the AssignmentHandler, which just calls parseStartElement and <p>
+	* parseEndElement.  The AssignmentHandler will create plan elements for
+	* each assignment.
+	*
+	* @see #parseStartElement
+	* @see #parseEndElement
+	*/
+   protected void runInternally () {
+	   Scheduler internal = new Scheduler ();
+	   internalBuffer.append ("</root>");
+	   if (myExtraExtraOutput)
+		 System.out.println(getName () + ".runInternally - sending stuff " + internalBuffer.toString());
+
+	   int unhandledTasks = myTaskUIDtoObject.size ();
+
+	   String assignments = internal.runInternalToProcess (internalBuffer.toString());
+	   if (myExtraOutput)
+		 System.out.println(getName () + ".runInternally - scheduled assignments were : " + assignments);
+
+	   SAXParser parser = new SAXParser();
+	   //	parser.setDocumentHandler (new AssignmentHandler ());
+	   parser.setContentHandler (new AssignmentHandler ());
+	   try {
+		 parser.parse (new InputSource (new StringReader (assignments)));
+	   } catch (SAXException sax) {
+		 System.out.println (getName () + ".runInternally - Got sax exception:\n" + sax);
+	   } catch (IOException ioe) {
+		 System.out.println (getName () + ".runInternally - Could not open file : \n" + ioe);
+	   } catch (NullPointerException npe) {
+		 System.out.println (getName () + ".runInternally - ERROR - no assignments were made, badly confused : \n" + npe);
+	   }
+	   clearInternalBuffer ();
+
+	   if (myExtraOutput || true)
+		 System.out.println (getName () + ".runInternally - created successful plan elements for " +
+							 (unhandledTasks-myTaskUIDtoObject.size ()) + " tasks.");
+
+	   handleImpossibleTasks (myTaskUIDtoObject.values ());
+	   myTaskUIDtoObject.clear ();
+   }
+
+   protected void runDirectly () {
+	 Date start = new Date ();
+
+	 internalBuffer.append ("</root>");
+	 if (myExtraExtraOutput)
+	   System.out.println(getName () + ".runDirectly - sending stuff " + internalBuffer.toString());
+
+	 int unhandledTasks = myTaskUIDtoObject.size ();
+
+	 // sched is the scheduler...
+	 // Call setupInternal before adding the data, parses the specs, object format, and other data
+	 sched.setupInternal (new String(internalBuffer), false);
+	 clearInternalBuffer ();
+
+	 // These are things created by the scheduler during setup that
+	 // are needed for direct object writing.
+	 TimeOps timeOps = sched.getTimeOps();
+	 SchedulingData data = sched.getSchedulingData();
+
+	 // add tasks and resources to data
+	 addTasksDirectly (data, vishnuTasks, vishnuResources); // vishnuTasks & Resources set above
+
+	 // Call scheduleInternal after adding all the data
+	 Date start2 = new Date ();
+
+	 sched.scheduleInternal();
+
+	 if (showTiming)
+	   domUtil.reportTime (".runDirectly - scheduler processed " +
+						   myTaskUIDtoObject.size () + " tasks in ", start2);
+
+	 // get the assignments the scheduler made, make plan elements
+	 directlyHandleAssignments (sched, data, timeOps);
+
+	 if (showTiming) {
+	   domUtil.reportTime (".runDirectly - created successful plan elements for " +
+						   (unhandledTasks-myTaskUIDtoObject.size ()) + " tasks in ", start);
+	 } else {
+	   if (myExtraOutput || true)
+		 System.out.println (getName () + ".runDirectly - created successful plan elements for " +
+							 (unhandledTasks-myTaskUIDtoObject.size ()) + " tasks.");
+	 }
+
+	 // any tasks left in the map are impossible
+	 handleImpossibleTasks (myTaskUIDtoObject.values ());
+
+	 // ready to schedule the next batch!
+	 myTaskUIDtoObject.clear ();
+   }
+
+   protected void addTasksDirectly (SchedulingData data, List vishnuTasks, List vishnuResources) {
+	 Date start = new Date ();
+
+	 if (myExtraOutput || true) 
+	   System.out.println(getName () + ".runDirectly - adding " + 
+						  vishnuTasks.size() + " tasks, " +
+						  vishnuResources.size () + " resources to scheduler data.");
+
+	 for (int i = 0; i < vishnuTasks.size (); i++) {
+	   Object vishnuObject = vishnuTasks.get(i);
+	   data.addTask ((org.cougaar.lib.vishnu.server.Task) vishnuObject);
+	 }
+	 for (int i = 0; i < vishnuResources.size (); i++) {
+	   Object vishnuObject = vishnuResources.get(i);
+	   data.addResource ((Resource) vishnuObject);
+	 }
+	 if (vishnuTasks.size () != data.getTasks().length)
+	   System.out.println(getName () + ".runDirectly - ERROR - data says only " + 
+						  data.getTasks().length + " tasks.");
+
+	 if (vishnuResources.size () != data.getResources().length)
+	   System.out.println(getName () + ".runDirectly - ERROR - data says only " + 
+						  data.getResources().length + " resources.");
+
+	 if (showTiming) {
+	   domUtil.reportTime (".addTasksDirectly - added tasks in ", start);
+	 }
+   }
+
+   protected void directlyHandleAssignments (Scheduler sched, SchedulingData data,
+											 TimeOps timeOps) {
+	 Date start = new Date ();
+
+	 // This shows how to extract the assignments after scheduling.
+	 // When sched.assignmentsMultitask() is true, the assignments
+	 // will actually be MultitaskAssignment objects instead.
+	 if (! sched.assignmentsMultitask()) {
+	   org.cougaar.lib.vishnu.server.Task[] tasks = data.getTasks();
+	   for (int i = 0; i < tasks.length; i++) {
+		 Assignment assign = tasks[i].getAssignment();
+		 parseAssignment (assign.getTask().getKey(), assign.getResource().getKey(),
+						  timeOps.timeToDate (assign.getTaskStartTime()),
+						  timeOps.timeToDate (assign.getTaskEndTime()),
 						 timeOps.timeToDate (assign.getStartTime()), // setup
 						 timeOps.timeToDate (assign.getEndTime()));   // wrapup
       }
@@ -737,19 +784,12 @@ public abstract class VishnuPlugIn
 								 timeOps.timeToDate (assign.getEndTime()));   // wrapup
 		}
 	  }
-    }
+    } 
 
-	clearInternalBuffer ();
-
-	if (myExtraOutput || true)
-	  System.out.println (getName () + ".runDirectly - created successful plan elements for " +
-						  (unhandledTasks-myTaskUIDtoObject.size ()) + " tasks.");
-
-	handleImpossibleTasks (myTaskUIDtoObject.values ());
-	myTaskUIDtoObject.clear ();
+	if (showTiming)
+	  domUtil.reportTime (".directlyHandleAssignments - parsed assignments in ", start);
   }
-  
-  
+
   protected void setUIDToObjectMap (Collection objects, Map UIDtoObject) {
 	for (Iterator iter = objects.iterator (); iter.hasNext ();) {
 	  UniqueObject obj = (UniqueObject) iter.next ();
