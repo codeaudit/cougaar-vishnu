@@ -187,7 +187,7 @@ public class Scheduler {
   /** Write all the XML representation of assignments to a URL */
   private void writeSchedule() {
     Map args = getArgs();
-    String str = getXMLAssignments();
+    String str = getXMLAssignments (false);
     if (showAssignments)
       System.out.println ("Scheduler.writeSchedule - " + str);
 
@@ -196,25 +196,28 @@ public class Scheduler {
   }
 
   /** Compute the XML representation of assignments */
-  public String getXMLAssignments () {
-    Date start = new Date ();
+  public String getXMLAssignments (boolean internal) {
+    Date start = null;
+    if (debug) start = new Date ();
     Task[] tasks = data.getTasks();
     StringBuffer text = new StringBuffer (tasks.length * 200);
     text.append ("<?xml version='1.0'?>\n<ASSIGNMENTS>\n");
     boolean isEndTime = data.getEndTime() != Integer.MAX_VALUE;
     int maxTime = isEndTime ? data.getEndTime() : data.getStartTime();
-    for (int i = 0; i < tasks.length; i++) {
-      Assignment assign = tasks[i].getAssignment();
-      if (assign != null) {
-        assign.setColor (specs.getColor (tasks[i]));
-        assign.setText (specs.taskText (tasks[i]));
-        text.append (assign).append ("\n");
-        if ((! isEndTime) && (maxTime < assign.getEndTime()))
-          maxTime = assign.getEndTime();
+    if ((! internal) || (! assignmentsMultitask())) {
+      for (int i = 0; i < tasks.length; i++) {
+        Assignment assign = tasks[i].getAssignment();
+        if (assign != null) {
+          assign.setColor (specs.getColor (tasks[i]));
+          assign.setText (specs.taskText (tasks[i]));
+          text.append (assign).append ("\n");
+          if ((! isEndTime) && (maxTime < assign.getEndTime()))
+            maxTime = assign.getEndTime();
+        }
       }
     }
     if (debug) reportTime ("\t\tWrote tasks in ", start);
-    start = new Date ();
+    if (debug) start = new Date ();
     Resource[] resources = data.getResources();
     for (int i = 0; i < resources.length; i++) {
       TimeBlock[] activities = resources[i].getActivities();
@@ -222,13 +225,16 @@ public class Scheduler {
         if (updateActivity (activities[j], maxTime))
           text.append
             (activities[j].activityString (resources[i])).append ("\n");
-      MultitaskAssignment[] multi = resources[i].getMultitaskAssignments();
-      for (int j = 0; j < multi.length; j++)
-        if (updateActivity (multi[j], maxTime)) {
-          multi[j].setColor (specs.getColor (multi[j].getTasks()));
-          multi[j].setText (specs.groupedText (multi[j].getTasks()));
-          text.append (multi[j]).append ("\n");
+      if ((! internal) || assignmentsMultitask()) {
+        MultitaskAssignment[] multi = resources[i].getMultitaskAssignments();
+        for (int j = 0; j < multi.length; j++) {
+          if (updateActivity (multi[j], maxTime)) {
+            multi[j].setColor (specs.getColor (multi[j].getTasks()));
+            multi[j].setText (specs.groupedText (multi[j].getTasks()));
+            text.append (multi[j]).append ("\n");
+          }
         }
+      }
     }
     text.append ("</ASSIGNMENTS>\n");
     if (debug) reportTime ("\t\tWrote resources in ", start);
@@ -502,7 +508,7 @@ public class Scheduler {
   public String runInternalToProcess (String problem, boolean initialize) {
     setupInternal (problem, initialize);
     scheduleInternal();
-    return getXMLAssignments();
+    return getXMLAssignments (true);
   }
 
   public String runInternalToProcess (String problem) {
