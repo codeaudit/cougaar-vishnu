@@ -245,7 +245,7 @@ public class VishnuAllocatorPlugIn extends VishnuPlugIn implements UTILAllocator
    * </pre>
    */
   public void handleRemovedAlloc (Allocation alloc) {
-	if (myExtraOutput || true) {
+	if (myExtraOutput) {
 	  String owner = "?";
 	  try {
 		owner =  alloc.getTask().getDirectObject().getUID().getOwner();
