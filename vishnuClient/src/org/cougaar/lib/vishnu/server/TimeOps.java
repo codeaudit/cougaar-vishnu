@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/TimeOps.java,v 1.7 2001-08-07 23:31:01 gvidaver Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/TimeOps.java,v 1.8 2001-09-07 15:15:27 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -51,17 +51,11 @@ public class TimeOps {
 
   public int stringToTime (String str) {
     try {
-	  long t = format.parse (str).getTime();
-	  return millisToTime (t);
-    } catch (java.text.ParseException e) {
-      if (debug) {
-		System.out.println ("TimeBlock.stringToTime - Bad date string");
-		e.printStackTrace();
-      }
-      return 0;
-    } catch (NullPointerException npe) {
-      System.out.println ("TimeBlock.stringToTime - Bad date string=" + 
-						  str);
+      long t = format.parse (str).getTime();
+      return millisToTime (t);
+    } catch (Exception e) {
+      System.out.println ("TimeBlock.stringToTime - Bad date string=" + str);
+      e.printStackTrace();
       return 0;
     }
   }
