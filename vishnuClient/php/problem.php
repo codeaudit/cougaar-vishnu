@@ -28,7 +28,6 @@
   function hintsForPage() {
     global $problem;
 ?>
-<H2>Working on it.</H2>
 This is the main page for the problem <? echo $problem; ?>.
 All the basic actions you can perform for this problem
 are essentially one or two clicks away from this page, and the
@@ -85,26 +84,47 @@ their formats.  Until you have defined these formats, you cannot
 create tasks and resources, nor can you start defining the
 problem-specific scheduling logic.
 <li> <b>Edit/view the problem-specific scheduling logic-</b>
-?????
+Clicking on "Scheduling Specs" brings you to a page where you can
+view all the available constraints/hooks along with their current
+associated formulas. From there, you can edit any of the formulas.
 <li> <b>Edit/view the parameters -</b>
 Clicking on "Parameters" will allow you to view and modify the start and end
 times of the scheduling window (i.e., the times before and after
 which no task can be scheduled) as well as the genetic algorithm
 parameters that control the behavior of the automated scheduler.
 <li> <b>Start the automated scheduler -</b>
-?????
+Clicking on "Start!" submits a request for the automated scheduler
+to run on this problem and create a new schedule.
+If the automated scheduler is not immediately available, the
+request will be placed in a queue and handled as soon as possible.
 <li> <b>Check the status of the automated scheduler -</b>
-?????
+There are various states that the automated scheduler can be in
+with respect to a particular problem:
+<ul>
+<li>There has been no scheduling request made.
+<li>The most recent scheduling request has been completed.
+<li>The most recent scheduling request has been canceled.
+<li>The most recent scheduling request is still in the queue.
+<li>The automated scheduler is currently computing a schedule.
+</ul>
+Clicking on "Status" will let you know which state it is in.  If
+the scheduler is currently processing, it will give an estimate of
+the percent complete the run is.
+It will also let you know at what time the most recent request was
+submitted.
 The scheduler status page also contains the option of canceling
 the current scheduler request.
 <li> <b>Load more data into the problem -</b>
-?????
+While the object formats and problem-specific logic should
+remain constant, the data for a scheduling problem will often
+change with time.  Clicking the "Update From File" button
+will load an update to the data (additions of new objects as well
+as modifications and deletions of old objects) from a file.
 <li> <b>Save the problem to a file -</b>
 This will save the entire problem or a portion of the problem
 to a file.  This allows you to save a current snapshot of the
 problem before it changes or gets deleted.  It also allows easy
 transfer of problems between different Vishnu servers.
-?????
 <li> <b>Make a copy of the problem -</b>
 Clicking on "Copy the Problem" will make an exact copy of this
 problem under a different problem name.  You will be prompted
