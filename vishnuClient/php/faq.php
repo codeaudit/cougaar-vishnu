@@ -140,13 +140,19 @@
         applications and among the different Vishnu problems.  Any
         properly configured web server should do.");
   addq ("Do I need a web server to run Vishnu?",
-        "No, you do not need a web server to run just the automated
-        scheduler portion of Vishnu.  There is an internal mode which
+        "No, you can run just the automated scheduler portion of Vishnu
+        independent of the web server,
+        There is an internal mode which
         allows you to invoke the scheduler directly from a Java
-        application.  However, this currently requires you to have
+        application.  However, there are three important caveats.
+        First, without the web server you will be unable to graphically
+        view the results.  Second,
+        this currently requires you to have
         compiled (XML) versions of the scheduling specs, which means
         that you should have first set up the problem using the full
-        web-based system.");
+        web-based system.  Third, because you must invoke the scheduler
+        from a Java application, you must have the expertise to write such an
+        application.");
   addq ("Can I run more than one automated scheduler with a single
         web server?",
         "Yes, multiple schedulers can accept problems from a single web
