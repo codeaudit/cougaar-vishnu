@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.35 2001-08-23 21:22:21 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.36 2001-09-25 14:51:28 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -119,6 +119,7 @@ public class SchedulingData {
       return;
     }
     Assignment a = t.getAssignment();
+    boolean alreadyFrozen = (a != null) && a.getFrozen();
     Resource r = (res != null) ? getResource (res) :
                  ((a != null) ? a.getResource() : null);
     int s = (start != null) ? timeOps.stringToTime (start) :
@@ -129,9 +130,11 @@ public class SchedulingData {
       System.out.println ("Missing data for freezing task " + task);
       return;
     }
-    primaryTasks.remove (t);
     t.setAssignment (new Assignment (t, r, s, s, e, e, true, timeOps));
-    frozenTasks.add (t); 
+    if (! alreadyFrozen) {
+      primaryTasks.remove (t);
+      frozenTasks.add (t); 
+    }
   }
 
   public void unfreezeTask (String key) {
