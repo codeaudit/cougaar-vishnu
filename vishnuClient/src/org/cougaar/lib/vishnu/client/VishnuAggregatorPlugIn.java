@@ -272,7 +272,7 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
   protected void parseStartElement (String name, Attributes atts) {
 	try {
 	  if (myExtraExtraOutput || debugParseAnswer)
-		System.out.println ("VishnuAggregatorPlugIn.parseStartElement got " + name);
+		System.out.println (getName() + ".parseStartElement got " + name);
 	  
 	  if (name.equals ("MULTITASK")) {
 		if (myExtraOutput || debugParseAnswer) {
@@ -363,11 +363,31 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
   }
 
   /**
-   * make plan elements given a list of assignments.
+   * <pre>
+   * Makes an aggregation given a list of assignments.
+   * 
+   * Makes an aggregation with a medium confidence and publishes it.  
+   * Also makes an expansion of the MPTask.  This may be a 1-to-1,
+   * 1-to-2, or 1-to-3 expansion depending on the dates.  If the
+   * setup start is before the task start, then a separate setup task
+   * is created and added to the expansion.  Similarly for wrapup.
+   * These dates are different if the vishnu scheduling specs define
+   * setup (e.g. fueling an airplane) or wrapup (e.g. servicing an airplane)
+   * durations.  See referenced Vishnu documentation for details on specs.
+   *
+   * Calls the base class function makeSetupWrapupExpansion.
+   * 
+   * </pre>
    * @param taskList - tasks for this asset
-   * @param asset that these tasks are grouped for
+   * @param anAsset that these tasks are grouped for
    * @param start time start
    * @param end time end
+   * @param setupStart setup start
+   * @param wrapupEnd wrapup end
+   * @see org.cougaar.domain.planning.ldm.plan.Aggregation
+   * @see org.cougaar.domain.planning.ldm.plan.MPTask
+   * @see org.cougaar.lib.vishnu.client.VishnuPlugIn#makeSetupWrapupExpansion
+   * @see http://www.cougaar.org/projects/vishnu/fulldoc.html#specs
    */
   public void makePlanElement (Vector tasklist, Asset anAsset, Date start, Date end, Date setupStart, Date wrapupEnd) {
 	if (myExtraOutput) UTILAggregate.setDebug (true);
@@ -391,14 +411,11 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
 
 	Task mpTask = findMPTask (aggResults);
 
-	if (makeSetupAndWrapupTasks && 
-		((setupStart.getTime() < start.getTime()) ||
-		 (wrapupEnd.getTime () > end.getTime  ())))
-	  makeSetupWrapupExpansion (mpTask, anAsset, start, end, setupStart, wrapupEnd);
+	makeSetupWrapupExpansion (mpTask, anAsset, start, end, setupStart, wrapupEnd);
   }
 
   /** 
-   * hook for after publish processing                          <br>
+   * hook for post-publish processing                           <br>
    * Default does nothing.                                      <br>
    * might want to do :	Task mpTask = findMPTask (aggResults);
    */
