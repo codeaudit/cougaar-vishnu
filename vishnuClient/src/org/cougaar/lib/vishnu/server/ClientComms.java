@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/ClientComms.java,v 1.4 2001-02-12 19:35:28 gvidaver Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/ClientComms.java,v 1.5 2001-02-12 20:39:38 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -29,18 +29,19 @@ public class ClientComms {
   private static String host;
   private static String path;
   private static int port;
+  private static String localHost = "";
   private static boolean debugXML = 
     "true".equals (System.getProperty ("org.cougaar.lib.vishnu.server.debugXML"));
 
   public static String getHost () { return host; }
   
   public static void initialize() {
-    String defaultHost = "";
     try {
-      defaultHost = InetAddress.getLocalHost().getHostName();
+      localHost = InetAddress.getLocalHost().getHostName();
     } catch (Exception e) {
     }
-    host = System.getProperty ("org.cougaar.lib.vishnu.server.host", defaultHost);
+    host = System.getProperty ("org.cougaar.lib.vishnu.server.host",
+                               localHost);
     path = System.getProperty ("org.cougaar.lib.vishnu.server.path",
                                "/~vishnu/");
     user = System.getProperty("org.cougaar.lib.vishnu.server.user", "vishnu");
@@ -53,6 +54,7 @@ public class ClientComms {
     args.put ("user", user);
     args.put ("username", user);
     args.put ("password", password);
+    args.put ("localhost", localHost);
     return args;
   }
 
