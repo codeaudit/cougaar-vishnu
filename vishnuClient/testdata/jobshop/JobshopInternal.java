@@ -15,6 +15,8 @@ public class JobshopInternal {
       if (name.equals ("ASSIGNMENT"))
         System.out.println ("Assignment: task = " + atts.getValue ("task") +
                             " resource = " + atts.getValue ("resource") +
+                            " setup = " + atts.getValue ("setup") +
+                            " wrapup = " + atts.getValue ("wrapup") +
                             " start = " + atts.getValue ("start") +
                             " end = " + atts.getValue ("end"));
     }
