@@ -487,7 +487,6 @@ public class Scheduler {
    * either directly or from parsing XML.
    **/
   public void setupInternalObjects () {
-    Thread.dumpStack();
     setupObjects();
     parser = new SAXParser();
     parser.setContentHandler (new ProblemHandler());
