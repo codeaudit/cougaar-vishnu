@@ -1,12 +1,13 @@
-/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/Attic/VishnuAllocatorPlugIn.java,v 1.3 2001-07-24 22:38:52 rwu Exp $ */
-
 package org.cougaar.lib.vishnu.client;
+
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
 
 import org.cougaar.domain.planning.ldm.asset.Asset;
 
-import org.cougaar.domain.planning.ldm.plan.Role;
 import org.cougaar.domain.planning.ldm.plan.Allocation;
-import org.cougaar.domain.planning.ldm.plan.AuxiliaryQueryType;
 import org.cougaar.domain.planning.ldm.plan.PlanElement;
 import org.cougaar.domain.planning.ldm.plan.Role;
 import org.cougaar.domain.planning.ldm.plan.Task;
@@ -16,20 +17,17 @@ import org.cougaar.lib.callback.UTILFilterCallback;
 import org.cougaar.lib.callback.UTILGenericListener;
 import org.cougaar.lib.callback.UTILWorkflowCallback;
 
+import org.cougaar.lib.filter.UTILAllocatorPlugIn;
+
 import org.cougaar.lib.util.UTILAllocate;
 import org.cougaar.lib.util.UTILPreference;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.Vector;
-
-import org.cougaar.lib.filter.UTILAllocatorPlugIn;
+/**
+ * Vishnu plugin that takes Vishnu assignments and creates allocations out of them
+ * 
+ */
 
 public class VishnuAllocatorPlugIn extends VishnuPlugIn implements UTILAllocatorPlugIn {
-
   /**
    * The idea is to add subscriptions (via the filterCallback), and when 
    * they change, to have the callback react to the change, and tell 
@@ -80,9 +78,9 @@ public class VishnuAllocatorPlugIn extends VishnuPlugIn implements UTILAllocator
   } 
 
   /** 
-   * Implemented for UTILBufferingPlugin
+   * Implemented for UTILBufferingPlugin <p>
    *
-   * Got an ill-formed task, now handle it, by
+   * Got an ill-formed task, now handle it, by <br>
    * publishing a failed plan allocation for the task.
    * @param t badly-formed task to handle
    */
@@ -94,13 +92,11 @@ public class VishnuAllocatorPlugIn extends VishnuPlugIn implements UTILAllocator
   /**
    * Implemented for UTILAllocationListener        <p>
    *
-   * WARNING: The filters from the XML file will
-   * not be considered here unless you make a 
-   * call to the GSScheduler somehow. (i.e.
-   * via interestingTask or similar method)
-   * 
    * OVERRIDE to see which task notifications you
    * think are interesting
+   *
+   * Just calls interestingTask by default.
+   *
    * @param t task to check for notification
    * @return boolean true if task is interesting
    */
@@ -109,6 +105,7 @@ public class VishnuAllocatorPlugIn extends VishnuPlugIn implements UTILAllocator
   }
 
   /**
+   * <pre>
    * Implemented for UTILAllocationListener
    *
    * Defines conditions for rescinding tasks.
@@ -118,23 +115,16 @@ public class VishnuAllocatorPlugIn extends VishnuPlugIn implements UTILAllocator
    *
    * When returns TRUE, handleRescindedAlloc is called. 
    *
-   * Returns TRUE when downstream, a FailedAllocation is made.
-   *
-   *
    * If in making an allocation, a preference
    * threshold is exceeded, the returned plan element will be
-   * a FailedAllocation (see UTILAllocate.makeAllocation ()).
-   *
-   * TOPS does not create any allocations with 
-   * AllocationResults w/ isSuccess = false, but ALP will roll
-   * up the results of a workflow, and create an AllocResult
-   * w/ isSuccess = False if it contains a FailedAllocation.
+   * a Disposition (see UTILAllocate.makeAllocation ()).
    *
    * Called by UTILAllocationCallback.reactToChangedAlloc.
    *
+   * </pre>
    * @param alloc the allocation to check
-   * @return boolean true if the allocation need to be rescinded
-   *         Also returns false if there is no report alloc result
+   * @return boolean true if the allocation needs to be rescinded
+   *         Also returns false if there is no reported alloc result
    *         attached to allocation
    * @see #handleRescindedAlloc
    * @see org.cougaar.lib.callback.UTILAllocationCallback#reactToChangedAlloc
@@ -146,13 +136,15 @@ public class VishnuAllocatorPlugIn extends VishnuPlugIn implements UTILAllocator
   }
 
   /**
+   * <pre>
    * Implemented for UTILAllocationListener
    *
    * Public version of publishRemove
    *
    * Called by UTILAllocationCallback.reactToChangedAlloc.
    *
-   * @param alloc Allocation to remove from cluster's memory
+   * </pre>
+   * @param alloc Allocation to remove from cluster's logPlan
    * @see org.cougaar.lib.callback.UTILAllocationCallback#reactToChangedAlloc
    */
   public void publishRemovalOfAllocation (Allocation alloc) { 
@@ -160,6 +152,7 @@ public class VishnuAllocatorPlugIn extends VishnuPlugIn implements UTILAllocator
   }
 
   /**
+   * <pre>
    * Implemented for UTILAllocationListener
    *
    * Defines re-allocation of a rescinded task.  
@@ -178,7 +171,9 @@ public class VishnuAllocatorPlugIn extends VishnuPlugIn implements UTILAllocator
    *
    * Does nothing by default.
    *
+   * </pre>
    * @param alloc the allocation that should be rescinded
+   * @return false since doesn't rescind the allocation
    * @see UTILPlugInAdapter#updateAllocationResult
    * @see UTILAllocationListener#updateAllocationResult
    * @see org.cougaar.lib.callback.UTILAllocationCallback#reactToChangedAlloc
@@ -187,6 +182,7 @@ public class VishnuAllocatorPlugIn extends VishnuPlugIn implements UTILAllocator
   public boolean handleRescindedAlloc (Allocation alloc) { return false; }
 
   /**
+   * <pre>
    * Implemented for UTILAllocationListener
    *
    * Called automatically by the UTILAllocationCallback 
@@ -202,33 +198,31 @@ public class VishnuAllocatorPlugIn extends VishnuPlugIn implements UTILAllocator
    *
    * Does nothing by default.
    *
+   * </pre>
    * @param alloc the allocation that was successful
    * @see UTILPlugInAdapter#updateAllocationResult
    * @see UTILAllocationListener#updateAllocationResult
    * @see org.cougaar.lib.callback.UTILAllocationCallback#reactToChangedAlloc
    * @see #needToRescind
    */
-  public void handleSuccessfulAlloc (Allocation alloc) {
-    if (alloc.getEstimatedResult().getConfidenceRating() > UTILAllocate.MEDIUM_CONFIDENCE) {
-      // Set tasks = new HashSet();
-      // tasks.add(alloc.getTask ());
-      // sendUpdatedRoleSchedule(alloc, alloc.getAsset (), tasks);
-    }
-    else if (myExtraOutput) {
-      System.out.println (getName () + ".handleSuccessfulAlloc : got changed alloc (" + alloc.getUID () + 
-						  " with intermediate confidence."); 
-    }
-  }
+  public void handleSuccessfulAlloc (Allocation alloc) {}
 
   /** 
+   * <pre>
    * Called when an allocation is removed from the cluster.
-   * I.e. an upstream cluster removed an allocation, and this 
+   * I.e. an upstream cluster removed an allocation, and that 
    * rescind has resulted in this allocation being removed.
    *
    * If the plugin maintains some local state of the availability
    * of assets, it should update them here.
    *
+   * This is different from the needToRescind-handleRescindedAlloc pair
+   * which are used when the plugin gets a result that it wants to
+   * replan.  If needToRescind returns true, a downstream
+   * cluster will see handleRemovedAlloc get called.
+   *
    * Does nothing by default.
+   * </pre>
    */
   public void handleRemovedAlloc (Allocation alloc) {
 	  
@@ -241,29 +235,25 @@ public class VishnuAllocatorPlugIn extends VishnuPlugIn implements UTILAllocator
   }
 
   /**
-   * if no asset could be found to handle the task, handle them in some way -
-   * Tasks that did not get expanded become failed expansions.
-   *
-   * debugging may come on automatically
-   */
-  public void handleImpossibleTasks (List unallocatedTasks) {
-    super.handleImpossibleTasks (unallocatedTasks);
-  }
-
-  /**
-   * <pre>
-   * Makes allocations given the task to asset assignment.
+   * Makes allocations given the task to asset assignment. <p>
    * 
-   * If the task has a setup or wrapup duration, and expansion is made and
-   * then the subtasks get allocated with the setup and wrapup durations.
+   * If the task has a setup or wrapup duration, and expansion is made and <br>
+   * then the subtasks get allocated with the setup and wrapup durations.  <p>
    *
-   * Calls sendUpdatedRoleSchedule at the end so vishnu will
-   * know about change to availability of asset AND to unfreeze the assignment.
+   * Calls <code>createAllocation</code> to create the allocation of 
+   * task to asset, and <code>makeSetupAndWrapupTasks</code> to create the 
+   * optional setup and wrapup tasks.  <code>createAllocation</code>is called
+   * using <code>getConfidence</code> and <code>getRole</code>.
    *
-   * Only does this if we're not sending the assets again with every new set of
-   * tasks.
-   * </pre>
-   */
+   * @see #createAllocation
+   * @see #makeSetupAndWrapupTasks
+   * @param task task being assigned to asset
+   * @param asset asset handling the task
+   * @param start start of the main task
+   * @param end   end   of the main task
+   * @param setupStart start of a setup task, equal to start if there is no setup task
+   * @param wrapupEnd  end   of a wrapup task, equal to end if there is no wrapup task
+   **/
   public void handleAssignment (Task task, Asset asset, Date start, Date end, Date setupStart, Date wrapupEnd) {
     if (myExtraOutput)
       System.out.println ("VishnuAllocatorPlugIn.makePlanElement : " + 
@@ -284,61 +274,67 @@ public class VishnuAllocatorPlugIn extends VishnuPlugIn implements UTILAllocator
 		createAllocation (subtask, asset, 
 						  UTILPreference.getReadyAt (subtask), 
 						  UTILPreference.getBestDate (subtask), 
-						  UTILAllocate.HIGHEST_CONFIDENCE,
-						  Role.getRole("Transporter"));
+						  getConfidence (asset),
+						  getRole());
 	  }
 	} else {
 		createAllocation (task, asset, 
 						  start,
 						  end,
-						  UTILAllocate.HIGHEST_CONFIDENCE,
-						  Role.getRole("Transporter"));
+						  getConfidence (asset),
+						  getRole());
 	}
     if (myExtraOutput) UTILAllocate.setDebug (false);
-
-	Set tasks = new HashSet ();
-	
-	tasks.add (task);
-	
-	//	if (mySentAssetDataAlready)
-	//	  sendUpdatedRoleSchedule(allocation, asset, tasks);
   }
 
-	/**
-	 * <pre>
-	 * NOTE! By default, sets highest confidence on allocation.
-	 * This is only usually appropriate for allocation to Physical Assets.
-	 * If your allocator allocates to organizations, you probably want to override
-	 * this function and set the confidence to UTILAllocate.MEDIUM_CONFIDENCE.
-	 * e.g.
-	 * return super.createAllocation (...., UTILAllocate.MEDIUM_CONFIDENCE);
-	 *
-	 * Or, you could copy this function and comment out the code that looks at
-	 * the asset to see whether it's physical or not. (This can only be done if
-	 * the alpine.jar is available.  E.g. not for Books On Line.)
-	 *
-	 * Also, this here you could set a different role than the default "Transporter"
-	 * </pre>
-	 */
-	protected PlanElement createAllocation (Task task,
-											Asset asset,
-											Date start,
-											Date end,
-											double confidence,
-											Role role) {
-		//		double confidence = ((ALPAsset) asset).hasPhysicalPG () ? 
-		// UTILAllocate.HIGHEST_CONFIDENCE : UTILAllocate.MEDIUM_CONFIDENCE;
-		PlanElement allocation = UTILAllocate.makeAllocation(this,
-															 ldmf, realityPlan, 
-															 task, asset,
-															 start, 
-															 end, 
-															 confidence,
-															 role);
+  /**
+   * By default, sets highest confidence on allocation. <br>
+   * This is usually only appropriate for allocation to Physical Assets.  <br>
+   * If your allocator allocates to organizations, you probably want to override <br>
+   * this function and set the confidence to UTILAllocate.MEDIUM_CONFIDENCE. <p>
+   * 
+   * Or you could do : <code>
+   * double confidence = ((GLMAsset) asset).hasPhysicalPG () ? 
+   * UTILAllocate.HIGHEST_CONFIDENCE : UTILAllocate.MEDIUM_CONFIDENCE; </code>
+   **/
+  protected double getConfidence (Asset asset) {
+	return UTILAllocate.HIGHEST_CONFIDENCE;
+  }
+
+  /** transporter by default, override to use a different role */
+  protected Role getRole () {
+	return Role.getRole("Transporter");
+  }
+  
+  /**
+   * Creates an allocation or dispostion if the start and end times
+   * violate the preferences.
+   * 
+   * @param task task being assigned to asset
+   * @param asset asset handling the task
+   * @param start start of the task
+   * @param end   end   of the task
+   * @param confidence of the allocation
+   * @param role of the allocation
+   * @return Allocation or Disposition
+   */
+  protected PlanElement createAllocation (Task task,
+										  Asset asset,
+										  Date start,
+										  Date end,
+										  double confidence,
+										  Role role) {
+	PlanElement allocation = UTILAllocate.makeAllocation(this,
+														 ldmf, realityPlan, 
+														 task, asset,
+														 start, 
+														 end, 
+														 confidence,
+														 role);
 		
-		publishAdd(allocation);
-		return allocation;
-	}
+	publishAdd(allocation);
+	return allocation;
+  }
 
   protected UTILWorkflowCallback   myWorkflowCallback;
   protected UTILAllocationCallback myAllocCallback;
