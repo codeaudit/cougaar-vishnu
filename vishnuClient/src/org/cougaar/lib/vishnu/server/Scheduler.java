@@ -178,9 +178,17 @@ public class Scheduler {
     long diff = end.getTime () - start.getTime ();
     long min  = diff/60000l;
     long sec  = (diff - (min*60000l))/1000l;
-    System.out.println  (prefix + min + ":" + ((sec < 10) ? "0":"") + sec + 
-			 " free "  + (rt.freeMemory  ()/(1024*1024)) + "M" +
-			 " total " + (rt.totalMemory ()/(1024*1024)) + "M");
+    long millis = diff - (min*60000l) - (sec*1000l);
+	
+	String mString = "";
+	
+	if (millis < 10)
+	  mString = "00";
+	else if (millis < 100)
+	  mString = "0";
+
+    System.out.println  (prefix + min + ":" + ((sec < 10) ? "0":"") + sec + 			 
+						 ":" + mString + millis);
   }
 
   /** Write all the XML representation of assignments to a URL */
