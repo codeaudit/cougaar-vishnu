@@ -77,7 +77,7 @@
     refSubsection ("Predefined Composite Data Types", "predefined");
     refSubsection ("User-defined Composite Data Types", "userdefined");
     refSubsection ("Tasks, Resources, and Other Data", "data2");
-    refSection ("Scheduling Specifications", "specs");
+    refSection ("Problem-Specific Scheduling Logic", "specs");
     refSection ("Automated Scheduler Algorithm", "alg");
     refSection ("Using the Browser-Based GUI", "gui");
     refSection ("Cougaar-Vishnu Bridge", "bridge");
@@ -148,7 +148,8 @@ for every problem, each named vishnu_prob_[probname].
 The database for each problem contains all the data formats (see
 <a href="fulldoc.php#data">Section 3</a>),
 data (see <a href="fulldoc.php#data">Section 3</a>),
-scheduling specifications (see <a href="fulldoc.php#specs">Section 4</a>),
+problem-specific scheduling logic
+(see <a href="fulldoc.php#specs">Section 4</a>),
 automated scheduler specification
 (see <a href="fulldoc.php#alg">Section 5</a>) and the results from the
 automated scheduler (see <a href="fulldoc.php#alg">Section 5</a>).</p>
@@ -208,7 +209,7 @@ the scheduler to write the schedule into the database.
 <? makeSubsection ("Expression (or Formula) Compiler", "comp"); ?>
 
 <p>The purpose of the expression compiler is to allow users to enter 
-the scheduling specifications in "expression" format 
+the formulas for the scheduling logic in "expression" format 
 (see see <a href="fulldoc.php#specs">Section 4</a>) and have them
 automatically translated into the XML format that can be easily
 parsed into the database.  The expression compiler is a separate
@@ -397,9 +398,9 @@ All tasks and
 resources have their associated unique key for identification.  All 
 global data objects must be assigned a name that serves as their 
 unique identifier so
-that they can be accessed in the scheduling specifications (see below).</p>
+that they can be accessed in the scheduling logic (see below).</p>
 
-<? makeSection ("Scheduling Specifications", "specs"); ?>
+<? makeSection ("Problem-Specific Scheduling Logic", "specs"); ?>
 
 <p>At the heart of the reconfigurability of the scheduler is the 
 ability of the user to specify the behavior of the scheduler.  There 
@@ -1114,7 +1115,7 @@ the genetic algorithm performance:
 
 <? makeSection ("Using the Browser-Based GUI", "gui"); ?>
 
-<p>The GUI allows a user to see all the information about a problem including the data/metadata, scheduling specifications, and the schedule created.
+<p>The GUI allows a user to see all the information about a problem including the data/metadata, scheduling logic, and the schedule created.
 It also allows a user to edit the data and metadata for a problem.
 
 <p> The initial
@@ -1141,7 +1142,7 @@ schedule graphic, plue edit/create/delete resource objects
 <li> view and/or edit the metadata, i.e. view
 the fields for a given object type, edit the fields of an object type,
 and create a new object type
-<li> view the full set of the scheduling specifications,
+<li> view the full set of the scheduling logic,
 including the color specifications, for the problem, and following
 links from the specifications viewing page, editing the specification
 for any constraint
@@ -1185,7 +1186,7 @@ The scheduler creates Vishnu assignments, and these are used to create plan
 elements.</p>
 <p>When a bridge plugin receives a task for the first time, it sends its
 problem definition to Vishnu.  The problem definition is composed of the
-object format of the tasks and resources, the scheduling specs, the GA parameters,
+object format of the tasks and resources, the scheduling logic, the GA parameters,
 the object format of any other data that is neither task nor resource, and
 that other data itself.</p>
 <p></p>
@@ -1211,7 +1212,7 @@ a bridge plugin might have the following files:</p>
       <p>Sample.vsh.xml</p>
       </td>
       <td width="270" valign="Top">
-      <p>Scheduling specifications for the problem</p>
+      <p>Scheduling logic for the problem</p>
       </td>
       <td width="90" valign="Top">
       <p>Yes</p>
@@ -1329,7 +1330,8 @@ Vishnu database that will appear on the problem list page on the web server.
 parameters file.  In incremental mode, previous assignments are remembered
 and influence future problems.  In batch mode, all problem data is re-submitted
 every time.  In this mode, the prior use of the asset must be indicated in
-one of the scheduling specs, typically the resource unavailability.  The
+one of the constraints of the scheduling logic,
+typically the resource unavailability.  The
 implication is that there may be solutions developed that are sub-optimal,
 in the sense that a resource that is only partially used (for instance a
 truck with only one box on it) would be seen as used and unavailable for
@@ -1469,7 +1471,7 @@ XMLizer traverses these same objects again to create the data XML.</p>
 <div align="Center"><img src="Image1.gif" width="479" height="359">
 </div>
 <font size="-1"><b>Cougaar-Vishnu bridge implementation.</b> The bridge sends
-as input to Vishnu the object format, scheduling specs, genetic algorithm
+as input to Vishnu the object format, scheduling logic, genetic algorithm
 parameters, and other data (not pictured).  This defines the problem. Then,
 the data for the specific job is sent. When the scheduler is finished, XML
 assignments are returned, and used to create plan elements.</font>
@@ -1484,7 +1486,8 @@ unique names and turned into global data.  These shared property groups are
 referenced by name in the tasks and resources.</p>
 <h2><b>Other notes:</b></h2>
 <p><b>Tasks for setup and wrapup durations - </b>Also, note that if a setup 
-or wrapup duration is defined in the specs, separate tasks are created to 
+or wrapup duration is defined in the scheduling logic,
+separate tasks are created to 
 represent these durations.  These tasks need their allocation results handled 
 differently than those for the task itself, since their time spans may well 
 fall outside of the preferences of the original task.  For example, the time 
@@ -1717,7 +1720,7 @@ Note : This facility is only active in batch mode.
 <TR><TD WIDTH="26%" VALIGN="TOP">
 <P>sendSpecsEveryTime</TD>
 <TD WIDTH="54%" VALIGN="TOP">
-<P>Send problem definition, including scheduling specs, every time.  Useful if you want to alter the specs from job to job.</TD>
+<P>Send problem definition, including scheduling logic, every time.  Useful if you want to alter the logic from job to job.</TD>
 <TD WIDTH="19%" VALIGN="TOP">
 <P>false</TD>
 </TR>
@@ -3112,8 +3115,8 @@ the start of the scheduler window.
 <li> <b>Geographic Display</b> - For those problems where the tasks have
 associated geographic data (latlongs or xy_coords), we should provide a way to
 view this data graphically.
-<li> <b>Evaluation of Specs in Browser</b> - To allow debugging of
-scheduler specifications, provide a way for the user to evaluate a
+<li> <b>Evaluation of Formulas in Browser</b> - To allow debugging of
+scheduler logic, provide a way for the user to evaluate a
 formula for a constraint in a desired context (i.e., with the
 variables and assignments set appropriately).
 <li> <b>Recheck Constraints for Frozen Tasks</b> - Instead of just
@@ -3135,9 +3138,9 @@ objects in the display.
 execute the compiler without the web server.  We should implement
 something analogous to the internal scheduler so that the compiler
 can be run from a command line.
-<li> <b>Runtime Check of Legality of Specs</b> - Since data structures
+<li> <b>Runtime Check of Legality of Formulas</b> - Since data structures
 may have changed since the last compilation of the scheduling
-specifications, do a quick check before scheduling that the specs
+logic, do a quick check before scheduling that the formulas
 are still legal.
 <li> <b>Resource Utilization Display</b> - Make functional again
 the code that displays

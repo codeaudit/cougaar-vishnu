@@ -44,7 +44,7 @@
 <FORM METHOD="get" ACTION="fullproblem.php">
   <INPUT TYPE=hidden NAME="problem" VALUE="<? echo $problem ?>">
   <INPUT TYPE=hidden NAME="includespecs" VALUE="true">
-  <INPUT TYPE=submit VALUE="Just problem specs">
+  <INPUT TYPE=submit VALUE="Just scheduling logic">
 </FORM>
 
 <FORM METHOD="get" ACTION="fullproblem.php">
@@ -53,5 +53,32 @@
   <INPUT TYPE=submit VALUE="Just data">
 </FORM>
 </font>
+<?
+  }
 
-<? } ?>
+  function hintsForPage() {
+?>
+This page allows you to save a problem.  This allows you to
+reload the problem into either this server or another server
+in the future.
+There are four options for what to save:
+<ul>
+<li><b>Problem Definition and Data -</b>
+This saves every aspect of the problem and allows a complete
+restoration of the problem from the saved file.
+<li><b>Just Problem Definition -</b>
+When the data is being fed from another souce, e.g. a database,
+you may want to save just the problem definition (object formats
+and scheduling logic) but not the data.
+This is also a good way to start the process of creating a new
+problem of the same type with different data.
+<li><b>Just Scheduling Logic -</b>
+This allows saving just the scheduling logic for the case when
+the data formats and the data are both coming from another source.
+<li><b>Just Data -</b>
+This allows saving just the data for those cases when we already
+have the problem definition saved.
+</ul>
+<?
+  }
+?>

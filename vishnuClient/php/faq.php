@@ -142,10 +142,10 @@
         bridge</a>");
   addq ("How do I save a problem to file for future use or for loading
         on another server?",
-        "On the problem page, there is a Download link.  If you click
+        "On the problem page, there is a "Save to File" link.  If you click
         here, you will be given four different options of what to save.
         If you select \"Problem definition and data\", everything
-        (metadata, scheduling specs, and data) gets saved.
+        (metadata, scheduling logic, and data) gets saved.
         This is also described in <a href=\"fulldoc.php#gui\">Section
         6</a> of the full documentation.",
         "saving");
@@ -158,7 +158,7 @@
         First, without the web server you will be unable to graphically
         view the results.  Second,
         this currently requires you to have
-        compiled (XML) versions of the scheduling specs, which means
+        compiled (XML) versions of the scheduling logic formulas, which means
         that you should have first set up the problem using the full
         web-based system (since the compiler does not run without the
         web server).  Third, because you must invoke the scheduler
@@ -190,25 +190,27 @@
         \"superobject\" that contains the data fields from the different
         object types plus a field that tells which type of underlying
         object each superobject actually is.");
-  addq ("How do scheduling specifications work?",
-        "The scheduling specs are executed by the scheduler at different
+  addq ("How does problem-specific scheduling logic work?",
+        "The formulas of the scheduling logic
+        are evaluated by the scheduler at different
         points during its execution.  For example, to determine the list
         of all resources that can perform a given task, the scheduler
         will execute the Capability Criterion formula with <i>task</i>
         set to the given task and <i>resource</i> set to each of the
-        resources in succession.  You tailor the logic of the scheduler
-        for your problem using these specs.");
-  addq ("How do I go about developing a good set of scheduling
-        specifications for my problem?",
-        "The development of scheduling specifications is an iterative
+        resources in succession.  The results that the scheduler finds
+        will therefore depend on how you have defined these formulas.");
+  addq ("How do I go about developing a good set of formulas for the
+        scheduling logic for my problem?",
+        "The development of the problem-specific scheduling logic
+        is an iterative
         process.  In general, you should not expect to get them correct
         the first time.  You should have one or more test problems
         available to evaluate the schedule produced by a particular set
         of specifications.  Start with your first attempt at the
-        specifications.  Run with the current specs on the test problem(s),
+        specifications.  Run with the current formulas on the test problem(s),
         analyze the results, determine what needs to be improved, and
-        edit the specs to accomplish this.  Iterate through this process
-        until you get good results.  Save the specs to file when
+        edit the formulas to accomplish this.  Iterate through this process
+        until you get good results.  Save the formulas to file when
         you have ones you like.");
   addq ("What are the genetic algorithm parameters, and how do I know
         how to choose them?",

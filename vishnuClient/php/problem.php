@@ -196,7 +196,7 @@
 <tr>
 <td ALIGN=CENTER>
 <font size=+2>
-<a href="viewspecs.php?problem=<? echo $problem; ?>"/>Scheduling Specs</a>
+<a href="viewspecs.php?problem=<? echo $problem; ?>"/>Scheduling Logic</a>
 </font>
 </td>
 
@@ -377,7 +377,7 @@ their formats.  Until you have defined these formats, you cannot
 create tasks and resources, nor can you start defining the
 problem-specific scheduling logic.
 <li> <b>Edit/view the problem-specific scheduling logic-</b>
-Clicking on "Scheduling Specs" brings you to a page where you can
+Clicking on "Scheduling Logic" brings you to a page where you can
 view all the available constraints/hooks along with their current
 associated formulas. From there, you can edit any of the formulas.
 <li> <b>Edit/view the parameters -</b>

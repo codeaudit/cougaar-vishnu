@@ -116,5 +116,31 @@ echo $gaparms["report_interval"]; ?>>
 </form>
 <?
   }
+
+  function hintsForPage() {
+?>
+This page allows you to view and edit the scheduling window and the
+genetic algorithm parameters.
+You can edit any of the values by changing them and then clicking
+"Update Parameters".
+<b>The parameter values are not actually changed until you click
+"Update Parameters".</b>
+When you click on "Update Parameters", a check is performed to
+ensure that the new entries are valid.
+<p>
+The scheduling window is a range of time in which assignments can
+be made.  The start time of an assignment cannot be before the start
+time of the window, and the end time of an assignment cannot be after
+the end  time of the window.
+If you enter no value for the start time, it will be set to the
+current time when you start scheduling.
+If you enter no value for the end time, there will be no limit on
+the end time of assignments.
+<p>
+The genetic algorithm parameters and how to choose good values for
+them is described in the <a href="fulldoc.php#gaparameters">
+full documentation</a>.
+<?
+  }
 ?>
 
