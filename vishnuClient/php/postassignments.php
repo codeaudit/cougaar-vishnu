@@ -30,7 +30,7 @@
   $result = mysql_db_query ("vishnu_prob_" . $problem,
                 getsql ("assignments", $is_multitask, $window));
   $result = mysql_db_query ("vishnu_prob_" . $problem,
-                getsql ("multitaskassignments", $is_multitask, $window));
+                "delete from multitaskassignments");
   $result = mysql_db_query ("vishnu_prob_" . $problem,
                             "delete from activities;");
 
