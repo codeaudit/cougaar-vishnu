@@ -22,6 +22,8 @@
 //  The variable $horizbar should be set if the navigation bar
 //  should be across the top rather than down the left side
 
+$horizbar = $horizbar && (! $hints);
+
 function putseparator ($width=120) {
   global $horizbar;
   echo $horizbar ? "</TD><TD width=$width align=center>" :
@@ -32,7 +34,15 @@ function putseparator ($width=120) {
 ?>
 <HTML>
 <HEAD> 
-<TITLE><? getTitle (); ?></TITLE> 
+<TITLE>
+<?
+  if ($hints) {
+    $p = pathinfo ($PHP_SELF);
+    echo "Hints for " . $p["basename"];
+  } else
+    getTitle ();
+?>
+</TITLE> 
 </HEAD>
 
 <BODY bgcolor="white">
@@ -59,7 +69,7 @@ function putseparator ($width=120) {
   echo $REQUEST_URI . (strpos ($REQUEST_URI, "?") ? "&" : "?");
 ?>hints=yes" target=_blank>
 Hints for this page</a>
-<? putseparator(); ?>
+<? putseparator(70); ?>
 <? } ?>
 <? if ($hints != "yes") { ?>
 <a href="vishnu.php">Home</a>

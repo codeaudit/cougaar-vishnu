@@ -22,119 +22,6 @@
     echo "Main Page for <font color=\"000099\">$problem</font>";
   }
 
-  function getSubheader() {
-  }
-
-  function hintsForPage() {
-    global $problem;
-?>
-This is the main page for the problem <? echo $problem; ?>.
-All the basic actions you can perform for this problem
-are essentially one or two clicks away from this page, and the
-navigation bar will allow you to return to this page with one
-click from any page related to this problem.
-<p>
-The basic actions you can perform are:
-<ul>
-<li> <b>View the schedule -</b>
-Click on "Full Schedule" to see
-the Gantt charts for all the resources aligned
-to the same time axis.  This option is also available in the
-navigation bar.
-<li> <b>Edit/view the problem description -</b>
-At the bottom of this page is a description of the problem.
-Any changes you make to the description do not get written
-back to the server (and hence become permanent) until you
-click on "Update Description".
-<li> <b>Edit/view the data -</b>
-There are three types of data: tasks, resources, and other data
-(or global data).
-Each type of data has its own pick list.
-To view or edit a particular data object, first select its name from
-the appropriate pick list.
-Clicking on the corresponding "View" button allows you to view the
-data in all the fields of this object along with the assignment
-data for that object (the assigned resource and time interval for
-a task or a Gantt chart for a resource).
-Clincking on "Edit" allows you to view the data in the fields of the object
-and potentially change the values in these fields.
-When editing a data object, you will also have the option of deleting it.
-The "View All" button bring you to a page with links to all the task
-and resource objects rather than having them in pick list.  This is
-a convenience for the case when there are a lot of tasks or resources
-and the pick list gets very big.
-To create a new data object, click on the appropriate "Create" button,
-and you will create a new object and be brought to the editing page
-in order to fill in the values for its fields.
-<li> <b>Edit/view the data formats -</b>
-The pick list under "Objects" contains the list of all object types
-defined so far.  Selecting an object type and clicking the
-corresponding "View" button will allow you to see all the data
-fields in that object type along with their corresponding data types.
-Selecting an object type and clicking the "Edit" button will allow
-you not only to view the current definition of that object type
-but also to add new fields, change the data types of existing
-fields, rename fields, and delete fields.  Note that
-changing the data type on a field or deleting a field causes
-all existing instances of that object type to lose the data
-in that field.
-If you are creating a problem from scratch, the first thing
-you need to do is create task and resource objects and define
-their formats.  Until you have defined these formats, you cannot
-create tasks and resources, nor can you start defining the
-problem-specific scheduling logic.
-<li> <b>Edit/view the problem-specific scheduling logic-</b>
-Clicking on "Scheduling Specs" brings you to a page where you can
-view all the available constraints/hooks along with their current
-associated formulas. From there, you can edit any of the formulas.
-<li> <b>Edit/view the parameters -</b>
-Clicking on "Parameters" will allow you to view and modify the start and end
-times of the scheduling window (i.e., the times before and after
-which no task can be scheduled) as well as the genetic algorithm
-parameters that control the behavior of the automated scheduler.
-<li> <b>Start the automated scheduler -</b>
-Clicking on "Start!" submits a request for the automated scheduler
-to run on this problem and create a new schedule.
-If the automated scheduler is not immediately available, the
-request will be placed in a queue and handled as soon as possible.
-<li> <b>Check the status of the automated scheduler -</b>
-There are various states that the automated scheduler can be in
-with respect to a particular problem:
-<ul>
-<li>There has been no scheduling request made.
-<li>The most recent scheduling request has been completed.
-<li>The most recent scheduling request has been canceled.
-<li>The most recent scheduling request is still in the queue.
-<li>The automated scheduler is currently computing a schedule.
-</ul>
-Clicking on "Status" will let you know which state it is in.  If
-the scheduler is currently processing, it will give an estimate of
-the percent complete the run is.
-It will also let you know at what time the most recent request was
-submitted.
-The scheduler status page also contains the option of canceling
-the current scheduler request.
-<li> <b>Load more data into the problem -</b>
-While the object formats and problem-specific logic should
-remain constant, the data for a scheduling problem will often
-change with time.  Clicking the "Update From File" button
-will load an update to the data (additions of new objects as well
-as modifications and deletions of old objects) from a file.
-<li> <b>Save the problem to a file -</b>
-This will save the entire problem or a portion of the problem
-to a file.  This allows you to save a current snapshot of the
-problem before it changes or gets deleted.  It also allows easy
-transfer of problems between different Vishnu servers.
-<li> <b>Make a copy of the problem -</b>
-Clicking on "Copy the Problem" will make an exact copy of this
-problem under a different problem name.  You will be prompted
-for the problem name at the next page.
-This is very useful for doing what-if analyses (since you can
-copy a problem, change it a little, and see the results).
-</ul>
-<?
-  }
-
   function selectBoxes ($viewall = 0) {
     global $problem;
 ?>
@@ -428,4 +315,116 @@ Update from File</a>
 
 </table>
 
-<? } ?>
+<?
+  }
+
+  function hintsForPage() {
+    global $problem;
+?>
+This is the main page for the problem <? echo $problem; ?>.
+All the basic actions you can perform for this problem
+are essentially one or two clicks away from this page, and the
+navigation bar will allow you to return to this page with one
+click from any page related to this problem.
+<p>
+The basic actions you can perform are:
+<ul>
+<li> <b>View the schedule -</b>
+Click on "Full Schedule" to see
+the Gantt charts for all the resources aligned
+to the same time axis.  This option is also available in the
+navigation bar.
+<li> <b>Edit/view the problem description -</b>
+At the bottom of this page is a description of the problem.
+Any changes you make to the description do not get written
+back to the server (and hence become permanent) until you
+click on "Update Description".
+<li> <b>Edit/view the data -</b>
+There are three types of data: tasks, resources, and other data
+(or global data).
+Each type of data has its own pick list.
+To view or edit a particular data object, first select its name from
+the appropriate pick list.
+Clicking on the corresponding "View" button allows you to view the
+data in all the fields of this object along with the assignment
+data for that object (the assigned resource and time interval for
+a task or a Gantt chart for a resource).
+Clincking on "Edit" allows you to view the data in the fields of the object
+and potentially change the values in these fields.
+When editing a data object, you will also have the option of deleting it.
+The "View All" button bring you to a page with links to all the task
+and resource objects rather than having them in pick list.  This is
+a convenience for the case when there are a lot of tasks or resources
+and the pick list gets very big.
+To create a new data object, click on the appropriate "Create" button,
+and you will create a new object and be brought to the editing page
+in order to fill in the values for its fields.
+<li> <b>Edit/view the data formats -</b>
+The pick list under "Objects" contains the list of all object types
+defined so far.  Selecting an object type and clicking the
+corresponding "View" button will allow you to see all the data
+fields in that object type along with their corresponding data types.
+Selecting an object type and clicking the "Edit" button will allow
+you not only to view the current definition of that object type
+but also to add new fields, change the data types of existing
+fields, rename fields, and delete fields.  Note that
+changing the data type on a field or deleting a field causes
+all existing instances of that object type to lose the data
+in that field.
+If you are creating a problem from scratch, the first thing
+you need to do is create task and resource objects and define
+their formats.  Until you have defined these formats, you cannot
+create tasks and resources, nor can you start defining the
+problem-specific scheduling logic.
+<li> <b>Edit/view the problem-specific scheduling logic-</b>
+Clicking on "Scheduling Specs" brings you to a page where you can
+view all the available constraints/hooks along with their current
+associated formulas. From there, you can edit any of the formulas.
+<li> <b>Edit/view the parameters -</b>
+Clicking on "Parameters" will allow you to view and modify the start and end
+times of the scheduling window (i.e., the times before and after
+which no task can be scheduled) as well as the genetic algorithm
+parameters that control the behavior of the automated scheduler.
+<li> <b>Start the automated scheduler -</b>
+Clicking on "Start!" submits a request for the automated scheduler
+to run on this problem and create a new schedule.
+If the automated scheduler is not immediately available, the
+request will be placed in a queue and handled as soon as possible.
+<li> <b>Check the status of the automated scheduler -</b>
+There are various states that the automated scheduler can be in
+with respect to a particular problem:
+<ul>
+<li>There has been no scheduling request made.
+<li>The most recent scheduling request has been completed.
+<li>The most recent scheduling request has been canceled.
+<li>The most recent scheduling request is still in the queue.
+<li>The automated scheduler is currently computing a schedule.
+</ul>
+Clicking on "Status" will let you know which state it is in.  If
+the scheduler is currently processing, it will give an estimate of
+the percent complete the run is.
+It will also let you know at what time the most recent request was
+submitted.
+The scheduler status page also contains the option of canceling
+the current scheduler request.
+<li> <b>Load more data into the problem -</b>
+While the object formats and problem-specific logic should
+remain constant, the data for a scheduling problem will often
+change with time.  Clicking the "Update From File" button
+will load an update to the data (additions of new objects as well
+as modifications and deletions of old objects) from a file.
+<li> <b>Save the problem to a file -</b>
+This will save the entire problem or a portion of the problem
+to a file.  This allows you to save a current snapshot of the
+problem before it changes or gets deleted.  It also allows easy
+transfer of problems between different Vishnu servers.
+<li> <b>Make a copy of the problem -</b>
+Clicking on "Copy the Problem" will make an exact copy of this
+problem under a different problem name.  You will be prompted
+for the problem name at the next page.
+This is very useful for doing what-if analyses (since you can
+copy a problem, change it a little, and see the results).
+</ul>
+<?
+  }
+?>

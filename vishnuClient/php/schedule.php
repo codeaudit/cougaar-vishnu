@@ -177,5 +177,46 @@
 //  linkToProblem ($problem);
     mysql_close();
   }
+
+  function hintsForPage() {
+    global $problem;
+?>
+This page displays the schedule for all of the resources in Gantt chart
+form for the problem <? echo $problem; ?>.
+It is accessible with one click from any page associated with this
+problem using the navigation bar.
+<p>
+The Gantt charts all share the same time axis.
+By default, the range of the time axis is the
+scheduling window.  If there is no explicitly defined start time
+for the scheduling window, then the start time is taken to be
+the current time.
+If there is no explicitly defined end time
+for the scheduling window, then the end time is taken to be the
+end time of the last assignment.
+<p>
+There are a variety of controls at the top to adjust the range of
+the time axis:
+<ul>
+<li><b>Zoom In</b> will keep the center time the same while
+halving the size of the range.
+<li><b>Zoom Out</b> will keep the center time the same while
+doubling the size of the range.
+<li><b>Scroll Left</b> will set the center time equal to the
+previous minimum (leftmost) time and will keep the same size of
+the range.
+<li><b>Scroll Right</b> will set the center time equal to the
+previous maximum (rightmost) time and will keep the same size of
+the range.
+</li><b>Show Scheduling Window</b> will restore the time range
+to the default.
+<li><b>Show Assignment Range</b> will set the time range such that
+the leftmost time is the start time of the earliest assignment and
+the rightmost time is the end time of the latest assignment.
+<li><b>Select New Time Range</b> will set the time range to be whatever
+you enter explicitly into the "Start" and "End" boxes.
+</ul>
+<?
+  }
 ?>
 
