@@ -109,6 +109,12 @@ import org.cougaar.core.util.UID;
  * -->
  */
 public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregatorPlugin, UTILExpansionListener {
+  // see explanation below for bug #11866
+  protected Map tripletToTask = new HashMap ();
+  // avoids blackboard query
+  protected Map taskToMPTask  = new HashMap ();
+
+  boolean propagateRescindPastAggregation;
 
   /** creates an XMLResultHandler specially for this plugin */
   protected XMLResultHandler createXMLResultHandler () {
@@ -201,7 +207,7 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
   /** implemented for AggregationListener */
   public void handleSuccessfulAggregation(Aggregation agg) {
     if (agg.getEstimatedResult().getConfidenceRating() > allocHelper.MEDIUM_CONFIDENCE) {
-      // handleRemovedAggregation (agg);
+      // don't do anything
     } else if (isDebugEnabled()) {
       debug (getName () + 
 			  ".handleSuccessfulAggregation : got changed agg (" + 
@@ -336,6 +342,15 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
   
   /**
    * <pre>
+   * Background : the missions for a conveyance (ship, plane, truck)
+   * are represented by MPTasks which assign an asset group of items
+   * to a conveyance for a certain period of time.  We want to prevent
+   * the case where multiple MPTasks together represent one actual
+   * mission, i.e. they are for the same conveyance and the same period 
+   * of time.  It's better for memory footprint, simplicity, and the
+   * asset usage display in the TPFDD Viewer.
+   * See bug #11866 : https://bugs.ultralog.net/show_bug.cgi?id=11866
+   *
    * Makes an aggregation given a list of assignments.
    * 
    * Makes an aggregation with a medium confidence and publishes it.  
@@ -349,14 +364,8 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
    *
    * Calls the base class function makeSetupWrapupExpansion.
    * 
-   * Also fixes up the following when an additional tasks are added to a previous
-   * assignment:
-   *  1) Adds to the d.o. of the transport task allocated to the asset
-   *  2) (Optional) If setup task, adds to the d.o. of the task
-   *  3) (Optional) If wrapup task, adds to the d.o. of the task
-   *  4) Adds to the d.o. of the mp task
-   *  5) Makes Mp task parent task list reflect new parent tasks
-   *  6) Makes aggregations connecting parent tasks to mp task
+   * Adds to a previously created MPTask when new tasks are assigned to an
+   * asset.
    *
    * </pre>
    * @param taskList - tasks for this asset
@@ -370,12 +379,17 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
    * @see org.cougaar.lib.vishnu.client.VishnuPlugin#makeSetupWrapupExpansion
    * @see <a href="http://www.cougaar.org/projects/vishnu/fulldoc.html#specs">
    * Click here for more on setup and wrapup specifications.</a>
+   * @see #addToPrevious
    */
   public void makePlanElement (Vector tasklist, Asset anAsset, Date start, Date end, Date setupStart, Date wrapupEnd,
 			       boolean assetWasUsedBefore) {
     if (assetWasUsedBefore) {
       if (addToPrevious (tasklist, anAsset, start, end, setupStart, wrapupEnd))
 	return;
+      else {
+	warn ("Though we believe " + anAsset + " was used before at " + start + 
+	      " we could not find the previous task, so making a new one.");
+      }
     }
 
     List aggResults = aggregateHelper.makeAggregation(this,
@@ -395,11 +409,76 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 
     Task mpTask = findMPTask (aggResults);
 
-    makeSetupWrapupExpansion (mpTask, anAsset, start, end, setupStart, wrapupEnd);
+    // store each distinct assignment so we can get it later in addToPrevious
+    //
+    // Bug #11866:
+    //
+    // The problem (https://bugs.ultralog.net/show_bug.cgi?id=11866) is that
+    // addToPrevious initially looks on the role schedule for mptasks assigned to an asset.  
+    // BUT the allocator plugin has to get a chance to run to update the role schedule.  So
+    // it may seem like no previous task has been assigned, if you just look at the role schedule,
+    // even though the assignment has been made (an MPTask created) but not yet reflected in
+    // the role schedule via an allocation.  This results in multiple MPTasks being made for the same
+    // mission - the same conveyance and for the same period of time.  
+    //
+    // We need to remember the assignment locally through a map to avoid this problem.
+
+    if (assetWasUsedBefore) {
+      warn ("asset was used before, but made a new mptask : " + mpTask.getUID());
+    }
+
+    Collection subtasks = makeSetupWrapupExpansion (mpTask, anAsset, start, end, setupStart, wrapupEnd);
+
+    for (Iterator iter = subtasks.iterator(); iter.hasNext(); ) {
+      Task subtask = (Task) iter.next();
+      String taskKey = anAsset.getUID().toString() + "-" + prefHelper.getReadyAt(subtask).getTime() + "-" + 
+	prefHelper.getBestDate(subtask).getTime();
+
+      if (tripletToTask.get (taskKey) == null) {
+	tripletToTask.put (taskKey, subtask);
+	if (isInfoEnabled ()) {
+	  info (getName ()+ " mapping " + taskKey + " to " + subtask.getUID());
+	}
+	taskToMPTask.put  (subtask, mpTask);
+      }
+      else {
+	warn (getName () + " - unexpected : there already is a task in table with key " +taskKey);
+      }
+    }
   }
 
+  /**
+   * Fixes up the following when additional tasks are added to a previous
+   * assignment:
+   *  1) Adds to the d.o. of the transport task allocated to the asset
+   *  2) (Optional) If setup task,  adds to the d.o. of the task
+   *  3) (Optional) If wrapup task, adds to the d.o. of the task
+   *  4) Adds to the d.o. of the mp task
+   *  5) Makes Mp task parent task list reflect new parent tasks
+   *  6) Makes aggregations connecting parent tasks to mp task
+   *
+   * @param taskList - tasks for this asset
+   * @param anAsset that these tasks are grouped for/assigned to
+   * @param start time start
+   * @param end time end
+   * @param setupStart setup start
+   * @param wrapupEnd wrapup end
+   */
   public boolean addToPrevious (Vector tasklist, Asset anAsset, Date start, Date end, Date setupStart, Date wrapupEnd) {
-    Task previousTask = getEncapsulatedTask (anAsset, start, end);
+    // see explanation for bug #11866 above
+    Task previousTask;
+    String taskKey = anAsset.getUID().toString() + "-" + start.getTime() + "-" + end.getTime();
+    previousTask = (Task) tripletToTask.get (taskKey);
+
+    if (previousTask == null) {
+      if (isInfoEnabled ()) {
+	info (getName() + " - couldn't find task with key " + taskKey + 
+	      " so looking in role schedule of " + anAsset.getUID());
+      }
+      previousTask = getEncapsulatedTask (anAsset, start, end); // look on asset's role schedule
+      if (previousTask != null)
+	tripletToTask.put (taskKey, previousTask);
+    }
 
     if (previousTask != null) { // found transport task
       if (isDebugEnabled()) 
@@ -411,34 +490,32 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
       Asset directObject = addToDirectObject (previousTask, directObjects);
       if (makeSetupAndWrapupTasks) {
 	if (setupStart.getTime() < start.getTime()) {
-	  Task setupTask = getEncapsulatedTask (anAsset, setupStart, start);
-	  if (setupTask == null)
-	    logger.warn (getAgentIdentifier () + " - previous task " + 
-			 previousTask.getUID() + " missing a setup task from " + setupStart + " to " +
-			 start + "?");
-	  else {
-	    // step 2 - add to d.o. of setup
-	    ((NewTask) setupTask).setDirectObject (directObject);
-	    publishChange (setupTask);
-	  }
+	  // step 2 - add to d.o. of setup
+	  addToPreviousSetupWrapup (anAsset, directObject, setupStart, start, "setup");
 	}
 	if (wrapupEnd.getTime() > end.getTime()) {
-	  Task wrapupTask = getEncapsulatedTask (anAsset, end, wrapupEnd);
-	  if (wrapupTask == null)
-	    logger.warn (getAgentIdentifier () + " - previous task " + 
-			 previousTask.getUID() + " missing a wrapup task from " + end + " to " +
-			 wrapupEnd + "?");
-	  else {
-	    // step 3 - add to d.o. of wrapup
-	    ((NewTask) wrapupTask).setDirectObject (directObject);
-	    publishChange (wrapupTask);
-	  }
+	  // step 3 - add to d.o. of wrapup
+	  addToPreviousSetupWrapup (anAsset, directObject, end, wrapupEnd, "wrapup");
 	}
       }
-      MPTask mpTask = getMPTask (previousTask.getParentTaskUID ());
+      MPTask mpTask = (MPTask) taskToMPTask.get (previousTask);
+      if (mpTask == null) { // should only happen after rehydration
+	if (isInfoEnabled ()) {
+	  info (getName() + " - looking for mptask parent of " + previousTask.getUID()+ " on blackboard via expensive query.");
+	}
+	// do expensive blackboard query
+	mpTask = getMPTask (previousTask.getParentTaskUID ());
+	taskToMPTask.put (previousTask, mpTask); // remember for next time 
+      }
 
-      if (mpTask == null)
+      if (mpTask == null) {
+	if (isInfoEnabled ()) {
+	  info ("Can't find mptask " + previousTask.getParentTaskUID () + 
+		" parent of " + previousTask.getUID() + " on blackboard. Must have been removed.");
+	}
+
 	return false; // the MP task was removed from the blackboard while scheduler was running
+      }
 
       // step 4 - add to d.o. of MPTask parent
       ((NewMPTask) mpTask).setDirectObject (directObject);
@@ -447,6 +524,9 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
       Enumeration parents = mpTask.getParentTasks ();
       Vector parentsVector = enumToVector (parents);
       ((NewMPTask)mpTask).setParentTasks (getEnumWithNewParents (parentsVector, tasklist));
+      if (isInfoEnabled ()) {
+	info (getName() + " - publish changing " + mpTask.getUID());
+      }
       publishChange (mpTask);
 
       // step 6 - make aggregations for connecting parent tasks to MPTask
@@ -459,12 +539,65 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
     return false;
   }
 
-  /** look for a plan element that covers exactly the same span of time */
+  /** 
+   * Update the directObject of the setup and wrapup tasks when we get new assignments
+   * to an existing mission.  publishChanges the task.
+   * 
+   * We need a triplet - the assigned asset and the start and end dates to unique identify
+   * a setup or wrapup task.  These come from the anAsset, start, and end parameters.
+   *
+   * First looks in the tripletToTask map, and if can't find the task there, looks at the 
+   * asset's role schedule, which is problematic (the allocator must have run), see above
+   * discussion.  The only time the tripletToTask map will be empty will be after rehydration.
+   */
+  protected void addToPreviousSetupWrapup (Asset anAsset, Asset directObject, Date start, Date end, String info) {
+    Task setupTask;
+    String taskKey = anAsset.getUID().toString() + "-" + start.getTime() + "-" + end.getTime();
+    if (isInfoEnabled ()) {
+      info (getName() + " - " + info + " - checking tripletToTask map for " + taskKey);
+    }
+    setupTask = (Task) tripletToTask.get (taskKey);
+
+    if (setupTask == null) {
+      if (isInfoEnabled ()) {
+	info (getName() + " - setup - nothing in tripletToTask map for " + taskKey + 
+	      " so checking role schedule.");
+      }
+      setupTask = getEncapsulatedTask (anAsset, start, end);
+      if (setupTask != null)
+	tripletToTask.put (taskKey, setupTask);
+    }
+
+    if (setupTask == null) { // shouldn't happen
+      warn (getAgentIdentifier () + " - " + 
+	    " on " + anAsset + 
+	    " missing a "+ info + 
+	    " task from " + start + 
+	    " to " + end + "?");
+    }
+    else {
+      ((NewTask) setupTask).setDirectObject (directObject);
+      if (isInfoEnabled ()) {
+	info (getName() + " - publish changing " + setupTask.getUID());
+      }
+      publishChange (setupTask);
+    }
+  }
+
+  /** 
+   * look for a plan element that covers exactly the same span of time 
+   */
   protected Task getEncapsulatedTask (Asset asset, Date start, Date end) {
     Collection tasks = asset.getRoleSchedule().getEncapsulatedRoleSchedule (start.getTime(), 
 									    end.getTime());
-    if (tasks.isEmpty ())
+    if (tasks.isEmpty ()) {
+      if (isInfoEnabled ()) {
+	info ("no task on role schedule of " + asset.getUID () + " - " + 
+	      asset + " between " + start + " and " + end + 
+	      "\nschedule was " + asset.getRoleSchedule());
+      }
       return null;
+    }
     for (Iterator iter=tasks.iterator (); iter.hasNext (); ) {
       PlanElement pe = (PlanElement) iter.next ();
       long startTime = 
@@ -475,6 +608,21 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 	    endTime == end.getTime ()) {
 	return pe.getTask ();
       } 
+      else {
+	if (isInfoEnabled ()) {
+	  if (startTime == start.getTime ()) {
+	    info (asset.getUID() + " - end times are different, pe end "+ new Date(endTime) + 
+		  " vs assigned " + new Date (end.getTime()) + " for " +asset);
+	  }
+	  else if (endTime == end.getTime ()) {
+	    info (asset.getUID() + " - start times are different, pe start "+ new Date(startTime) + 
+		  " vs assigned " + new Date (start.getTime()) + " for " +asset);
+	  }
+	  else {
+	    info (asset.getUID() + " - both start and end times are different for " + asset);
+	  }
+	}
+      }
     }
     return null;
   }
@@ -483,27 +631,30 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
     AssetGroup group = (AssetGroup) task.getDirectObject ();
     Vector assetsInGroup = group.getAssets ();
     assetsInGroup.addAll (objects);
+    if (isInfoEnabled ()) {
+      info (getName() + " - publish changing " + task.getUID());
+    }
     publishChange (task);
     return group;
   }
 
+  /** 
+   * very expensive - must examine every object on the blackboard - avoid if possible 
+   * @param parentUID - uid of MPTask we want from the blackboard
+   * @return MPTask with UID equal to the param parentUID
+   */
   protected MPTask getMPTask (final UID parentUID) {
     Collection stuff = blackboard.query (new UnaryPredicate () {
 	public boolean execute (Object obj) {
 	  boolean isMPTask = (obj instanceof MPTask);
 	  if (!isMPTask) return false;
 	  boolean match = ((MPTask) obj).getUID ().toString().equals (parentUID.toString());
-	  /*
-	  debug (getName () + ".getMPTask - Comparing uid " +
-			      ((MPTask) obj).getUID ().toString() + " with key " + parentUID + 
-			      ((match) ? " MATCH! " : " no match"));
-	  */
 	  return match;
 	}
       });
 
     if (stuff.iterator().hasNext())
-      return (MPTask) stuff.iterator().next ();
+      return (MPTask) stuff.iterator().next (); // better be only one!
     else
       return null;
   }
@@ -535,9 +686,9 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 	expandHelper.showPlanElement (parentTask);
       }
 	  
-      AllocationResult estAR = ldmf.newAVAllocationResult(allocHelper.HIGHEST_CONFIDENCE,
-							  isSuccess,
-							  aspectValues);
+      AllocationResult estAR = ldmf.newAllocationResult(allocHelper.HIGHEST_CONFIDENCE,
+							isSuccess,
+							aspectValues);
       Aggregation agg = ldmf.createAggregation(parentTask.getPlan(),
 					       parentTask,
 					       comp,
@@ -858,8 +1009,5 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
       publishAddWithCheck(next_o);
     }
   }
-
-  private Map compositionToNumberTasks = new HashMap();
-  boolean propagateRescindPastAggregation;
 }
 

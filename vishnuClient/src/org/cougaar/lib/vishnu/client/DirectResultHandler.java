@@ -37,14 +37,17 @@ import org.cougaar.util.log.Logger;
 import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.planning.ldm.asset.Asset;
 
+import org.w3c.dom.Document;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
-import org.w3c.dom.Document;
 
 /** 
  * <pre>
@@ -60,6 +63,13 @@ import org.w3c.dom.Document;
  * @see DirectResultListener#prepareVishnuObjects
  */
 public class DirectResultHandler extends PluginHelper implements ResultHandler {
+
+  /** 
+   * For every assignment, remember the start time + resource id, which uniquely identifies each assignment
+   * This way we can tell if the resource has been used before
+   */
+  Set knownTimeResourceIDPairs = new HashSet ();
+
   /** records reference to ResultListener parent */
   public DirectResultHandler (ModeListener parent, VishnuComm comm, XMLProcessor xmlProcessor, 
 			      VishnuDomUtil domUtil, VishnuConfig config, 
@@ -240,31 +250,45 @@ public class DirectResultHandler extends PluginHelper implements ResultHandler {
 	    logger.debug (getName () + " huh? " + resources[i] + " had no assignments?");
 	}
 	if (multi.length > 0) {
-	  if (logger.isDebugEnabled()) 
-	    logger.debug (getName () + " for resource " + resources[i].getKey() +
+	  if (logger.isInfoEnabled()) 
+	    logger.info (getName () + " for resource " + resources[i].getKey() +
 			 " got " + multi.length + " task groups assigned.");
-	  boolean assetWasUsedBefore = false;
 
 	  for (int j = 0; j < multi.length; j++) {
+	    boolean assetWasUsedBefore = false;
 	    Vector tasks = new Vector ();
 	    MultitaskAssignment assign = multi[j];
 
-	    if (logger.isDebugEnabled()) 
-	      logger.debug (getName () + " for resource " + resources[i].getKey() +
-			    " multi assign #" + j + " had " +multi[j].getTasks().size() + " tasks");
-			
+	    if (logger.isInfoEnabled()) {
+	      logger.info (getName () + " for resource " + resources[i].getKey() +
+			   " multi assign #" + j + " had " +multi[j].getTasks().size() + " tasks, start time was " +
+			   timeOps.timeToDate(assign.getTaskStartTime()) +  " end " + 
+			   timeOps.timeToDate (assign.getTaskEndTime())
+			   );
+	    }
+
+	    String resourceKey = assign.getResource().getKey();
+	    boolean printedMsg = false;
 	    for (Iterator iter = multi[j].getTasks().iterator(); iter.hasNext(); ) {
 	      com.bbn.vishnu.scheduling.Task vishnuTask = (com.bbn.vishnu.scheduling.Task) iter.next();
 	      Task task = getTaskFromAssignment(vishnuTask.getKey());
-	      if (task != null) 
+	      if (task != null) {
 		tasks.add (task);
-	      else // if this is a task from an earlier batch, then this resource was used before
+	      }
+	      else { // if this is a task from an earlier batch, then this resource was used before
+		if (logger.isInfoEnabled() && !printedMsg) {
+		  logger.info (getName() + " - asset " + resourceKey + " was used before at " + 
+			       timeOps.timeToDate(assign.getTaskStartTime()));
+		  printedMsg = true;
+		}
+
 		assetWasUsedBefore = true;
+	      }
 	    }
 
 	    if (!tasks.isEmpty ()) {
 	      resultListener.handleMultiAssignment (tasks, 
-						    getAssignedAsset   (assign.getResource().getKey()),
+						    getAssignedAsset   (resourceKey),
 						    timeOps.timeToDate (assign.getTaskStartTime()),
 						    timeOps.timeToDate (assign.getTaskEndTime()),
 						    timeOps.timeToDate (assign.getStartTime()), // setup
