@@ -47,8 +47,8 @@ import org.w3c.dom.Element;
 public abstract class BaseXMLize {
   /** Maximum search depth -- Integer.MAX_VALUE means unlimited. **/
   protected final int DEFAULT_UID_DEPTH = 6;
-  protected static final String MAX_VALUE_STRING = "" + Float.MAX_VALUE;
-  protected static final String MIN_VALUE_STRING = "" + Float.MIN_VALUE;
+  protected static final String MAX_VALUE_STRING = Float.toString(Float.MAX_VALUE);
+  protected static final String MIN_VALUE_STRING = Float.toString(Float.MIN_VALUE);
   protected Class numberClass;
   protected Class booleanClass;
   protected Class classClass;
