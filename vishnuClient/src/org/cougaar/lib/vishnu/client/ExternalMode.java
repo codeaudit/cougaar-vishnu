@@ -36,9 +36,14 @@ import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+/** 
+ * External mode.  
+ * <p>
+ * Talks to a web server to orchestrate scheduling.
+ */
 public class ExternalMode extends PlugInHelper implements SchedulerLifecycle {
   public ExternalMode (ModeListener parent, VishnuComm comm, XMLProcessor xmlProcessor, 
-					   VishnuDomUtil domUtil, VishnuConfig config, XMLResultHandler resultHandler, 
+					   VishnuDomUtil domUtil, VishnuConfig config, ResultHandler resultHandler, 
 					   ParamMap myParamTable) {
 	super (parent, comm, xmlProcessor, domUtil, config, myParamTable);
 	this.resultHandler = resultHandler;
@@ -59,17 +64,19 @@ public class ExternalMode extends PlugInHelper implements SchedulerLifecycle {
 		   getMyParams().getBooleanParam("incrementalScheduling");}    
     catch(Exception e) {incrementalScheduling = false;}
 
-    try {showTiming = 
-		   getMyParams().getBooleanParam("showTiming");}    
-    catch(Exception e) {  showTiming = true; }
-
     // Don't clear database on each send if scheduling incrementally
     if (incrementalScheduling) alwaysClearDatabase = false;
   }
 
-  /** implemented for SchedulerLifecycle */
+  /** 
+   * Implemented for SchedulerLifecycle -- already done in VishnuPlugIn.prepareObjectFormat 
+   * so does nothing.
+   * 
+   * @see VishnuPlugIn#prepareObjectFormat
+   */
   public void initializeWithFormat () {}
-  
+
+  /** just calls sendDataToVishnu */
   public void prepareData (List stuffToSend, Document objectFormatDoc) {
 	sendDataToVishnu (stuffToSend, 
 					  myNameToDescrip, 
@@ -140,6 +147,7 @@ public class ExternalMode extends PlugInHelper implements SchedulerLifecycle {
 	  sentOtherDataAlready = true;
   }
   
+  /** scheduler is created as a separate process by whoever sets up Vishnu system */
   public void setupScheduler () {}
   
   /**
@@ -159,15 +167,10 @@ public class ExternalMode extends PlugInHelper implements SchedulerLifecycle {
   }
 
    /** 
-	* Run externally.  Create a new scheduler, and give it the contents of <br>
-	* the internalBuffer, which has captured all the xml output that would <br>
-	* normally go to the various URLs.  Then, parse the results using a SAX <br>
-	* Parser and the AssignmentHandler, which just calls parseStartElement and <br>
-	* parseEndElement.  The AssignmentHandler will create plan elements for
-	* each assignment.<p>
-	*
-	* @see #parseStartElement
-	* @see #parseEndElement
+	* Run externally.  
+	* <p>
+	* Trigger the start of scheduling and wait until it's finished.  
+	* @see @waitTillFinished
 	*/
   public void run () {
 	comm.startScheduling ();
@@ -190,11 +193,12 @@ public class ExternalMode extends PlugInHelper implements SchedulerLifecycle {
 	  domUtil.reportTime (" - Vishnu received answer, was waiting for ", start);
 
     if (gotAnswer)
-	  resultHandler.parseAnswer();
+	  ((XMLResultHandler)resultHandler).parseAnswer();
 
     return gotAnswer;
   }
 
+  /** timed out waiting for scheduler to do its job */
   private void showTimedOutMessage () {
 	System.out.println (getName () + ".processTasks -- ERROR -- " + 
 						"Timed out waiting for scheduler to finish.\n" +
@@ -220,10 +224,7 @@ public class ExternalMode extends PlugInHelper implements SchedulerLifecycle {
   String singleAssetClassName;
   boolean alwaysClearDatabase;
   protected int sendDataChunkSize;
-  XMLResultHandler resultHandler;
+  ResultHandler resultHandler;
   boolean incrementalScheduling;
   protected boolean sentOtherDataAlready = false;
-  
-  private final SimpleDateFormat format =
-    new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");
 }

@@ -36,18 +36,26 @@ import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+/** 
+ * Internal mode.  
+ * <p>
+ * Creates an internal instance of the scheduler and talks to it, instead
+ * of to a web server.  
+ *
+ */
 public class InternalMode extends ExternalMode {
   public InternalMode (ModeListener parent, VishnuComm comm, XMLProcessor xmlProcessor, 
-					   VishnuDomUtil domUtil, VishnuConfig config, XMLResultHandler resultHandler, 
+					   VishnuDomUtil domUtil, VishnuConfig config, ResultHandler resultHandler,
 					   ParamMap myParamTable) {
 	super (parent, comm, xmlProcessor, domUtil, config, resultHandler, myParamTable);
 	localSetup ();
   }
 
+  /** Create a new scheduler if in batch mode or if called the first time */
   public void setupScheduler () {
 	if (!incrementalScheduling || sched == null) {
 	  if (myExtraOutput)
-		System.out.println (parent.getName () + ".processTasks - creating scheduler.");
+		System.out.println (getName () + ".setupScheduler - creating scheduler.");
 
 	  sched = new Scheduler ();
 	  sched.setupInternalObjects ();
@@ -74,15 +82,17 @@ public class InternalMode extends ExternalMode {
    }
 
    /** 
-	* Run internally.  Create a new scheduler, and give it the contents of <br>
-	* the internalBuffer, which has captured all the xml output that would <br>
-	* normally go to the various URLs.  Then, parse the results using a SAX <br>
+	* Run internally. Give the scheduler the contents of 
+	* the internalBuffer (in VishnuComm), which has captured all the xml output 
+	* that would normally go to the various URLs if in external mode.  
+	* <p>
+	* Then, parse the results using an XMLResultHandler, which is just a SAX <br>
 	* Parser and the AssignmentHandler, which just calls parseStartElement and <br>
-	* parseEndElement.  The AssignmentHandler will create plan elements for
-	* each assignment.<p>
+	* parseEndElement.  The AssignmentHandler will call methods in the VishnuPlugIn
+	* to create plan elements for each assignment.<p>
 	*
-	* @see #parseStartElement
-	* @see #parseEndElement
+	* @see XMLResultHandler#parseStartElement
+	* @see XMLResultHandler#parseEndElement
 	*/
    public void run () {
 	 int unhandledTasks = prepareScheduler ();
@@ -90,7 +100,7 @@ public class InternalMode extends ExternalMode {
 	 try {
 	   if (myExtraExtraOutput)
 		 for (int i = 0; i < sched.getSchedulingData().getResources ().length; i++) {
-		   System.out.println (getName () + ".runInternally - Known Resource #" + i + 
+		   System.out.println (getName () + ".run - Known Resource #" + i + 
 							   " : \n" + sched.getSchedulingData().getResources()[i]);
 		 }
 
@@ -101,42 +111,50 @@ public class InternalMode extends ExternalMode {
 	   String assignments = sched.getXMLAssignments(true, !incrementalScheduling);
 	 
 	   if (myExtraOutput) 
-		 System.out.println(getName () + ".runInternally - scheduled assignments were : " + assignments);
+		 System.out.println(getName () + ".run - scheduled assignments were : " + assignments);
 
 	   SAXParser parser = new SAXParser();
-	   parser.setContentHandler (resultHandler.getHandler ());
+	   parser.setContentHandler (((XMLResultHandler)resultHandler).getAssignmentHandler ());
 	   try {
 		 parser.parse (new InputSource (new StringReader (assignments)));
 	   } catch (SAXException sax) {
-		 System.out.println (getName () + ".runInternally - Got sax exception:\n" + sax);
+		 System.out.println (getName () + ".run - Got sax exception:\n" + sax);
 	   } catch (IOException ioe) {
-		 System.out.println (getName () + ".runInternally - Could not open file : \n" + ioe);
+		 System.out.println (getName () + ".run - Could not open file : \n" + ioe);
 	   } catch (NullPointerException npe) {
-		 System.out.println (getName () + ".runInternally - ERROR - no assignments were made, badly confused : \n" + npe);
+		 System.out.println (getName () + ".run - ERROR - no assignments were made, badly confused : \n" + npe);
 	   }
 	 } catch (Exception e) {
-	   System.out.println (getName () + ".runInternally - Got error running scheduler : " + e.getMessage ());
+	   System.out.println (getName () + ".run - Got error running scheduler : " + e.getMessage ());
 	   e.printStackTrace ();
 	 } finally {
 	   cleanUpAfterScheduling (unhandledTasks);
 	 }
    }
 
-  /** implemented for SchedulerLifecycle */
+  /** 
+   * Implemented for SchedulerLifecycle
+   * <p>
+   * Call SAXParser in scheduler to set it up with the specs, object format, etc.
+   */
   public void initializeWithFormat () {
 	sched.setupInternal (comm.getBuffer (), false);
 	comm.clearBuffer ();
   }
   
+  /** Call setupInternal to initialize scheduler with task and asset data */  
   protected int prepareScheduler () {
 	// sched is the scheduler...
-	// Call setupInternal before adding the data, parses the specs, object format, and other data
 	sched.setupInternal (comm.getBuffer (), false);
 	comm.clearBuffer ();
 	
 	return parent.getNumTasks();
   }
 
+  /** 
+   * Inform of # of unhandled tasks <br>
+   * Freeze all assignments if incremental mode 
+   */
   protected void cleanUpAfterScheduling (int unhandledTasks) {
 	Date start = new Date ();
 	
@@ -152,18 +170,18 @@ public class InternalMode extends ExternalMode {
 	}
 	  
 	if (showTiming) {
-	  domUtil.reportTime (".run" + 
+	  domUtil.reportTime (getName () + ".cleanUpAfterScheduling" + 
 						  " - created successful plan elements for " +
 						  (unhandledTasks-parent.getNumTasks ()) + " tasks in ", start);
 	} else {
 	  if (myExtraOutput || true)
-		System.out.println (getName () + ".run" + 
+		System.out.println (getName () + ".cleanUpAfterScheduling" + 
 							" - created successful plan elements for " +
 							(unhandledTasks-parent.getNumTasks ()) + " tasks.");
 	}
   }
 
-  protected String getName () { return "InternalMode"; }
+  protected String getName () { return parent.getName() + "-InternalMode"; }
   
   Map myNameToDescrip;
   String singleAssetClassName;
