@@ -2642,7 +2642,6 @@ hiding the username and password used by the scheduler and compiler.
 <li> <b>Multiple Resources Per Task</b> - It should be possible for a task to require multiple resources and hence have multiple assignments.
 <li> <b>Schedule Stability Soft Constraint</b> - It should be possible to express a preference for keeping the schedule the same as much as possible without
    freezing the assignments.
-<li> <b>Unassigned Tasks Display</b> - When displaying the full schedule, make a little note at the bottom about tasks that were not able to be scheduled.
 <li> <b>Faster Execution of Formulas</b> - Instead of recursing through the parse trees of the formulas, the scheduler should create linear representations that it can iterate through.
 <li> <b>Automatic Freezing of Past Assignments</b> - The automated
 scheduler should automatically not modify any assignment earlier than
@@ -2695,6 +2694,10 @@ can be run from a command line.
 may have changed since the last compilation of the scheduling
 specifications, do a quick check before scheduling that the specs
 are still legal.
+<li> <b>Resource Utilization Display</b> - Make functional again
+the code that displays
+the fraction of the resources and their capacities used as a function
+of time.
 <ul>
 </div>
 
