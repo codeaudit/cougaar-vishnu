@@ -398,7 +398,9 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 	}
 
 	// post condition check 
-	checkMPTaskDO (mpTask);
+	if (isInfoEnabled ()) {
+	  checkMPTaskDO (mpTask);
+	}
       }
     }
   }
@@ -1026,21 +1028,18 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
       parentDirectObjects.add (parent.getDirectObject());
       numParents++;
     }
-    if (isInfoEnabled ()) {
-      info (getName() + 
-	    " - MPTask " + mpTask.getUID() + 
-	    " has " + numParents + 
-	    " parents.");
-    }
+
+    info (getName() + 
+	  " - MPTask " + mpTask.getUID() + 
+	  " has " + numParents + 
+	  " parents.");
 
     Set parentsNotRepresentedInMPTask = new HashSet (parentDirectObjects);
     parentsNotRepresentedInMPTask.removeAll (mpTaskDOVector);
     if (!parentsNotRepresentedInMPTask.isEmpty()) {
       for (Iterator iter = parentsNotRepresentedInMPTask.iterator(); iter.hasNext(); ) {
-	if (isInfoEnabled()) {
-	  info (getName() + " - MPTask " + mpTask.getUID() + 
-		" d.o. is missing parent's d.o. " + iter.next());
-	}
+	info (getName() + " - MPTask " + mpTask.getUID() + 
+	      " d.o. is missing parent's d.o. " + iter.next());
       }
     }
 
@@ -1049,10 +1048,8 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
       excessAssetsInMPTaskDO.removeAll (parentDirectObjects);
       if (!excessAssetsInMPTaskDO.isEmpty()) {
 	for (Iterator iter = excessAssetsInMPTaskDO.iterator(); iter.hasNext(); ) {
-	  if (isInfoEnabled()) {
-	    info (getName() + " - MPTask " + mpTask.getUID() + 
-		   " d.o. has extra asset that is not in any parent " + iter.next());
-	  }
+	  info (getName() + " - MPTask " + mpTask.getUID() + 
+		" d.o. has extra asset that is not in any parent " + iter.next());
 	}
       }
     }
