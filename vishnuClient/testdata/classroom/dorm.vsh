@@ -145,13 +145,13 @@
 </SPECS>
 <GAPARMS pop_size="20" parent_scalar="0.70000" max_evals="4000" max_time="20" max_duplicates="300" max_top_dog_age="100" initializer="org.cougaar.lib.vishnu.server.OrderedInitializer" decoder="org.cougaar.lib.vishnu.server.OrderedDecoder" >
 <GAOPERATORS>
-<GAOPERATOR name="org.cougaar.lib.vishnu.server.OrderedMutation" prob="0.50" parms="1.0" />
-<GAOPERATOR name="org.cougaar.lib.vishnu.server.OrderedCrossover" prob="0.50" />
+<GAOPERATOR name="org.cougaar.lib.vishnu.server.OrderedMutation" prob="0.5" parms="1.0" />
+<GAOPERATOR name="org.cougaar.lib.vishnu.server.OrderedCrossover" prob="0.5" />
 </GAOPERATORS>
 </GAPARMS>
 <DATA>
 <CLEARDATABASE />
-<WINDOW />
+<WINDOW starttime="2001-09-01 00:00:00" />
 <NEWOBJECTS>
 <OBJECT type="resident" >
 <FIELD name="name" value="Abigail" />
@@ -252,28 +252,28 @@
 <OBJECT type="room" >
 <FIELD name="number" value="A111" />
 <FIELD name="gender" value="male" />
-<FIELD name="max_people" value="2.00" />
+<FIELD name="max_people" value="2" />
 <FIELD name="smoking" value="true" />
 <FIELD name="handicap_access" value="true" />
 </OBJECT>
 <OBJECT type="room" >
 <FIELD name="number" value="A222" />
 <FIELD name="gender" value="male" />
-<FIELD name="max_people" value="3.00" />
+<FIELD name="max_people" value="3" />
 <FIELD name="smoking" value="false" />
 <FIELD name="handicap_access" value="false" />
 </OBJECT>
 <OBJECT type="room" >
 <FIELD name="number" value="B111" />
 <FIELD name="gender" value="female" />
-<FIELD name="max_people" value="2.00" />
+<FIELD name="max_people" value="2" />
 <FIELD name="smoking" value="false" />
 <FIELD name="handicap_access" value="true" />
 </OBJECT>
 <OBJECT type="room" >
 <FIELD name="number" value="B222" />
 <FIELD name="gender" value="female" />
-<FIELD name="max_people" value="3.00" />
+<FIELD name="max_people" value="3" />
 <FIELD name="smoking" value="true" />
 <FIELD name="handicap_access" value="false" />
 </OBJECT>

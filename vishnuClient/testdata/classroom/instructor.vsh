@@ -163,13 +163,13 @@
 </SPECS>
 <GAPARMS pop_size="20" parent_scalar="0.70000" max_evals="4000" max_time="20" max_duplicates="300" max_top_dog_age="100" initializer="org.cougaar.lib.vishnu.server.OrderedInitializer" decoder="org.cougaar.lib.vishnu.server.OrderedDecoder" >
 <GAOPERATORS>
-<GAOPERATOR name="org.cougaar.lib.vishnu.server.OrderedMutation" prob="0.50" parms="1.0" />
-<GAOPERATOR name="org.cougaar.lib.vishnu.server.OrderedCrossover" prob="0.50" />
+<GAOPERATOR name="org.cougaar.lib.vishnu.server.OrderedMutation" prob="0.5" parms="1.0" />
+<GAOPERATOR name="org.cougaar.lib.vishnu.server.OrderedCrossover" prob="0.5" />
 </GAOPERATORS>
 </GAPARMS>
 <DATA>
 <CLEARDATABASE />
-<WINDOW />
+<WINDOW starttime="2001-09-01 00:00:00" />
 <NEWOBJECTS>
 <OBJECT type="class" >
 <FIELD name="id" value="HC1a" />
@@ -187,6 +187,28 @@
 <FIELD name="name" value="Beginning Handcuffing" />
 <FIELD name="start_time" value="2001-09-01 10:30:00" />
 <FIELD name="end_time" value="2001-09-01 12:00:00" />
+<FIELD name="required_quals" >
+<LIST>
+<VALUE value="handcuff" />
+</LIST>
+</FIELD>
+</OBJECT>
+<OBJECT type="class" >
+<FIELD name="id" value="HC2a" />
+<FIELD name="name" value="Advanced Handcuffing" />
+<FIELD name="start_time" value="2001-09-01 13:30:00" />
+<FIELD name="end_time" value="2001-09-01 15:00:00" />
+<FIELD name="required_quals" >
+<LIST>
+<VALUE value="handcuff" />
+</LIST>
+</FIELD>
+</OBJECT>
+<OBJECT type="class" >
+<FIELD name="id" value="HC2b" />
+<FIELD name="name" value="Advanced Handcuffing" />
+<FIELD name="start_time" value="2001-09-01 15:00:00" />
+<FIELD name="end_time" value="2001-09-01 16:30:00" />
 <FIELD name="required_quals" >
 <LIST>
 <VALUE value="handcuff" />
@@ -216,28 +238,6 @@
 </FIELD>
 </OBJECT>
 <OBJECT type="class" >
-<FIELD name="id" value="HC2a" />
-<FIELD name="name" value="Advanced Handcuffing" />
-<FIELD name="start_time" value="2001-09-01 13:30:00" />
-<FIELD name="end_time" value="2001-09-01 15:00:00" />
-<FIELD name="required_quals" >
-<LIST>
-<VALUE value="handcuff" />
-</LIST>
-</FIELD>
-</OBJECT>
-<OBJECT type="class" >
-<FIELD name="id" value="HC2b" />
-<FIELD name="name" value="Advanced Handcuffing" />
-<FIELD name="start_time" value="2001-09-01 15:00:00" />
-<FIELD name="end_time" value="2001-09-01 16:30:00" />
-<FIELD name="required_quals" >
-<LIST>
-<VALUE value="handcuff" />
-</LIST>
-</FIELD>
-</OBJECT>
-<OBJECT type="class" >
 <FIELD name="id" value="MM2a" />
 <FIELD name="name" value="Advanced Marksman" />
 <FIELD name="start_time" value="2001-09-01 13:30:00" />
@@ -260,19 +260,6 @@
 </FIELD>
 </OBJECT>
 <OBJECT type="instructor" >
-<FIELD name="name" value="Johnson, John" />
-<FIELD name="qualifications" >
-<LIST>
-<VALUE value="handcuff" />
-</LIST>
-</FIELD>
-<FIELD name="busy_times" >
-<LIST>
-</LIST>
-</FIELD>
-<FIELD name="telephone_number" value="123-4567" />
-</OBJECT>
-<OBJECT type="instructor" >
 <FIELD name="name" value="Brown, Jack" />
 <FIELD name="qualifications" >
 <LIST>
@@ -285,6 +272,19 @@
 </LIST>
 </FIELD>
 <FIELD name="telephone_number" value="567-2345" />
+</OBJECT>
+<OBJECT type="instructor" >
+<FIELD name="name" value="Johnson, John" />
+<FIELD name="qualifications" >
+<LIST>
+<VALUE value="handcuff" />
+</LIST>
+</FIELD>
+<FIELD name="busy_times" >
+<LIST>
+</LIST>
+</FIELD>
+<FIELD name="telephone_number" value="123-4567" />
 </OBJECT>
 <OBJECT type="instructor" >
 <FIELD name="name" value="Smith, Sally" />
