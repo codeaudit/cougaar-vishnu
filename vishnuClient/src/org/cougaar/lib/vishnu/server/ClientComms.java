@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/ClientComms.java,v 1.3 2001-02-05 19:34:13 gvidaver Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/ClientComms.java,v 1.4 2001-02-12 19:35:28 gvidaver Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -122,9 +122,10 @@ public class ClientComms {
     try {
       if (debugXML) {
 	  URL url = new URL (stringURL);
-	  System.out.println ("readXML - url " + url);
+	  System.out.println ("ClientComms.readXML - Only testing URL. No scheduling will take place.");
+	  System.out.println ("ClientComms.readXML - url " + url);
 	  
-	  System.out.println ("readXML - " + testURL (url));
+	  System.out.println ("ClientComms.readXML - " + testURL (url));
 	  return null;
       }
       SAXParser parser = new SAXParser();
