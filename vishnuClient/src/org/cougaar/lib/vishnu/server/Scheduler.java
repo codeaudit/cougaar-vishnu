@@ -498,6 +498,21 @@ public class Scheduler {
       reportTime ("Scheduler.runInternalToProcess - ga ran in ", start);
   }
 
+  /**
+   * Does the whole internal scheduling process
+   * @param problem XML representation of the problem/data
+   * @param initialize true if this problem is new, false if continuing
+   *        existing problem
+   */
+  public String runInternalToProcess (String problem, boolean initialize) {
+    setupInternal (problem, initialize);
+    scheduleInternal();
+    return getXMLAssignments();
+  }
+
+  public String runInternalToProcess (String problem) {
+    return runInternalToProcess (problem, true);
+  }
 
   /**
    * The function called to return the assignments in XML after running
