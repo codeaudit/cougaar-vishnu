@@ -43,6 +43,22 @@ Any changes you make to the description do not get written
 back to the server (and hence become permanent) until you
 click on "Update Description".
 <li> <b>Edit/view the data -</b>
+There are three types of data: tasks, resources, and other data
+(or global data).
+Each type of data has its own pick list.
+To view or edit a particular data object, first select its name from
+the appropriate pick list.
+Then click on the corresponding "View" button to just view the
+data in all the fields of this object or "Edit" to view this data
+and potentially change the values in these fields.
+When editing a data object, you will also have the option of deleting it.
+The "View All" button bring you to a page with links to all the task
+and resource objects rather than having them in pick list.  This is
+a convenience for the case when there are a lot of tasks or resources
+and the pick list gets very big.
+To create a new data object, click on the appropriate "Create" button,
+and you will create a new object and be brought to the editing page
+in order to fill in the values for its fields.
 <li> <b>Edit/view the data formats -</b>
 <li> <b>View the schedule -</b>
 <li> <b>Edit/view the problem-specific scheduling logic-</b>
