@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Scheduler.java,v 1.1 2001-01-10 19:29:55 rwu Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Scheduler.java,v 1.2 2001-01-17 01:38:55 gvidaver Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -37,6 +37,8 @@ public class Scheduler {
     ("true".equals (System.getProperty ("org.cougaar.lib.vishnu.server.Scheduler.debug")));
   private static String onlyTheseProblems = 
     System.getProperty ("org.cougaar.lib.vishnu.server.Scheduler.problems");
+  private static String onlyTheseMachines = 
+    System.getProperty ("org.cougaar.lib.vishnu.server.Scheduler.machines");
   private static boolean showAssignments = 
     ("true".equals (System.getProperty ("org.cougaar.lib.vishnu.server.Scheduler.showAssignments")));
   private static boolean reportTiming = 
@@ -44,16 +46,18 @@ public class Scheduler {
   private static String PHP_SUFFIX = ".php";
 
   private Set allowedProblems = new HashSet ();
+  private Set allowedMachines = new HashSet ();
+  private List ignoredProblems = null;
   
   public Scheduler () {
     if (onlyTheseProblems != null) {
-      System.out.println ("Scheduler will only process these problems:");
-      StringTokenizer st = new StringTokenizer(onlyTheseProblems, ",");
-      while (st.hasMoreTokens()) {
-		String problemName = st.nextToken();
-		System.out.println ("\t - " + problemName);
-		allowedProblems.add (problemName);
-      }
+	  getNames (allowedProblems, onlyTheseProblems);
+      System.out.println ("Scheduler will only process these problems:" + allowedProblems);
+    }
+    else if (onlyTheseMachines != null && onlyTheseMachines.length () > 1) {
+	  getNames (allowedMachines, onlyTheseMachines);
+      System.out.println ("Scheduler will only process problems from these machines : " + 
+						  allowedMachines);
     }
 	String waitIntervalProp = null;
 	try {
@@ -64,6 +68,14 @@ public class Scheduler {
 	} catch (NumberFormatException nfe) {
 	  System.out.println ("Scheduler.Scheduler - expecting a long for "+ 
 						  "waitInterval, but got " + waitIntervalProp);	  
+	}
+  }
+
+  protected void getNames (Set nameSet, String names) {
+	StringTokenizer st = new StringTokenizer(names, ",");
+	while (st.hasMoreTokens()) {
+	  String name = st.nextToken();
+	  nameSet.add (name.trim());
 	}
   }
 
@@ -226,7 +238,6 @@ public class Scheduler {
     return true;
   }
 
-  List ignoredProblems = null;
   private Exception getProblem() {
     ignoredProblems = new ArrayList ();
     Exception excep = ClientComms.readXML (ClientComms.defaultArgs(),
@@ -293,9 +304,7 @@ public class Scheduler {
   private class CurrentRequestHandler extends DefaultHandler {
     public void startElement (String uri, String local,
                               String name, Attributes atts) {
-      if (name.equals ("PROBLEM") && 
-          (allowedProblems.isEmpty () || 
-           allowedProblems.contains(atts.getValue("name")))) {
+      if (name.equals ("PROBLEM") && doableProblem (atts.getValue("name"))) {
         problem = atts.getValue ("name");
         probNumber = atts.getValue ("number");
       }
@@ -306,6 +315,22 @@ public class Scheduler {
         //  "ignoring request for " + atts.getValue("name"));
       }
     }
+
+	protected boolean doableProblem (String problemName) {
+	  boolean match = false;
+	  
+	  for (Iterator iter = allowedMachines.iterator (); iter.hasNext(); ) {
+		String machine = (String) iter.next ();
+		if (problemName.endsWith (machine)) {
+		  match = true;
+		  break;
+		}
+	  }
+	  
+	  return ((allowedProblems.isEmpty () && allowedMachines.isEmpty ()) || 
+			  allowedProblems.contains(problemName) || match);
+	}
+	
   }
 
 
