@@ -1,8 +1,8 @@
 <?
 
   function fail() {
+    Header("HTTP/1.1 401 Unauthorized");
     Header("WWW-Authenticate: Basic Realm=\"Vishnu\"");
-    Header("HTTP/1.0 401 Unauthorized");
     setcookie ("VishnuUser");    
     setcookie ("VishnuPassword");    
     echo "<HTML><BODY><H1 align=center>" .
