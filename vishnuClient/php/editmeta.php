@@ -182,6 +182,9 @@
         return;
       if (! checkNotEmpty ($datatype, "changing field", "data type"))
         return;
+      if ($globalptr && $isatomic[$datatype])
+        return errout ("Error, global pointer referencing an atomic type");
+      $issub = (! $isatomic[$datatype]) && (! $globalptr);
       do_query ("prob_" . $problem, "Changing field", $object, $field,
                 "delete from object_fields where object_name=\"" .
                 $object . "\" and field_name=\"" . $field . "\";");
@@ -189,13 +192,13 @@
                 "insert into object_fields values (\"" . $field .
                 "\", \"" . $object . "\", \"" . $datatype . "\", \"" .
                 ($globalptr ? "true" : "false") . "\", \"" .
-                ($isatomic[$datatype] ? "false" : "true") . "\", \"" .
+                ($issub ? "true" : "false") . "\", \"" .
                 ($list ? "true" : "false") . "\", \"false\");");
       do_query ("prob_" . $problem, "Changing field", $object, $field,
                 "alter table obj_" . $object . " modify obj_" .
                 $field . " " .
-                sqlType ($datatype, $list, ! $isatomic[$datatype],
-                         $globalptr) . " not null;");
+                sqlType ($datatype, $list, $issub, $globalptr) .
+                " not null;");
       echo "Changed field " . $field . " in object " . $object;
     }
 

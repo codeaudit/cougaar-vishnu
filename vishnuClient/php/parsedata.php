@@ -209,20 +209,25 @@
           deleteobject ($type, $object[$keytype]);
       }
       if ($doingnews || $doingchanges) {
-        $str = "insert into obj_" . $type . " values (";
         $first = 1;
         $format = formatfortype ($type);
+        $str1 = "";
+        $str2 = "";
         for ($i = 0; $i < sizeof ($format); $i++) {
           $value = $format[$i];
           $field = $value["field_name"];
-          if (! $first)
-            $str = $str . ", ";
+          if (! $first) {
+            $str1 .= ", ";
+            $str2 .= ", ";
+          }
           $first = 0;
-          $str = $str . (($field == "internal_key") ? "NULL" :
-                         "\"" . $object[$field] . "\"");
+          $str1 .= "obj_$field";
+          $str2 .= (($field == "internal_key") ? "NULL" :
+                    "\"" . $object[$field] . "\"");
         }
+        $str = "insert into obj_$type ($str1) values ($str2);";
         my_query ("prob_" . $problem, "parsing data", "object",
-                  $object[$keytype], $str . ");");
+                  $object[$keytype], $str);
         $result = my_query ("prob_" . $problem, "parsing data", "object",
                      $object[$keytype], "select last_insert_id();");
         $value = mysql_fetch_row ($result);
