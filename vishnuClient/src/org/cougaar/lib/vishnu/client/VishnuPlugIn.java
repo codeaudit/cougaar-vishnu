@@ -73,6 +73,7 @@ import org.cougaar.lib.vishnu.server.Resource;
 import org.cougaar.lib.vishnu.server.Scheduler;
 import org.cougaar.lib.vishnu.server.SchedulingData;
 //import org.cougaar.lib.vishnu.server.Task;
+import org.cougaar.lib.vishnu.server.MultitaskAssignment;
 import org.cougaar.lib.vishnu.server.TimeOps;
 
 import org.cougaar.lib.vishnu.client.VishnuComm;
@@ -682,6 +683,14 @@ public abstract class VishnuPlugIn
 	  Object vishnuObject = vishnuResources.get(i);
 	  data.addResource ((Resource) vishnuObject);
 	}
+	if (vishnuTasks.size () != data.getTasks().length)
+	  System.out.println(getName () + ".runDirectly - ERROR - data says only " + 
+						 data.getTasks().length + " tasks.");
+	
+	if (vishnuResources.size () != data.getResources().length)
+	  System.out.println(getName () + ".runDirectly - ERROR - data says only " + 
+						 data.getResources().length + " resources.");
+	
 
 	// Call scheduleInternal after adding all the data
 	sched.scheduleInternal();
@@ -689,27 +698,43 @@ public abstract class VishnuPlugIn
 	// This shows how to extract the assignments after scheduling.
 	// When sched.assignmentsMultitask() is true, the assignments
 	// will actually be MultitaskAssignment objects instead.
-	ArrayList assigns = sched.getAssignments();
-	boolean isMultiTask = sched.assignmentsMultitask();
-	for (int i = 0; i < assigns.size(); i++) {
-	  Assignment assign = (Assignment) assigns.get(i);
-	  parseAssignment (assign.getTask().getKey(), assign.getResource().getKey(),
-					   timeOps.timeToDate (assign.getTaskStartTime()),
-					   timeOps.timeToDate (assign.getTaskEndTime()),
-					   timeOps.timeToDate (assign.getStartTime()), // setup
-					   timeOps.timeToDate (assign.getEndTime()),   // wrapup
-					   isMultiTask);
-	}
+    if (! sched.assignmentsMultitask()) {
+      org.cougaar.lib.vishnu.server.Task[] tasks = data.getTasks();
+      for (int i = 0; i < tasks.length; i++) {
+        Assignment assign = tasks[i].getAssignment();
+		parseAssignment (assign.getTask().getKey(), assign.getResource().getKey(),
+						 timeOps.timeToDate (assign.getTaskStartTime()),
+						 timeOps.timeToDate (assign.getTaskEndTime()),
+						 timeOps.timeToDate (assign.getStartTime()), // setup
+						 timeOps.timeToDate (assign.getEndTime()));   // wrapup
+      }
+    } else {
+      Resource[] resources = data.getResources();
+      for (int i = 0; i < resources.length; i++) {
+        MultitaskAssignment[] multi = resources[i].getMultitaskAssignments();
+		if (multi.length > 0) {
+		  Vector tasks = new Vector ();
+		  MultitaskAssignment assign = multi[0];
+		  if (myExtraOutput) 
+			System.out.println (getName () + " for resource " + assign.getResource().getKey() +
+								" got " + multi.length + " tasks assigned.");
+		  
+		  for (int j = 0; j < multi.length; j++) {
+			Task task = getTaskFromAssignment(multi[j].getTask().getKey());
+			if (task != null)
+			  tasks.add (task);
+		  }
 
-	// get last one...
-	if (isMultiTask) {
-	  if (assignedAsset != null) {
-		handleMultiAssignment (alpTasks, assignedAsset, start, end, setup, wrapup);
-		alpTasks.clear ();
-		assignedAsset = null;
+		  handleMultiAssignment (tasks, 
+								 getAssignedAsset   (assign.getResource().getKey()),
+								 timeOps.timeToDate (assign.getTaskStartTime()),
+								 timeOps.timeToDate (assign.getTaskEndTime()),
+								 timeOps.timeToDate (assign.getStartTime()), // setup
+								 timeOps.timeToDate (assign.getEndTime()));   // wrapup
+		}
 	  }
-	}
-	
+    }
+
 	clearInternalBuffer ();
 
 	if (myExtraOutput || true)
@@ -974,7 +999,7 @@ public abstract class VishnuPlugIn
 
   /** called by runDirectly when the scheduler is finished for each assignment */
   protected void parseAssignment (String task, String resource, Date assignedStart, Date assignedEnd, 
-								  Date assignedSetup, Date assignedWrapup, boolean isMultiTask) {
+								  Date assignedSetup, Date assignedWrapup) {
 	if (debugParseAnswer)
 	  System.out.println ("Assignment: "+
 						  "\ntask     = " + task +
@@ -984,44 +1009,33 @@ public abstract class VishnuPlugIn
 						  "\nend      = " + assignedEnd +
 						  "\nwrapup   = " + assignedWrapup);
 
+	Task handledTask    = getTaskFromAssignment (task);
+	Asset assignedAsset = getAssignedAsset (resource);
+
+	handleAssignment (handledTask, assignedAsset, assignedStart, assignedEnd, assignedSetup, assignedWrapup);
+  }
+  
+  protected Task getTaskFromAssignment (String task) {
 	StringKey taskKey = new StringKey (task);
 	Task handledTask  = (Task)  myTaskUIDtoObject.get (taskKey);
 	if (handledTask == null) {
 	  // Ignore this assignment since it has already been handled previously????
 	  System.err.println (getName () + " error... ");
-	  return;
+	  return null;
 	}
 	else {
 	  myTaskUIDtoObject.remove (taskKey);
 	}
-
-	Asset thisAssignedAsset = (Asset) myAssetUIDtoObject.get (new StringKey (resource));
-	if (thisAssignedAsset == null) 
-	  System.out.println (getName() + ".parseAssignment - no asset found with " + resource);
-	
 	myFrozenTasks.add (handledTask);
-	  
-	if (isMultiTask) {
-	  if (assignedAsset != thisAssignedAsset) {
-		if (assignedAsset != null) {
-		  handleMultiAssignment (alpTasks, assignedAsset, start, end, setup, wrapup);
-		}
-		
-		alpTasks.clear ();
-
-		// record current values...
-		assignedAsset = thisAssignedAsset;
-		start  = assignedStart;
-		end    = assignedEnd;
-		setup  = assignedSetup;
-		wrapup = assignedWrapup;
-	  }
-
-	  alpTasks.add (handledTask);
-	}
-	else {
-	  handleAssignment (handledTask, thisAssignedAsset, assignedStart, assignedEnd, assignedSetup, assignedWrapup);
-	}
+	
+	return handledTask;
+  }
+  
+  protected Asset getAssignedAsset (String resource) {
+	Asset assignedAsset = (Asset) myAssetUIDtoObject.get (new StringKey (resource));
+	if (assignedAsset == null) 
+	  System.out.println (getName() + ".parseMultiAssignment - ERROR - no asset found with " + resource);
+	return assignedAsset;
   }
   
   /**
