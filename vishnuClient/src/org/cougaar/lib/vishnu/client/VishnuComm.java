@@ -1,4 +1,4 @@
-/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/VishnuComm.java,v 1.1 2001-02-15 22:27:33 gvidaver Exp $ */
+/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/VishnuComm.java,v 1.2 2001-02-16 20:52:01 gvidaver Exp $ */
 
 package org.cougaar.lib.vishnu.client;
 
@@ -20,42 +20,295 @@ import java.net.UnknownHostException;
 import java.net.URL;
 import java.net.URLConnection;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.xerces.dom.DocumentImpl;
 import org.apache.xerces.parsers.SAXParser;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 
-import org.xml.sax.HandlerBase;
-import org.xml.sax.Parser;
+import org.cougaar.lib.param.ParamTable;
 
 import org.w3c.dom.Document;
 
+import org.xml.sax.HandlerBase;
+import org.xml.sax.Parser;
+
 public class VishnuComm {
-  
-  boolean showTiming;
-  boolean testing;
-  boolean myExtraOutput;
-  boolean writeEncodedXMLToFile;
-  String phpPath;
-  String name;
-  String clusterName;
-  VishnuDomUtil domUtil;
-  
-  public VishnuComm (boolean showTiming, boolean testing, boolean myExtraOutput,
-						  boolean writeEncodedXMLToFile,
-						  String phpPath,
-						  String name, String clusterName,
-						  VishnuDomUtil domUtil) {
-	this.showTiming = showTiming;
-	this.testing = testing;
-	this.myExtraOutput = myExtraOutput;
-	this.writeEncodedXMLToFile = writeEncodedXMLToFile;
-	this.phpPath = phpPath;
+  private static Map clusterToInstance = new HashMap ();
+
+  public VishnuComm (ParamTable myParamTable,
+					 String name, 
+					 String clusterName,
+					 VishnuDomUtil domUtil) {
+	this.myParamTable = myParamTable;
+	
+	localSetup ();
 	this.name = name;
 	this.clusterName = clusterName;
 	this.domUtil = domUtil;
+
+    URL = "http://" + hostName + phpPath;
+
+	setProblemName ();
+  }
+
+  protected ParamTable getMyParams    () { return myParamTable; }
+  protected String     getName        () { return name;         }
+  protected String     getClusterName () { return clusterName;  }
+  protected String     getProblem     () { return myProblem;    }
+  
+  protected void localSetup () 
+  {
+    try {myExtraOutput = getMyParams().getBooleanParam("myExtraOutput");}    
+    catch(Exception e) {myExtraOutput = false;}
+
+    try {myExtraExtraOutput = getMyParams().getBooleanParam("myExtraExtraOutput");}    
+    catch(Exception e) {myExtraExtraOutput = false;}
+
+    try {hostName = getMyParams().getStringParam("hostName");}    
+    catch(Exception e) {hostName = "dante.bbn.com";}
+
+    try {phpPath = getMyParams().getStringParam("phpPath");}    
+    catch(Exception e) {phpPath = "/~dmontana/vishnu/";}
+
+    try {myUser = getMyParams().getStringParam("user");}    
+    catch(Exception e) {myUser = "vishnu";}
+
+    try { myPassword = getMyParams().getStringParam("password");} 
+	catch(Exception e) {myPassword = "vishnu";}
+
+    try {postProblemFile = getMyParams().getStringParam("postProblemFile");}    
+    catch(Exception e) {postProblemFile = "postproblem" + PHP_SUFFIX;}
+
+    try {postDataFile = getMyParams().getStringParam("postDataFile");}    
+    catch(Exception e) {postDataFile = "postdata" + PHP_SUFFIX;}
+
+    try {kickoffFile = getMyParams().getStringParam("kickoffFile");}    
+    catch(Exception e) {kickoffFile = "postkickoff" + PHP_SUFFIX;}
+
+    try {readStatusFile = getMyParams().getStringParam("readStatusFile");}    
+    catch(Exception e) {readStatusFile = "readstatus" + PHP_SUFFIX;}
+
+    try {assignmentsFile = getMyParams().getStringParam("assignmentsFile");}    
+    catch(Exception e) {assignmentsFile = "assignments" + PHP_SUFFIX;}
+
+    try {showTiming = 
+		   getMyParams().getBooleanParam("showTiming");}    
+    catch(Exception e) {showTiming = true;}
+
+    try {testing = getMyParams().getBooleanParam("testing");}    
+    catch(Exception e) {testing = false;}
+
+	// writes the XML sent to Vishnu web server to a file (machine readable)
+    try {writeEncodedXMLToFile = 
+		   getMyParams().getBooleanParam("writeEncodedXMLToFile");}    
+    catch(Exception e) {writeEncodedXMLToFile = false;}
+
+    // seconds - total wait time is maxWaitCycles * waitTime
+    try {waitTime = getMyParams().getLongParam("waitTime")*1000L;}    
+    catch(Exception e) {waitTime = 5000L;}
+
+    // how many times to poll Vishnu before giving up 
+	// total wait time is maxWaitCycles * waitTime
+    try {maxWaitCycles = getMyParams().getIntParam("maxWaitCycles");}    
+    catch(Exception e) {maxWaitCycles = 10;}
+  }
+
+  /**
+   * <pre>
+   * sets Problem name used by Vishnu
+   *
+   * Uses a shared, static Map of cluster names to plugin instances so
+   * that if there is more than one Vishnu plugin per cluster, can
+   * number them in ascending order.
+   *
+   * Appends the machine name to divide the name space of problems 
+   * automatically.
+   *
+   * For example, if there were an expander and aggregator in the
+   * AsmaraTFSP cluster, run on a machine named pumpernickle, 
+   * the names would be 
+   *   AsmaraTFSP_0_pumpernickle and
+   *   AsmaraTFSP_1_pumpernickle
+   *
+   * (There is nothing to tell which is which in the name.)
+   *
+   * </pre>
+   */
+  protected void setProblemName () {
+	synchronized (clusterToInstance) {
+	  List instances = (List) clusterToInstance.get (getClusterName ());
+	  if (instances == null) {
+		clusterToInstance.put (getClusterName (), instances = new ArrayList ());
+	  }
+	  instances.add (this);
+	}
+
+    try {myProblem = getMyParams().getStringParam("problemName");}    
+    catch(Exception e) {
+	  myProblem = getClusterName();
+
+	  synchronized (clusterToInstance) {
+		if (((List) clusterToInstance.get (getClusterName ())).size () > 1) {
+		  myProblem = myProblem + "_" + 
+			((List) clusterToInstance.get (getClusterName ())).indexOf (this);
+		  if (myExtraExtraOutput)
+			System.out.println (getName ()+ ".localSetup - this " + this + " is " + 
+								((List) clusterToInstance.get (getClusterName ())).indexOf (this) +
+								" of " + 
+								((List) clusterToInstance.get (getClusterName ())).size ());
+		}
+	  }
+	}
+	
+	try {
+	    String machineName = java.net.InetAddress.getLocalHost().getHostName ().replace('-', '_');
+	    if (machineName.indexOf('.') != -1) {
+		machineName = machineName.substring (0, machineName.indexOf('.'));
+	    }
+	    machineName = machineName.replace('.', '_');
+	    myProblem = myProblem + "_" + machineName;
+	}
+	catch (UnknownHostException uhe) {
+	  System.err.println (getName () + ".localSetup - Huh? Could not find localhost? " +
+						  uhe.getMessage ());
+	}
+  }
+
+  public void postData (String data) {
+    StringBuffer sb = new StringBuffer ();
+    sb.append ("?" + "bogus=ferris&");
+    sb.append (getProblemPostVar ());
+    sb.append (getInstancePostVar () + "&");
+    sb.append ("user=" + myUser + "&");
+    sb.append ("password=" + myPassword + "&");
+    sb.append ("data=");
+    sb.append (java.net.URLEncoder.encode(data));
+
+	Date start = new Date();
+    String reply =
+      postToURL (hostName, postDataFile, sb.toString (), null, true);
+	if (showTiming)
+	  domUtil.reportTime (" - did post of data string to URL in ", start);
+	
+    if (myExtraOutput)
+      System.out.println (getName() + ".postData - Reply to post data <" + reply.trim() + ">");
+  }
+
+  public void postData (Document dataDoc) {
+    StringBuffer sb = new StringBuffer ();
+    sb.append ("?" + "bogus=ferris&");
+    sb.append (getProblemPostVar ());
+    sb.append (getInstancePostVar () + "&");
+    sb.append ("user=" + myUser + "&");
+    sb.append ("password=" + myPassword + "&");
+    sb.append ("data=");
+
+	Date start = new Date();
+    String reply =
+      postToURL (hostName, postDataFile, sb.toString (), dataDoc, true);
+	if (showTiming)
+	  domUtil.reportTime (" - did post of data Doc to URL in ", start);
+	
+	if (!reply.startsWith ("SUCCESS"))
+      System.out.println (getName () + ".postData - ERROR : Reply to post data was <" + reply + ">");
+	else if (myExtraOutput)
+      System.out.println (getName () + ".postData - Reply to post data was <" + reply.trim() + ">");
+  }
+
+  /**
+   * bogus is sent first because user would not arrive 
+   * at php with value if it was sent first.  No idea why.
+   *
+   */
+  public void postProblem (String data) {
+    StringBuffer sb = new StringBuffer ();
+    sb.append ("?" + "bogus=ferris&"); 
+    sb.append ("user=" + myUser + "&");
+    sb.append ("password=" + myPassword + "&");
+    sb.append ("data=");
+    sb.append (java.net.URLEncoder.encode(data));
+
+    String reply = postToURL (hostName, postProblemFile, sb.toString (), null, true);
+
+    if (myExtraOutput)
+      System.out.println (getName() + ".postProblem - reply was <" + reply.trim() + ">");
+  }
+
+  public void startScheduling () {
+    StringBuffer sb = new StringBuffer ();
+    sb.append ("?" + "bogus=ferris&" + getProblemPostVar ());
+    sb.append (getInstancePostVar () + "&");
+    sb.append (getUserPostVar () + "&");
+    sb.append ("password=" + myPassword + "&");
+    sb.append ("ferris=bueller");
+
+    String reply = postToURL (hostName, kickoffFile, sb.toString (), null, true);
+    if (myExtraOutput)
+	  System.out.println (getName () + ".startScheduling - reply to kickoff was " + reply.trim());
+  }
+
+  public boolean waitTillFinished () {
+	String postVars = getWaitPostVars ();
+	
+    boolean gotAnswer = false;
+    for (int i = 0; i < maxWaitCycles; i++) {
+      String response = 
+		postToURL (hostName, readStatusFile, postVars, null, true);
+      if (response.indexOf (done) != -1) {
+		gotAnswer = true;
+		break;
+      }
+      else if (myExtraOutput) {
+		System.out.println (getName() + ".waitTillFinished - Scheduler not done. Reply was <" + response.trim() + ">");
+	  }
+
+      try { Thread.sleep (waitTime); } catch (Exception e) {}
+    }
+	
+    return gotAnswer;
+  }
+
+  protected String getWaitPostVars () {
+    StringBuffer sb = new StringBuffer ();
+    sb.append ("?" + "bogus=ferris&" + getProblemPostVar ());
+    sb.append (getInstancePostVar () + "&");
+    sb.append ("user=" + myUser + "&");
+    sb.append ("password=" + myPassword + "&");
+    sb.append ("ferris=bueller");
+	return sb.toString ();
+  }
+  
+  public void getAnswer (HandlerBase assignmentHandler) {
+	try {
+	  String url = "http://" + hostName + phpPath + assignmentsFile + getWaitPostVars();
+	  URL aURL = new URL (url);
+
+	  if (myExtraOutput)
+		System.out.println (getName () + ".getAnswer - reading from " + url);
+
+	  readXML (aURL, assignmentHandler);
+	} catch (Exception e) {
+	  System.out.println (getName () + ".getAnswer - BAD URL : " + e);
+	  e.printStackTrace ();
+	}
+  }
+
+  protected String getProblemPostVar () {
+    return "problem=" + myProblem + "&";
+  }
+
+  protected String getInstancePostVar () {
+    return "instance=" + myInstance;
+  }
+
+  protected String getUserPostVar () {
+    return "username=" + myUser;
   }
 
   public URLConnection getConnection (String host,
@@ -175,7 +428,7 @@ public class VishnuComm {
    * <pre>
    * Returns response as string.
    *
-   * If there is IOException on the input stream, will try two more times.
+   * If there is an IOException on the input stream, will try two more times.
    *
    * </pre>
    * @param  connection the url connection to get data from
@@ -195,7 +448,7 @@ public class VishnuComm {
 	  } catch (IOException ioe) {
 		System.out.println (name + ".getResponse - IO Exception on reading from URL, trying again.");
 		numTries--;
-		try { Thread.sleep (500l); } catch (Exception e) {}
+		try { Thread.sleep (5000l); } catch (Exception e) {}
 	  }
 	}
 	if (!madeInputStream)
@@ -257,5 +510,36 @@ public class VishnuComm {
     }
   }
 
-  protected int numFilesWritten = 0; // how many files have been written out via the writeXMLToFile flag
+  // necessary configuration parameters - info about the Vishnu web server and mysql user and password
+  protected String myUser     = "vishnu";
+  protected String myPassword = "vishnu";
+  protected String hostName = "dante.bbn.com";
+  protected String phpPath  = "/~dmontana/vishnu/";
+  protected String URL      = "http://" + hostName + phpPath;
+
+  protected String PHP_SUFFIX = ".php";
+  protected String postProblemFile = "postproblem" + PHP_SUFFIX;
+  protected String postDataFile    = "postdata" + PHP_SUFFIX;
+  protected String kickoffFile     = "postkickoff" + PHP_SUFFIX;
+  protected String readStatusFile  = "readstatus" + PHP_SUFFIX;
+  protected String assignmentsFile = "assignments" + PHP_SUFFIX;
+  protected String done            = "percent_complete=100";
+
+  protected int maxWaitCycles = 10;
+  protected long waitTime      = 1000;
+
+  protected String myProblem  = "testProblem";
+  protected String myInstance = "testInstance";
+
+  protected boolean showTiming;
+  protected boolean testing;
+  protected boolean myExtraOutput;
+  protected boolean myExtraExtraOutput;
+  protected boolean writeEncodedXMLToFile;
+  protected String name;
+  protected String clusterName;
+  protected VishnuDomUtil domUtil;
+  protected int numFilesWritten = 0; // how many files have been written out via the writeEncodedXMLToFile flag
+
+  protected ParamTable myParamTable;
 }
