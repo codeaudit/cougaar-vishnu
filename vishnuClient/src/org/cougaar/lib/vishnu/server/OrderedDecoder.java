@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedDecoder.java,v 1.21 2001-08-23 21:22:21 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedDecoder.java,v 1.22 2001-09-26 17:43:20 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -302,20 +302,26 @@ public class OrderedDecoder implements GADecoder {
 
   private void assignFrozen (SchedulingData data, SchedulingSpecs specs) {
     Task[] frozen = data.getFrozenTasks();
-    for (int i = 0; i < frozen.length; i++) {
-      Task t = frozen[i];
-      Assignment a = t.getAssignment();
-      Resource.Block rb = a.getResource().getFixedBlock
-               (t, a.getTaskStartTime(), a.getTaskEndTime(),
-                grouped, multitask || ignoringTime, specs);
-//      Resource.Block rb = t.getFrozenBlock();
-//      if (rb == null) {
-//        rb = a.getResource().getFixedBlock
-//               (t, a.getTaskStartTime(), a.getTaskEndTime(),
-//                grouped, multitask || ignoringTime, specs);
-//        t.setFrozenBlock (rb);
-//      }
-      makeAssignment2 (t, a.getResource(), rb, true, true);
+    Resource[] res = data.getResources();
+    if (data.getFrozenCacheValid()) {
+      for (int i = 0; i < res.length; i++)
+        res[i].transferFromFrozenCache (grouped || multitask);
+    }
+    if (data.getFrozenNewTasks() || (! data.getFrozenCacheValid())) {
+      for (int i = 0; i < frozen.length; i++) {
+        Task t = frozen[i];
+        if (t.getFrozenNeedsCache() || (! data.getFrozenCacheValid())) {
+          Assignment a = t.getAssignment();
+          Resource.Block rb = a.getResource().getFixedBlock
+                   (t, a.getTaskStartTime(), a.getTaskEndTime(),
+                    grouped, multitask || ignoringTime, specs);
+          makeAssignment2 (t, a.getResource(), rb, true, true);
+          t.setFrozenNeedsCache (false);
+        }
+      }
+      for (int i = 0; i < res.length; i++)
+        res[i].transferToFrozenCache (grouped || multitask);
+      data.setFrozenUpdated();
     }
 
     HashMap linked = data.getLinkedToFrozenTasks();

@@ -170,6 +170,8 @@ public class SchedulingSpecs {
 
       cachedCapableResources = new HashMap();
       for (int i = 0; i < tasks.length; i++) {
+        if (tasks[i].isFrozen())
+          continue;
         ArrayList capable = new ArrayList();
         data.put ("task", tasks[i]);
         for (int j = 0; j < resources.length; j++)

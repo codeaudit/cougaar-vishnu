@@ -292,7 +292,7 @@ public class Scheduler {
       new StringBuffer (tasks.length * data.getResources().length * 20);
     text.append ("<?xml version='1.0'?>\n<CAPABILITIES>\n");
     for (int i = 0; i < tasks.length; i++) {
-      if (!data.isFrozen (tasks[i])) {
+      if (! tasks[i].isFrozen()) {
         Resource[] resources = specs.capableResources (tasks[i], data);
         for (int j = 0; j < resources.length; j++)
           text.append ("<CAPABILITY task=\"" + tasks[i].getKey() +

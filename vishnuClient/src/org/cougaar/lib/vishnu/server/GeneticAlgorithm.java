@@ -61,7 +61,7 @@ public class GeneticAlgorithm {
   }
 
   public static synchronized int getRandomInt (int range) {
-    return Math.abs (random.nextInt()) % range;
+    return random.nextInt (range);
   }
 
   public GeneticAlgorithm (Scheduler scheduler) {

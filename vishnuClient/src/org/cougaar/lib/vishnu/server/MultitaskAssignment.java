@@ -10,7 +10,7 @@ package org.cougaar.lib.vishnu.server;
  * Copyright 2001 BBNT Solutions LLC
  */
 
-public class MultitaskAssignment extends Assignment {
+public class MultitaskAssignment extends Assignment implements Cloneable {
 
   private Task[] tasks;
   private Resource resource;
@@ -30,6 +30,16 @@ public class MultitaskAssignment extends Assignment {
   public Task[] getTasks() { return tasks; }
   public Resource getResource() { return resource; }
   public float[] getCapacities() { return capacities; }
+
+  public MultitaskAssignment copy() {
+    MultitaskAssignment ma = null;
+    try { ma = (MultitaskAssignment) clone(); } catch (Exception e) {}
+    ma.tasks = new Task [tasks.length];
+    System.arraycopy (tasks, 0, ma.tasks, 0, tasks.length);
+    ma.capacities = new float [capacities.length];
+    System.arraycopy (capacities, 0, ma.capacities, 0, capacities.length);
+    return ma;
+  }
 
   public void addTask (Task task) {
     Task[] tasks2 = new Task [tasks.length + 1];
@@ -84,10 +94,8 @@ public class MultitaskAssignment extends Assignment {
   public String xmlString (boolean reportFrozen) {
     String str = "<MULTITASK " + attributesString() + ">\n";
     for (int i = 0; i < tasks.length; i++)
-      if (reportFrozen ||
-          (tasks[i].getAssignment() == null) ||
-          (! tasks[i].getAssignment().getFrozen()))
-      str = str + "<TASK task=\"" + tasks[i].getKey() + "\"/>\n";
+      if (reportFrozen || (! tasks[i].isFrozen()))
+        str = str + "<TASK task=\"" + tasks[i].getKey() + "\"/>\n";
     str = str + "</MULTITASK>\n";
     return str;
   }

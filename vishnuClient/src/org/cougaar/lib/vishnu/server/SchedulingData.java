@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.37 2001-09-25 15:02:16 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.38 2001-09-26 17:43:20 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -49,6 +49,8 @@ public class SchedulingData {
                      return diff;
                    return t1.getKey().hashCode() - t2.getKey().hashCode();
                  }});
+  private boolean frozenCacheValid = false;
+  private boolean frozenNewTasks = false;
   private HashMap linkedToFrozenTasks;
   private ArrayList primaryTasks = new ArrayList();
   private HashMap resources = new HashMap();
@@ -71,19 +73,20 @@ public class SchedulingData {
     this.timeOps = timeOps;
   }
 
-  public TimeOps getTimeOps () {
-	return timeOps;
-  }
+  public final TimeOps getTimeOps ()  { return timeOps; }
   
-  public int getStartTime() {
-    return startTime;
-  }
+  public final int getStartTime()  { return startTime; }
 
-  public int getEndTime() {
-    return endTime;
-  }
+  public final int getEndTime()  { return endTime; }
 
-  public Task getTask (String key) {
+  public final void setFrozenUpdated()
+    { frozenCacheValid = true; frozenNewTasks = false; }
+
+  public final boolean getFrozenCacheValid()  { return frozenCacheValid; }
+
+  public final boolean getFrozenNewTasks()  { return frozenNewTasks; }
+
+  public final Task getTask (String key) {
     return (Task) tasks.get (key);
   }
 
@@ -98,6 +101,7 @@ public class SchedulingData {
     tasks.remove (key);
     primaryTasks.remove (task);
     frozenTasks.remove (task);
+    frozenCacheValid = false;
   }
 
   public void replaceTask (Task task) {
@@ -106,9 +110,10 @@ public class SchedulingData {
     task.setAssignment (a);
     removeTask (task.getKey());
     addTask (task);
-    if (a.getFrozen()) {
+    if (old.isFrozen()) {
       frozenTasks.remove (old);
       frozenTasks.add (task);
+      frozenCacheValid = false;
     }
   }
 
@@ -119,7 +124,7 @@ public class SchedulingData {
       return;
     }
     Assignment a = t.getAssignment();
-    boolean alreadyFrozen = (a != null) && a.getFrozen();
+    boolean alreadyFrozen = t.isFrozen();
     Resource r = (res != null) ? getResource (res) :
                  ((a != null) ? a.getResource() : null);
     int s = (start != null) ? timeOps.stringToTime (start) :
@@ -135,10 +140,13 @@ public class SchedulingData {
     if (! alreadyFrozen) {
       primaryTasks.remove (t);
       frozenTasks.add (t); 
+      t.setFrozenNeedsCache (true);
+      frozenNewTasks = true;
     }
     if (addAgain) {
       frozenTasks.remove (t);
       frozenTasks.add (t); 
+      frozenCacheValid = false;
     }
   }
 
@@ -150,6 +158,7 @@ public class SchedulingData {
     }
     primaryTasks.add (task);
     frozenTasks.remove (task);
+    frozenCacheValid = false;
   }
 
   public final Task[] getTasks() {
@@ -163,10 +172,7 @@ public class SchedulingData {
   }
 
   public final boolean isFrozen (Task task) {
-    if (task == null)
-      return false;
-    Assignment a = task.getAssignment();
-    return ((a != null) && (a.getFrozen()));
+    return ((task != null) && task.isFrozen());
   }
 
   /** Tasks that actually are represented in chromosome; this is all
@@ -285,11 +291,9 @@ public class SchedulingData {
 
   public void initialize (SchedulingSpecs specs) {
     Task[] tasks = getTasks();
-    for (int i = 0; i < tasks.length; i++) {
+    for (int i = 0; i < tasks.length; i++)
       if (! isFrozen (tasks[i]))
         tasks[i].setAssignment (null);
-      tasks[i].setFrozenBlock (null);
-    }
     Resource[] resources = getResources();
     for (int i = 0; i < resources.length; i++)
       resources[i].initialize();

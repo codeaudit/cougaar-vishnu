@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Task.java,v 1.11 2001-08-23 21:22:21 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Task.java,v 1.12 2001-09-26 17:43:21 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -19,19 +19,22 @@ public class Task extends SchObject {
   private Assignment assignment = null;
   private float[] capacityContribs;
   private Task[] prerequisites;
-  private Resource.Block frozenBlock = null;
+  private boolean frozenNeedsCache = false;
   
   public Task (TimeOps timeOps) {
     super (timeOps);
+  }
+
+  public final boolean isFrozen() {
+    return (assignment != null) && assignment.getFrozen();
   }
 
   public final Assignment getAssignment()  { return assignment; }
 
   public final void setAssignment (Assignment a)  { assignment = a; }
 
-  public final Resource.Block getFrozenBlock()  { return frozenBlock; }
-
-  public final void setFrozenBlock (Resource.Block fb)  { frozenBlock = fb; }
+  public final boolean getFrozenNeedsCache() { return frozenNeedsCache; }
+  public final void setFrozenNeedsCache (boolean x) { frozenNeedsCache = x; }
 
   public final float[] getCapacityContribs()  { return capacityContribs; }
 

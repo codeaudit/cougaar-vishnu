@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Resource.java,v 1.15 2001-08-23 21:22:21 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Resource.java,v 1.16 2001-09-26 17:43:20 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -30,6 +30,13 @@ public class Resource extends SchObject {
   private boolean hasMultitaskContrib;
   private Assignment lastAssignment;
   private boolean lastNewGroup;
+
+  // for caching frozen assignments
+  private HashMap cachedAssignments;
+  private ArrayList cachedScheduleItems;
+  private float[] cachedCapacitiesUsed;
+  private float cachedSumOfDeltas;
+  private boolean cachedHasMultitaskContrib;
 
   public Resource (TimeOps timeOps) {
     super (timeOps);
@@ -191,6 +198,44 @@ public class Resource extends SchObject {
   public void addDelta (float delta)  { sumOfDeltas += delta; }
 
   public float getSumOfDeltas()  { return sumOfDeltas; }
+
+  public void transferToFrozenCache (boolean hasMulti) {
+    cachedAssignments = (HashMap) assignments.clone();
+    if (hasMulti) {
+      cachedScheduleItems = new ArrayList();
+      Iterator iter = schedule.iterator();
+      while (iter.hasNext()) {
+        Object o = iter.next();
+        if (o instanceof MultitaskAssignment)
+          cachedScheduleItems.add (((MultitaskAssignment) o).copy());
+      }
+    }
+    cachedCapacitiesUsed = new float [capacitiesUsed.length];
+    System.arraycopy (capacitiesUsed, 0, cachedCapacitiesUsed, 0,
+                      capacitiesUsed.length);
+    cachedSumOfDeltas = sumOfDeltas;
+    cachedHasMultitaskContrib = hasMultitaskContrib;
+  }
+
+  public void transferFromFrozenCache (boolean hasMulti) {
+    if (cachedAssignments != null) {
+      assignments = (HashMap) cachedAssignments.clone();
+      if (hasMulti)
+        for (int i = 0; i < cachedScheduleItems.size(); i++)
+          schedule.add (((MultitaskAssignment)
+                         cachedScheduleItems.get (i)).copy());
+      else {
+        Iterator iter = cachedAssignments.values().iterator();
+        while (iter.hasNext())
+          schedule.add (iter.next());
+      }
+      System.arraycopy (cachedCapacitiesUsed, 0, capacitiesUsed, 0,
+                        capacitiesUsed.length);
+      sumOfDeltas = cachedSumOfDeltas;
+      hasMultitaskContrib = cachedHasMultitaskContrib;
+    }
+  }
+
 
   public float busyTime (int start, int end) {
     Assignment[] a = getAssignments();
