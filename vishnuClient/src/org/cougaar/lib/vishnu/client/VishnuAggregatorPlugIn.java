@@ -285,7 +285,6 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
 							  " setup = " + atts.getValue ("setup") +
 							  " wrapup = " + atts.getValue ("wrapup"));
 		}
-		String taskList    = atts.getValue ("tasklist");
 		String resourceUID = atts.getValue ("resource");
 		String startTime   = atts.getValue ("start");
 		String endTime     = atts.getValue ("end");
