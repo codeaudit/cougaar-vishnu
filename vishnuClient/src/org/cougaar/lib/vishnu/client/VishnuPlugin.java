@@ -147,6 +147,9 @@ public abstract class VishnuPlugin
 	   getMyParams().getBooleanParam("runDirectly");}    
     catch(Exception e) {runDirectly = false;}
 
+    if (!runInternal) 
+      runDirectly = false; // can't run directly if not running internally
+
     try {incrementalScheduling = 
 	   getMyParams().getBooleanParam("incrementalScheduling");}    
     catch(Exception e) {incrementalScheduling = false;}
