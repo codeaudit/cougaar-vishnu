@@ -6,7 +6,8 @@
 
 # For values of properties 1-4, see vishnu_server.env.xml in this directory
 
-# CLASSPATH - the scheduler needs the vishnu jar and the xerces jar in the CLASSPATH
+# CLASSPATH - the scheduler needs the vishnu jar and the xerces jar in the CLASSPATH,
+# e.g. d:/vishnu/lib/vishnu.jar;d:/vishnu/lib/xerces.jar 
 
 # PROPERTIES -
 #  1) host - Vishnu web server
@@ -15,10 +16,23 @@
 #  4) password - password on the web server (mysql password)
 #  5) showAssignments - dump to stdout xml that shows task to resource assignments
 #  6) waitInterval    - scheduler poll period
-#  7) machines - (Very Important) list of machines that can issue problems that 
-#     this scheduler will schedule.  If empty or not defined, scheduler will try to
-#     schedule all problems post to web server.
-#  8) problems - Specific problems this scheduler is restricted to handle
+#  7) machines - (Very Important) list of machines where Vishnu clients are running.
+#     The scheduler will only try to do problems coming from these machines.
+#     If empty or undefined, scheduler will try to schedule all problems 
+#     posted to web server.  
+#
+#     Can be a comma separated list,
+#     e.g. -Dorg.cougaar.lib.vishnu.server.Scheduler.machines="pumpernickle, hammet"
+#
+#	  The scheduler will print which problems it's scheduling, so if you see problems 
+#     that aren't yours, you may want to restrict your scheduler.
+#
+#  8) problems - Specific problems this scheduler is restricted to handle.  For
+#  instance, if there were two problems running on machine X, and you had schedulers
+#  on machines Y and Z, and you wanted to make sure the scheduler on machine Y was only
+#  doing problem #1 and the scheduler on Z only do problem #2.  In this case, 
+#   on Y, you'd set -Dorg.cougaar.lib.vishnu.server.Scheduler.problems="problem_1" and
+#   on Z, you'd set -Dorg.cougaar.lib.vishnu.server.Scheduler.problems="problem_2"
 #
 #  Debugging params (safe to ignore):
 #
