@@ -1,6 +1,6 @@
 <?
   require ("browserlink.php");
-  require ("utilities.php");
+  require_once ("utilities.php");
   require ("parsedata.php");
   require ("navigation.php");
 
