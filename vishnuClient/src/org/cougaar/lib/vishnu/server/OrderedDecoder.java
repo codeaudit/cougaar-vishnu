@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedDecoder.java,v 1.3 2001-01-26 22:02:04 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedDecoder.java,v 1.4 2001-01-29 14:46:05 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -263,6 +263,9 @@ public class OrderedDecoder implements GADecoder {
                              SchedulingData data, SchedulingSpecs specs) {
     Resource[] resources = specs.capableResources (task, data);
     Task[] prereqs = new Task[0];
+    Resource bestResource = null;
+    float bestDelta = 0.0f;
+    Resource.Block bestBlock = null;
     for (int i = 0; i < resources.length; i++) {
       Resource resource = resources[i];
       int dur = specs.taskDuration (task, resource, i == 0);
@@ -273,10 +276,19 @@ public class OrderedDecoder implements GADecoder {
         (task, dur, unavail, specs, multitask, grouped,
          time, data.getStartTime());
       if (block.start == time) {
-        makeAssignment2 (task, resource, block, true, false);
-        return;
+        makeAssignment2 (task, resource, block, false, false);
+        float delta = specs.evaluateSingleAssignment (task, resource);
+        if ((bestResource == null) ||
+            (specs.isMinimizing() && (delta < bestDelta)) ||
+            ((! specs.isMinimizing()) && (delta > bestDelta))) {
+          bestResource = resource;
+          bestDelta = delta;
+          bestBlock = block;
+        }
+        removeAssignment (task, resource);
       }
     }
+    makeAssignment2 (task, bestResource, bestBlock, true, false);
   }
 
   public void setParms (String parms) {
