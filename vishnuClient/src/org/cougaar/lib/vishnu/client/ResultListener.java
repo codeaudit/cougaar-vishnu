@@ -54,7 +54,7 @@ public interface ResultListener {
    * Called for each Vishnu assignment that needs to be translated into a Cougaar plan element 
    * This is for one-to-one assignments : allocations
    */
-  void handleAssignment (org.cougaar.planning.ldm.plan.Task task, Asset asset, Date start, Date end, Date setupStart, Date wrapupEnd, String contribs, String taskText);
+  void handleAssignment (Task task, Asset asset, Date start, Date end, Date setupStart, Date wrapupEnd);
 
   /**
    * Called for each Vishnu assignment that needs to be translated into a Cougaar plan element 

@@ -20,9 +20,6 @@
  */
 package org.cougaar.lib.vishnu.client;
 
-import com.bbn.vishnu.scheduling.Scheduler;
-//import com.bbn.vishnu.scheduling.Task;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -49,6 +46,7 @@ import org.apache.xerces.parsers.SAXParser;
 import org.cougaar.planning.ldm.asset.Asset;
 import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.lib.param.ParamMap;
+import com.bbn.vishnu.scheduling.Scheduler;
 import org.cougaar.util.StringKey;
 import org.cougaar.util.log.Logger;
 
@@ -67,39 +65,23 @@ import org.xml.sax.SAXException;
  *
  */
 public class InternalMode extends ExternalMode {
-  protected boolean writeXMLToFile = false;
-  protected boolean newDecoder = false;
-
   /** just calls localSetup */
   public InternalMode (ModeListener parent, VishnuComm comm, XMLProcessor xmlProcessor, 
 		       VishnuDomUtil domUtil, VishnuConfig config, ResultHandler resultHandler,
 		       ParamMap myParamTable, Logger logger) {
     super (parent, comm, xmlProcessor, domUtil, config, resultHandler, myParamTable, logger);
     localSetup ();
-    try {
-      if (myParamTable.hasParam("writeXMLToFile"))    
-	writeXMLToFile = 
-	  myParamTable.getBooleanParam("writeXMLToFile");    
-      else 
-	writeXMLToFile = false;
-
-      if (myParamTable.hasParam("newDecoder"))    
-	newDecoder = myParamTable.getBooleanParam("newDecoder");    
-      else 
-	newDecoder = false;
-    } catch (Exception e) {}
   }
 
   /** Create a new scheduler if in batch mode or if called the first time */
   public void setupScheduler () {
     if (!incrementalScheduling || sched == null) {
       sched = new Scheduler ();
-      sched.setNewDecoder (newDecoder);
+
       if (logger.isInfoEnabled())
 	logger.info (getName () + ".setupScheduler - created scheduler " + sched);
 
       sched.setupInternalObjects ();
-      sched.getData().readEverything();
     }
   }
   
@@ -107,7 +89,7 @@ public class InternalMode extends ExternalMode {
    * Place to handle rescinded tasks. <p>
    *
    * Sends XML to unfreeze the task assignment and delete it.
-   * @param removedTasks changed assets found in the container
+   * @param newAssets changed assets found in the container
    * @see com.bbn.vishnu.scheduling.Scheduler#setupInternal
    */
   public void handleRemovedTasks(Enumeration removedTasks) {
@@ -116,11 +98,11 @@ public class InternalMode extends ExternalMode {
       for (;removedTasks.hasMoreElements();) {
 	Task task = (Task) removedTasks.nextElement();
 
-	if (sched.getData().getTask(task.getUID().toString()) != null)
+	if (sched.getSchedulingData().getTask(task.getUID().toString()) != null)
 	  knownTasks.add (task);
       }
 
-      Document docToSend = xmlProcessor.prepareRescind(knownTasks.elements(), parent.getTaskName());
+      Document docToSend = xmlProcessor.prepareRescind(knownTasks.elements());
 
       comm.serializeAndPostData (docToSend);
 
@@ -138,49 +120,6 @@ public class InternalMode extends ExternalMode {
       comm.clearBuffer ();
     }
   }
-
-  /**
-   * Place to handle unfrozen tasks. <p>
-   *
-   * Sends XML to unfreeze the task assignment
-   * @param newAssets changed assets found in the container
-   * @see com.bbn.vishnu.scheduling.Scheduler#setupInternal
-   */
-  public void unfreezeTasks(Collection tasks) {
-    if (incrementalScheduling) {
-      Vector knownTasks = new Vector();
-      for (java.util.Iterator iter = tasks.iterator();iter.hasNext();) {
-	Task task = (Task) iter.next();
-
-	if (sched.getData().getTask(task.getUID().toString()) != null)
-	  knownTasks.add (task);
-	else {
-	  logger.warn ("skipping unfreezing unknown task " + task.getUID());
-	}
-      }
-
-      Document docToSend = xmlProcessor.prepareUnfreeze(knownTasks);
-
-      comm.serializeAndPostData (docToSend);
-
-      if (logger.isInfoEnabled())
-	logger.info ("InternalMode.unfreezeTasks - telling scheduler " + sched + " to remove tasks.");
-
-      sched.setupInternal (comm.getBuffer(), false);
-      comm.clearBuffer ();
-    }
-  }
-
-  public Collection getTaskKeys () { 
-    com.bbn.vishnu.scheduling.Task [] tasks = sched.getData().getTasks();
-    Collection taskKeys = new java.util.HashSet();
-
-    for (int i = 0; i < tasks.length; i++) {
-      taskKeys.add(tasks[i].getKey());
-    }
-
-    return taskKeys;
-  } 
 
   /** 
    * <pre>
@@ -202,26 +141,17 @@ public class InternalMode extends ExternalMode {
 
     try {
       if (logger.isDebugEnabled())
-	for (int i = 0; i < sched.getData().getResources ().length; i++) {
+	for (int i = 0; i < sched.getSchedulingData().getResources ().length; i++) {
 	  logger.debug (getName () + ".run - Known Resource #" + i + 
-			      " : \n" + sched.getData().getResources()[i]);
+			      " : \n" + sched.getSchedulingData().getResources()[i]);
 	}
 
       // sched is the scheduler...
-      sched.scheduleInternal(null, false);
+      sched.scheduleInternal();
 
       // the second argument controls whether to include frozen assignments in those returned
       String assignments = sched.getXMLAssignments(true, !incrementalScheduling);
 	 
-      if (writeXMLToFile) {
-	if (logger.isInfoEnabled()) 
-	  logger.info(getName () + ".run - writing assignments to XML file.");
-	comm.writeBufferToFile("assignments", sched.getXMLAssignments(false, !incrementalScheduling));
-        //  logger.info(getName () + ".run - writing complete Vishnu problem to XML file.");
-        //comm.writeBufferToFile("complete", sched.toXML());
-      }
-      dumpPostProcess();
-
       if (logger.isInfoEnabled()) 
 	logger.info(getName () + ".run - scheduled assignments were : " + assignments);
 
@@ -243,10 +173,6 @@ public class InternalMode extends ExternalMode {
     }
   }
 
-  /** Method to hide domain-specific output routines */
-  protected void dumpPostProcess() {
-  }
-
   /** 
    * Implemented for SchedulerLifecycle
    * <p>
@@ -254,8 +180,8 @@ public class InternalMode extends ExternalMode {
    * @see com.bbn.vishnu.scheduling.Scheduler#setupInternal
    */
   public void initializeWithFormat () {
-    if (logger.isInfoEnabled())
-      logger.info ("InternalMode - initializing scheduler " + sched + " with format.");
+    if (logger.isDebugEnabled())
+      logger.debug ("InternalMode - initializing scheduler " + sched + " with format.");
 
     sched.setupInternal (comm.getBuffer (), false);
     comm.clearBuffer ();
@@ -328,26 +254,6 @@ public class InternalMode extends ExternalMode {
 
   /** name of this object */
   protected String getName () { return parent.getName() + "-InternalMode"; }
-
-  /** queries the scheduler to get a full specification of the problem
-   *   (including specs, logic, gaspecs, objects, assignments, etc)
-   */
-  public String dumpToXML() {
-      try {
-          return sched.toXML();
-      }
-      catch (Exception e) {
-          return "";
-      }
-  }
-
-  /** seeds the scheduler with the given chromosome 
-   *   in format  "Cid*%*id*%*..."
-   */
-  public void seedScheduler(String seedChrom) {
-      sched.seedChromosome(seedChrom);
-  }
-
   
   Map myNameToDescrip;
   String singleAssetClassName;

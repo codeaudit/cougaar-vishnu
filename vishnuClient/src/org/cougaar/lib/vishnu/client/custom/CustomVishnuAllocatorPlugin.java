@@ -30,7 +30,7 @@ import org.cougaar.planning.ldm.asset.Asset;
 import org.cougaar.lib.vishnu.client.VishnuAllocatorPlugin;
 import org.cougaar.lib.vishnu.client.XMLizer;
 import org.cougaar.lib.vishnu.client.XMLProcessor;
-import com.bbn.vishnu.scheduling.SchedulingData;
+import com.bbn.vishnu.objects.SchedulingData;
 
 import org.w3c.dom.Document;
 

@@ -20,7 +20,6 @@
  */
 package org.cougaar.lib.vishnu.client;
 
-import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
 import org.w3c.dom.Document;
@@ -48,12 +47,4 @@ public interface SchedulerLifecycle {
 
   /** tell Scheduler about tasks that have been rescinded */
   void handleRemovedTasks (Enumeration tasks);
-
-  void unfreezeTasks (Collection tasks);
-  Collection getTaskKeys ();
-
-  /** queries the scheduler to get a full specification of the problem
-   *   (including specs, logic, gaspecs, objects, assignments, etc)
-   */
-  String dumpToXML();
 }

@@ -21,7 +21,6 @@
 package org.cougaar.lib.vishnu.client.custom;
 
 import org.cougaar.glm.ldm.plan.GeolocLocation;
-import org.cougaar.glm.ldm.plan.Position;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -80,7 +79,11 @@ public class XMLDataHelper implements DataHelper {
   public void createRoleScheduleListField (Object object, String name, Asset asset) {
     RoleSchedule unavail = asset.getRoleSchedule ();
 
-    Element list = (Element) startList (object, name);
+    Element field = doc.createElement("FIELD");
+    field.setAttribute ("name",  name);
+    ((Element)object).appendChild (field);
+    Element list = doc.createElement("LIST");
+    field.appendChild (list);
 
     createScheduleFields (unavail.getEncapsulatedRoleSchedule(0, endOfWorld.getTime()),
 			  list,
@@ -98,7 +101,11 @@ public class XMLDataHelper implements DataHelper {
    * @see #createScheduleFields
    */
   public void createAvailableScheduleListField (Object object, String name, Asset asset) {
-    Element list = (Element) startList (object, name);
+    Element field = doc.createElement("FIELD");
+    field.setAttribute ("name",  name);
+    ((Element)object).appendChild (field);
+    Element list = doc.createElement("LIST");
+    field.appendChild (list);
 
     Schedule availSchedule = asset.getRoleSchedule().getAvailableSchedule ();
     if (availSchedule == null) {
@@ -113,15 +120,6 @@ public class XMLDataHelper implements DataHelper {
 			    list, 
 			    false);
     }
-  }
-
-  public Object startList (Object object, String name) {
-    Element field = doc.createElement("FIELD");
-    field.setAttribute ("name",  name);
-    ((Element)object).appendChild (field);
-    Element list = doc.createElement("LIST");
-    field.appendChild (list);
-    return list;
   }
 
   /** 
@@ -139,31 +137,18 @@ public class XMLDataHelper implements DataHelper {
     for (Iterator iter = schedule.iterator (); iter.hasNext();) {
       TimeSpan span = (TimeSpan) iter.next ();
 
-      //      Element value = doc.createElement("VALUE");
-      //      list.appendChild (value);
+      Element value = doc.createElement("VALUE");
+      list.appendChild (value);
 
       Element interval = doc.createElement("OBJECT");
       interval.setAttribute ("type", "interval");
-      //      value.appendChild (interval);
-      addListValue (list, "", "", interval);
+      value.appendChild (interval);
 
       createField (interval, "interval", "start", format.format (new Date(span.getStartTime())));
       createField (interval, "interval", "end",   format.format (new Date(span.getEndTime())));
       if (isRole)
 	createField (interval, "interval", "label1", "" +((PlanElement)span).getTask().getVerb());
-      else
-	createField (interval, "interval", "label1", "available_interval");
-
-      createField (interval, "interval", "label2", " ");
-
     }
-  }
-  
-  public void addListValue (Object parent, String fieldName, String type, Object toAppend) {
-    Element value = doc.createElement("VALUE");
-    ((Element)parent).appendChild (value);
-
-    value.appendChild ((Element) toAppend);
   }
 
   /** 
@@ -180,16 +165,6 @@ public class XMLDataHelper implements DataHelper {
     Object geolocObject = createObject (parent, "geoloc");
     createField(geolocObject, "geoloc", "geolocCode", loc.getGeolocCode ());
     Object field = createField (geolocObject, "geoloc", "latlong");
-    Object latlongObject = createObject (field, "latlong");
-
-    createField(latlongObject, "latlong", "latitude",
-		"" + loc.getLatitude ().getDegrees());
-    createField(latlongObject, "latlong", "longitude",
-		"" + loc.getLongitude ().getDegrees());
-  }
-
-  public void createLatLon (Object parent, String parentFieldName, Position loc) {
-    Object field = createField (parent, "latlong", parentFieldName);
     Object latlongObject = createObject (field, "latlong");
 
     createField(latlongObject, "latlong", "latitude",

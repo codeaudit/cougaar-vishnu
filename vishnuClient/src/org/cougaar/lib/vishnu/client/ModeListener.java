@@ -40,8 +40,6 @@ public interface ModeListener {
   Collection getTasks ();
   /** number of tasks */
   int getNumTasks ();
-  /** e.g. Transport, Supply */
-  String getTaskName();
 
   // asset stuff
   /** which assets were changed since they were added as new assets? */

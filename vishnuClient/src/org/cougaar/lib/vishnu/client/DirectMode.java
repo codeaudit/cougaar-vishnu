@@ -21,12 +21,12 @@
 package org.cougaar.lib.vishnu.client;
 
 import org.cougaar.lib.param.ParamMap;
-import com.bbn.vishnu.scheduling.Assignment;
-import com.bbn.vishnu.scheduling.MultitaskAssignment;
-import com.bbn.vishnu.scheduling.Resource;
+import com.bbn.vishnu.objects.Assignment;
+import com.bbn.vishnu.objects.MultitaskAssignment;
+import com.bbn.vishnu.objects.Resource;
 import com.bbn.vishnu.scheduling.Scheduler;
-import com.bbn.vishnu.scheduling.SchedulingData;
-import com.bbn.vishnu.scheduling.TimeOps;
+import com.bbn.vishnu.objects.SchedulingData;
+import com.bbn.vishnu.objects.TimeOps;
 import org.cougaar.util.StringKey;
 import org.cougaar.util.log.Logger;
 
@@ -87,7 +87,7 @@ public class DirectMode extends InternalMode {
 	   
     ((DirectModeListener)parent).prepareVishnuObjects (stuffToSend, parent.getChangedAssets(), 
 						       vishnuTasks, vishnuResources, changedVishnuResources,
-						       objectFormatDoc, sched.getData());
+						       objectFormatDoc, sched.getSchedulingData());
     parent.clearChangedAssets ();
 
     if (logger.isDebugEnabled())
@@ -127,7 +127,7 @@ public class DirectMode extends InternalMode {
     // These are things created by the scheduler during setup that
     // are needed for direct object writing.
     TimeOps timeOps = sched.getTimeOps();
-    SchedulingData data = sched.getData();
+    SchedulingData data = sched.getSchedulingData();
     //    sched.clearCaches ();
 
     // add tasks and resources to data
@@ -138,9 +138,8 @@ public class DirectMode extends InternalMode {
     Date start2 = new Date ();
 
     try {
-      sched.scheduleInternal(null, false);
+      sched.scheduleInternal();
 
-      dumpPostProcess();
       if (showTiming)
 	domUtil.reportTime (".runDirectly - scheduler processed " +
 			    parent.getNumTasks () + " tasks in ", start2);
@@ -167,7 +166,7 @@ public class DirectMode extends InternalMode {
 
     for (int i = 0; i < vishnuTasks.size (); i++) {
       Object vishnuObject = vishnuTasks.get(i);
-      data.addTask ((com.bbn.vishnu.scheduling.Task) vishnuObject);
+      data.addTask ((com.bbn.vishnu.objects.Task) vishnuObject);
     }
     for (int i = 0; i < vishnuResources.size (); i++) {
       Object vishnuObject = vishnuResources.get(i);

@@ -111,8 +111,6 @@ public class XMLResultHandler extends PluginHelper implements ResultHandler {
 
   protected Asset assignedAsset = null;
   protected Date start, end, setup, wrapup;
-  String multicontribs;
-  String multitext;
   protected Vector alpTasks = new Vector ();
 
   /**
@@ -145,7 +143,6 @@ public class XMLResultHandler extends PluginHelper implements ResultHandler {
 	String endTime     = atts.getValue ("end");
 	String setupTime   = atts.getValue ("setup");
 	String wrapupTime  = atts.getValue ("wrapup");
-	String contribs  = atts.getValue ("contribs");
 	Date start         = format.parse (startTime);
 	Date end           = format.parse (endTime);
 	Date setup         = format.parse (setupTime);
@@ -168,7 +165,7 @@ public class XMLResultHandler extends PluginHelper implements ResultHandler {
 	if (assignedAsset == null) 
 	  logger.debug ("VishnuPlugin - AssignmentHandler.startElement no asset found with " + resourceUID);
 	
-	resultListener.handleAssignment (handledTask, assignedAsset, start, end, setup, wrapup, contribs, atts.getValue("text"));
+	resultListener.handleAssignment (handledTask, assignedAsset, start, end, setup, wrapup);
       }
       else if (name.equals ("MULTITASK")) {
 	if (logger.isInfoEnabled() || debugParseAnswer) {
@@ -184,13 +181,10 @@ public class XMLResultHandler extends PluginHelper implements ResultHandler {
 	String endTime     = atts.getValue ("end");
 	String setupTime   = atts.getValue ("setup");
 	String wrapupTime  = atts.getValue ("wrapup");
-	multicontribs  = atts.getValue ("contribs");
 	start     = format.parse (startTime);
 	end       = format.parse (endTime);
 	setup     = format.parse (setupTime);
 	wrapup    = format.parse (wrapupTime);
-
-	multitext = atts.getValue("text");
 
 	assignedAsset = resultListener.getAssetForKey (new StringKey (resourceUID));
 	if (assignedAsset == null) 
@@ -220,7 +214,6 @@ public class XMLResultHandler extends PluginHelper implements ResultHandler {
       //		debug (getName () + ".parseStartElement - ignoring tag " + name);
       //	  }
     } catch (NullPointerException npe) {
-      npe.printStackTrace ();
       logger.error (getName () + ".parseStartElement - got bogus assignment", npe);
     } catch (ParseException pe) {
       logger.error (getName () + ".parseStartElement - start or end time is in bad format " + 
@@ -238,7 +231,7 @@ public class XMLResultHandler extends PluginHelper implements ResultHandler {
 	logger.debug (getName () + ".parseEndElement - got ending MULTITASK.");
       }
       for (int i = 0; i < alpTasks.size (); i++)
-	resultListener.handleAssignment ((Task) alpTasks.get(i), assignedAsset, start, end, setup, wrapup, multicontribs, multitext);
+	resultListener.handleAssignment ((Task) alpTasks.get(i), assignedAsset, start, end, setup, wrapup);
       alpTasks.clear ();
     }
     else if (name.equals ("TASK")) {}

@@ -51,9 +51,9 @@ import org.w3c.dom.NodeList;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 
-import com.bbn.vishnu.scheduling.Resource;
-import com.bbn.vishnu.scheduling.SchObject;
-import com.bbn.vishnu.scheduling.SchedulingData;
+import com.bbn.vishnu.objects.Resource;
+import com.bbn.vishnu.objects.SchObject;
+import com.bbn.vishnu.objects.SchedulingData;
 
 /**
  * Create either an XML document in the Vishnu Data format or Vishnu objects from ALP objects. <p>

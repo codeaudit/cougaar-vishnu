@@ -28,10 +28,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.FileOutputStream;
-import java.io.FileInputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -259,90 +256,6 @@ public class VishnuComm {
       catch (IOException ioe) { /* never happen */ }
     }
   }
-
-    /** Returns an array of Strings with each element containing a line from the given file.
-     * 
-     *  returns null if any error
-     */
-    public String readBufferFromFile(String filename) {
-        // Verify that the file exists.
-        File inFile = new File(filename);
-        if (!inFile.exists() || !inFile.isFile()) {
-            System.out.println("File " + filename + " is an invalid file");
-            return null;
-        }
-
-        StringBuffer sb = null;
-        try {
-            int fileLength = (int) inFile.length();
-            sb = new StringBuffer(fileLength); // for efficient us of string buffer
-
-            // Read in the information from the file into an array of Strings
-            BufferedReader inReader = new BufferedReader(new InputStreamReader(new FileInputStream(inFile)));
-
-            String s;
-            while (true) {
-                s = inReader.readLine();
-                if (s == null)
-                    break;
-                sb.append(s + "\n");
-            }
-        }
-        catch (Exception e) {
-            System.out.println("Error while reading file:" + filename);
-            return null;
-        }
-
-        return sb.toString();
-    }
-
- 
-
-  public void writeBufferToFile (String suffix, String buffer) {
-    String fileName = getClusterName () + "_" + suffix + "_" + numFilesWritten++ + ".xml";
-    logger.info (getName () + ".writeBufferToFile - Writing XML to file " + fileName);
-    try {
-      FileWriter writer = new FileWriter (fileName);
-      writer.write (buffer);
-      writer.close();
-    } 
-    catch (FileNotFoundException fnfe) { /* never happen */ }
-    catch (IOException ioe) { /* never happen */ }
-  }
-
-  /** Overloaded: postfix is pre-determined.  */
-  public void writeBufferToFile_withBackup (String suffix, String postfix, String buffer) {
-    String baseFileName = getClusterName () + "_" + suffix + postfix;
-    File baseFile = new File(baseFileName);
-    if (baseFile.exists()) {
-        String backupFileName = getClusterName () + "_" + suffix + "_" + numFilesWritten++ + postfix;
-        File backupFile = new File(backupFileName);
-        boolean success;
-        if (backupFile.exists())  {
-            success = backupFile.delete(); 
-            if (success)
-                logger.info(getName() + ".writeBufferToFile_withBackup - successful delete of file : " + backupFileName);
-            else
-                logger.info(getName() + ".writeBufferToFile_withBackup - unsuccessful delete of file : " + backupFileName);
-        }
-
-        success = baseFile.renameTo(backupFile);
-        if (success)
-            logger.info(getName() + ".writeBufferToFile_withBackup - successful rename of file : " + baseFileName + " to " + backupFileName);
-        else
-            logger.info(getName() + ".writeBufferToFile_withBackup - successful rename of file : " + baseFileName + " to " + backupFileName);
-    }
-
-    logger.info (getName () + ".writeBufferToFile - Writing buffer to file " + baseFileName);
-    try {
-      FileWriter writer = new FileWriter (baseFileName);
-      writer.write (buffer);
-      writer.close();
-    }
-    catch (FileNotFoundException fnfe) { /* never happen */ }
-    catch (IOException ioe) { /* never happen */ }
-  }
-
 
   /** 
    * <pre>
