@@ -340,9 +340,9 @@ public class VishnuAllocationResultAggregator implements AllocationResultAggrega
   int[] K012 = new int[] {0,1,2};
   int[] K0126 = new int[] {0,1,2,6};
   
-  protected transient HashMap hack = new HashMap();
+  protected HashMap hack = new HashMap();
   
-  final class KeyHolder {
+  final class KeyHolder implements Serializable {
     int[] keys;
     KeyHolder(int keys[]) {
       this.keys = keys;
