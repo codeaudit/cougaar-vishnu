@@ -110,11 +110,20 @@ public class XMLProcessor {
     catch(Exception e) {vishnuEpochEndTime = "2002-01-01 00:00:00";}
   }
 
-  public XMLizer getDataXMLizer (Map nameToDescrip, String assetClassName) {
-	DataXMLize dataXMLizer = new DataXMLize (debugDataXMLizer);
-	dataXMLizer.setNameToDescrip (nameToDescrip);
-	dataXMLizer.setResourceName (assetClassName);
+  public void createDataXMLizer (Map nameToDescrip, String assetClassName) {
+	setDataXMLizer (new DataXMLize (debugDataXMLizer));
+	((DataXMLize)dataXMLizer).setNameToDescrip (nameToDescrip);
+	((DataXMLize)dataXMLizer).setResourceName  (assetClassName);
+  }
 
+  protected void setDataXMLizer (XMLizer xmlizer) {
+	dataXMLizer = xmlizer;
+  }
+  
+  public XMLizer getDataXMLizer () {
+	if (dataXMLizer == null)
+	  System.err.println ("XMLProcessor.getDataXMLizer - ERROR - dataxmlizer not set!");
+	
 	return dataXMLizer;
   }
   
@@ -895,6 +904,8 @@ public class XMLProcessor {
   protected boolean myExtraExtraOutput;
   protected String vishnuEpochStartTime;
   protected String vishnuEpochEndTime;
+  protected XMLizer dataXMLizer;
+  
   ConfigFinder configFinder;
 }
 

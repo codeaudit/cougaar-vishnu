@@ -261,7 +261,7 @@ public class VishnuConfig {
     try {
 	  envFile = getMyParams().getStringParam (paramName);
 	  if (myExtraOutput)
-		System.out.println ("getNeededFile - envFile = " + envFile);
+		System.out.println ("VishnuConfig.getNeededFile - envFile = " + envFile);
     } 
     catch (Exception pe) { // no parameter, try default
 	  envFile = getClusterName () + defaultSuffix;

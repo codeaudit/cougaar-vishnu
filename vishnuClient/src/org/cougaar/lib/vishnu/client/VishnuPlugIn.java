@@ -124,7 +124,7 @@ public abstract class VishnuPlugIn
 
     try {useStoredFormat = 
 		   getMyParams().getBooleanParam("useStoredFormat");}    
-    catch(Exception e) {useStoredFormat = true;}
+    catch(Exception e) {useStoredFormat = false;}
 
     // how many of the input tasks to use as templates when producing the 
 	// OBJECT FORMAT for tasks
@@ -154,6 +154,8 @@ public abstract class VishnuPlugIn
 	return new VishnuComm    (getMyParams(), getName(), getClusterName(), domUtil, runInternal); 
   }
   protected XMLProcessor  createXMLProcessor  () { 
+    if (myExtraOutput)
+      System.out.println (getName () + ".createXMLProcessor - creating vanilla xml processor.");
 	return new XMLProcessor (getMyParams(), getName(), getClusterName(), domUtil, comm, getConfigFinder()); 
   }
   protected VishnuConfig createVishnuConfig () { 
@@ -394,6 +396,9 @@ public abstract class VishnuPlugIn
 
 	  myNameToDescrip = sendFormat (formatTemplates, singleAssetClassName);
 
+	  // only create data xmlizer once -- remembers references to globals throughout its lifetime
+	  xmlProcessor.createDataXMLizer (myNameToDescrip, singleAssetClassName);
+	  
 	  if (!runInternal)
 		sentFormatAlready = true;
 	  if (showTiming)
@@ -414,6 +419,8 @@ public abstract class VishnuPlugIn
    **/
   protected void prepareStoredObjectFormat (List ignoredTasks) {
 	Date start = new Date();
+
+	xmlProcessor.createDataXMLizer (myNameToDescrip, singleAssetClassName);
 
 	try {
 	  if (!sentFormatAlready) {
@@ -437,7 +444,7 @@ public abstract class VishnuPlugIn
 	  if (showTiming)
 		domUtil.reportTime (" - Vishnu completed format XML processing in ", start);
 	} catch (Exception e) {
-	  System.out.println (getName () + ".prepareObjectFormat - ERROR with file " + e.getMessage());
+	  System.out.println (getName () + ".prepareStoredObjectFormat - ERROR with file " + e.getMessage());
 	}
   }
   
@@ -675,7 +682,7 @@ public abstract class VishnuPlugIn
 	int totalTasks = tasks.size ();
 	int totalSent  = 0;
 
-	XMLizer dataXMLizer = xmlProcessor.getDataXMLizer (nameToDescrip, assetClassName);
+	XMLizer dataXMLizer = xmlProcessor.getDataXMLizer ();
 	boolean sentOtherData = false;
 	
 	while (totalSent < totalTasks) {
