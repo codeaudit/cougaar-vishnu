@@ -54,8 +54,6 @@ public class FormatXMLize extends BaseXMLize {
   protected String dateString="datetime";
   protected String latitudeString="latlong";
 
-  // any field of type string is no shorter than this
-  //  private static final int MIN_STRING_LENGTH=16;
   // controls how deep down the object hierarchy to go
   protected final int RECURSION_DEPTH=9;
   // the first instance of a string field found will have it's length multiplied by this
