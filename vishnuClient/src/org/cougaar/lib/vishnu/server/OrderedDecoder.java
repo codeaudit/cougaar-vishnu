@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedDecoder.java,v 1.10 2001-04-06 18:50:31 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedDecoder.java,v 1.11 2001-04-11 14:22:00 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -10,7 +10,7 @@ import java.util.HashMap;
 
 /**
  * Generates a schedule from an ordered chromosome using a greedy
- * optimization
+ * optimization algorithm
  *
  * <copyright>
  *  Copyright 2000-2001 Defense Advanced Research Projects
@@ -44,12 +44,15 @@ public class OrderedDecoder implements GADecoder {
                   SchedulingSpecs.MULTITASKING_GROUPED));
     for (int i = 0; i < r.length; i++)
       r[i].resetSumOfDeltas();
-    assignFrozen (data, specs);
+    assignFrozen (data, specs);  // put in frozen assignments first
 
     Task[] tasks2 = data.getPrimaryTasks();
     ArrayList tasks = new ArrayList (tasks2.length);
     for (int i = 0; i < tasks2.length; i++)
       tasks.add (tasks2 [((StringOfIntegers) chrom).getValues()[i]]);
+    // Take one task at a time off the list of tasks and schedule it.
+    // Always take the one nearest the front of the list that is ready
+    // to be scheduled (i.e., is not waiting for prerequisites).
     while (tasks.size() > 0) {
       for (int i = 0; i < tasks.size(); i++) {
         Task task = (Task) tasks.get(i);
@@ -64,7 +67,7 @@ public class OrderedDecoder implements GADecoder {
             break;
           }
           if ((prereqs[j] != null) && (prereqs[j].getAssignment() == null)) {
-            readyButUnable = true;
+            readyButUnable = true;  // if prereq unassigned, same for current
             break;
           }
         }
@@ -76,6 +79,7 @@ public class OrderedDecoder implements GADecoder {
           continue;
         Resource[] resources = specs.capableResources (task, data);
         Task[] linked = data.getLinkedTasks (task);
+        // if only one capable resource, just do assignment
         if (resources.length == 1) {
           if (resources[0].enoughCapacity (task.getCapacityContribs()) &&
               makeAssignment (task, resources[0], prereqs,
@@ -85,6 +89,9 @@ public class OrderedDecoder implements GADecoder {
               resources[0].addDelta (delta);
           }
         }
+        // if more than one capable resource, look for best resource
+        // make temporary assignment to each resource and use delta
+        // evaluation to figure out which is best
         else if (resources.length > 1) {
           Resource bestResource = null;
           float bestDelta = 0.0f;
@@ -135,7 +142,14 @@ public class OrderedDecoder implements GADecoder {
                           totaltime + " milliseconds");
   }
   
-  
+
+  /** Find the best time for the assignment, and make the assignment
+   *  at that time.  If the best time is not the earliest time, then
+   *  try looking both backwards and forwards from best time; otherwise,
+   *  just look forwards.  Look for first available block of time.
+   *  If looking in two directions, use delta criterion to determine
+   *  which is better.
+   */
   private boolean makeAssignment (Task task, Resource resource,
                                   Task[] prereqs, SchedulingSpecs specs,
                                   SchedulingData data, boolean doUpdates,
@@ -146,18 +160,18 @@ public class OrderedDecoder implements GADecoder {
       int bestTime = specs.bestTime (task, resource, dur, firstResource);
       TimeBlock[] unavail;
 	  
-	  if (timing) {
-		visits++;
-		Date start = new Date ();
-		unavail = specs.taskUnavailableTimes
-		  (task, prereqs, data.getStartTime(), data.getEndTime(),
-		   resource, dur, firstResource);
-		totaltime += new Date().getTime () - start.getTime();
-	  } else {
-		unavail = specs.taskUnavailableTimes
-		  (task, prereqs, data.getStartTime(), data.getEndTime(),
-		   resource, dur, firstResource);
-	  }
+      if (timing) {
+        visits++;
+        Date start = new Date ();
+        unavail = specs.taskUnavailableTimes
+              (task, prereqs, data.getStartTime(), data.getEndTime(),
+               resource, dur, firstResource);
+        totaltime += new Date().getTime () - start.getTime();
+      } else {
+        unavail = specs.taskUnavailableTimes
+              (task, prereqs, data.getStartTime(), data.getEndTime(),
+               resource, dur, firstResource);
+      }
 	  
       block = resource.earliestAvailableBlock (task, dur, unavail, specs,
                                                multitask, grouped, bestTime,

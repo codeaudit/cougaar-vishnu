@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Resource.java,v 1.7 2001-04-06 18:50:32 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Resource.java,v 1.8 2001-04-11 14:22:00 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -242,7 +242,7 @@ public class Resource extends SchObject {
   }
 
 
-  // class for returning result of earliestAvailableBlock
+  /** class for returning result of earliestAvailableBlock */
   public static class Block {
     public int setup;
     public int start;
@@ -307,6 +307,9 @@ public class Resource extends SchObject {
     return block;
   }
 
+  /** Search forward from notEarlierThan for first available block of
+   *  time that task can be scheduled.  The set of time blocks unavail
+   *  tells when the task is busy. */
   public Block earliestAvailableBlock (Task task, int duration,
                                        TimeBlock[] unavail,
                                        SchedulingSpecs specs,
@@ -483,6 +486,9 @@ public class Resource extends SchObject {
     return block;
   }
 
+  /** Search backward from notLaterThan for first available block of
+   *  time that task can be scheduled.  The set of time blocks unavail
+   *  tells when the task is busy. */
   public Block latestAvailableBlock (Task task, int duration,
                                      TimeBlock[] unavail,
                                      SchedulingSpecs specs,

@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.12 2001-04-06 21:00:08 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.13 2001-04-11 14:22:00 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -80,7 +80,9 @@ public class SchedulingData {
     return (Assignment) frozenTasks.get (task);
   }
 
-  /** Tasks that actually are represented in chromosome */
+  /** Tasks that actually are represented in chromosome; this is all
+   *  tasks that are not frozen and that are either not linked or are
+   *  the representative task in a set of linked tasks */
   public Task[] getPrimaryTasks() {
     Task[] arr = new Task [primaryTasks.size()];
     return (Task[]) primaryTasks.toArray (arr);
