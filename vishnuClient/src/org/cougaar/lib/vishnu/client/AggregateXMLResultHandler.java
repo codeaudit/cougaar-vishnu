@@ -35,9 +35,9 @@ import org.xml.sax.SAXException;
 
 public class AggregateXMLResultHandler extends XMLResultHandler {
   public AggregateXMLResultHandler (ModeListener parent, VishnuComm comm, XMLProcessor xmlProcessor, 
-									VishnuDomUtil domUtil, VishnuConfig config,
-									ParamMap myParamTable) {
-	super (parent, comm, xmlProcessor, domUtil, config, myParamTable);
+				    VishnuDomUtil domUtil, VishnuConfig config,
+				    ParamMap myParamTable) {
+    super (parent, comm, xmlProcessor, domUtil, config, myParamTable);
   }
 
   /**
@@ -53,102 +53,106 @@ public class AggregateXMLResultHandler extends XMLResultHandler {
    * @see #setUIDToObjectMap
    */
   protected void parseStartElement (String name, Attributes atts) {
-	try {
-	  if (myExtraExtraOutput)
-	  	System.out.println (getName() + ".parseStartElement got " + name);
+    try {
+      if (myExtraExtraOutput)
+	System.out.println (getName() + ".parseStartElement got " + name);
 	  
-	  if (name.equals ("MULTITASK")) {
-		if (myExtraOutput || debugParseAnswer) {
-		  System.out.println (getName () + ".parseStartElement -\nAssignment: " + 
-							  " resource = " + atts.getValue ("resource") +
-							  " start = " + atts.getValue ("start") +
-							  " end = " + atts.getValue ("end") +
-							  " setup = " + atts.getValue ("setup") +
-							  " wrapup = " + atts.getValue ("wrapup"));
-		}
-		String resourceUID = atts.getValue ("resource");
-		String startTime   = atts.getValue ("start");
-		String endTime     = atts.getValue ("end");
-		String setupTime   = atts.getValue ("setup");
-		String wrapupTime  = atts.getValue ("wrapup");
-		start     = format.parse (startTime);
-		end       = format.parse (endTime);
-		setup     = format.parse (setupTime);
-		wrapup    = format.parse (wrapupTime);
-
-		assignedAsset = resultListener.getAssetForKey (new StringKey (resourceUID));
-		if (assignedAsset == null) 
-		  System.out.println (getName () + ".parseStartElement - no asset found with " + resourceUID);
-	  }
-	  else if (name.equals ("TASK")) {
-		if (myExtraOutput || debugParseAnswer) {
-		  System.out.println (getName () + ".parseStartElement -\nTask: " + 
-							  " task = " + atts.getValue ("task"));
-		}
-		if (atts.getValue ("task") == null)
-		  System.out.println (getName () + ".parseStartElement - ERROR, no task attribute on TASK element? " + 
-							  "Element attributes were " + atts);
-
-		String taskUID = atts.getValue ("task");
-
-		StringKey taskKey = new StringKey (taskUID);
-		Task handledTask  = resultListener.getTaskForKey (taskKey);
-		if (handledTask == null) {
-		  // Already handled before
-		  return;
-		  // System.out.println (getName () + ".parseStartElement - no task found with " + taskUID + " uid.");
-		  // System.out.println ("\tmap keys were " + myTaskUIDtoObject.keySet());
-		}
-		else {
-		  alpTasks.add (handledTask);
-		}
-
-		// this is absolutely critical, otherwise VishnuPlugIn will make a failed disposition
-		resultListener.removeTask (taskKey);
-		if (debugParseAnswer)
-		  System.out.println (getName () + ".parseStartElement - removing task key " + taskKey);
-	  }
-	  else if (debugParseAnswer) {
-		System.out.println (getName () + ".parseStartElement - ignoring tag " + name);
-	  }
-	} catch (ParseException pe) {
-	  System.out.println (getName () + ".parseStartElement - start or end time is in bad format " + 
-						  pe + "\ndates were : " +
-						  " start = " + atts.getValue ("start") +
-						  " end = " + atts.getValue ("end") +
-						  " setup = " + atts.getValue ("setup") +
-						  " wrapup = " + atts.getValue ("wrapup"));
-	} catch (Exception npe) {
-	  System.out.println (getName () + ".parseStartElement - got bogus assignment " + npe.getMessage());
-	  npe.printStackTrace ();
+      if (name.equals ("MULTITASK")) {
+	if (myExtraOutput || debugParseAnswer) {
+	  System.out.println (getName () + ".parseStartElement -\nAssignment: " + 
+			      " resource = " + atts.getValue ("resource") +
+			      " start = " + atts.getValue ("start") +
+			      " end = " + atts.getValue ("end") +
+			      " setup = " + atts.getValue ("setup") +
+			      " wrapup = " + atts.getValue ("wrapup"));
 	}
+	String resourceUID = atts.getValue ("resource");
+	String startTime   = atts.getValue ("start");
+	String endTime     = atts.getValue ("end");
+	String setupTime   = atts.getValue ("setup");
+	String wrapupTime  = atts.getValue ("wrapup");
+	start     = format.parse (startTime);
+	end       = format.parse (endTime);
+	setup     = format.parse (setupTime);
+	wrapup    = format.parse (wrapupTime);
+
+	assignedAsset = resultListener.getAssetForKey (new StringKey (resourceUID));
+	assetWasUsedBefore = false;
+	if (assignedAsset == null) 
+	  System.out.println (getName () + ".parseStartElement - no asset found with " + resourceUID);
+      }
+      else if (name.equals ("TASK")) {
+	if (myExtraOutput || debugParseAnswer) {
+	  System.out.println (getName () + ".parseStartElement -\nTask: " + 
+			      " task = " + atts.getValue ("task"));
+	}
+	if (atts.getValue ("task") == null)
+	  System.out.println (getName () + ".parseStartElement - ERROR, no task attribute on TASK element? " + 
+			      "Element attributes were " + atts);
+
+	String taskUID = atts.getValue ("task");
+
+	StringKey taskKey = new StringKey (taskUID);
+	Task handledTask  = resultListener.getTaskForKey (taskKey);
+	if (handledTask == null) {
+	  // Already handled before
+	  assetWasUsedBefore = true;
+	  return;
+	  // System.out.println (getName () + ".parseStartElement - no task found with " + taskUID + " uid.");
+	  // System.out.println ("\tmap keys were " + myTaskUIDtoObject.keySet());
+	}
+	else {
+	  alpTasks.add (handledTask);
+	}
+
+	// this is absolutely critical, otherwise VishnuPlugIn will make a failed disposition
+	resultListener.removeTask (taskKey);
+	if (debugParseAnswer)
+	  System.out.println (getName () + ".parseStartElement - removing task key " + taskKey);
+      }
+      else if (debugParseAnswer) {
+	System.out.println (getName () + ".parseStartElement - ignoring tag " + name);
+      }
+    } catch (ParseException pe) {
+      System.out.println (getName () + ".parseStartElement - start or end time is in bad format " + 
+			  pe + "\ndates were : " +
+			  " start = " + atts.getValue ("start") +
+			  " end = " + atts.getValue ("end") +
+			  " setup = " + atts.getValue ("setup") +
+			  " wrapup = " + atts.getValue ("wrapup"));
+    } catch (Exception npe) {
+      System.out.println (getName () + ".parseStartElement - got bogus assignment " + npe.getMessage());
+      npe.printStackTrace ();
+    }
   }
 
   protected void parseEndElement (String name) {
-	try {
-	  if (name.equals ("MULTITASK")) {
-		if (debugParseAnswer) {
-		  System.out.println (getName () + ".parseEndElement - got ending MULTITASK.");
-		}
-		if (!alpTasks.isEmpty()) {
-		  resultListener.handleMultiAssignment (alpTasks, assignedAsset, start, end, setup, wrapup);
-		  alpTasks.clear ();
-		}
-	  }
-	  else if (name.equals ("TASK")) {}
-	  //	  else if (debugParseAnswer) {
-	  //		System.out.println (getName () + ".parseEndElement - ignoring tag " + name);
-	  //	  }
-	} catch (Exception npe) {
-	  System.out.println (getName () + ".parseEndElement - got bogus assignment " + npe.getMessage());
-	  npe.printStackTrace ();
+    try {
+      if (name.equals ("MULTITASK")) {
+	if (debugParseAnswer) {
+	  System.out.println (getName () + ".parseEndElement - got ending MULTITASK.");
 	}
+	if (!alpTasks.isEmpty()) {
+	  resultListener.handleMultiAssignment (alpTasks, assignedAsset, start, end, setup, wrapup, assetWasUsedBefore);
+	  assetWasUsedBefore = false;
+	  alpTasks.clear ();
+	}
+      }
+      else if (name.equals ("TASK")) {}
+      //	  else if (debugParseAnswer) {
+      //		System.out.println (getName () + ".parseEndElement - ignoring tag " + name);
+      //	  }
+    } catch (Exception npe) {
+      System.out.println (getName () + ".parseEndElement - got bogus assignment " + npe.getMessage());
+      npe.printStackTrace ();
+    }
   }
 
   protected String getName () {
-	return "AggregateXMLResultHandler";
+    return "AggregateXMLResultHandler";
   }
-  
+
+  protected boolean assetWasUsedBefore;
   protected boolean debugParseAnswer = false;
   
   private final SimpleDateFormat format =

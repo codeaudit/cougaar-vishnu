@@ -926,7 +926,7 @@ public abstract class VishnuPlugIn
    * @param wrapupEnd end of wrapup task
    */
   public void handleMultiAssignment (Vector tasks, Asset asset, 
-									 Date start, Date end, Date setupStart, Date wrapupEnd) {}
+				     Date start, Date end, Date setupStart, Date wrapupEnd, boolean assetWasUsedBefore) {}
 
   /** 
    * Must use a special allocation result aggregator that does NOT include the transit (setup, wrapup) tasks
