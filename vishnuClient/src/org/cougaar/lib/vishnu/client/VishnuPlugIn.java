@@ -1,4 +1,4 @@
-/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/Attic/VishnuPlugIn.java,v 1.2 2001-01-17 00:57:04 gvidaver Exp $ */
+/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/Attic/VishnuPlugIn.java,v 1.3 2001-02-13 03:50:57 gvidaver Exp $ */
 
 package org.cougaar.lib.vishnu.client;
 
@@ -241,6 +241,12 @@ public abstract class VishnuPlugIn
 	
     URL = "http://" + hostName + phpPath;
 
+	// helpful for debugging connection configuration problems
+	if (runInternal)
+	  System.out.println (getName () + " - will run internal Vishnu Scheduler.");
+	else
+	  System.out.println (getName () + " - will try to connect to Vishnu Web Server : " + 
+						  hostName);
   }
 
   /**
@@ -639,8 +645,9 @@ public abstract class VishnuPlugIn
 	for (Iterator iter = objects.iterator (); iter.hasNext ();) {
 	  UniqueObject obj = (UniqueObject) iter.next ();
 	  StringKey key = new StringKey (obj.getUID().getUID());
-	  if (!UIDtoObject.containsKey (key))
+	  if (!UIDtoObject.containsKey (key)) {
 		UIDtoObject.put (key, obj);
+	  }
 	}
   }
 
@@ -2004,15 +2011,35 @@ public abstract class VishnuPlugIn
   }
   
   /**
+   * <pre>
    * Returns response as string.
    *
+   * If there is IOException on the input stream, will try two more times.
+   *
+   * </pre>
    * @param  connection the url connection to get data from
    * @return String reponse from URL
    */
 
   public String getResponse(URLConnection connection) throws IOException {
     StringBuffer sb = new StringBuffer ();
-    InputStream is = connection.getInputStream();
+	int numTries = 3;
+	boolean madeInputStream = false;
+    InputStream is = null;
+	
+	while (numTries > 0 || madeInputStream) {
+	  try {
+		is = connection.getInputStream();
+		madeInputStream = true;
+	  } catch (IOException ioe) {
+		System.out.println (getName () + ".getResponse - IO Exception on reading from URL, trying again.");
+		numTries--;
+		try { Thread.sleep (500l); } catch (Exception e) {}
+	  }
+	}
+	if (!madeInputStream)
+		System.out.println (getName () + ".getResponse - ERROR : could not read from URL " + connection);
+
     byte b[] = new byte[1024];
     int len;
     while ((len = is.read(b)) > -1)
