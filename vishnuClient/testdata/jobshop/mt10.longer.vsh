@@ -176,7 +176,7 @@
 </COLORTEST>
 </COLORTESTS>
 </SPECS>
-<GAPARMS pop_size="500" parent_scalar="0.98000" max_evals="10000" max_time="1500000" max_duplicates="9900000" max_top_dog_age="9900000" report_interval="1" initializer="org.cougaar.lib.vishnu.server.OrderedInitializer" decoder="org.cougaar.lib.vishnu.server.OrderedDecoder" >
+<GAPARMS pop_size="50009" parent_scalar="0.99980" max_evals="1000000" max_time="1500000" max_duplicates="9900000" max_top_dog_age="9900000" report_interval="100" initializer="org.cougaar.lib.vishnu.server.OrderedInitializer" decoder="org.cougaar.lib.vishnu.server.OrderedDecoder" >
 <GAOPERATORS>
 <GAOPERATOR name="org.cougaar.lib.vishnu.server.OrderedMutation" prob="0.5" parms="1.0" />
 <GAOPERATOR name="org.cougaar.lib.vishnu.server.OrderedCrossover" prob="0.5" />
