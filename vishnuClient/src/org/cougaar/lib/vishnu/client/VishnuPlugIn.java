@@ -670,7 +670,7 @@ public abstract class VishnuPlugIn
 	  return getAssetCallback().getSubscription ().getCollection();
 	}
 	else {
-	  if (myExtraOutput || true)
+	  if (myExtraOutput)
 		System.out.println(getName() + ".getAllAssets - normal mode -- NOT rehydrating.");
 	}
 	
