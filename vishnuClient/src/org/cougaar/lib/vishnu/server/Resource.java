@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Resource.java,v 1.14 2001-08-15 22:36:55 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Resource.java,v 1.15 2001-08-23 21:22:21 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -287,6 +287,8 @@ public class Resource extends SchObject {
             (end <= ma.getTaskEndTime()) &&
             specs.areGroupable (task, ma.getTasks()[0])) {
           block.groupedAssignment = ma;
+          block.setup = ma.getStartTime();
+          block.wrapup = ma.getEndTime();
           return block;
         }
       }

@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Task.java,v 1.10 2001-08-15 22:36:55 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Task.java,v 1.11 2001-08-23 21:22:21 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -19,8 +19,6 @@ public class Task extends SchObject {
   private Assignment assignment = null;
   private float[] capacityContribs;
   private Task[] prerequisites;
-  private boolean[] groupableTasks = null;
-  private boolean[] ungroupableTasks = null;
   private Resource.Block frozenBlock = null;
   
   public Task (TimeOps timeOps) {

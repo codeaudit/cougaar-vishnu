@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedDecoder.java,v 1.20 2001-08-23 15:50:02 gvidaver Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedDecoder.java,v 1.21 2001-08-23 21:22:21 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -266,7 +266,7 @@ public class OrderedDecoder implements GADecoder {
                                           Resource.Block block,
                                           boolean doUpdates, boolean frozen) {
     Resource.Block ret = null;
-    if (block != null) {
+    if ((block != null) && (! frozen)) {
       ret = new Resource.Block();
       ret.preAssignment = block.preAssignment;
       ret.postAssignment = block.postAssignment;
@@ -301,18 +301,20 @@ public class OrderedDecoder implements GADecoder {
   }
 
   private void assignFrozen (SchedulingData data, SchedulingSpecs specs) {
-    Task[] frozen = data.getSortedFrozenTasks();
-
+    Task[] frozen = data.getFrozenTasks();
     for (int i = 0; i < frozen.length; i++) {
       Task t = frozen[i];
       Assignment a = t.getAssignment();
-      Resource.Block rb = t.getFrozenBlock();
-      if (rb == null) {
-        rb = a.getResource().getFixedBlock
+      Resource.Block rb = a.getResource().getFixedBlock
                (t, a.getTaskStartTime(), a.getTaskEndTime(),
                 grouped, multitask || ignoringTime, specs);
-        t.setFrozenBlock (rb);
-      }
+//      Resource.Block rb = t.getFrozenBlock();
+//      if (rb == null) {
+//        rb = a.getResource().getFixedBlock
+//               (t, a.getTaskStartTime(), a.getTaskEndTime(),
+//                grouped, multitask || ignoringTime, specs);
+//        t.setFrozenBlock (rb);
+//      }
       makeAssignment2 (t, a.getResource(), rb, true, true);
     }
 
