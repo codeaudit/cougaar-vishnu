@@ -330,9 +330,6 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
 	  else if (debugParseAnswer) {
 		System.out.println (getName () + ".parseStartElement - ignoring tag " + name);
 	  }
-	} catch (NullPointerException npe) {
-	  System.out.println (getName () + ".parseStartElement - got bogus assignment");
-	  npe.printStackTrace ();
 	} catch (ParseException pe) {
 	  System.out.println (getName () + ".parseStartElement - start or end time is in bad format " + 
 						  pe + "\ndates were : " +
@@ -340,20 +337,28 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
 						  " end = " + atts.getValue ("end") +
 						  " setup = " + atts.getValue ("setup") +
 						  " wrapup = " + atts.getValue ("wrapup"));
+	} catch (Exception npe) {
+	  System.out.println (getName () + ".parseStartElement - got bogus assignment " + npe.getMessage());
+	  npe.printStackTrace ();
 	}
   }
 
   protected void parseEndElement (String name) {
-	if (name.equals ("MULTITASK")) {
-	  if (debugParseAnswer) {
-		System.out.println (getName () + ".parseEndElement - got ending MULTITASK.");
+	try {
+	  if (name.equals ("MULTITASK")) {
+		if (debugParseAnswer) {
+		  System.out.println (getName () + ".parseEndElement - got ending MULTITASK.");
+		}
+		makePlanElement (alpTasks, assignedAsset, start, end, setup, wrapup);
+		alpTasks.clear ();
 	  }
-	  makePlanElement (alpTasks, assignedAsset, start, end, setup, wrapup);
-	  alpTasks.clear ();
-	}
-	else if (name.equals ("TASK")) {}
-	else if (debugParseAnswer) {
-	  System.out.println (getName () + ".parseEndElement - ignoring tag " + name);
+	  else if (name.equals ("TASK")) {}
+	  else if (debugParseAnswer) {
+		System.out.println (getName () + ".parseEndElement - ignoring tag " + name);
+	  }
+	} catch (Exception npe) {
+	  System.out.println (getName () + ".parseEndElement - got bogus assignment " + npe.getMessage());
+	  npe.printStackTrace ();
 	}
   }
 

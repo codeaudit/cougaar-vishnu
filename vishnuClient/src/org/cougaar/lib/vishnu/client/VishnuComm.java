@@ -42,7 +42,8 @@ public class VishnuComm {
   public VishnuComm (ParamTable myParamTable,
 					 String name, 
 					 String clusterName,
-					 VishnuDomUtil domUtil) {
+					 VishnuDomUtil domUtil,
+					 boolean runInternal) {
 	this.myParamTable = myParamTable;
 	
 	localSetup ();
@@ -55,7 +56,8 @@ public class VishnuComm {
 	setProblemName ();
 
 	// clears any pending jobs for this problem
-	postCancel ();
+	if (!runInternal)
+	  postCancel ();
   }
 
   protected ParamTable getMyParams    () { return myParamTable; }

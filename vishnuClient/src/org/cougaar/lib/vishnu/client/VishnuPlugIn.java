@@ -180,7 +180,7 @@ public abstract class VishnuPlugIn
     catch(Exception e) {sendDataChunkSize = 100;}
 	
 	domUtil = new VishnuDomUtil (getMyParams(), getName(), getCluster());
-	comm    = new VishnuComm    (getMyParams(), getName(), getClusterName(), domUtil);
+	comm    = new VishnuComm    (getMyParams(), getName(), getClusterName(), domUtil, runInternal);
 
 	// helpful for debugging connection configuration problems
 	if (runInternal)
@@ -488,16 +488,16 @@ public abstract class VishnuPlugIn
    */
   protected void runInternally () {
 	Scheduler internal = new Scheduler ();
-	if (myExtraOutput)
-	  System.out.println (getName () + ".runInternally - internal buffer is " + internalBuffer);
-
 	internalBuffer.append ("</root>");
-	if (myExtraOutput)
+	if (myExtraExtraOutput)
 	  System.out.println(getName () + ".runInternally - sending stuff " + internalBuffer.toString());
 
 	int unhandledTasks = myTaskUIDtoObject.size ();
 
 	String assignments = internal.runInternalToProcess (internalBuffer.toString());
+	if (myExtraOutput)
+	  System.out.println(getName () + ".runInternally - scheduled assignments were : " + assignments);
+	
 	Parser parser = new SAXParser();
 	parser.setDocumentHandler (new AssignmentHandler ());
 	try {
