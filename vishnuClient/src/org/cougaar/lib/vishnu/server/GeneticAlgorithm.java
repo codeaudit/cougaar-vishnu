@@ -1,3 +1,5 @@
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/GeneticAlgorithm.java,v 1.10 2001-08-03 12:34:22 dmontana Exp $
+
 package org.cougaar.lib.vishnu.server;
 
 import org.xml.sax.helpers.DefaultHandler;
@@ -40,8 +42,8 @@ public class GeneticAlgorithm {
   private GAOperator[] operators;
   private float[] operatorProbs;
   private float[] parentProbs;
-  private HashSet chromosomes = new HashSet();   // for uniqueness check
-  private ArrayList population = new ArrayList();
+  private HashSet chromosomes;   // for uniqueness check
+  private ArrayList population;
   private int numEvals;
   private int numDuplicates;
   private int topDogAge;
@@ -169,6 +171,8 @@ public class GeneticAlgorithm {
   }
 
   private void resetCounts() {
+    chromosomes = new HashSet();
+    population = new ArrayList();
     numEvals = 0;
     numDuplicates = 0;
     topDogAge = 0;

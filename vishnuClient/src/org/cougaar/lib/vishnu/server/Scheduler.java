@@ -46,6 +46,7 @@ public class Scheduler {
   private SchedulingSpecs specs = null;
   private GeneticAlgorithm ga = null;
   private TimeOps timeOps;
+  private SAXParser parser;
 
   private static boolean debug = 
     ("true".equals (System.getProperty ("vishnu.Scheduler.debug")));
@@ -153,21 +154,23 @@ public class Scheduler {
           start = new Date();
           if (! canceled) {
             writeSchedule();
-			if (debug) reportTime ("\tWrote schedule in ", start);
-			Date two = new Date();
+            if (debug) reportTime ("\tWrote schedule in ", start);
+            Date two = new Date();
             writeCapacities();
-			if (debug) reportTime ("\tWrote capacities in ", two);
-			Date three = new Date();
+            if (debug) reportTime ("\tWrote capacities in ", two);
+            Date three = new Date();
             writeCapabilities();
-			if (debug) reportTime ("\tWrote capabilities in ", three);
+            if (debug) reportTime ("\tWrote capabilities in ", three);
           }
-          if (debug) reportTime ("Wrote schedule, capacities, and capabilities in ", start);
+          if (debug) reportTime
+            ("Wrote schedule, capacities, and capabilities in ", start);
           ackProblem (100, null);
           reportTime ("Finished scheduling " + 
-					  (data.getTasks ().length - data.getFrozenTasks ().length) + 
-					  " new, " + data.getFrozenTasks ().length + 
-					  " frozen tasks against " + data.getResources().length + 
-					  " resources at " + new Date() +
+                      (data.getTasks ().length -
+                       data.getFrozenTasks ().length) + 
+                      " new, " + data.getFrozenTasks ().length + 
+                      " frozen tasks against " + data.getResources().length + 
+                      " resources at " + new Date() +
                       ". It took ", grandStart);
         } catch (Exception e) {
           ackProblem (100, e);
@@ -445,18 +448,23 @@ public class Scheduler {
     return assigns;
   }
 
-  /** if using direct object input, call this first
+  /** if internal scheduling (direct object or XML), call this first
    * @param problem XML representation of the problem description
+   * @param initialize true if this problem is new, false if modifying
+   *        existing problem
    */
-  public void setupInternal (String problem) {
+  public void setupInternal (String problem, boolean initialize) {
     try {
-      timeOps = new TimeOps();
-      specs = new SchedulingSpecs (timeOps);
-      ga = new GeneticAlgorithm (this);
-      data = new SchedulingData (timeOps);
-      SAXParser parser = new SAXParser();
-      parser.setContentHandler (new InternalRequestHandler());
-	  parser.setFeature("http://xml.org/sax/features/validation", validatingInternalParser);
+      if (initialize) {
+        timeOps = new TimeOps();
+        specs = new SchedulingSpecs (timeOps);
+        ga = new GeneticAlgorithm (this);
+        data = new SchedulingData (timeOps);
+        parser = new SAXParser();
+        parser.setContentHandler (new InternalRequestHandler());
+        parser.setFeature("http://xml.org/sax/features/validation",
+                          validatingInternalParser);
+      }
       Date start = null;
       if (reportTiming) start = new Date ();
       parser.parse (new InputSource (new StringReader (problem)));
@@ -470,7 +478,8 @@ public class Scheduler {
   }
 
   /** if using direct object input (without XML), call this after
-   * first calling setupInternal and then putting in the data */
+   * first calling setupInternal and then putting in the data;
+   * if using regular internal scheduling, call right after setupInternal */
   public void scheduleInternal() {
     Date start = null;
     if (reportTiming) start = new Date ();
@@ -490,18 +499,13 @@ public class Scheduler {
   }
 
 
-
-
   /**
-   * The function called to run the scheduler internal to a process
-   * @param problem XML representation of the problem description
+   * The function called to return the assignments in XML after running
+   * the scheduler internally
    * @return XML representation of all the assignments
    */
-  public String runInternalToProcess (String problem) {
+  public String getXMLAssignments() {
     try {
-      Date beginning = new Date ();
-      setupInternal (problem);
-      scheduleInternal();
       Task[] tasks = data.getTasks();
       StringBuffer text = new StringBuffer (tasks.length * 150);
       text.append ("<?xml version='1.0'?>\n<ASSIGNMENTS>\n");
@@ -536,9 +540,6 @@ public class Scheduler {
         }
       }
       text.append ("</ASSIGNMENTS>\n");
-      if (reportTiming)
-        reportTime ("Scheduler.runInternalToProcess - total time to process " + tasks.length + 
-					" tasks was ", beginning);
       return text.toString();
     } catch (Exception e) {
       System.err.println (e.getMessage());

@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Resource.java,v 1.11 2001-06-19 20:43:39 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Resource.java,v 1.12 2001-08-03 12:34:23 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -21,18 +21,26 @@ import java.util.Iterator;
 
 public class Resource extends SchObject {
 
-  private HashMap assignments = new HashMap (5);
-  private TimeBlock[] activities = new TimeBlock[0];
-  private TreeSet schedule = new TreeSet (new TimeBlockComparator());
+  private HashMap assignments;
+  private TimeBlock[] activities;
+  private TreeSet schedule;
   private float[] capacities;
-  private float[] capacitiesUsed = null;
+  private float[] capacitiesUsed;
   private float sumOfDeltas;
-  private boolean hasMultitaskContrib = false;
+  private boolean hasMultitaskContrib;
   private Assignment lastAssignment;
   private boolean lastNewGroup;
 
   public Resource (TimeOps timeOps) {
     super (timeOps);
+  }
+
+  public void initialize() {
+    assignments = new HashMap (5);
+    activities = new TimeBlock[0];
+    schedule = new TreeSet (new TimeBlockComparator());
+    capacitiesUsed = null;
+    hasMultitaskContrib = false;
   }
 
   public void addAssignment (Assignment a, boolean putInSchedule,

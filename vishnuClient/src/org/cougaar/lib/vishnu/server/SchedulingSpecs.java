@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingSpecs.java,v 1.17 2001-07-27 18:27:27 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingSpecs.java,v 1.18 2001-08-03 12:34:23 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -66,6 +66,13 @@ public class SchedulingSpecs {
   }    
 
   public void initializeData (SchedulingData sdata) {
+    cachedCapableResources = null;
+    if (bestTimeCache != null)
+      bestTimeCache.clear();
+    if (taskDurationCache != null)
+      taskDurationCache.clear();
+    if (taskUnavailableTimesCache != null)
+      taskUnavailableTimesCache.clear();
     data = sdata.getGlobals();
     data.put ("start_time", new Reusable.RInteger (sdata.getStartTime()));
     data.put ("end_time", new Reusable.RInteger (sdata.getEndTime()));
@@ -666,6 +673,11 @@ public class SchedulingSpecs {
         dependencies = TASKSCHEDULE;
       else
         dependencies = TASK;
+    }
+
+    public void clear() {
+      byTask = new HashMap();
+      object = null;
     }
 
     public Object getResult (Task task, Resource resource,

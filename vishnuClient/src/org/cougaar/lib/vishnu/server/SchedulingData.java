@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.24 2001-07-26 18:09:47 gvidaver Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.25 2001-08-03 12:34:23 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -33,15 +33,15 @@ public class SchedulingData {
 
   private HashMap tasks = new HashMap();
   private HashMap frozenTasks = new HashMap();
-  private HashMap linkedToFrozenTasks = new HashMap();
+  private HashMap linkedToFrozenTasks;
   private ArrayList primaryTasks = new ArrayList();
   private HashMap resources = new HashMap();
-  private HashMap capacities = new HashMap();
+  private HashMap capacities;
   private HashMap globals = new HashMap (11);
   private HashMap globalTypes = new HashMap (11);
-  private ArrayList linkedGroups = new ArrayList();
-  private HashMap linkedGroupMap = new HashMap();
-  private HashMap primaryLinks = new HashMap();
+  private ArrayList linkedGroups;
+  private HashMap linkedGroupMap;
+  private HashMap primaryLinks;
   private int startTime;
   private int endTime = Integer.MAX_VALUE;
   private TimeOps timeOps;
@@ -72,6 +72,36 @@ public class SchedulingData {
     primaryTasks.add (task);
   }
 
+  public void removeTask (String key) {
+    Task task = getTask (key);
+    tasks.remove (key);
+    primaryTasks.remove (task);
+    frozenTasks.remove (task);
+  }
+
+  public void freezeTask (Task task) {
+    Assignment a = task.getAssignment();
+    if (a != null)
+      freezeTask (task, a.getResource(), a.getTaskStartTime(),
+                  a.getTaskEndTime());
+  }
+
+  public void freezeTask (Task task, Resource res, int start, int end) {
+    primaryTasks.remove (task);
+    frozenTasks.put (task, new Assignment (task, res, start, start,
+                                           end, end, true, timeOps));
+  }
+
+  public void unfreezeTask (String key) {
+    Task task = getTask (key);
+    if (task == null) {
+      System.out.println ("Unknown task to unfreeze: " + key);
+      return;
+    }
+    primaryTasks.add (task);
+    frozenTasks.remove (task);
+  }
+
   public Task[] getTasks() {
     Task[] arr = new Task [tasks.size()];
     return (Task[]) tasks.values().toArray (arr);
@@ -83,7 +113,7 @@ public class SchedulingData {
   }
 
   public boolean isFrozen (Task task) {
-	return (frozenTasks.get (task) != null);
+    return (frozenTasks.get (task) != null);
   }
   
   public Assignment getFrozenAssignment (Task task) {
@@ -138,6 +168,10 @@ public class SchedulingData {
     resources.put (r.getKey(), r);
   }
 
+  public void removeResource (String key) {
+    resources.remove (key);
+  }
+
   public Resource[] getResources() {
     Resource[] arr = new Resource [resources.size()];
     return (Resource[]) resources.values().toArray (arr);
@@ -154,6 +188,11 @@ public class SchedulingData {
   public void addGlobal (String name, String type, SchObject obj) {
     globals.put (name, obj);
     globalTypes.put (name, type);
+  }
+
+  public void removeGlobal (String name) {
+    globals.remove (name);
+    globalTypes.remove (name);
   }
 
   public String typeForGlobal (String global) {
@@ -178,6 +217,17 @@ public class SchedulingData {
   }
 
   public void initialize (SchedulingSpecs specs) {
+    Task[] tasks = getTasks();
+    for (int i = 0; i < tasks.length; i++)
+      tasks[i].setAssignment (null);
+    Resource[] resources = getResources();
+    for (int i = 0; i < resources.length; i++)
+      resources[i].initialize();
+    capacities = new HashMap();
+    linkedToFrozenTasks = new HashMap();
+    linkedGroups = new ArrayList();
+    linkedGroupMap = new HashMap();
+    primaryLinks = new HashMap();
     createActivities (specs);
     initializeCapacities (specs);
     computePrerequisites (specs);
@@ -381,21 +431,15 @@ public class SchedulingData {
 	stack.push (new SchObject (timeOps));
       }
       else if (name.equals ("FROZEN")) {
-        Task task = (Task) tasks.get (atts.getValue ("task"));
+        Task task = getTask (atts.getValue ("task"));
         if (task == null) {
-          System.out.println ("Unknown task to freeze: " +
+          System.out.println ("Trying to freeze unknown task " +
                               atts.getValue ("task"));
           return;
         }
-        primaryTasks.remove (task);
-        frozenTasks.put (task, new Assignment
-		  (getTask (atts.getValue ("task")),
-		   getResource (atts.getValue ("resource")),
-		   timeOps.stringToTime (atts.getValue ("start")),
-		   timeOps.stringToTime (atts.getValue ("start")),
-		   timeOps.stringToTime (atts.getValue ("end")),
-		   timeOps.stringToTime (atts.getValue ("end")),
-		   true, timeOps));
+        freezeTask (task, getResource (atts.getValue ("resource")),
+                    timeOps.stringToTime (atts.getValue ("start")),
+                    timeOps.stringToTime (atts.getValue ("end")));
       }
       else if (! name.equals ("DATA"))
         System.out.println ("SchedulingData.startElement - " + 
@@ -416,11 +460,10 @@ public class SchedulingData {
                          false, false);
       }
       else if (name.equals ("TASK")) {
-        tasks.put (keyValue, stack.pop ());
-        primaryTasks.add (tasks.get (keyValue));
+        addTask ((Task) stack.pop());
       }
       else if (name.equals ("RESOURCE")) {
-        resources.put (keyValue, stack.pop ());
+        addResource ((Resource) stack.pop());
       }
       else if (name.equals ("VALUE2")) {
 		String nameForList = (String) names.peek ();
@@ -462,6 +505,9 @@ public class SchedulingData {
     private String fieldname;
     private ListFormat listFormat = null;
     private FastStack listFormats = new FastStack();
+    private boolean doingNew = false;
+    private boolean doingChanged = false;
+    private boolean doingDeleted = false;
 
     private class FieldFormat {
       public String datatype;
@@ -522,19 +568,21 @@ public class SchedulingData {
         FieldFormat ff = (FieldFormat)
           ((HashMap) formats.get (objectType)).get (fieldname);
         if (ff == null) {
-		  if (throwExceptionOnMissingField) {
-			throw new RuntimeException ("Undefined field named " + fieldname +
-										" for object type " + objectType);
-		  }
-		  else {
-			if (debug)
-			  System.out.println ("SchedulingData.startElement - NOTE : found undefined field " +
-								  fieldname + " for object type " + objectType +
-								  ". Ignoring.");
-			prefixes.push (prefix);
-			return;
-		  }
-		}
+          if (throwExceptionOnMissingField) {
+            throw new RuntimeException ("Undefined field named " +
+                                        fieldname + " for object type " +
+                                        objectType);
+          }
+          else {
+            if (debug)
+              System.out.println ("SchedulingData.startElement - NOTE : " +
+                                  "found undefined field " + fieldname +
+                                  " for object type " + objectType +
+                                  ". Ignoring.");
+            prefixes.push (prefix);
+            return;
+          }
+        }
 
         prefixes.push (prefix);
         if (ff.is_list) {
@@ -556,10 +604,17 @@ public class SchedulingData {
           object.addField (prefix + fieldname, ff.datatype,
                            atts.getValue ("value"), ff.is_key, false);
           if (ff.is_key && (object instanceof Task)) {
-            addTask ((Task) object);
+            if (doingDeleted || doingChanged)
+              removeTask (((Task) object).getKey());
+            if (doingNew || doingChanged)
+              addTask ((Task) object);
           }
-          if (ff.is_key && (object instanceof Resource))
-            resources.put (((Resource) object).getKey(), object);
+          if (ff.is_key && (object instanceof Resource)) {
+            if (doingDeleted || doingChanged)
+              removeResource (((Resource) object).getKey());
+            if (doingNew || doingChanged)
+              addResource ((Resource) object);
+          }
           if (predefined != null)
             predefined.addField (fieldname, ff.datatype,
                                  atts.getValue ("value"), false, false);
@@ -586,19 +641,23 @@ public class SchedulingData {
           }
         }
         if (globalName != null) {
-          addGlobal (globalName, objectType, object);
+          if (doingDeleted || doingChanged)
+            removeGlobal (globalName);
+          if (doingNew || doingChanged)
+            addGlobal (globalName, objectType, object);
           globalName = null;
         }
       }
       else if (name.equals ("VALUE")) {
-		if (listFormat != null) {
-		  if (! listFormat.hasObjects) {
-			listFormat.object.addField (listFormat.name, listFormat.type,
-										atts.getValue ("value"), false, true);
-		  }
-		}
-		else if (debug)
-		  System.out.println ("SchedulingData.startElement - expecting listFormat to be set when hit VALUE tag.");
+        if (listFormat != null) {
+          if (! listFormat.hasObjects) {
+            listFormat.object.addField (listFormat.name, listFormat.type,
+                                        atts.getValue ("value"), false, true);
+          }
+        }
+        else if (debug)
+          System.out.println ("SchedulingData.startElement - expecting " +
+                              "listFormat to be set when hit VALUE tag.");
       }
       else if (name.equals ("FIELDFORMAT")) {
         FieldFormat ff = new FieldFormat
@@ -628,6 +687,47 @@ public class SchedulingData {
         if (atts.getValue ("endtime") != null)
           endTime = timeOps.stringToTime (atts.getValue ("endtime"));
       }
+      else if (name.equals ("NEWOBJECTS")) {
+        doingNew = true;
+      }
+      else if (name.equals ("CHANGEDOBJECTS")) {
+        doingChanged = true;
+      }
+      else if (name.equals ("DELETEDOBJECTS")) {
+        doingDeleted = true;
+      }
+      else if (name.equals ("CLEARDATABASE")) {
+        Resource[] resources = getResources();
+        for (int i = 0; i < resources.length; i++)
+          removeResource (resources[i].getKey());
+        Task[] tasks = getTasks();
+        for (int i = 0; i < tasks.length; i++)
+          removeTask (tasks[i].getKey());
+        globals.clear();
+        globalTypes.clear();
+      }
+      else if (name.equals ("FREEZE")) {
+        Task task = getTask (atts.getValue ("task"));
+        if (task == null) {
+          System.out.println ("Trying to freeze unknown task " + 
+                              atts.getValue ("task"));
+          return;
+        }
+        freezeTask (task);
+      }
+      else if (name.equals ("UNFREEZE")) {
+        unfreezeTask (atts.getValue ("task"));
+      }
+      else if (name.equals ("FREEZEALL")) {
+        Task[] tasks = getTasks();
+        for (int i = 0; i < tasks.length; i++)
+          freezeTask (tasks[i]);
+      }
+      else if (name.equals ("UNFREEZEALL")) {
+        Task[] tasks = getTasks();
+        for (int i = 0; i < tasks.length; i++)
+          unfreezeTask (tasks[i].getKey());
+      }
     }
 
     public void endElement (String uri, String local, String name) {
@@ -647,6 +747,15 @@ public class SchedulingData {
       }
       else if (name.equals ("GLOBAL")) {
         globalName = null;
+      }
+      else if (name.equals ("NEWOBJECTS")) {
+        doingNew = false;
+      }
+      else if (name.equals ("CHANGEDOBJECTS")) {
+        doingChanged = false;
+      }
+      else if (name.equals ("DELETEDOBJECTS")) {
+        doingDeleted = false;
       }
     }
   }

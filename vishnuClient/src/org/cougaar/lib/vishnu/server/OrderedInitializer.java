@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedInitializer.java,v 1.7 2001-07-29 21:34:43 gvidaver Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedInitializer.java,v 1.8 2001-08-03 12:34:22 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -36,7 +36,7 @@ public class OrderedInitializer implements GAInitializer {
   public StringOfIntegers reorder (int[] original, SchedulingData data) {
     ArrayList al = new ArrayList (original.length);
     for (int i = 0; i < original.length; i++)
-    al.add (new Integer (original [i]));
+      al.add (new Integer (original [i]));
     return reorder (al, data);
   }
 
@@ -52,7 +52,9 @@ public class OrderedInitializer implements GAInitializer {
         boolean cont = false;
         for (int k = 0; k < prereqs.length; k++) {
           if ((! selected.contains (prereqs[k])) &&
-              (! selected.contains (data.getPrimaryLink (prereqs[k])))) {
+              (! data.isFrozen (prereqs[k])) &&
+              (! selected.contains (data.getPrimaryLink (prereqs[k]))) &&
+              (! data.isFrozen (data.getPrimaryLink (prereqs[k])))) {
             cont = true;
             break;
           }

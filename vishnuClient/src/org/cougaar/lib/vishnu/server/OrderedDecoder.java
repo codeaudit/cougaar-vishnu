@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedDecoder.java,v 1.16 2001-07-23 14:36:15 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedDecoder.java,v 1.17 2001-08-03 12:34:22 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -234,8 +234,10 @@ public class OrderedDecoder implements GADecoder {
         assignAtTime (linked[j], block.start - timeDiff, data, specs);
       }
     }
-    return ret;
+    return ignoringTime ? EmptyBlock : ret;
   }
+
+  private static final Resource.Block EmptyBlock = new Resource.Block();
 
   private Resource.Block makeAssignment2 (Task task, Resource resource,
                                           Resource.Block block,
