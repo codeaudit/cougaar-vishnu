@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Resource.java,v 1.10 2001-05-07 13:41:26 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Resource.java,v 1.11 2001-06-19 20:43:39 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -272,7 +272,7 @@ public class Resource extends SchObject {
         MultitaskAssignment ma = (MultitaskAssignment) o;
         if ((start >= ma.getTaskStartTime()) &&
             (end <= ma.getTaskEndTime()) &&
-            task.groupableWith (ma.getTasks())) {
+            task.groupableWith (ma.getTasks(), specs)) {
           block.groupedAssignment = ma;
           return block;
         }
@@ -329,7 +329,7 @@ public class Resource extends SchObject {
                                 multitask, grouped))
       return null;
     while (iter.hasNext()) {
-      if (grouped && fitsGroup (task, curr, unavail, duration))
+      if (grouped && fitsGroup (task, curr, unavail, duration, specs))
         return makeGroupedBlock (task, duration, curr);
       prev = curr;
       curr = (TimeBlock) iter.next();
@@ -354,7 +354,7 @@ public class Resource extends SchObject {
       if (block.wrapup <= curr.getStartTime())
         return (block.end < block.start) ? null : block;
     }
-    if (grouped && fitsGroup (task, curr, unavail, duration))
+    if (grouped && fitsGroup (task, curr, unavail, duration, specs))
       return makeGroupedBlock (task, duration, curr);
     fillBlock (task, block, duration, specs, curr, null, earliest[0],
                multitask, startTime);
@@ -506,7 +506,7 @@ public class Resource extends SchObject {
                               multitask, grouped))
       return null;
     while (iter.hasNext()) {
-      if (grouped && fitsGroup (task, curr, unavail, duration))
+      if (grouped && fitsGroup (task, curr, unavail, duration, specs))
         return makeGroupedBlock (task, duration, curr);
       prev = curr;
       curr = (TimeBlock) iter.next();
@@ -531,7 +531,7 @@ public class Resource extends SchObject {
       if (block.setup >= curr.getEndTime())
         return (block.end < block.start) ? null : block;
     }
-    if (grouped && fitsGroup (task, curr, unavail, duration))
+    if (grouped && fitsGroup (task, curr, unavail, duration, specs))
       return makeGroupedBlock (task, duration, curr);
     fillBlock2 (task, block, duration, specs, curr, null, latest[0],
                 multitask, endTime);
@@ -678,7 +678,7 @@ public class Resource extends SchObject {
   }
 
   private boolean fitsGroup (Task task, TimeBlock tb, TimeBlock[] unavail,
-                             int duration) {
+                             int duration, SchedulingSpecs specs) {
     if ((tb == null) || (! (tb instanceof MultitaskAssignment)))
       return false;
     MultitaskAssignment ma = (MultitaskAssignment) tb;
@@ -693,7 +693,7 @@ public class Resource extends SchObject {
         break;
       return false;
     }
-    return task.groupableWith (ma.getTasks());
+    return task.groupableWith (ma.getTasks(), specs);
   }
 
   private Block makeGroupedBlock (Task task, int duration, TimeBlock tb) {

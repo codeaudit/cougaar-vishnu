@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingSpecs.java,v 1.12 2001-05-31 22:32:11 gvidaver Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingSpecs.java,v 1.13 2001-06-19 20:43:39 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -472,7 +472,7 @@ public class SchedulingSpecs {
     data.remove ("task2");
     reuse.resetObjects();
     if (b == null)
-      return false;
+      return true;
     return b.booleanValue();
   }
 

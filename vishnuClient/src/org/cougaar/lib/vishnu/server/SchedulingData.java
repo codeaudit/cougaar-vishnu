@@ -1,13 +1,13 @@
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.20 2001-06-19 20:43:39 dmontana Exp $
+
 package org.cougaar.lib.vishnu.server;
 
-import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.lang.Float;
+import org.xml.sax.Attributes;
 import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Stack;
+import java.lang.Float;
 
 /**
  * Holds scheduling data for the generic scheduler.
@@ -47,10 +47,6 @@ public class SchedulingData {
   private TimeOps timeOps;
   public static boolean debug = 
     ("true".equals (System.getProperty ("vishnu.debug")));
-  private static boolean reportTiming = 
-    ("true".equals (System.getProperty ("vishnu.Scheduler.reportTiming")));
-  private static boolean throwExceptionOnMissingField = 
-    ("true".equals (System.getProperty ("vishnu.SchedulingData.throwExceptionOnMissingField", "false")));
 
   public SchedulingData (TimeOps timeOps) {
     this.timeOps = timeOps;
@@ -161,43 +157,14 @@ public class SchedulingData {
   }
 
   public void initialize (SchedulingSpecs specs) {
-	Date start = null;
-	
-	if (reportTiming) start = new Date ();
     createActivities (specs);
-	if (reportTiming) reportTime ("SchedulingData.initialize - created activities in ", start);
-
-	if (reportTiming) start = new Date ();
     initializeCapacities (specs);
-	if (reportTiming) reportTime ("SchedulingData.initialize - initialize capacities in ", start);
-
-	if (reportTiming) start = new Date ();
     computePrerequisites (specs);
-	if (reportTiming) reportTime ("SchedulingData.initialize - compute prerequisites ", start);
-
-	if (reportTiming) start = new Date ();
-    computeGroupings (specs);
-	if (reportTiming) reportTime ("SchedulingData.initialize - compute groupings in ", start);
-
-	if (reportTiming) start = new Date ();
     if (specs.areLinks()) {
       computeLinks (specs);
       computeLinkedToFrozen();
       computePrimaryLinked (specs);
     }
-	if (reportTiming) reportTime ("SchedulingData.initialize - created links in ", start);
-  }
-
-  protected void reportTime (String prefix, Date start) 
-  {
-    Runtime rt = Runtime.getRuntime ();
-    Date end = new Date ();
-    long diff = end.getTime () - start.getTime ();
-    long min  = diff/60000l;
-    long sec  = (diff - (min*60000l))/1000l;
-    System.out.println  (prefix + min + ":" + ((sec < 10) ? "0":"") + sec + 
-			 " free "  + (rt.freeMemory  ()/(1024*1024)) + "M" +
-			 " total " + (rt.totalMemory ()/(1024*1024)) + "M");
   }
 
   public void createActivities (SchedulingSpecs specs) {
@@ -226,44 +193,6 @@ public class SchedulingData {
     Task[] t = getTasks();
     for (int i = 0; i < t.length; i++)
       t[i].setPrerequisites (specs.prerequisites (t[i], this));
-  }
-
-  /** 
-   * <pre>
-   * No longer does n^2 pair-wise grouping check.
-   *
-   * Gives each task a reference to the specs so the tasks can do
-   * lazy evaluation of the groupable constraint.
-   *
-   * </pre>
-   * @param specs Scheduling Specs to give to task
-   **/
-  public void computeGroupings (SchedulingSpecs specs) {
-	if (!specs.hasGroupableSpec ()) {
-	  Task[] t = getTasks();
-	  for (int i = 0; i < t.length; i++) {
-		Task task1 = t[i];
-		task1.setGroupable (true);
-	  }
-	  return;
-	}
-	  
-    Task[] t = getTasks();
-    for (int i = 0; i < t.length; i++) {
-      Task task1 = t[i];
-	  task1.setSpecs (specs);
-	  
-	  /*
-      for (int j = i + 1; j < t.length; j++) {
-        Task task2 = t[j];
-        if (specs.areGroupable (task1, task2) &&
-            specs.areGroupable (task2, task1)) {
-          task1.addGroupableTask (task2);
-          task2.addGroupableTask (task1);
-        }
-      }
-	  */
-    }
   }
 
   public void computeLinks (SchedulingSpecs specs) {
@@ -571,21 +500,9 @@ public class SchedulingData {
         fieldname = atts.getValue ("name");
         FieldFormat ff = (FieldFormat)
           ((HashMap) formats.get (objectType)).get (fieldname);
-        if (ff == null) {
-		  if (throwExceptionOnMissingField) {
-			throw new RuntimeException ("Undefined field named " + fieldname +
-										" for object type " + objectType);
-		  }
-		  else {
-			if (debug)
-			  System.out.println ("SchedulingData.startElement - NOTE : found undefined field " +
-								  fieldname + " for object type " + objectType + 
-								  ". Ignoring.");
-			prefixes.push (prefix);
-			return;
-		  }
-		}
-		
+        if (ff == null)
+          throw new RuntimeException ("Undefined field named " + fieldname +
+                                      " for object type " + objectType);
         prefixes.push (prefix);
         if (ff.is_list) {
           listFormats.push (listFormat);
@@ -644,14 +561,10 @@ public class SchedulingData {
         }
       }
       else if (name.equals ("VALUE")) {
-		if (listFormat != null) {
-		  if (! listFormat.hasObjects) {
-			listFormat.object.addField (listFormat.name, listFormat.type,
-										atts.getValue ("value"), false, true);
-		  }
-		}
-		else if (debug)
-		  System.out.println ("SchedulingData.startElement - expecting listFormat to be set when hit VALUE tag.");
+        if (! listFormat.hasObjects) {
+          listFormat.object.addField (listFormat.name, listFormat.type,
+                                      atts.getValue ("value"), false, true);
+        }
       }
       else if (name.equals ("FIELDFORMAT")) {
         FieldFormat ff = new FieldFormat
