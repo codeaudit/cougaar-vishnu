@@ -1,11 +1,7 @@
 package org.cougaar.lib.vishnu.server;
 
 import java.io.*;
-import java.net.Socket;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.InetAddress;
-import java.net.ConnectException;
+import java.net.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Iterator;
@@ -70,25 +66,23 @@ public class ClientComms {
    */
   public static String postToURL (Map args, String pagename) {
     try {
-      Socket socket = new Socket (host, port);
-      OutputStream os = socket.getOutputStream();
+      HttpURLConnection conn = (HttpURLConnection)
+        (new URL ("http://" + host + ":" + port + path + pagename)).
+          openConnection();
+      conn.setRequestMethod ("POST");
+      conn.setDoOutput (true);
+      OutputStream os = conn.getOutputStream();
       String data = convertArgs (args, false);
-      String request = "POST " + path + pagename + " HTTP/1.0\r\n" +
-        "Host: " + host + "\r\n" +
-        "Content-Type: application/x-www-form-urlencoded\r\n" +
-        "Content-Length: " + data.length() + "\r\n\r\n" + data + "\r\n\r\n";
-      os.write (request.getBytes());
+      os.write (data.getBytes());
 
-      InputStream is = socket.getInputStream();
-
+      InputStream is = conn.getInputStream();
       StringBuffer sb = new StringBuffer ();
       byte b[] = new byte[1024];
       int len;
       while ((len = is.read(b)) > -1)
         sb.append (new String(b, 0, len));
-
-	  os.close ();
-	  is.close ();
+      os.close ();
+      is.close ();
 	  
       return sb.toString();
 
