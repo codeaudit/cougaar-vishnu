@@ -1,8 +1,9 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/TimeOps.java,v 1.5 2001-07-29 19:30:46 gvidaver Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/TimeOps.java,v 1.6 2001-08-03 14:51:57 gvidaver Exp $
 
 package org.cougaar.lib.vishnu.server;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Translates between string values of times and an internal representation
@@ -36,7 +37,12 @@ public class TimeOps {
 
   public String timeToString (int time) {
     long ltime = 1000l * (long) time;
-    return format.format (new java.util.Date (baseTime + ltime));
+    return format.format (new Date (baseTime + ltime));
+  }
+  
+  public Date timeToDate (int time) {
+    long ltime = 1000l * (long) time;
+    return new Date (baseTime + ltime);
   }
 
   public int stringToTime (String str) {
