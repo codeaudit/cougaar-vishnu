@@ -140,7 +140,7 @@ public class DirectDataHelper implements DataHelper {
 	resource.addListField (name);
 
 	createScheduleFields (unavail.getEncapsulatedRoleSchedule(0, endOfWorld.getTime()), 
-						  resource, name, true);
+						  resource, name);
   }
 
   public void createAvailableScheduleListField (Object object, String name, Asset asset) {
@@ -153,17 +153,17 @@ public class DirectDataHelper implements DataHelper {
 	  System.out.println("DirectDataHelper -- availSchedule is empty");
 	
 	createScheduleFields (availSchedule.getEncapsulatedScheduleElements (0,endOfWorld.getTime()), 
-						  resource, name, false);
+						  resource, name);
   }
   
-  protected void createScheduleFields (Collection schedule, SchObject resource, String name, boolean isRole) {
+  protected void createScheduleFields (Collection schedule, SchObject resource, String name) {
 	for (Iterator iter = schedule.iterator (); iter.hasNext();) {
 	  TimeSpan span = (TimeSpan) iter.next ();
 	  SchObject interval = new SchObject (timeOps);
 
 	  interval.addDateMillis ("start",  span.getStartTime());
 	  interval.addDateMillis ("end",    span.getEndTime());
-	  if (isRole)
+	  if (span instanceof PlanElement)
 		interval.addField ("label1", "string", ((PlanElement)span).getTask().getVerb().toString(), false, false);
 
       resource.addField (name, "interval", interval, false, true);
