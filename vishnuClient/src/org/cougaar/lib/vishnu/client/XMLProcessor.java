@@ -110,7 +110,7 @@ public class XMLProcessor {
     catch(Exception e) {vishnuEpochEndTime = "2002-01-01 00:00:00";}
   }
 
-  public DataXMLize getDataXMLizer (Map nameToDescrip, String assetClassName) {
+  public XMLizer getDataXMLizer (Map nameToDescrip, String assetClassName) {
 	DataXMLize dataXMLizer = new DataXMLize (debugDataXMLizer);
 	dataXMLizer.setNameToDescrip (nameToDescrip);
 	dataXMLizer.setResourceName (assetClassName);
@@ -132,7 +132,7 @@ public class XMLProcessor {
    * @param taskAndAssets what to send
    * @param nameToDescrip mapping of object type to object description (field names, etc.)
    */
-  protected Document getDataDoc (Collection taskAndAssets, DataXMLize dataXMLizer, String assetClassName) {
+  protected Document getDataDoc (Collection taskAndAssets, XMLizer dataXMLizer, String assetClassName) {
 	return dataXMLizer.createDoc (taskAndAssets, assetClassName);
   }
 
@@ -653,7 +653,7 @@ public class XMLProcessor {
     }
 
   public Document prepareDocument (Collection tasks, 
-								   DataXMLize dataXMLizer,
+								   XMLizer dataXMLizer,
 								   boolean clearDatabase, 
 								   boolean sendingChangedObjects,
 								   String assetClassName,
