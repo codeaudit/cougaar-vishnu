@@ -1632,6 +1632,22 @@ taskendtime</TD>
 Returns the assigned end time of a task, or null if not yet assigned</TD>
 </TR>
 <TR><TD style='padding:0in 5.4pt 0in 5.4pt' WIDTH=90 VALIGN="TOP">
+tasksetuptime</TD>
+<TD style='padding:0in 5.4pt 0in 5.4pt' WIDTH=180 VALIGN="TOP">
+(task) =&gt; datetime</TD>
+<TD style='padding:0in 5.4pt 0in 5.4pt' WIDTH=320 VALIGN="TOP">
+Returns the assigned time for the start of the setup period
+of a task, or null if not yet assigned</TD>
+</TR>
+<TR><TD style='padding:0in 5.4pt 0in 5.4pt' WIDTH=90 VALIGN="TOP">
+taskwrapuptime</TD>
+<TD style='padding:0in 5.4pt 0in 5.4pt' WIDTH=180 VALIGN="TOP">
+(task) =&gt; datetime</TD>
+<TD style='padding:0in 5.4pt 0in 5.4pt' WIDTH=320 VALIGN="TOP">
+Returns the assigned time for the end of the setup period
+of a task, or null if not yet assigned</TD>
+</TR>
+<TR><TD style='padding:0in 5.4pt 0in 5.4pt' WIDTH=90 VALIGN="TOP">
 resourcefor</TD>
 <TD style='padding:0in 5.4pt 0in 5.4pt' WIDTH=180 VALIGN="TOP">
 (task) =&gt; resource</TD>
