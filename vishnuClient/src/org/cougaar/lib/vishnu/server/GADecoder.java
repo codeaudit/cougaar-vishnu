@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/GADecoder.java,v 1.4 2001-07-03 20:50:55 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/GADecoder.java,v 1.5 2001-08-09 16:13:36 gvidaver Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -14,8 +14,9 @@ package org.cougaar.lib.vishnu.server;
 
 public interface GADecoder {
 
-  public void generateAssignments (Chromosome c, SchedulingData sd,
-                                   SchedulingSpecs ss, boolean explain);
+  /** return true if all tasks were assigned to resources */
+  public boolean generateAssignments (Chromosome c, SchedulingData sd,
+									  SchedulingSpecs ss, boolean explain);
 
   public void setParms (String parms);
 

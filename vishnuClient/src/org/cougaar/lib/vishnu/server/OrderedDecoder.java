@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedDecoder.java,v 1.17 2001-08-03 12:34:22 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedDecoder.java,v 1.18 2001-08-09 16:13:10 gvidaver Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -29,8 +29,11 @@ public class OrderedDecoder implements GADecoder {
   boolean grouped;
   TimeOps timeOps;
 
-  public void generateAssignments (Chromosome chrom, SchedulingData data,
-                                   SchedulingSpecs specs, boolean explain) {
+  /** 
+   * @return true if all tasks were assigned to resources
+   */
+  public boolean generateAssignments (Chromosome chrom, SchedulingData data,
+									  SchedulingSpecs specs, boolean explain) {
     timeOps = specs.getTimeOps();
     Resource[] r = data.getResources();
     ignoringTime = specs.ignoringTime();
@@ -48,6 +51,12 @@ public class OrderedDecoder implements GADecoder {
     ArrayList tasks = new ArrayList (tasks2.length);
     for (int i = 0; i < tasks2.length; i++)
       tasks.add (tasks2 [((StringOfIntegers) chrom).getValues()[i]]);
+
+	if (explain)
+	  System.out.println ("OrderedDecoder.generateAssignments - got " + tasks.size() + " tasks.");
+
+	boolean allAssigned = true;
+	
     // Take one task at a time off the list of tasks and schedule it.
     // Always take the one nearest the front of the list that is ready
     // to be scheduled (i.e., is not waiting for prerequisites).
@@ -64,6 +73,8 @@ public class OrderedDecoder implements GADecoder {
         }
         if (readyButUnable) {
           tasks.remove (i);
+		  allAssigned = false;
+		  
           if (explain)
             System.out.println ("Task " + task.getKey() + " not " +
                  "scheduled because prerequisites not all scheduled");
@@ -72,6 +83,7 @@ public class OrderedDecoder implements GADecoder {
         Resource[] resources = specs.capableResources (task, data);
         Task[] linked = data.getLinkedTasks (task);
         if (resources.length == 0) {
+		  allAssigned = false;
           if (explain)
             System.out.println ("Task " + task.getKey() + " not " +
                  "scheduled because there were no capable resources");
@@ -79,6 +91,7 @@ public class OrderedDecoder implements GADecoder {
         // if only one capable resource, just do assignment
         else if (resources.length == 1) {
           if (! resources[0].enoughCapacity (task.getCapacityContribs())) {
+			allAssigned = false;
             if (explain)
               System.out.println ("Task " + task.getKey() + " not " +
                  "scheduled on resource " + resources[0].getKey() +
@@ -86,6 +99,7 @@ public class OrderedDecoder implements GADecoder {
           }
           else if (makeAssignment (task, resources[0], prereqs,
                                specs, data, true, true, linked) == null) {
+			allAssigned = false;
             if (explain)
               System.out.println ("Task " + task.getKey() + " not " +
                  "scheduled on resource " + resources[0].getKey() +
@@ -139,11 +153,20 @@ public class OrderedDecoder implements GADecoder {
             if (bestDelta != 0.0f)
               bestResource.addDelta (bestDelta);
           }
+		  else {
+			allAssigned = false;
+			if (explain)
+			  System.out.println ("OrderedDecoder.generateAssignments - no assignment made for " + task.getKey() + 
+								  " - could not find a good resource among " + resources.length + 
+								  " possible.");
+		  }
         }
         tasks.remove (i);
         break;
       }
     }
+
+	return allAssigned;
   }
 
   private void removeAssignment (Task task, Resource resource,
