@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Vishnu Assignments Specification -->
+
+<!ELEMENT ASSIGNMENTS (ASSIGNMENT|MULTITASK|ACTIVITY)*>
+
+<!ELEMENT ASSIGNMENT EMPTY>
+<!ATTLIST ASSIGNMENT
+          task CDATA #REQUIRED
+          resource CDATA #REQUIRED
+          setup CDATA #REQUIRED
+          start CDATA #REQUIRED
+          end CDATA #REQUIRED
+          wrapup CDATA #REQUIRED
+          frozen CDATA #IMPLIED
+          color CDATA #IMPLIED
+          text CDATA #IMPLIED >
+
+<!ELEMENT MULTITASK (TASK)*>
+<!ATTLIST MULTITASK
+          resource CDATA #REQUIRED
+          setup CDATA #REQUIRED
+          start CDATA #REQUIRED
+          end CDATA #REQUIRED
+          wrapup CDATA #REQUIRED
+          color CDATA #IMPLIED
+          text CDATA #IMPLIED
+          capacities CDATA #IMPLIED
+          capacities_used CDATA #IMPLIED >
+<!ELEMENT TASK EMPTY>
+<!ATTLIST TASK
+          task CDATA #REQUIRED >
+
+<!ELEMENT ACTIVITY EMPTY>
+<!ATTLIST ACTIVITY
+          resource CDATA #REQUIRED
+          start CDATA #REQUIRED
+          end CDATA #REQUIRED
+          color CDATA #IMPLIED
+          text CDATA #IMPLIED >
+
