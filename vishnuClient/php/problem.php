@@ -12,7 +12,7 @@
   function getSubheader() { 
   }
 
-  function selectBoxes() {
+  function selectBoxes ($viewall = 0) {
     global $problem;
 ?>
   <INPUT TYPE=hidden NAME="problem" VALUE="<? echo $problem ?>">
@@ -20,14 +20,13 @@
   <INPUT TYPE=submit VALUE="Edit" NAME="action">
 &nbsp;&nbsp;&nbsp;
   <INPUT TYPE=submit VALUE="Create" NAME="action">
-<?
+<?  if ($viewall) { ?>
+  <INPUT TYPE=submit VALUE="View All" NAME="action">
+<?  }
   }
 
   function mainContent () {
     global $problem;
-  // maximum number of tasks or resources allowed in a popup
-  // any more and it will become a link to a separate page
-  $MAX_IN_POPUP = 25000;
 
   $arr = gettaskandresourcetypes ($problem);
   $taskobject = $arr[0];
@@ -69,12 +68,6 @@
   $result = mysql_db_query ("vishnu_prob_" . $problem,
               "select obj_" . $taskkey . " from obj_" . $taskobject .
               " order by obj_" . $taskkey . ";");
-  if (mysql_numrows ($result) > $MAX_IN_POPUP) {
-    $url = "showobjects.php?problem=" . $problem;
-    echo "<font size=+2><a href=\"" . $url . "\"/>Show tasks (" .
-         mysql_numrows ($result) . " total)</a></font>";
-  }
-  else {
 ?>
 <FORM METHOD="get" ACTION="task.php">
   <SELECT NAME="taskname">
@@ -87,12 +80,10 @@
   <INPUT TYPE=hidden NAME="taskkey" VALUE="<? echo $taskkey ?>">
   <INPUT TYPE=hidden NAME="resourceobject" VALUE="<? echo $resourceobject ?>">
   <INPUT TYPE=hidden NAME="resourcekey" VALUE="<? echo $resourcekey ?>">
-<? selectBoxes(); ?>
+<? selectBoxes (1); ?>
 </FORM>
 
-<?
-   }
-   mysql_free_result ($result);
+<?  mysql_free_result ($result);
  }
 ?>
 
@@ -104,12 +95,6 @@
   $result = mysql_db_query ("vishnu_prob_" . $problem,
                  "select obj_" . $resourcekey . " from obj_" .
                  $resourceobject . " order by obj_" . $resourcekey . ";");
-  if (mysql_numrows ($result) > $MAX_IN_POPUP) {
-    $url = "showobjects.php?problem=" . $problem;
-    echo "<font size=+2><a href=\"" . $url . "\"/>Show resources (" .
-         mysql_numrows ($result) . " total)</a></font>";
-  }
-  else {
 ?>
 <FORM METHOD="get" ACTION="resource.php">
   <SELECT NAME="resourcename">
@@ -122,11 +107,9 @@
   <INPUT TYPE=hidden NAME="taskobject" VALUE="<? echo $taskobject ?>">
   <INPUT TYPE=hidden NAME="resourcekey" VALUE="<? echo $resourcekey ?>">
   <INPUT TYPE=hidden NAME="taskkey" VALUE="<? echo $taskkey ?>">
-<? selectBoxes(); ?>
+<? selectBoxes (1); ?>
 </FORM>
-<?
-   }
-   mysql_free_result ($result);
+<?  mysql_free_result ($result);
  }
 ?>
 

@@ -1,20 +1,16 @@
 <?
-  require ("browserlink.php");
-  require ("utilities.php");
-  require ("navigation.php");
+  require_once ("utilities.php");
 
-  function getTitle () {
+  function showTitle () {
     global $problem;
     echo "Tasks and Resources for " . $problem;
   }
-  function getHeader () {
+  function showHeader () {
     global $problem;
     echo "Tasks and Resources for <font color=\"green\">" . $problem . "</font>";
   } 
-  function getSubheader() { 
-  }
 
-  function mainContent () { 
+  function showContent () { 
     global $problem;
 
   $arr = gettaskandresourcetypes ($problem);

@@ -2,14 +2,20 @@
   require ("browserlink.php");
   require_once ("utilities.php");
   require ("editobject.php");
+  require ("showobjects.php");
 
   if (! $action)
     $action = "View";
   require ("navigation.php");
 
   function getTitle () {
-    getHeader();
+    global $action;
+    if ($action == "View All")
+      showTitle();
+    else
+      getHeader();
   }
+
   function getHeader () {
     global $taskobject, $taskname, $action;
     if ($action == "View")
@@ -18,7 +24,10 @@
       echo "Editing " . $taskobject . " - " . $taskname;
     else if ($action == "Create")
       echo "Creating new " . $taskobject;
-  } 
+    else if ($action == "View All")
+      showHeader();
+  }
+
   function getSubheader() { 
   }
 
@@ -27,6 +36,10 @@
     global $resourcename, $resourceobject, $freezeaction, $action;
     global $norightbar;
 
+  if ($action == "View All") {
+    showContent();
+    return;
+  }
   if ($action == "Edit") {
     editobject ($taskobject, $taskname, $problem, $taskkey);
     $norightbar = 1;

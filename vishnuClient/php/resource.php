@@ -2,6 +2,7 @@
   require ("browserlink.php");
   require_once ("utilities.php");
   require ("editobject.php");
+  require ("showobjects.php");
 
   if (! $action)
     $action = "View";
@@ -13,18 +14,24 @@
 
   function getTitle () {
     global $action;
-    if ($action == "View")
+    if ($action == "View All")
+      showTitle();
+    else if ($action == "View")
       getSubheader();
     else
       getHeader();
   }
+
   function getHeader() {
     global $resourceobject, $resourcename, $action;
     if ($action == "Edit")
       echo "Editing " . $resourceobject . " - " . $resourcename;
     else if ($action == "Create")
       echo "Creating new " . $resourceobject;
+    else if ($action == "View All")
+      showHeader();
   }
+
   function getSubheader() { 
     global $resourceobject, $resourcename, $action;
     if ($action == "View")
@@ -36,6 +43,10 @@
     global $resourcename, $start_time, $end_time, $start_time2, $end_time2;
     global $action;
 
+  if ($action == "View All") {
+    showContent();
+    return;
+  }
   if ($action == "Edit") {
     editobject ($resourceobject, $resourcename, $problem, $resourcekey);
     return;
