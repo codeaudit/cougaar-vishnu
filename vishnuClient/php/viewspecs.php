@@ -276,7 +276,7 @@
     echo "</TABLE>\n";
 ?>
 
-<BR><BR><FORM METHOD=post ACTION="editspec.php">
+<BR><FORM METHOD=post ACTION="editspec.php">
   <SELECT NAME="specname">
 <? for (reset($constraints); $key = key($constraints); next($constraints))
      echo "    <OPTION VALUE=\"" . $constraints[$key] .
@@ -288,7 +288,9 @@
 
 <?
     $args = "problem=" . $problem;
-    echo "<BR><BR><TABLE BORDER=1>\n";
+    echo "<BR><h2>Color specifications</h2>\n<TABLE BORDER=1>\n";
+    echo "<tr><th>Color</th><th>Object Type</th>" .
+         "<th>Legend Entry</th><th>Formula</th></tr>\n";
     $result = mysql_db_query ("vishnu_prob_" . $problem,
                               "select * from color_tests;");
     while ($value = mysql_fetch_array ($result)) {
@@ -310,8 +312,9 @@
            $value2["red"] . "&green=" . $value2["green"] . "&blue=" .
            $value2["blue"] . "\"></A>" .
            "<FONT color=\"" . $color . "\">&nbsp;" .
-           $value["color"] . "</FONT></TD><TD>" . $value["obj_type"] .
-           "</TD><TD>" . $value["title"] .
+           $value["color"] . "</FONT></TD><TD align=center>" .
+           $value["obj_type"] .
+           "</TD><TD align=center>" . $value["title"] .
            "</TD><TD><FONT face=\"courier\">" . $exp . "</font></TD></TR>\n";
     }
     echo "</TABLE>\n";

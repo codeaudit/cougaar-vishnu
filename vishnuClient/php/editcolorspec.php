@@ -39,7 +39,7 @@
 
   function mainContent () {
     global $problem, $color, $expression, $title;
-    echo "<br><FORM METHOD=get ACTION=\"updatespec.php\">\n";
+    echo "<FORM METHOD=get ACTION=\"updatespec.php\">\n";
     $colors = array ($color);
     $color_defs = array();
     $result = mysql_db_query ("vishnu_prob_" . $problem,
@@ -51,20 +51,21 @@
       $colors[] = $value["name"];
       $color_defs [$value["name"]] = $value;
     }
-    echo "Color:&nbsp;\n";
+    echo "<table><tr><td align=right>Color</td>\n<td>";
     multiplechoice ("color", $colors, $color);
     $result = mysql_db_query ("vishnu_prob_" . $problem,
                               "select * from color_tests where color=\"" .
                               $color . "\";");
     $value = mysql_fetch_array ($result);
     mysql_free_result ($result);
-    echo "<BR><BR>Object Type:&nbsp;\n";
+    echo "</td></tr><tr><td align=right>Object Type</td>\n<td>";
     $firstc = isgrouped ($problem) ? "grouped" : "task";
     multiplechoice ("objtype", array ($firstc, "activity"),
                     $value["obj_type"]);
-    echo "<BR><BR>Description for legend:&nbsp;\n";
+    echo "</td></tr><tr><td align=right>" .
+         "Description for legend</td>\n<td>";
     echo "<INPUT type=\"text\" size=30 maxlength=80 name=\"title\" " .
-         "value=\"" . $title . "\">\n";
+         "value=\"" . $title . "\">\n</td></tr></table>";
     $expression = stripslashes ($expression);
   
     $str = "";
@@ -79,7 +80,7 @@
     }
     $expression = $str . $expression;
   
-    echo "<BR><BR>Enter expression:<BR><TEXTAREA NAME=\"text\" ROWS=4 " .
+    echo "<BR>Enter formula:<BR><TEXTAREA NAME=\"text\" ROWS=4 " .
          "COLS=80>\n" . $expression . "\n</TEXTAREA>\n";
 ?>
 
