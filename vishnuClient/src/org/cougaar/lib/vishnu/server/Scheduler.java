@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Scheduler.java,v 1.5 2001-02-09 00:22:49 gvidaver Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Scheduler.java,v 1.6 2001-02-12 03:06:39 gvidaver Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -248,7 +248,7 @@ public class Scheduler {
                                            new CurrentRequestHandler());
     if (debug && !ignoredProblems.isEmpty())
       System.out.println ("Scheduler - CurrentRequestHandler : " + 
-                          "ignoring requests for " + ignoredProblems);
+                          "ignoring request for " + ignoredProblems);
     return excep;
   }
 
