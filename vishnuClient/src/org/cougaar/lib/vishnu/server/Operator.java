@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Operator.java,v 1.1 2001-01-10 19:29:55 rwu Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Operator.java,v 1.2 2001-02-02 18:44:59 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -69,7 +69,8 @@ public class Operator implements ResultProducer {
   private static final int GLOBALGET = 45;
   private static final int APPEND = 46;
   private static final int STRING = 47;
-  private static final int NUM_OPS = 48;
+  private static final int GROUPFOR = 48;
+  private static final int NUM_OPS = 49;
 
   private static final float EARTH_RADIUS = 3437.75f; // nmi
   private static final float DEGREES_TO_RADIANS = (3.1415927f / 180.0f);
@@ -216,6 +217,9 @@ public class Operator implements ResultProducer {
       opStrings [TASKSFOR] = "tasksfor";
       numArgs [TASKSFOR] = 1;
       opsScheduleDependent [TASKSFOR] = true;
+      opStrings [GROUPFOR] = "groupfor";
+      numArgs [GROUPFOR] = 1;
+      opsScheduleDependent [GROUPFOR] = true;
       opStrings [PREVIOUSDELTA] = "previousdelta";
       numArgs [PREVIOUSDELTA] = 1;
       opsScheduleDependent [PREVIOUSDELTA] = true;
@@ -858,36 +862,17 @@ public class Operator implements ResultProducer {
         return null;
       obj1 = args[1].getResult (data);
       obj2 = args[2].getResult (data);
-      a = resource.getAssignments();
-      int total = 0;
       int start = ((obj1 == null) ? Integer.MIN_VALUE :
                    ((Reusable.RInteger) obj1).intValue());
       int end = ((obj2 == null) ? Integer.MAX_VALUE :
                  ((Reusable.RInteger) obj2).intValue());
-      for (int i = 0; i < a.length; i++) {
-        int start2 = a[i].getTaskStartTime();
-        int end2 = a[i].getTaskEndTime();
-        int t1 = (start < start2) ? start2 : start;
-        int t2 = (end > end2) ? end2 : end;
-        if (t1 < t2)
-          total += t2 - t1;
-      }
-      return reuse.getFloat (total);
+      return reuse.getFloat (resource.busyTime (start, end));
 
     case PREPTIME:
       resource = (Resource) args[0].getResult (data);
       if (resource == null)
         return null;
-      a = resource.getAssignments();
-      int total2 = 0;
-      for (int i = 0; i < a.length; i++) {
-        int setup2 = a[i].getStartTime();
-        int start2 = a[i].getTaskStartTime();
-        int end2 = a[i].getTaskEndTime();
-        int wrapup2 = a[i].getEndTime();
-        total2 += (start2 - setup2) + (wrapup2 - end2);
-      }
-      return reuse.getFloat (total2);
+      return reuse.getFloat (resource.prepTime());
 
     case COMPLETE:
       resource = (Resource) args[0].getResult (data);
@@ -929,10 +914,19 @@ public class Operator implements ResultProducer {
       if (resource == null)
         return null;
       a = resource.getAssignments();
-      list = new ArrayList();
+      list = reuse.getList();
       for (int i = 0; i < a.length; i++)
         list.add (a[i].getTask());
       return list;
+
+    case GROUPFOR:
+      task = (Task) args[0].getResult (data);
+      if (task == null)
+        return null;
+      a2 = task.getAssignment();
+      if (a2 == null)
+        return null;
+      return a2.getResource().getGroup (reuse.getList(), task);
 
     case PREVIOUSDELTA:
       resource = (Resource) args[0].getResult (data);
@@ -1070,6 +1064,7 @@ public class Operator implements ResultProducer {
     case RESOURCEFOR:
       return "resource";
     case TASKSFOR:
+    case GROUPFOR:
       return "list:task";
     case FIND:
       return argTypes[0].substring(5);
@@ -1201,8 +1196,8 @@ public class Operator implements ResultProducer {
       return argTypes[0].equals ("resource");
     case TASKSTARTTIME:
     case TASKENDTIME:
-      return argTypes[0].equals ("task");
     case RESOURCEFOR:
+    case GROUPFOR:
       return argTypes[0].equals ("task");
     case TASKSFOR:
       return argTypes[0].equals ("resource");

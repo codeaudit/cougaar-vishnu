@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.8 2001-02-01 23:45:28 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.9 2001-02-02 18:44:59 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -273,7 +273,7 @@ public class SchedulingData {
           Task task = (Task) iter.next();
           Resource[] resources = specs.capableResources (task, this);
           if ((resources.length > 0) &&
-              (specs.bestTime (task, resources[0], true) !=
+              (specs.bestTime (task, resources[0], 0, true) !=
                Integer.MIN_VALUE)) {
             primaryTask = task;
             break;

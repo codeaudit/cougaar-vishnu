@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Resource.java,v 1.3 2001-01-30 16:18:35 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Resource.java,v 1.4 2001-02-02 18:44:59 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -24,18 +24,24 @@ public class Resource extends SchObject {
   private float[] capacitiesUsed = null;
   private float sumOfDeltas;
   private boolean hasMultitaskContrib = false;
+  private Assignment lastAssignment;
+  private boolean lastNewGroup;
 
   public Resource (TimeOps timeOps) {
     super (timeOps);
   }
 
-  public void addAssignment (Assignment a, boolean putInSchedule) {
+  public void addAssignment (Assignment a, boolean putInSchedule,
+                             boolean willBeNewGroup) {
+    lastAssignment = a;
+    lastNewGroup = willBeNewGroup;
     assignments.put (a.getTask().getKey(), a);
     if (putInSchedule)
       schedule.add (a);
   }
 
   public void addMultitaskContribs (Assignment a) {
+    lastAssignment = null;
     hasMultitaskContrib = true;
     float[] contribs = a.getTask().getCapacityContribs();
     ArrayList overlap = getOverlappingBlocks (a);
@@ -86,6 +92,8 @@ public class Resource extends SchObject {
   }
 
   public void addGroupedContrib (Assignment a, MultitaskAssignment ma) {
+    lastAssignment = null;
+    lastNewGroup = false;
     if (ma != null)
       ma.addTask (a.getTask());
     else
@@ -168,6 +176,61 @@ public class Resource extends SchObject {
   public void addDelta (float delta)  { sumOfDeltas += delta; }
 
   public float getSumOfDeltas()  { return sumOfDeltas; }
+
+  public float busyTime (int start, int end) {
+    Assignment[] a = getAssignments();
+    int total = 0;
+    for (int i = 0; i < a.length; i++) {
+      int start2 = a[i].getTaskStartTime();
+      int end2 = a[i].getTaskEndTime();
+      int t1 = (start < start2) ? start2 : start;
+      int t2 = (end > end2) ? end2 : end;
+      if (t1 < t2)
+        total += t2 - t1;
+    }
+    return total;
+  }
+
+  public float prepTime () {
+    Iterator iter = schedule.iterator();
+    int total = 0;
+    while (iter.hasNext()) {
+      Object o = iter.next();
+      if (o instanceof Assignment) {
+        Assignment a = (Assignment) o;
+        int setup = a.getStartTime();
+        int start = a.getTaskStartTime();
+        int end = a.getTaskEndTime();
+        int wrapup = a.getEndTime();
+        total += (start - setup) + (wrapup - end);
+      }
+    }
+    if (lastNewGroup) {
+      int setup = lastAssignment.getStartTime();
+      int start = lastAssignment.getTaskStartTime();
+      int end = lastAssignment.getTaskEndTime();
+      int wrapup = lastAssignment.getEndTime();
+      total += (start - setup) + (wrapup - end);
+    }
+    return total;
+  }
+
+  public ArrayList getGroup (ArrayList list, Task task) {
+    if ((lastAssignment != null) &&
+        (lastAssignment.getTask() == task)) {
+      list.add (task);
+      if (lastNewGroup)
+        return list;
+    }
+    Object o = schedule.tailSet(task.getAssignment()).first();
+    if (o instanceof MultitaskAssignment) {
+      MultitaskAssignment ma = (MultitaskAssignment) o;
+      Task[] tasks = ma.getTasks();
+      for (int i = 0; i < tasks.length; i++)
+        list.add (tasks[i]);
+    }
+    return list;
+  }
 
 
   // class for returning result of earliestAvailableBlock
