@@ -94,7 +94,7 @@ public abstract class VishnuPlugIn
   extends UTILBufferingPlugInAdapter 
   implements UTILAssetListener {
 
-  private static final SimpleDateFormat format =
+  private final SimpleDateFormat format =
     new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");
 
   /**
@@ -139,6 +139,10 @@ public abstract class VishnuPlugIn
     try {stopOnFailure = 
 		   getMyParams().getBooleanParam("stopOnFailure");}    
     catch(Exception e) {stopOnFailure = false;}
+
+    try {debugParseAnswer = 
+		   getMyParams().getBooleanParam("debugParseAnswer");}    
+    catch(Exception e) {debugParseAnswer = false;}
 
     // how many of the input tasks to use as templates when producing the 
 	// OBJECT FORMAT for tasks
@@ -557,38 +561,39 @@ public abstract class VishnuPlugIn
    * @see #parseEndElement
    */
   protected void runInternally () {
-	Scheduler internal = new Scheduler ();
-	internalBuffer.append ("</root>");
-	if (myExtraExtraOutput)
-	  System.out.println(getName () + ".runInternally - sending stuff " + internalBuffer.toString());
+	  Scheduler internal = new Scheduler ();
+	  internalBuffer.append ("</root>");
+	  if (myExtraExtraOutput)
+		System.out.println(getName () + ".runInternally - sending stuff " + internalBuffer.toString());
 
-	int unhandledTasks = myTaskUIDtoObject.size ();
+	  int unhandledTasks = myTaskUIDtoObject.size ();
 
-	String assignments = internal.runInternalToProcess (internalBuffer.toString());
-	if (myExtraOutput)
-	  System.out.println(getName () + ".runInternally - scheduled assignments were : " + assignments);
+	  String assignments = internal.runInternalToProcess (internalBuffer.toString());
+	  if (myExtraOutput)
+		System.out.println(getName () + ".runInternally - scheduled assignments were : " + assignments);
 	
-	SAXParser parser = new SAXParser();
-	//	parser.setDocumentHandler (new AssignmentHandler ());
-	parser.setContentHandler (new AssignmentHandler ());
-	try {
-	  parser.parse (new InputSource (new StringReader (assignments)));
-	} catch (SAXException sax) {
-	  System.out.println (getName () + ".runInternally - Got sax exception:\n" + sax);
-	} catch (IOException ioe) {
-	  System.out.println (getName () + ".runInternally - Could not open file : \n" + ioe);
-	} catch (NullPointerException npe) {
-	  System.out.println (getName () + ".runInternally - ERROR - no assignments were made, badly confused : \n" + npe);
-	}
-	clearInternalBuffer ();
+	  SAXParser parser = new SAXParser();
+	  //	parser.setDocumentHandler (new AssignmentHandler ());
+	  parser.setContentHandler (new AssignmentHandler ());
+	  try {
+		parser.parse (new InputSource (new StringReader (assignments)));
+	  } catch (SAXException sax) {
+		System.out.println (getName () + ".runInternally - Got sax exception:\n" + sax);
+	  } catch (IOException ioe) {
+		System.out.println (getName () + ".runInternally - Could not open file : \n" + ioe);
+	  } catch (NullPointerException npe) {
+		System.out.println (getName () + ".runInternally - ERROR - no assignments were made, badly confused : \n" + npe);
+	  }
+	  clearInternalBuffer ();
 
-	if (myExtraOutput)
-	  System.out.println (getName () + ".runInternally - created successful plan elements for " +
-						  (unhandledTasks-myTaskUIDtoObject.size ()) + " tasks.");
+	  if (myExtraOutput)
+		System.out.println (getName () + ".runInternally - created successful plan elements for " +
+							(unhandledTasks-myTaskUIDtoObject.size ()) + " tasks.");
 
-	handleImpossibleTasks (myTaskUIDtoObject.values ());
-	myTaskUIDtoObject.clear ();
+	  handleImpossibleTasks (myTaskUIDtoObject.values ());
+	  myTaskUIDtoObject.clear ();
   }
+  
   
   protected void setUIDToObjectMap (Collection objects, Map UIDtoObject) {
 	for (Iterator iter = objects.iterator (); iter.hasNext ();) {
@@ -844,8 +849,8 @@ public abstract class VishnuPlugIn
    */
   protected void parseStartElement (String name, Attributes atts) {
 	try {
-	  if (myExtraExtraOutput || debugParseAnswer)
-		System.out.println (getName() + ".parseStartElement got " + name);
+	  if (myExtraExtraOutput)
+	  	System.out.println (getName() + ".parseStartElement got " + name);
 	  
 	  if (name.equals ("ASSIGNMENT")) {
 		if (myExtraOutput) {
@@ -931,9 +936,9 @@ public abstract class VishnuPlugIn
 		myTaskUIDtoObject.remove (taskKey);
 		myFrozenTasks.add (handledTask);
 	  }
-	  else if (debugParseAnswer) {
-		System.out.println (getName () + ".parseStartElement - ignoring tag " + name);
-	  }
+	  //	  else if (myExtraExtraOutput) {
+	  //		System.out.println (getName () + ".parseStartElement - ignoring tag " + name);
+	  //	  }
 	} catch (NullPointerException npe) {
 	  System.out.println (getName () + ".parseStartElement - got bogus assignment");
 	  npe.printStackTrace ();
@@ -975,9 +980,10 @@ public abstract class VishnuPlugIn
 						  impossibleTasks.size () + 
 						  " tasks.");
 
-	for (Iterator iter = impossibleTasks.iterator (); iter.hasNext ();)
-	    publishAdd (UTILAllocate.makeFailedDisposition (this, ldmf, 
-							    (Task) iter.next ()));
+	for (Iterator iter = impossibleTasks.iterator (); iter.hasNext ();) {
+	  publishAdd (UTILAllocate.makeFailedDisposition (this, ldmf, 
+													  (Task) iter.next ()));
+	}
 
 	if (stopOnFailure && !impossibleTasks.isEmpty()) {
 	  System.out.println (getName() + ".handleImpossibleTasks - stopping on failure!");
@@ -1024,6 +1030,17 @@ public abstract class VishnuPlugIn
 			"\nto " + asset.getUID () +
 			" from " + start + 
 			" to " + end);
+
+	if (setupStart.after (start))
+	  System.err.println (getName () + ".makeSetupWrapupExpansion : ERROR, assigned setupStart - " + setupStart + " after start " + start + 
+						  " for task " + task);
+	if (start.after (end))
+	  System.err.println (getName () + ".makeSetupWrapupExpansion : ERROR, assigned start - " + start + " after end " + end + 
+						  " for task " + task);
+	if (end.after (wrapupEnd))
+	  System.err.println (getName () + ".makeSetupWrapupExpansion : ERROR, assigned end - " + end + " after wrapupEnd " + wrapupEnd + 
+						  " for task " + task);
+	  
     boolean wantConfidence = false;
     
 	// if true, the estimated alloc result has a medium confidence 
@@ -1230,7 +1247,7 @@ public abstract class VishnuPlugIn
   protected boolean useStoredFormat = false;
   protected boolean stopOnFailure = false;
 
-  private boolean debugParseAnswer = false;
+  protected boolean debugParseAnswer = false;
 
   protected VishnuComm comm;
   protected VishnuDomUtil domUtil;
