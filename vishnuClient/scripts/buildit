@@ -1,0 +1,13 @@
+#/usr/bin/csh
+cvs checkout vishnu
+cd vishnu/src
+set BASEDIR=`pwd`
+set OLDCLASSPATH=$CLASSPATH
+setenv CLASSPATH .":"$BASEDIR":"$CLASSPATH
+javac `find -name "*.java"`
+jar cvf vishnu.jar org
+setenv CLASSPATH $OLDCLASSPATH
+cd ../..
+mv vishnu/src/vishnu.jar vishnu
+tar cvfz vishnu.tar.gz vishnu
+rm -r vishnu

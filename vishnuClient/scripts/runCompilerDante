@@ -1,0 +1,2 @@
+java -Dcom.bbn.vishnu.sched.host=dante -Dcom.bbn.vishnu.sched.path="/~dmontana/vishnu/" -Dcom.bbn.vishnu.sched.user=tops -Dcom.bbn.vishnu.sched.password=tops -Dcom.bbn.vishnu.sched.debugXML=false org.cougaar.lib.vishnu.server.ExpressionCompiler
+

@@ -1,0 +1,207 @@
+
+
+Goal:
+~~~~~
+Install an apache web server (DSO), with php4, which talks to
+mysql & gd.  
+
+
+Versions:
+~~~~~~~~~
+mysql-3.22.32-pc-linux-gnu-i686.tar.gz (Binary) (USE Gnu tar !!!)
+apache_1.3.14
+php-4.0.3pl1 
+zlib-1.1.3
+libpng-1.0.8
+jpeg-6b
+gd-1.8.3
+
+
+Assumptions:
+~~~~~~~~~~~~
+Install to /usr/local/*  from /usr/local/src/*
+
+
+mysql binary:
+~~~~~~~~~~~~~
+% su  # Become root.
+% cd <location of mysql dir>
+% gzip -dc mysql-VERSION-OS.tar.gz | tar xvf -
+% ln -s mysql-VERSION-OS mysql
+% cd mysql
+% scripts/mysql_install_db
+% bin/safe_mysqld &  # FOR TESTING 
+
+# System startup...
+% cp support-files/mysql.server /etc/rc.d/init.d   # (Lose rc.d for Solaris)
+% chmod 755 /etc/rc.d/init.d/mysql.server 
+# -> Create links in rc3.d to start/stop the server.
+
+# Start server.
+# -> Kill safe_mysqld
+% /etc/rc.d/init.d/mysql.server start   # (Lose rc.d for Solaris)
+
+# Set the root password.
+% ./mysql -u root -pabc123 mysql
+mysql> USE mysql
+mysql> UPDATE user SET Password=password('abc123')  WHERE User='root';
+
+
+
+zlib:
+~~~~~
+% cd /usr/local/src/
+% gzip -dc zlib-1.1.3.tar.gz | tar xvf -
+% cd zlib-1.1.3
+% ./configure
+% make
+% make install
+
+
+
+libpng:
+~~~~~~~
+# Note: zlib MUST already be built.
+% cd /usr/local/src
+% gzip -dc libpng-1.0.8 | tar xvf -
+% cd libpng
+% cp scripts/makefile.linux Makefile     # Choose appropriate make file.
+% make
+% make install
+
+
+
+jpeg:
+~~~~~
+% cd /usr/local/src
+% gzip -dc jpeg-6b.tar.gz | tar xvf -
+% cd jpeg-6b
+% ./configure
+% make
+% make install
+
+
+
+gd (Depends upon libpng and jpeg):
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% cd /usr/local/src
+% gzip -dc gd-1.8.3.tar.gz | tar xvf -
+% cd gd-1.8.3
+# Read Makefile
+% make
+% make install
+
+
+
+Apache 1.3.14
+~~~~~~~~~~~~~
+% cd /usr/local/src
+% gzip -dc apache_1.3.14.tar.gz | tar xvf -
+% cd /usr/local/src/apache_1.3.14
+% ./configure \
+       --prefix=/usr/local/http-80 \
+       --with-layout=Apache \
+       --enable-rule=SHARED_CORE \
+       --enable-module=so \
+       --enable-module=info \
+       --enable-module=rewrite \
+       --enable-module=headers \
+       --enable-module=usertrack
+% make
+% make install
+
+
+PHP4
+~~~~
+% cd /usr/local/src
+% gzip -dc php-4.0.3pl1.tar.gz | tar xvf - 
+% cd /usr/local/src/php-4.0.3pl1
+% cat INSTALL   # !!!!
+% vi /etc/ld.so.conf
+vi>  Add:   /usr/local/lib
+vi>  Add:   /usr/local/mysql/lib
+% ldconfig
+% rm config.cache
+% ./configure \
+     --with-apxs=/usr/local/http-80/bin/apxs \
+     --with-mysql=/usr/local/mysql \
+     --with-zlib=/usr/local/ \
+     --with-gd=/usr/local/ \
+     --with-jpeg-dir=/usr/local/bin \
+     --with-libpng=/usr/local/ \
+     --with-config-file-path=/usr/local/lib \
+     --with-xml \
+     --enable-track-vars
+
+% make
+% make install
+% cp php.ini-dist /usr/local/lib/php.ini  # To path specified above.
+# Notes:  --with-zlib, --with-jepeg-dir --withlibpng are all questionable.
+# Also, Copy the php  config file to /usr/local/lib
+
+Configure Apache:
+~~~~~~~~~~~~~~~~~
+% cd /usr/local/http-80/config
+% vi httpd.conf
+   - Change/Uncomment: 
+        DirectoryIndex index.html index.htm index.shtml index.cgi index.php index.php3 index.phtml
+        AddType application/x-httpd-php .html .php .php3 .phtml
+        AddType application/x-httpd-php-source .phps
+   - Other non-php configs...
+      ie: hostname, cgi, includes, logs, ...
+   - Group -> www
+% /usr/local/http-80/bin/httpd -t   # Test the syntax of the the config files.
+
+# System startup...
+% cd /etc/rc.d/init.d   (/etc/init.d for Solaris)
+% ln -s /usr/local/http-80/bin/apachectl httpd-80
+% ../rc3.d
+% ln -s ../init.d/httpd-80 S80httpd-80
+% cd ../rc5.d
+% ln -s ../init.d/httpd-80 S80httpd-80
+% cd ../rc1.d
+% ln -s ../init.d/httpd-80 K15httpd-80
+% cd ../rc2.d
+% ln -s ../init.d/httpd-80 K15httpd-80
+% cd ../rc6.d
+% ln -s ../init.d/httpd-80 K15httpd-80
+# - Remove the existing apache S and K files if needed.
+# - Stop the old server if running.
+# - Start the new server.
+# - Check Errors in /usr/local/http-80/logs/errors
+
+
+Misc:
+~~~~~
+# Create a local 'www' group. 
+# Let the userver run as nobody.www. 
+# Change dir permissions.
+# Give acces to trusted users.
+#--
+% vi /etc/group
+      www:x:8080:jglockli,jadams,rryder,jadams,gvidaver,dmontana,hkieserm
+% cd /usr/local
+% chgrp -R www mysql
+% chgrp -R www http-80
+% cd /usr/local/http-80
+% chmod 775 htdocs
+% chmod u+s htdocs
+
+
+
+Sources:
+~~~~~~~~
+Apache 1.3.14   -  http://www.apache.org/dist/apache_1.3.14.tar.gz
+PHP v. 4.0.3pl1 -  http://www.php.net/downloads.php
+Zlib            -  ftp://ftp.uu.net/graphics/png/src/zlib-1.1.3.tar.gz
+Gd              -  http://www.boutell.com/gd/http/<VERSION>
+MySQL           -  http://www.mysql.com/downloads/index.html
+Libpng          -  http://www.libpng.org/pub/png/src/libpng-1.0.8.tar.gz
+JPEG-6b         -  http://cygutils.netpedia.net/V1.1/jpeg-6b/jpegsrc.v6b.tar.gz
+
+
+
+
+
+Dependancies:
+~~~~~~~~~~~~~

@@ -1,0 +1,43 @@
+drop database if exists vishnu_central;
+create database vishnu_central;
+use vishnu_central;
+create table problems (name varchar(255) not null,
+                       primary key (name));
+create table scheduler_request (problem varchar(255) not null,
+                                request_time datetime not null,
+                                requester varchar(255) not null,
+                                number int unsigned not null,
+                                percent_complete tinyint not null,
+                                error_message varchar(255));
+create table compiler_request (problem varchar(255) not null,
+                               expression text not null,
+                               request_time datetime not null,
+                               requester varchar(255) not null,
+                               which_spec varchar(255) not null,
+                               response_text text,
+                               error_text text,
+                               status enum ("outstanding", "processing",
+                                            "complete") not null);
+create table color_defs (name varchar(255) not null,
+                         red tinyint unsigned not null,
+                         green tinyint unsigned not null,
+                         blue tinyint unsigned not null,
+                         primary key (name));
+insert into color_defs values ("red", 255, 0, 0);
+insert into color_defs values ("green", 0, 255, 0);
+insert into color_defs values ("blue", 0, 0, 255);
+insert into color_defs values ("yellow", 255, 255, 0);
+insert into color_defs values ("cyan", 0, 255, 255);
+insert into color_defs values ("magenta", 255, 0, 255);
+insert into color_defs values ("pink", 255, 192, 203);
+insert into color_defs values ("silver", 192, 192, 192);
+insert into color_defs values ("violet", 238, 130, 238);
+insert into color_defs values ("turquoise", 64, 224, 208);
+insert into color_defs values ("gray", 128, 128, 128);
+insert into color_defs values ("lightgray", 210, 210, 210);
+insert into color_defs values ("lightblue", 173, 216, 254);
+insert into color_defs values ("orange", 255, 165, 0);
+insert into color_defs values ("white", 255, 255, 255);
+insert into color_defs values ("beige", 245, 245, 220);
+insert into color_defs values ("cornflowerblue", 100, 149, 237);
+insert into color_defs values ("chocolate", 226, 105, 30);

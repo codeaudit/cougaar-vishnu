@@ -1,0 +1,482 @@
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.1 2001-01-10 19:29:55 rwu Exp $
+
+package org.cougaar.lib.vishnu.server;
+
+import org.xml.sax.helpers.DefaultHandler;
+import org.xml.sax.Attributes;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Stack;
+import java.lang.Float;
+
+/**
+ * Holds scheduling data for the generic scheduler.
+ *
+ * Note that the WINDOW tag has the effect of setting the base time
+ * for all subsequent times.  That is, all times after that will be
+ * in relation to the starttime.  So, perhaps unexpectedly, no matter
+ * what WINDOW's starttime is set to, getStartTime will always return 0,
+ * it seems.
+ *
+ * Supports nested lists and objects.
+ *
+ * Copyright (C) 2000 BBN Technologies
+ */
+
+public class SchedulingData {
+
+  private HashMap tasks = new HashMap();
+  private HashMap frozenTasks = new HashMap();
+  private ArrayList unfrozenTasks = new ArrayList();
+  private HashMap resources = new HashMap();
+  private HashMap capacities = new HashMap();
+  private HashMap globals = new HashMap (11);
+  private HashMap globalTypes = new HashMap (11);
+  private int startTime;
+  private int endTime = Integer.MAX_VALUE;
+  private TimeOps timeOps;
+  public static boolean debug = 
+    ("true".equals (System.getProperty ("org.cougaar.lib.vishnu.server.debug")));
+
+  public SchedulingData (TimeOps timeOps) {
+    this.timeOps = timeOps;
+  }
+
+  public int getStartTime() {
+    return startTime;
+  }
+
+  public int getEndTime() {
+    return endTime;
+  }
+
+  public Task getTask (String key) {
+    return (Task) tasks.get (key);
+  }
+
+  public Task[] getTasks() {
+    Task[] arr = new Task [tasks.size()];
+    return (Task[]) tasks.values().toArray (arr);
+  }
+
+  public Task[] getFrozenTasks() {
+    Task[] arr = new Task [frozenTasks.size()];
+    return (Task[]) frozenTasks.keySet().toArray (arr);
+  }
+
+  public Assignment getFrozenAssignment (Task task) {
+    return (Assignment) frozenTasks.get (task);
+  }
+
+  public Task[] getUnfrozenTasks() {
+    Task[] arr = new Task [unfrozenTasks.size()];
+    return (Task[]) unfrozenTasks.toArray (arr);
+  }
+
+  public Resource getResource (String key) {
+    return (Resource) resources.get (key);
+  }
+
+  public Resource[] getResources() {
+    Resource[] arr = new Resource [resources.size()];
+    return (Resource[]) resources.values().toArray (arr);
+  }
+
+  public HashMap getCapacities() {
+    return capacities;
+  }
+
+  public HashMap getGlobals() {
+    return (HashMap) globals.clone();
+  }
+
+  public String typeForGlobal (String global) {
+    return (String) globalTypes.get (global);
+  }
+
+  public void clearAssignments() {
+    Task[] tasks = getTasks();
+    for (int i = 0; i < tasks.length; i++) {
+      Assignment a = tasks[i].getAssignment();
+      if (a != null) {
+        tasks[i].setAssignment (null);
+        a.getResource().removeAssignment (a.getTask().getKey(), true);
+      }
+    }
+    Resource[] resources = getResources();
+    for (int i = 0; i < resources.length; i++) {
+      resources[i].clearSchedule();
+      resources[i].resetCapacitiesUsed();
+      resources[i].resetMultitaskContrib();
+    }
+  }
+
+  public void initialize (SchedulingSpecs specs) {
+    createActivities (specs);
+    initializeCapacities (specs);
+    computePrerequisites (specs);
+    computeGroupings (specs);
+  }
+
+  public void createActivities (SchedulingSpecs specs) {
+    Resource[] r = getResources();
+    for (int i = 0; i < r.length; i++)
+      r[i].setActivities (specs.resourceUnavailableTimes (r[i]));
+  }
+
+  public void initializeCapacities (SchedulingSpecs specs) {
+    Resource[] r = getResources();
+    for (int i = 0; i < r.length; i++) {
+      float[] caps = specs.capacityThresholds (r[i]);
+      r[i].setCapacities (caps);
+      if (caps.length > 0) {
+        float cap = caps[0];
+        capacities.put(r[i].getKey(), new Float(cap));
+      }
+    }
+
+    Task[] t = getTasks();
+    for (int i = 0; i < t.length; i++)
+      t[i].setCapacityContribs (specs.capacityContributions (t[i]));
+  }
+
+  public void computePrerequisites (SchedulingSpecs specs) {
+    Task[] t = getTasks();
+    for (int i = 0; i < t.length; i++)
+      t[i].setPrerequisites (specs.prerequisites (t[i], this));
+  }
+
+  public void computeGroupings (SchedulingSpecs specs) {
+    Task[] t = getTasks();
+    for (int i = 0; i < t.length; i++) {
+      Task task1 = t[i];
+      for (int j = i + 1; j < t.length; j++) {
+        Task task2 = t[j];
+        if (specs.areGroupable (task1, task2) &&
+            specs.areGroupable (task2, task1)) {
+          task1.addGroupableTask (task2);
+          task2.addGroupableTask (task1);
+        }
+      }
+    }
+  }
+
+  public DefaultHandler getXMLHandler() {
+    return new DataHandler();
+  }
+
+  /**
+   * Now supports nested lists, nested objects.
+   */
+  private class DataHandler extends DefaultHandler {
+    private String keyValue;
+
+    private FastStack names = new StackImpl();
+    private FastStack types = new StackImpl();
+    private FastStack stack = new StackImpl();
+    
+    public void startElement (String uri, String local,
+                              String name, Attributes atts) {
+      if (name.equals ("FIELD")) {
+        if (atts.getValue ("list") != null) {
+          SchObject object = (SchObject) stack.peek();
+		  object.addListField (atts.getValue ("name"));
+        } else if (atts.getValue ("obj") != null) {
+        } else {
+          boolean iskey = atts.getValue ("key") != null;
+          SchObject o = (SchObject) stack.peek();
+	  
+          o.addField (atts.getValue ("name"), atts.getValue ("type"),
+                      atts.getValue ("value"), iskey, false);
+          if (iskey)
+            keyValue = atts.getValue ("value");
+        }
+		names.push (atts.getValue ("name"));
+		types.push (atts.getValue ("type"));
+      }
+      else if (name.equals ("OBJECT")) {
+        stack.push (new SchObject (timeOps));
+      }
+      else if (name.equals ("TASK"))
+        stack.push (new Task (timeOps));
+      else if (name.equals ("RESOURCE"))
+        stack.push (new Resource (timeOps));
+      else if (name.equals ("GLOBAL")) {
+        stack.push (new SchObject (timeOps));
+        globals.put (atts.getValue ("name"), stack.peek ());
+        globalTypes.put (atts.getValue ("name"), atts.getValue ("type"));
+      }
+      else if (name.equals ("WINDOW")) {
+        startTime = timeOps.stringToTime (atts.getValue ("start"));
+        if ((atts.getValue ("end") != null) &&
+            (! atts.getValue ("end").equals ("")))
+          endTime = timeOps.stringToTime (atts.getValue ("end"));
+      }
+      else if (name.equals ("VALUE")) {
+		SchObject object = (SchObject) stack.peek();
+		String nameForList = (String) names.peek ();
+		String typeForList = (String) types.peek ();
+        object.addField (nameForList, typeForList,
+                         atts.getValue ("value"), false, true);
+      }
+      else if (name.equals ("VALUE2")) {
+	stack.push (new SchObject (timeOps));
+      }
+      else if (name.equals ("OBJECT")) {
+	stack.push (new SchObject (timeOps));
+      }
+      else if (name.equals ("FROZEN")) {
+        Task task = (Task) tasks.get (atts.getValue ("task"));
+        if (task == null) {
+          System.out.println ("Unknown task to freeze: " +
+                              atts.getValue ("task"));
+          return;
+        }
+        unfrozenTasks.remove (task);
+        frozenTasks.put (task, new Assignment
+		  (getTask (atts.getValue ("task")),
+		   getResource (atts.getValue ("resource")),
+		   timeOps.stringToTime (atts.getValue ("start")),
+		   timeOps.stringToTime (atts.getValue ("start")),
+		   timeOps.stringToTime (atts.getValue ("end")),
+		   timeOps.stringToTime (atts.getValue ("end")),
+		   true, timeOps));
+      }
+      else if (! name.equals ("DATA"))
+        System.out.println ("SchedulingData.startElement - " + 
+							"Unknown tag in scheduling data: " + name);
+    }
+
+    public void endElement (String uri, String local, String name) {
+      if (name.equals ("FIELD")) {
+		names.pop ();
+		types.pop ();
+      }
+      else if (name.equals ("OBJECT")) {
+		String nameForInner = (String) names.peek ();
+		String typeForInner = (String) types.peek ();
+		Object innerObject  = stack.pop ();
+		SchObject object    = (SchObject) stack.peek ();
+        object.addField (nameForInner, typeForInner, innerObject,
+						 false, false);
+      }
+      else if (name.equals ("TASK")) {
+        tasks.put (keyValue, stack.pop ());
+        unfrozenTasks.add (tasks.get (keyValue));
+      }
+      else if (name.equals ("RESOURCE")) {
+        resources.put (keyValue, stack.pop ());
+      }
+      else if (name.equals ("VALUE2")) {
+		String nameForList = (String) names.peek ();
+		String typeForList = (String) types.peek ();
+		Object listObject  = stack.pop ();
+		SchObject object   = (SchObject) stack.peek ();
+        object.addField (nameForList, typeForList, listObject, 
+						 false, true);
+      }
+    }
+  }
+
+
+
+  public DefaultHandler getInternalXMLHandler() {
+    return new InternalDataHandler();
+  }
+
+  /**
+   * Now supports nested lists, nested objects.
+   */
+  private class InternalDataHandler extends DefaultHandler {
+
+    private String globalName = null;
+    private String prefix = "";
+    private FastStack prefixes = new StackImpl();
+    private SchObject predefined = null;
+    private ArrayList predefinedTypes = new ArrayList();
+    private SchObject object = null;
+    private FastStack objects = new StackImpl();
+    private String objectType = null;
+    private FastStack objectTypes = new StackImpl();
+    private HashMap formats = new HashMap();
+    private HashMap currentFormat = new HashMap();
+    private String taskObject = null;
+    private String resourceObject = null;
+    private String taskKey = null;
+    private String resourceKey = null;
+    private String fieldname;
+    private ListFormat listFormat = null;
+    private FastStack listFormats = new StackImpl();
+
+    private class FieldFormat {
+      public String datatype;
+      public boolean is_key;
+      public boolean is_subobject;
+      public boolean is_list;
+      public FieldFormat (String datatype, boolean is_key,
+                          boolean is_subobject, boolean is_list) {
+        this.datatype = datatype;
+        this.is_key = is_key;
+        this.is_subobject = is_subobject;
+        this.is_list = is_list;
+      }
+    }
+
+    private class ListFormat {
+      public String name;
+      public String type;
+      public boolean hasObjects;
+      public SchObject object;
+    }
+
+    public InternalDataHandler() {
+      super();
+      FieldFormat numberFF = new FieldFormat ("number", false, false, false);
+      FieldFormat stringFF = new FieldFormat ("string", false, false, false);
+      FieldFormat dateFF = new FieldFormat ("datetime", false, false, false);
+      FieldFormat listFF = new FieldFormat ("number", false, false, true);
+      HashMap latlongFormat = new HashMap();
+      latlongFormat.put ("latitude", numberFF);
+      latlongFormat.put ("longitude", numberFF);
+      formats.put ("latlong", latlongFormat);
+      predefinedTypes.add ("latlong");
+      HashMap xycoordFormat = new HashMap();
+      xycoordFormat.put ("x", numberFF);
+      xycoordFormat.put ("y", numberFF);
+      formats.put ("xy_coord", xycoordFormat);
+      predefinedTypes.add ("xy_coord");
+      HashMap matrixFormat = new HashMap();
+      matrixFormat.put ("numrows", numberFF);
+      matrixFormat.put ("numcols", numberFF);
+      matrixFormat.put ("values", listFF);
+      formats.put ("matrix", matrixFormat);
+      predefinedTypes.add ("matrix");
+      HashMap intervalFormat = new HashMap();
+      intervalFormat.put ("start", dateFF);
+      intervalFormat.put ("end", dateFF);
+      intervalFormat.put ("label1", stringFF);
+      intervalFormat.put ("label2", stringFF);
+      formats.put ("interval", intervalFormat);
+      predefinedTypes.add ("interval");
+    }
+    
+    public void startElement (String uri, String local,
+                              String name, Attributes atts) {
+      if (name.equals ("FIELD")) {
+        fieldname = atts.getValue ("name");
+        FieldFormat ff = (FieldFormat)
+          ((HashMap) formats.get (objectType)).get (fieldname);
+        prefixes.push (prefix);
+        if (ff.is_list) {
+          listFormats.push (listFormat);
+          listFormat = new ListFormat();
+          listFormat.name = prefix + fieldname;
+          listFormat.type = ff.datatype;
+          listFormat.hasObjects = ff.is_subobject;
+          listFormat.object = object;
+          object.addListField (listFormat.name);
+          objects.push (object);
+          object = null;
+        }
+        else if (ff.is_subobject) {
+          prefix = prefix + fieldname + ".";
+        }
+        else {
+          object.addField (prefix + fieldname, ff.datatype,
+                           atts.getValue ("value"), ff.is_key, false);
+          if (ff.is_key && (object instanceof Task)) {
+            Object key = ((Task) object).getKey();
+            tasks.put (key, object);
+            unfrozenTasks.add (tasks.get (key));
+          }
+          if (ff.is_key && (object instanceof Resource))
+            resources.put (((Resource) object).getKey(), object);
+          if (predefined != null)
+            predefined.addField (fieldname, ff.datatype,
+                                 atts.getValue ("value"), false, false);
+        }
+      }
+      else if (name.equals ("OBJECT")) {
+        objectTypes.push (objectType);
+        objectType = atts.getValue ("type");
+        if ((object != null) && predefinedTypes.contains (objectType)) {
+          predefined = new SchObject (timeOps);
+          object.addField (((String) prefixes.peek()) + fieldname,
+                           objectType, predefined, false, false);
+        }
+        objects.push (object);
+        if (objectType.equals (taskObject))
+          object = new Task (timeOps);
+        else if (objectType.equals (resourceObject))
+          object = new Resource (timeOps);
+        else if (object == null) {
+          object = new SchObject (timeOps);
+          if (listFormat != null) {
+            listFormat.object.addField (listFormat.name, listFormat.type,
+                                        object, false, true);
+          }
+        }
+        if (globalName != null) {
+          globals.put (globalName, object);
+          globalTypes.put (globalName, objectType);
+          globalName = null;
+        }
+      }
+      else if (name.equals ("VALUE")) {
+        if (! listFormat.hasObjects) {
+          listFormat.object.addField (listFormat.name, listFormat.type,
+                                      atts.getValue ("value"), false, true);
+        }
+      }
+      else if (name.equals ("FIELDFORMAT")) {
+        FieldFormat ff = new FieldFormat
+          (atts.getValue ("datatype"),
+           atts.getValue ("is_key").equals ("true"),
+           atts.getValue ("is_subobject").equals ("true"),
+           atts.getValue ("is_list").equals ("true"));
+        if (ff.datatype.startsWith ("string"))
+          ff.datatype = "string";
+        currentFormat.put (atts.getValue ("name"), ff);
+      }
+      else if (name.equals ("OBJECTFORMAT")) {
+        currentFormat = new HashMap();
+        formats.put (atts.getValue ("name"), currentFormat);
+        if ((taskObject == null) &&
+            atts.getValue ("is_task").equals ("true"))
+          taskObject = atts.getValue ("name");
+        if ((resourceObject == null) &&
+            atts.getValue ("is_resource").equals ("true"))
+          resourceObject = atts.getValue ("name");
+      }
+      else if (name.equals ("GLOBAL")) {
+        globalName = atts.getValue ("name");
+      }
+      else if (name.equals ("WINDOW")) {
+        startTime = timeOps.stringToTime (atts.getValue ("starttime"));
+        if (atts.getValue ("endtime") != null)
+          endTime = timeOps.stringToTime (atts.getValue ("endtime"));
+      }
+    }
+
+    public void endElement (String uri, String local, String name) {
+      if (name.equals ("FIELD")) {
+        prefix = (String) prefixes.pop();
+      }
+      else if (name.equals ("OBJECT")) {
+        objectType = (String) objectTypes.pop();
+        object = (SchObject) objects.pop();
+        predefined = null;
+      }
+      else if (name.equals ("VALUE")) {
+      }
+      else if (name.equals ("LIST")) {
+        listFormat = (ListFormat) listFormats.pop();
+        object = (SchObject) objects.pop();
+      }
+      else if (name.equals ("GLOBAL")) {
+        globalName = null;
+      }
+    }
+  }
+
+}

@@ -1,0 +1,147 @@
+use vishnu_central;
+drop table constraint_descrip;
+create table constraint_descrip (name varchar(30) not null, 
+				 readable_name varchar(30) not null, 
+				 return_type varchar(30) not null, 
+				 defined_vars varchar(30) not null, 
+				 default_value varchar(30) not null, 
+				 description varchar(200));
+
+insert into constraint_descrip values (	"opt_criterion",
+					"Optimization Criterion", 
+				       	"number", 
+					"tasks", 
+					"", 
+	 				"Numerical value indicating how good the current schedule is");
+insert into constraint_descrip values (	"opt_direction",
+					"Optimization Direction", 
+				       	"multiple choice", 
+					"N/A", 
+					"minimize", 
+	 				"Must be either minimize or maximize");
+insert into constraint_descrip values (	"delta_criterion",
+					"Delta Criterion", 
+				       	"number", 
+					"task, resource", 
+					"", 
+	 				"Incremental contribution to optimization criterion introduced by having <i>resource</i> perform <i>task</i>");
+insert into constraint_descrip values (	"capability",
+					"Capability", 
+				       	"boolean", 
+					"task, resource", 
+					"true", 
+	 				"Whether resource has the required skills to perform <i>task</i>");
+insert into constraint_descrip values (	"task_duration",
+					"Task Duration", 
+				       	"number", 
+					"task, resource", 
+					"0", 
+	 				"How many seconds it takes resource to perform <i>task</i>");
+insert into constraint_descrip values (	"setup_duration",
+					"Setup Duration", 
+				       	"number", 
+					"task, resource, previous", 
+					"0", 
+	 				"How many seconds it takes <i>resource</i> to prepare to perform <i>task</i> if it last performed <i>previous</i>");
+
+insert into constraint_descrip values (	"wrapup_duration",
+					"Wrapup Duration", 
+				       	"number", 
+					"task, resource, next", 
+					"0", 
+	 				"How many seconds it takes <i>resource</i> to clean up after doing <i>task</i> if it will be performing <i>next</i>");
+
+insert into constraint_descrip values (	"prerequisites",
+					"Prerequisites", 
+				       	"list of tasks", 
+					"task", 
+					"empty list", 
+	 				"All the tasks that must be scheduled before scheduling <i>task</i>");
+
+insert into constraint_descrip values (	"task_unavail",
+					"Task Unavailability", 
+				       	"list of intervals", 
+					"task, resource, prerequisites", 
+					"empty list", 
+	 				"All intervals of time when <i>task</i> cannot be scheduled (label1 and label2 fields ignored)");
+
+insert into constraint_descrip values (	"resource_unavail",
+					"Resource Unavailability", 
+				       	"list of intervals", 
+					"resource", 
+					"empty list", 
+	 				"All intervals of time when <i>resource</i> is busy (label1 and label2 can be used for text and color)");
+
+insert into constraint_descrip values (	"capacity_contrib",
+					"Capacity Contribution", 
+				       	"number or list of numbers", 
+					"task", 
+					"", 
+	 				"How much <i>task</i> contributes towards filling each type of capacity");
+
+insert into constraint_descrip values (	"capacity_thresh",
+					"Capacity Threshold", 
+				       	"number or list of numbers", 
+					"resource", 
+					"", 
+	 				"How much capacity of each type that <i>resource</i> has");
+
+insert into constraint_descrip values (	"multitasking", 
+					"Multitasking", 
+				       	"multiple choice", 
+					"N/A", 
+					"none", 
+	 				"Ability of resources to perform more than one task at a time (must be one of <b>none</b>, <b>ungrouped</b> or <b>grouped</b>)");
+insert into constraint_descrip values (	"groupable",
+					"Groupable", 
+				       	"boolean", 
+					"task1, task2", 
+					"false", 
+	 				"Whether <i>task1</i> and <i>task2</i> can be done as part of the same group");
+
+insert into constraint_descrip values (	"task_text",
+					"Task Text", 
+				       	"string", 
+					"task", 
+					"", 
+	 				"Text to put in box for <i>task</i> on the schedule graphic");
+
+insert into constraint_descrip values (	"activity_text",
+					"Activity Text", 
+				       	"string", 
+					"interval", 
+					"", 
+	 				"Text to put in box for the activity associated with <i>interval</i> on the schedule graphic");
+
+insert into constraint_descrip values (	"grouped_text",
+					"Grouped Tasks Text", 
+				       	"string", 
+					"task", 
+					"", 
+	 				"Text to put in box for the activity associated with <i>task</i> on the schedule graphic");
+
+insert into constraint_descrip values (	"task_color",
+					"Task Color", 
+				       	"boolean", 
+					"task", 
+					"false", 
+	 				"Whether <i>task</i> should be displayed in the given color on the schedule graphic. One for each possible color.");
+
+insert into constraint_descrip values (	"activity_color",
+					"Activity Color", 
+				       	"boolean", 
+					"interval", 
+					"false", 
+	 				"Whether activity of <i>interval<i> should be displayed in the given color on the schedule graphic. One for each possible color.");
+insert into constraint_descrip values (	"setup_wrapup_display",
+					"Setup/Wrapup Display", 
+				       	"multiple choice", 
+					"N/A", 
+					"striped", 
+	 				"Must be <b>striped</b> (indicating diagonal striping) or <b>line</b> (indicating single dotted line)");
+insert into constraint_descrip values (	"best_time",
+					"Best Time", 
+				       	"number", 
+					"task", 
+					"", 
+	 				"Defines the best time for the <i>task</i> to arrive");
