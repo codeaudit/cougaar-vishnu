@@ -254,7 +254,7 @@ public class VishnuExpanderPlugin extends VishnuPlugin implements UTILExpanderPl
    * @param setupStart start of a setup task, equal to start if there is no setup task
    * @param wrapupEnd  end   of a wrapup task, equal to end if there is no wrapup task
    **/
-  public void handleAssignment (Task task, Asset asset, Date start, Date end, Date setupStart, Date wrapupEnd) {
+  public void handleAssignment (Task task, Asset asset, Date start, Date end, Date setupStart, Date wrapupEnd, String contribs, String taskText) {
     makeSetupWrapupExpansion (task, asset, start, end, setupStart, wrapupEnd);
   }
 

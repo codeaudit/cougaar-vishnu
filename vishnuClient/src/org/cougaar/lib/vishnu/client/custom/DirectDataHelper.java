@@ -22,11 +22,12 @@ package org.cougaar.lib.vishnu.client.custom;
 
 import org.cougaar.planning.ldm.asset.Asset;
 
-import com.bbn.vishnu.objects.Resource;
-import com.bbn.vishnu.objects.SchObject;
-import com.bbn.vishnu.objects.SchedulingData;
+import com.bbn.vishnu.scheduling.Resource;
+import com.bbn.vishnu.scheduling.SchObject;
+import com.bbn.vishnu.scheduling.SchedulingData;
 
 import org.cougaar.glm.ldm.plan.GeolocLocation;
+import org.cougaar.glm.ldm.plan.Position;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -139,7 +140,7 @@ public class DirectDataHelper implements DataHelper {
     RoleSchedule unavail = asset.getRoleSchedule ();
     SchObject resource = (SchObject)object;
 
-    resource.addListField (name);
+    startList(resource, name);
 
     createScheduleFields (unavail.getEncapsulatedRoleSchedule(0, endOfWorld.getTime()), 
 			  resource, name);
@@ -147,7 +148,7 @@ public class DirectDataHelper implements DataHelper {
 
   public void createAvailableScheduleListField (Object object, String name, Asset asset) {
     SchObject resource = (SchObject)object;
-    resource.addListField (name);
+    startList(resource, name);
 
     Schedule availSchedule = asset.getRoleSchedule().getAvailableSchedule ();
 
@@ -174,10 +175,20 @@ public class DirectDataHelper implements DataHelper {
       if (span instanceof PlanElement)
 	interval.addField ("label1", "string", ((PlanElement)span).getTask().getVerb().toString(), false, false);
 
-      resource.addField (name, "interval", interval, false, true);
+      //     resource.addField (name, "interval", interval, false, true);
+      addListValue (resource, name, "interval", interval);
     }
   }
   
+  public Object startList (Object object, String name) {
+    ((SchObject)object).addListField (name);
+    return object;
+  }
+
+  public void addListValue (Object parent, String fieldName, String type, Object toAppend) {
+    ((SchObject)parent).addField (fieldName, type, toAppend, false, true);
+  }
+
   protected Map geolocCodeCache = new HashMap ();
   protected Map latLonCache = new HashMap ();
 
@@ -229,6 +240,20 @@ public class DirectDataHelper implements DataHelper {
 
     // e.g. base name = from.latlong.longitude
     objectParent.addFloat (geolocData.lonName, lonDegrees);
+  }
+
+  public void createLatLon (Object parent, String parentFieldName, Position loc) {
+    float latDegrees = (float) loc.getLatitude  ().getDegrees();
+    float lonDegrees = (float) loc.getLongitude ().getDegrees();
+
+    SchObject latLonObject = new SchObject ("latlong", schedData);
+    // fill in the fields on the predefined type
+    latLonObject.addFloat ("latitude",  latDegrees);
+    latLonObject.addFloat ("longitude", lonDegrees);
+
+    SchObject objectParent = (SchObject) parent;
+    // fill in the fields on the root task/resource
+    objectParent.addField (parentFieldName, "latlong", latLonObject, false, false);
   }
 
   private class GeolocData {

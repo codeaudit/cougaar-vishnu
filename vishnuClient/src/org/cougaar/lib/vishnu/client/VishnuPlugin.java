@@ -55,7 +55,7 @@ import org.cougaar.lib.callback.UTILAssetListener;
 import org.cougaar.lib.filter.UTILBufferingPluginAdapter;
 import org.cougaar.lib.util.*;
 import com.bbn.vishnu.scheduling.Scheduler;
-import com.bbn.vishnu.objects.SchedulingData;
+import com.bbn.vishnu.scheduling.SchedulingData;
 
 import org.cougaar.util.StringKey;
 import org.cougaar.util.UnaryPredicate;
@@ -439,6 +439,17 @@ public abstract class VishnuPlugin
     }
   }
 
+  protected void unfreezeTasks (Collection tasks) {
+    if (incrementalScheduling) {
+      mode.setupScheduler (); // needed for rescinds after rehydration
+
+      if (useStoredFormat)
+      	initializeWithStoredFormat ();// needed for rescinds after rehydration
+      
+      mode.unfreezeTasks (tasks);
+    }
+  }
+
   /**
    * <pre>
    * Heart of the plugin.
@@ -600,13 +611,15 @@ public abstract class VishnuPlugin
       formatDoc = parser.getDocument ();
       Element formatDocRoot = formatDoc.getDocumentElement ();
       formatDocRoot.setAttribute ("name", comm.getProblem());
+      System.out.println ("name is " + comm.getProblem ());
 
       attachAssociatedFiles (formatDoc); // attach vsh.xml, ga.xml, odf.xml files
 
       if (showTiming)
 	domUtil.reportTime (" - Vishnu completed format XML processing in ", start);
     } catch (Exception e) {
-      debug (getName () + ".prepareStoredObjectFormat - ERROR with file " + e.getMessage());
+      e.printStackTrace ();
+      debug (getName () + ".prepareStoredObjectFormat - ERROR with file " + e.getMessage() + " exception was " + e);
     }
 
     return formatDoc;
@@ -870,6 +883,9 @@ public abstract class VishnuPlugin
     return myAssetUIDtoObject.size();
   }
 
+  /** implemented for ModeListener interface */
+  public String getTaskName() { return "Transport"; }
+
   /** 
    * Used when XML assignment information is returned to find matching resource asset <p>
    *
@@ -949,8 +965,10 @@ public abstract class VishnuPlugin
    * @param setupStart start of setup task
    * @param wrapupEnd end of wrapup task
    */
-  public void handleAssignment (Task task, Asset asset, 
-				Date start, Date end, Date setupStart, Date wrapupEnd) {}
+  public void handleAssignment (org.cougaar.planning.ldm.plan.Task task, Asset asset, 
+				Date start, Date end, Date setupStart, Date wrapupEnd, String contribs, String taskText) {
+    logger.warn ("somehow calling this function? - nothing will happen.");
+  }
 
   /** 
    * <pre>
