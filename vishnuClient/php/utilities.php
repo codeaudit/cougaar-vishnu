@@ -623,6 +623,35 @@
   }
 
 
+  function checkValid ($value, $type) {
+    if ($type == "boolean")
+      return ($value == "true") || ($value == "false");
+    if ($type == "number") {
+      if (strlen ($value) == 0)
+        return 0;
+      $count = 0;
+      for ($i = 0; $i < strlen ($value); $i++) {
+        $char = substr ($value, $i, 1);
+        if ((! $i) && ($char == "-"))
+          continue;
+        if ($char == '.') {
+          $count++;
+          if ($count > 1)
+            return 0;
+          continue;
+        }
+        if (($char < "0") || ($char > "9"))
+          return 0;
+      }
+    }
+    if ($type == "datetime") {
+      $val2 = makedate (maketime ($value));
+      return ($val2 == $value) || ($val2 == ($value . " 00:00:00"));
+    }
+    return 1;
+  }
+
+
   // query database for scheduler status
   function getschedulerstatus ($problem) {
     $result = mysql_db_query ("vishnu_central",

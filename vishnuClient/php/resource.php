@@ -10,7 +10,11 @@
   require ("navigation.php");
 
   function getTitle () {
-    getSubheader();
+    global $action;
+    if ($action == "View")
+      getSubheader();
+    else
+      getHeader();
   }
   function getHeader() {
     global $resourceobject, $resourcename, $action;

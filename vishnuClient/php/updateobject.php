@@ -42,7 +42,31 @@
       if (substr ($key, 0, $psize) == $prefix) {
         $field = substr ($key, $psize);
         $pos = strpos ($field, "qxy");
-        if (! $pos) {
+        $pos2 = strpos ($field, "yxq");
+        if ($pos2 && ((! $pos) || ($pos2 < $pos))) {
+          $field2 = substr ($field, 0, $pos2);
+          if (! $subobjects [$field2]) {
+            $subobjects [$field2] = 1;
+            $xml .= "<FIELD name=\"" . $field2 . "\">\n<LIST>\n";
+            $num = 0;
+            while (1) {
+              $listobjname = $prefix . $field2 . "yxq" . $num . "x";
+              $xml2 = "";
+              xmlForObject ($xml2, $values, $listobjname,
+                            $datatypes [$field2]);
+              if (! strpos ($xml2, "FIELD"))
+                break;
+              if (! $values ["delete" . $listobjname])
+                $xml .= "<VALUE>\n" . $xml2 . "</VALUE>\n";
+              $num++;
+            }
+            for ($i2 = 0; $i2 < $values["add" . $prefix . $field2]; $i2++)
+              $xml .= "<VALUE>\n<OBJECT type=\"" . $datatypes [$field2] .
+                      "\">\n</OBJECT>\n</VALUE>\n";
+            $xml .= "</LIST>\n</FIELD>\n";
+          }
+        }
+        else if (! $pos) {
           if ($islists[$field]) {
             $val = replaceSubstring ($val, "\\\",\\\"", "%*%");
             while ($val != $val2) {
@@ -52,6 +76,19 @@
             }
             $val = replaceSubstring ($val, ",", "*%*");
             $val = replaceSubstring ($val, "%*%", ",");
+            $arr = explode ("*%*", $val);
+            while (list ($key, $v) = each ($arr)) {
+              if (! checkValid ($v, $datatypes[$field])) {
+                $xml = "Error in field " . $field;
+                return;
+              }
+            }
+          }
+          else {
+            if (! checkValid ($val, $datatypes[$field])) {
+              $xml = "Error in field " . $field;
+              return;
+            }
           }
           $xml .= "<FIELD name=\"" . $field . "\" value=\"" .
                   $val . "\" />\n";
@@ -63,6 +100,8 @@
             $xml .= "<FIELD name=\"" . $field2 . "\">\n";
             xmlForObject ($xml, $values, $prefix . $field2 . "qxy",
                           $datatypes[$field2]);
+            if (substr ($xml, 0, 5) == "Error")
+              return;
             $xml .= "</FIELD>\n";
           }
         }
@@ -74,6 +113,15 @@
   function mainContent () { 
     global $objectname, $objecttype, $action, $key;
     global $problem, $HTTP_POST_VARS, $delete, $global;
+
+    if (! $delete) {
+      $cxml = "";
+      xmlForObject ($cxml, $HTTP_POST_VARS, "field", $objecttype);
+      if (substr ($cxml, 0, 5) == "Error") {
+        echo "<h1>" . $cxml . "</h1>";
+        return;
+      }
+    } 
 
     if ($action == "Edit") {
       $xml = "<DATA>\n<DELETEDOBJECTS>\n";

@@ -10,8 +10,6 @@
 </B></U></FONT>
 <?
 echo "<a href=\"editspec.php?problem=" . $problem . 
-	"&user=" . $user . 
-	"&password=" . $password . 
 	"&specname=" . urlencode($specname) . 
 	"\"/>" . 
      "Return to editing " . $simplename . "</a>";

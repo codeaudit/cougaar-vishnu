@@ -62,8 +62,11 @@
 
   function getHeader() {
     global $object, $action, $problem, $trtype, $user, $password;
-    global $isatomic, $field, $datatype, $globalptr, $list;
+    global $isatomic, $field, $datatype, $listglob;
     global $field2, $keyname;
+    $list = $listglob == "list";
+    $globalptr = $listglob == "glob";
+
     if ($action == "View")
       echo "Viewing structure of object $object";
     else if ($action == "Edit")
@@ -232,8 +235,9 @@
       $str .= "<OPTION> $value[0]\n";
     $str .= "</SELECT></TD><TD>&nbsp;&nbsp;&nbsp;</TD>" . 
             "<TD align=left nowrap>\n";
-    $str .= "<INPUT type=checkbox name=list> List<br>\n";
-    $str .= "<INPUT type=checkbox name=globalptr> Global Ptr<br>\n";
+    $str .= "<INPUT type=radio name=listglob value=list> List<br>\n";
+    $str .= "<INPUT type=radio name=listglob value=glob> Global Ptr<br>\n";
+    $str .= "<INPUT type=radio name=listglob value=n checked> Neither<br>\n";
     $str .= "</TD></TR></TABLE>\n";
     return $str;
   }
@@ -265,20 +269,28 @@
                 $object . "\" order by field_name;");
     $fields = array();
     $fields2 = array();
+    $flist = array();
+    $glist = array();
     while ($value = mysql_fetch_array ($result)) {
       if ($value["field_name"] != "internal_key") {
         $fields[$value["field_name"]] = $value["datatype"];
         if ($value["is_key"] != "true")
           $fields2[$value["field_name"]] = 1;
+        if ($value["is_list"] == "true")
+          $flist[$value["field_name"]] = 1;
+        if ($value["is_globalptr"] == "true")
+          $glist[$value["field_name"]] = 1;
       }
     }
     if (sizeof ($fields)) {
       echo "<TABLE border=1 CELLPADDING=3 bgcolor=\"#dddddd\">\n";
       echo "<TR><TH>Field Name</TH><TH>Field Type</TH></TR>\n";
       while (list ($field, $datatype) = each ($fields))
-        echo "<TR><TD width=100>&nbsp;" . $field .
+        echo "<TR><TD nowrap>&nbsp;" . $field .
              ($fields2[$field] ? "" : " (KEY)") .
-             "&nbsp;</TD><TD width=100>&nbsp;" .
+             "&nbsp;</TD><TD nowrap>&nbsp;" .
+             ($glist[$field] ? "global ptr to " : "") .
+             ($flist[$field] ? "list of " : "") .
              $datatype . "&nbsp;</TD></TR>\n";
       echo "</TABLE>\n";
     }

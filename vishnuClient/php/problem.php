@@ -222,7 +222,14 @@
 <a href="<? echo $url; ?>"/>Full Schedule</a>
 </font>
 </td>
+</tr>
 
+<tr>
+<td ALIGN=CENTER colspan=2>
+<font size=+2>
+<a href="parameters.php?problem=<? echo $problem; ?>"/>Parameters</a>
+</font>
+</td>
 </tr>
 
 <tr>
