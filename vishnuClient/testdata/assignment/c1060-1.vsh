@@ -1,5 +1,5 @@
 <?xml version='1.0'?>
-<PROBLEM name="gap_c515_1" >
+<PROBLEM name="gap_c1060_1" >
 <DATAFORMAT>
 <OBJECTFORMAT name="agent" is_task="false" is_resource="true" >
 <FIELDFORMAT name="id" datatype="string" is_subobject="false" is_list="false" is_key="true" />
@@ -80,9 +80,9 @@
 </OPERATOR>
 </CAPACITYTHRESH>
 </SPECS>
-<GAPARMS pop_size="1000" parent_scalar="0.99" max_evals="10000" max_time="120" max_duplicates="3000" max_top_dog_age="3000" initializer="org.cougaar.lib.vishnu.server.OrderedInitializer" decoder="org.cougaar.lib.vishnu.server.OrderedDecoder" >
+<GAPARMS pop_size="1000" parent_scalar="0.99" max_evals="10000" max_time="120" max_duplicates="3000" max_top_dog_age="3000" report_interval="30" initializer="org.cougaar.lib.vishnu.server.OrderedInitializer" decoder="org.cougaar.lib.vishnu.server.OrderedDecoder" >
 <GAOPERATORS>
-<GAOPERATOR name="org.cougaar.lib.vishnu.server.OrderedMutation" prob="0.50" parms="0.8" />
+<GAOPERATOR name="org.cougaar.lib.vishnu.server.OrderedMutation" prob="0.50" parms="1.0" />
 <GAOPERATOR name="org.cougaar.lib.vishnu.server.OrderedCrossover" prob="0.50" />
 </GAOPERATORS>
 </GAPARMS>
@@ -779,7 +779,7 @@
 </LIST>
 </FIELD>
 </OBJECT>
-<OBJECT typEc="job" >
+<OBJECT type="job" >
 <FIELD name="id" value="Job 21" />
 <FIELD name="index" value="21" />
 <FIELD name="costs" >
