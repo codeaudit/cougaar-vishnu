@@ -729,7 +729,7 @@ displayed on the schedule graphic.
   <td width=102 style='padding:0in 5.4pt 0in 5.4pt' align=center
         valign=top>task1, task2</td>
   <td width=66 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>false</td>
+        valign=top>true</td>
   <td width=241 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
         Whether task1 and task2 can be done as part of the same group
   </td>
