@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.25 2001-08-03 12:34:23 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.26 2001-08-03 13:51:07 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -170,6 +170,12 @@ public class SchedulingData {
 
   public void removeResource (String key) {
     resources.remove (key);
+    Task[] ft = getFrozenTasks();
+    for (int i = 0; i < ft.length; i++) {
+      Assignment a = (Assignment) frozenTasks.get (ft[i]);
+      if ((a != null) && (a.getResource().getKey().equals (key)))
+        frozenTasks.remove (ft[i]);
+    }
   }
 
   public Resource[] getResources() {
