@@ -21,8 +21,9 @@
 package org.cougaar.lib.vishnu.client;
 
 import org.cougaar.lib.param.ParamMap;
-
 import org.cougaar.planning.ldm.asset.Asset;
+import org.cougaar.util.StringKey;
+import org.cougaar.util.log.Logger;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,7 +33,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import org.cougaar.util.StringKey;
 import java.util.Stack;
 
 /** 
@@ -46,15 +46,11 @@ public class VishnuConfig {
   private static String OTHER_DATA_SUFFIX = ".odd.xml";
   private static String DFF_SUFFIX = ".dff.xml";
 
-  public VishnuConfig (ParamMap myParamTable, String pluginName, String clusterName) {
+  public VishnuConfig (ParamMap myParamTable, String pluginName, String clusterName, Logger logger) {
     this.myParamTable = myParamTable;
     this.clusterName = clusterName;
     this.name = pluginName;
-
-    try { myExtraOutput = getMyParams().getBooleanParam ("ExtraOutput");
-    } catch (Exception e) {}
-    try { myExtraExtraOutput = getMyParams().getBooleanParam ("ExtraExtraOutput");
-    } catch (Exception e) {}
+    this.logger = logger;
   }
 
   protected String     getClusterName () { return clusterName;  }
@@ -62,6 +58,7 @@ public class VishnuConfig {
   protected String     getName        () { return name;         }
   
   /**
+   * <pre>
    * Sets the set of template tasks.  Template tasks are examined
    * to create the ObjectFormat for the tasks used in the problem.
    *
@@ -77,6 +74,7 @@ public class VishnuConfig {
    * This may not be that big of a deal in practice, but this function 
    * may have to be overridden.
    *
+   * </pre>
    * By default looks at the parameter <code>firstTemplateTasks</code> 
    * to determine how many of the tasks should be sent as templates.
    */
@@ -105,6 +103,7 @@ public class VishnuConfig {
    * instead do :
    *  new HashSet( getAssetCallback().getSubscription ().getCollection());
    *
+   * </pre>
    * @param list of tasks to use to filter out relevant assets
    * @return Collection of assets to send to Vishnu
    */
@@ -113,6 +112,7 @@ public class VishnuConfig {
   }
   
   /**
+   * <pre>
    * Looks through all assets and finds prototypical instances
    * of distinct classes.
    *
@@ -122,6 +122,7 @@ public class VishnuConfig {
    *
    * Uses type identification PG to find distinct types.
    *
+   * </pre>
    * @return Collection of the asset instances
    */
   protected Collection getDistinctAssetTypes (List assetClassName, Collection assetCollection) {
@@ -148,8 +149,8 @@ public class VishnuConfig {
     currentClasses.push (currentClass);
 	
     while ((currentClass = currentClass.getSuperclass()) != java.lang.Object.class) {
-      if (myExtraExtraOutput)
-	System.out.println (getName() + ".getDistinctAssetTypes : super " + currentClass);
+      if (logger.isDebugEnabled())
+	logger.debug (getName() + ".getDistinctAssetTypes : super " + currentClass);
       currentClasses.push (currentClass);
     }
 	
@@ -163,16 +164,16 @@ public class VishnuConfig {
 	otherClasses.push (currentClass);
 		
 	while ((currentClass = currentClass.getSuperclass()) != java.lang.Object.class) {
-	  if (myExtraExtraOutput)
-	    System.out.println (getName() + ".getDistinctAssetTypes : super " + currentClass);
+	  if (logger.isDebugEnabled())
+	    logger.debug (getName() + ".getDistinctAssetTypes : super " + currentClass);
 	  otherClasses.push (currentClass);
 	}
 
 	currentClasses.retainAll (otherClasses);
 		
-	if (myExtraOutput) {
+	if (logger.isInfoEnabled()) {
 	  for (int i = 0; i < currentClasses.size(); i++)
-	    System.out.println (getName() + ".getDistinctAssetTypes : shared class " + currentClasses.get(i));
+	    logger.info (getName() + ".getDistinctAssetTypes : shared class " + currentClasses.get(i));
 	}
       }
 		
@@ -185,19 +186,19 @@ public class VishnuConfig {
 	
     assetClassName.add (classname);
 	
-    if (myExtraOutput) {
+    if (logger.isInfoEnabled()) {
       for (int i = 0; i < currentClasses.size(); i++)
-	System.out.println (getName() + ".getDistinctAssetTypes : result class " + currentClasses.get(i));
+	logger.info (getName() + ".getDistinctAssetTypes : result class " + currentClasses.get(i));
     }
 	
     if (distinctAssets.isEmpty())
-      System.out.println (getName () + ".getDistinctAssetTypes - ERROR? no templates assets?");
+      logger.error (getName () + ".getDistinctAssetTypes - ERROR? no templates assets?");
 
     return distinctAssets;
   }
 
   /**
-
+   *<pre>
    * get the file containing the other data object format
    *
    * If the parameter "otherDataFormatFile" is set, it will look
@@ -205,6 +206,7 @@ public class VishnuConfig {
    * value of the parameter.  
    * Otherwise, looks for a file called <ClusterName>.odf.xml.
    *
+   * </pre>
    * @see #getNeededFile
    * @return filename of other data object format file
    */
@@ -213,6 +215,7 @@ public class VishnuConfig {
   }
 
   /**
+   *<pre>
    * get the file containing the other data
    *
    * If the parameter "otherDataFile" is set, it will look
@@ -220,6 +223,7 @@ public class VishnuConfig {
    * value of the parameter.
    * Otherwise, looks for a file called <ClusterName>.odd.xml.
    *
+   * </pre>
    * @see #getNeededFile
    * @return filename of other data object(s)
    */
@@ -228,6 +232,7 @@ public class VishnuConfig {
   }
 
   /**
+   *<pre>
    * get the file containing the vishnu scheduling specs
    *
    * If the parameter "specsFile" is set, it will look
@@ -235,6 +240,7 @@ public class VishnuConfig {
    * value of the parameter.
    * Otherwise, looks for a file called <ClusterName>.vsh.xml.
    *
+   * </pre>
    * @see #getNeededFile
    * @return filename of specs file
    */
@@ -243,6 +249,7 @@ public class VishnuConfig {
   }
 
   /**
+   * <pre>
    * get the file containing the ga parameters for VISHNU
    *
    * If the parameter "gaFile" is set, it will look
@@ -252,6 +259,7 @@ public class VishnuConfig {
    *
    * return relative path of env file with which to start the
    * Vishnu Scheduler.
+   * </pre>
    * @see #getNeededFile
    * @return relative path to specs parameters
    */
@@ -264,20 +272,22 @@ public class VishnuConfig {
   }
 
   /**
+   * <pre>
    * Get file name for input file.  If the parameter exists, use it,
    * otherwise append the defaultSuffix to the cluster name and use that.
    *
    * If there are more than one vishnu plugins in a cluster, one should
    * set the parameter to the name of the file.
+   * </pre>
    */
   public String getNeededFile (String paramName, String defaultSuffix) {
     String envFile  = null;
 	
     try {
       envFile = getMyParams().getStringParam (paramName);
-      if (myExtraOutput)
-	System.out.println ("VishnuConfig.getNeededFile - envFile = " + envFile + 
-			    " - paramName - " + paramName);
+      if (logger.isInfoEnabled())
+	logger.info ("VishnuConfig.getNeededFile - envFile = " + envFile + 
+		     " - paramName - " + paramName);
     } 
     catch (Exception pe) { // no parameter, try default
       envFile = getClusterName () + defaultSuffix;
@@ -289,6 +299,5 @@ public class VishnuConfig {
   protected ParamMap myParamTable;
   protected String clusterName;
   protected String name;
-  boolean myExtraOutput = false;
-  boolean myExtraExtraOutput = false;
+  protected Logger logger;
 }

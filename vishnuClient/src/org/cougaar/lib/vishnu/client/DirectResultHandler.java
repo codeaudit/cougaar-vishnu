@@ -8,6 +8,7 @@ import org.cougaar.lib.vishnu.server.Scheduler;
 import org.cougaar.lib.vishnu.server.SchedulingData;
 import org.cougaar.lib.vishnu.server.TimeOps;
 import org.cougaar.util.StringKey;
+import org.cougaar.util.log.Logger;
 
 import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.planning.ldm.asset.Asset;
@@ -35,9 +36,9 @@ public class DirectResultHandler extends PluginHelper implements ResultHandler {
   /** records reference to ResultListener parent */
   public DirectResultHandler (ModeListener parent, VishnuComm comm, XMLProcessor xmlProcessor, 
 			      VishnuDomUtil domUtil, VishnuConfig config, 
-			      ParamMap myParamTable) {
+			      ParamMap myParamTable, Logger logger) {
     super (parent, comm, xmlProcessor, domUtil, config, 
-	   myParamTable);
+	   myParamTable, logger);
     resultListener = (ResultListener) parent;
     localSetup ();
   }
@@ -96,7 +97,7 @@ public class DirectResultHandler extends PluginHelper implements ResultHandler {
 			   timeOps.timeToDate (assign.getEndTime()));  // wrapup
 	}
 	else
-	  System.out.println (getName () + ".directlyHandleAssignments - no assignment for task " + 
+	  logger.debug (getName () + ".directlyHandleAssignments - no assignment for task " + 
 			      tasks[i].getKey() + "?");
       }
     } else {
@@ -104,9 +105,9 @@ public class DirectResultHandler extends PluginHelper implements ResultHandler {
       for (int i = 0; i < resources.length; i++) {
         MultitaskAssignment[] multi = resources[i].getMultitaskAssignments();
 	if (multi.length > 0) {
-	  if (myExtraOutput) 
-	    System.out.println (getName () + " for resource " + resources[i].getKey() +
-				" got " + multi.length + " task groups assigned.");
+	  if (logger.isDebugEnabled()) 
+	    logger.debug (getName () + " for resource " + resources[i].getKey() +
+			 " got " + multi.length + " task groups assigned.");
 	  boolean assetWasUsedBefore = false;
 
 	  for (int j = 0; j < multi.length; j++) {
@@ -156,7 +157,7 @@ public class DirectResultHandler extends PluginHelper implements ResultHandler {
   protected void parseAssignment (String task, String resource, Date assignedStart, Date assignedEnd, 
 				  Date assignedSetup, Date assignedWrapup) {
     if (debugParseAnswer)
-      System.out.println ("Assignment: "+
+      logger.debug ("Assignment: "+
 			  "\ntask     = " + task +
 			  "\nresource = " + resource +
 			  "\nsetup    = " + assignedSetup +
@@ -184,8 +185,8 @@ public class DirectResultHandler extends PluginHelper implements ResultHandler {
     StringKey taskKey = new StringKey (task);
     Task handledTask  = resultListener.getTaskForKey (taskKey);
     if (handledTask == null) {
-      if (myExtraOutput)
-	System.err.println (getName () + ".getTaskFromAssignment - NOTE - no ALP task found for task key " + taskKey);
+      if (logger.isDebugEnabled())
+	logger.debug (getName () + ".getTaskFromAssignment - NOTE - no ALP task found for task key " + taskKey);
       return null;
     }
     else {
@@ -204,7 +205,7 @@ public class DirectResultHandler extends PluginHelper implements ResultHandler {
   protected Asset getAssignedAsset (String resource) {
     Asset assignedAsset = resultListener.getAssetForKey (new StringKey (resource));
     if (assignedAsset == null) 
-      System.out.println (getName() + ".parseMultiAssignment - ERROR - no asset found with " + resource);
+      logger.debug (getName() + ".parseMultiAssignment - ERROR - no asset found with " + resource);
     return assignedAsset;
   }
 

@@ -53,6 +53,7 @@ import org.cougaar.lib.vishnu.client.VishnuDomUtil;
 import org.cougaar.lib.param.ParamMap;
 import org.cougaar.util.ConfigFinder;
 import org.cougaar.planning.ldm.plan.Task;
+import org.cougaar.util.log.Logger;
 
 /**
  * Handles XML interaction...
@@ -64,7 +65,6 @@ import org.cougaar.planning.ldm.plan.Task;
  * -->
  */
 public class XMLProcessor {
-
   private final SimpleDateFormat format =
     new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");
   private static String SEPARATOR = "_";
@@ -74,7 +74,10 @@ public class XMLProcessor {
 		       String clusterName,
 		       VishnuDomUtil domUtil,
 		       VishnuComm comm,
-		       ConfigFinder configFinder) {
+		       ConfigFinder configFinder,
+		       Logger logger,
+		       Logger dataXMLizeLogger,
+		       Logger formatXMLizeLogger) {
     this.myParamTable = myParamTable;
 	
     localSetup ();
@@ -83,6 +86,9 @@ public class XMLProcessor {
     this.configFinder = configFinder;
     this.domUtil = domUtil;
     this.comm = comm;
+    this.logger = logger;
+    this.dataXMLizeLogger = dataXMLizeLogger;
+    this.formatXMLizeLogger = formatXMLizeLogger;
   }
   
   protected ParamMap   getMyParams    () { return myParamTable; }
@@ -93,12 +99,6 @@ public class XMLProcessor {
    * Here all the various runtime parameters get set.  See documentation for details.
    */
   public void localSetup() {     
-    try {myExtraOutput = getMyParams().getBooleanParam("ExtraOutput");}    
-    catch(Exception e) {myExtraOutput = false;}
-
-    try {myExtraExtraOutput = getMyParams().getBooleanParam("ExtraExtraOutput");}    
-    catch(Exception e) {myExtraExtraOutput = false;}
-
     try {showDataXML = getMyParams().getBooleanParam("showDataXML");}    
     catch(Exception e) {showDataXML = false;}
 
@@ -124,7 +124,7 @@ public class XMLProcessor {
   }
 
   public void createDataXMLizer (Map nameToDescrip, String assetClassName) {
-    setDataXMLizer (new DataXMLize (debugDataXMLizer));
+    setDataXMLizer (new DataXMLize (dataXMLizeLogger));
     ((DataXMLize)dataXMLizer).setNameToDescrip (nameToDescrip);
     ((DataXMLize)dataXMLizer).setResourceName  (assetClassName);
   }
@@ -135,14 +135,14 @@ public class XMLProcessor {
   
   public XMLizer getDataXMLizer () {
     if (dataXMLizer == null)
-      System.err.println ("XMLProcessor.getDataXMLizer - ERROR - dataxmlizer not set!");
+      logger.error ("XMLProcessor.getDataXMLizer - ERROR - dataxmlizer not set!");
 	
     return dataXMLizer;
   }
   
   /** uses formatXMLizer to generate XML for Vishnu */
   protected Document getFormatDoc (Collection taskAndAssets, String assetClassName) {
-    FormatXMLize formatXMLizer = new FormatXMLize (debugFormatXMLizer);
+    FormatXMLize formatXMLizer = new FormatXMLize (formatXMLizeLogger);
     return formatXMLizer.createDoc (taskAndAssets, null, assetClassName);
   }
 
@@ -162,20 +162,20 @@ public class XMLProcessor {
     Document problemFormatDoc = getFormatDoc (templates, assetClassName);
 
     if (showFormatXML)
-      System.out.println (domUtil.getDocAsString(problemFormatDoc));
+      logger.debug (domUtil.getDocAsString(problemFormatDoc));
 	  
     // must remove duplicate OBJECTFORMATS
       
     Node root = problemFormatDoc.getDocumentElement ();
-    if (myExtraOutput)
-      System.out.println (getName () + "- root " + ((Element)root).getTagName () + 
+    if (logger.isInfoEnabled())
+      logger.info (getName () + "- root " + ((Element)root).getTagName () + 
 			  " has " + root.getChildNodes().getLength()+ " children");
 	  
     NodeList nlist = root.getChildNodes();
     Node dataformat = nlist.item(0);  // assumes first child is dataformat
 
-    if (myExtraOutput)
-      System.out.println (getName () + "- dataformat " + ((Element)dataformat).getTagName () + 
+    if (logger.isInfoEnabled())
+      logger.info (getName () + "- dataformat " + ((Element)dataformat).getTagName () + 
 			  " has " + dataformat.getChildNodes().getLength()+ " children");
 
     Map nameInfo = removeDuplicates (dataformat, problemFormatDoc);
@@ -183,8 +183,8 @@ public class XMLProcessor {
     // label the problem with the name of the problem
     ((Element)root).setAttribute ("NAME", comm.getProblem());
 
-    if (myExtraOutput)
-      System.out.println (getName () + ".sendFormat - problem is " + comm.getProblem());
+    if (logger.isInfoEnabled())
+      logger.info (getName () + ".sendFormat - problem is " + comm.getProblem());
 
     returnedMap.add (nameInfo);
 	
@@ -237,8 +237,8 @@ public class XMLProcessor {
 	  
       ObjectDescrip descrip = (ObjectDescrip) nameToDescrip.get (attr);
       if (descrip == null) {
-	if (myExtraExtraOutput)
-	  System.out.println ("creating object descrip for - " + attr);
+	if (logger.isDebugEnabled())
+	  logger.debug ("creating object descrip for - " + attr);
 
 	descrip = new ObjectDescrip ();
 	nameToDescrip.put (attr, descrip);
@@ -281,13 +281,13 @@ public class XMLProcessor {
     for (Iterator iter = potentialDuplicates.iterator (); iter.hasNext(); ){
       String type = (String) iter.next();
 	  
-      if (myExtraExtraOutput)
-	System.out.println (getName() + ".pruneObjectFormat - type " + type);
+      if (logger.isDebugEnabled())
+	logger.debug (getName() + ".pruneObjectFormat - type " + type);
 	  
       List nodesForType = (List) nameToNodes.get (type);
       List copyOfNodesForType = new ArrayList (nodesForType);
-      if (myExtraExtraOutput)
-	System.out.println ("nodes for type " + nodesForType);
+      if (logger.isDebugEnabled())
+	logger.debug ("nodes for type " + nodesForType);
 
       Set nameToNodeToRemove = new HashSet ();
       for (Iterator iter2 = copyOfNodesForType.iterator (); iter2.hasNext(); ){
@@ -295,17 +295,17 @@ public class XMLProcessor {
 	formatProcessor.examineObjectFormat (objectFormat, nodesForType, iter2, toRemove);
       }
       if (nodesForType.size () == 1) {
-	if (myExtraExtraOutput)
-	  System.out.println ("\tremoving " + type);
+	if (logger.isDebugEnabled())
+	  logger.debug ("\tremoving " + type);
 	dupsToRemove.add (type);
       }
     }
-    if (myExtraExtraOutput)
-      System.out.println (getName() + ".pruneObjectFormat - removing " + 
+    if (logger.isDebugEnabled())
+      logger.debug (getName() + ".pruneObjectFormat - removing " + 
 			  dupsToRemove + " from " + potentialDuplicates);
     potentialDuplicates.removeAll (dupsToRemove);
-    if (myExtraExtraOutput)
-      System.out.println (getName () + ".pruneObjectFormat - " + 
+    if (logger.isDebugEnabled())
+      logger.debug (getName () + ".pruneObjectFormat - " + 
 			  potentialDuplicates.size () + " potential dups remain.");
 
     for (Iterator iter = toRemove.iterator (); iter.hasNext (); )
@@ -325,8 +325,8 @@ public class XMLProcessor {
   class DuplicateProcessor extends FormatProcessor {
     protected void examineObjectFormat (Node objectFormat, List nodesForType, Iterator iter, Set toRemove) {
       if (duplicateNode (objectFormat, nodesForType)) {
-	if (myExtraExtraOutput)
-	  System.out.println ("\tfound dup");
+	if (logger.isDebugEnabled())
+	  logger.debug ("\tfound dup");
 	toRemove.add (objectFormat);
       }
     }
@@ -399,9 +399,9 @@ public class XMLProcessor {
       // we found all the fields of the first node in the fields of another ->
       // it's a subset node...
       if (allFound) {
-	if (myExtraExtraOutput) {
+	if (logger.isDebugEnabled()) {
 	  String name  = first.getAttributes().getNamedItem ("name").getNodeValue();
-	  System.out.println ("VishnuPlugin.duplicateNode - Found a duplicate " + first.getNodeName () + " " + name);
+	  logger.debug ("VishnuPlugin.duplicateNode - Found a duplicate " + first.getNodeName () + " " + name);
 	}
 	setResourceAttributes (first, other);
 		
@@ -413,9 +413,9 @@ public class XMLProcessor {
   }
 
   protected void mergeNode (Node first, List nodes, Iterator nodeListIter) {
-    if (myExtraOutput) {
+    if (logger.isInfoEnabled()) {
       String name  = first.getAttributes().getNamedItem ("name").getNodeValue();
-      System.out.println (getName() + ".mergeNode - examining " + first.getNodeName () + " " + name);
+      logger.info (getName() + ".mergeNode - examining " + first.getNodeName () + " " + name);
     }
 
     if (nodes.size () == 1)
@@ -451,14 +451,14 @@ public class XMLProcessor {
       for (int k = 0; k < otherChildNodes.getLength (); k++) {
 	String field = otherChildNodes.item (k).getAttributes().getNamedItem ("name").getNodeValue();
 	String type  = otherChildNodes.item (k).getAttributes().getNamedItem ("datatype").getNodeValue();
-	if (myExtraOutput)
-	  System.out.println (getName() + ".mergeNodes - other field " + field + " - type " + type);
+	if (logger.isInfoEnabled())
+	  logger.info (getName() + ".mergeNodes - other field " + field + " - type " + type);
 		
 	if (firstFieldToType.containsKey(field) &&
 	    !firstFieldToType.get(field).equals (type)) {
-	  if (myExtraOutput)
-	    System.out.println (getName() + ".mergeNodes - found type collision at " + field + " - " + 
-				firstFieldToType.get(field) + " vs " + type);
+	  if (logger.isInfoEnabled())
+	    logger.info (getName() + ".mergeNodes - found type collision at " + field + " - " + 
+			 firstFieldToType.get(field) + " vs " + type);
 	  hasTypeCollision=true;
 	  break;
 	}
@@ -480,9 +480,9 @@ public class XMLProcessor {
 	firstFieldToType.put (fieldName, namesInOther.get(fieldName));
       }
 
-      if (myExtraOutput) {
+      if (logger.isInfoEnabled()) {
 	String name  = first.getAttributes().getNamedItem ("name").getNodeValue();
-	System.out.println (getName() + ".mergeNode - Found a mergable node " + first.getNodeName () + " " + name);
+	logger.info (getName() + ".mergeNode - Found a mergable node " + first.getNodeName () + " " + name);
       }
       setResourceAttributes (first, other);
 		
@@ -497,9 +497,9 @@ public class XMLProcessor {
     boolean otherIsNotResource = 
       other.getAttributes().getNamedItem ("is_resource").getNodeValue().equals("false");
     if (thisIsResource && otherIsNotResource) {
-      if (myExtraExtraOutput) {
+      if (logger.isDebugEnabled()) {
 	String name  = first.getAttributes().getNamedItem ("name").getNodeValue();
-	System.out.println (getName() + ".mergeNode - Found a mergable node - setting resource attribute for duplicate " + name);
+	logger.debug (getName() + ".mergeNode - Found a mergable node - setting resource attribute for duplicate " + name);
       }
 		  
       other.getAttributes().getNamedItem ("is_resource").setNodeValue("true");
@@ -566,20 +566,20 @@ public class XMLProcessor {
       String name = objectFormat.getAttributes().getNamedItem ("name").getNodeValue().toLowerCase();
       ObjectDescrip descrip = (ObjectDescrip) nameToDescrip.get (name);
 
-      if (myExtraOutput)
-	System.out.println (getName () + ".addFieldsForDifferentTypes - " + 
-			    name + " has " + 
-			    objectFormatNodeList.getLength() + " children");
+      if (logger.isInfoEnabled())
+	logger.info (getName () + ".addFieldsForDifferentTypes - " + 
+		     name + " has " + 
+		     objectFormatNodeList.getLength() + " children");
 	  
       for (int j = 0; j < objectFormatNodeList.getLength(); j++) {
 	Node fieldFormat = objectFormatNodeList.item (j);
 	String fieldName = fieldFormat.getAttributes().getNamedItem("name").getNodeValue();
 	String datatype  = fieldFormat.getAttributes().getNamedItem("datatype").getNodeValue();
-	if (myExtraOutput)
-	  System.out.println (getName () + ".addFieldsForDifferentTypes - " + datatype + "-" + fieldName);
+	if (logger.isInfoEnabled())
+	  logger.info (getName () + ".addFieldsForDifferentTypes - " + datatype + "-" + fieldName);
 
 	if (descrip == null) {
-	  System.out.println (getName () + ".addFieldsForDifferentTypes - huh? no " + name);
+	  logger.info (getName () + ".addFieldsForDifferentTypes - huh? no " + name);
 	  continue;
 	}
 
@@ -589,16 +589,16 @@ public class XMLProcessor {
 		
 	if (knownTypes.size () > 1) {
 	  fieldsToRemove.add (fieldFormat);
-	  if (myExtraOutput)
-	    System.out.println (getName () + ".addFieldsForDifferentTypes - will remove " + 
+	  if (logger.isInfoEnabled())
+	    logger.info (getName () + ".addFieldsForDifferentTypes - will remove " + 
 				fieldName + "-" + 
 				datatype);
 	  for (Iterator iter = knownTypes.iterator (); iter.hasNext();) {
 	    String newtype = (String) iter.next();
 	    /*			if (newtype.equals (datatype) ||
 				(newtype.startsWith ("string(") && (datatype.startsWith ("string(")))) {
-				if (myExtraOutput)
-				System.out.println (getName () + ".addFieldsForDifferentTypes - skipping field " + 
+				if (logger.isInfoEnabled())
+				debug (getName () + ".addFieldsForDifferentTypes - skipping field " + 
 				newtype + "-" + 
 				name);
 				continue;
@@ -614,8 +614,8 @@ public class XMLProcessor {
 	    clone.getAttributes().getNamedItem("datatype").setNodeValue(newtype);
 	    clone.getAttributes().getNamedItem("is_subobject").setNodeValue(isObject(newtype) ? "true" : "false");
 	    boolean result = fieldsToAdd.add (clone);
-	    if (myExtraOutput && result)
-	      System.out.println (getName () + ".addFieldsForDifferentTypes - storing new field " + 
+	    if (logger.isInfoEnabled() && result)
+	      logger.info (getName () + ".addFieldsForDifferentTypes - storing new field " + 
 				  newtype + "-" + 
 				  newname);
 	  }
@@ -635,13 +635,13 @@ public class XMLProcessor {
       if (!newFields.isEmpty ()) {
 	for (Iterator iter2 = newFields.iterator (); iter2.hasNext ();) {
 	  Node newNode = (Node) iter2.next ();
-	  if (myExtraOutput) {
+	  if (logger.isInfoEnabled()) {
 	    String type = newNode.getAttributes().getNamedItem("datatype").getNodeValue();
 	    String name = newNode.getAttributes().getNamedItem("name").getNodeValue();
 
 	    String ofName = 
 	      objectFormatNode.getAttributes().getNamedItem("name").getNodeValue();
-	    System.out.println (getName () + ".addFieldsForDifferentTypes - to node " + 
+	    logger.info (getName () + ".addFieldsForDifferentTypes - to node " + 
 				objectFormatNode.getNodeName () + "/" + 
 				ofName + " adding new field " +
 				newNode.getNodeName () + " - " +
@@ -680,7 +680,7 @@ public class XMLProcessor {
     Document dataDoc = getDataDoc (tasks, changed, dataXMLizer, assetClassName);
 	  
     if (showDataXML)
-      System.out.println (domUtil.getDocAsString(dataDoc));
+      logger.info (domUtil.getDocAsString(dataDoc));
 
     Node dataNode = setDocHeader (dataDoc, clearDatabase);
 
@@ -783,8 +783,8 @@ public class XMLProcessor {
    */
   protected void appendOtherData (Document dataDoc, Element placeToAdd, String otherData) {
     if (otherDataFileExists(otherData)) {
-      if (myExtraOutput)
-	System.out.println (getName () + " appending " + 
+      if (logger.isInfoEnabled())
+	logger.info (getName () + " appending " + 
 			    otherData + " other data file");
 
       domUtil.appendChildrenToDoc (dataDoc, 
@@ -797,11 +797,11 @@ public class XMLProcessor {
     try {
       return (configFinder.open (otherDataFile) != null);
     } catch (FileNotFoundException fnf) {
-      if (myExtraOutput)
-	System.out.println (getName () + ".otherDataFileExists could not find optional file : " + otherDataFile);
+      if (logger.isInfoEnabled())
+	logger.info (getName () + ".otherDataFileExists could not find optional file : " + otherDataFile);
     } catch (IOException ioe) {
-      System.out.println (getName () + ".otherDataFileExists - got io exception " +
-			  ioe);
+      logger.error (getName () + ".otherDataFileExists - got io exception " +
+		    ioe, ioe);
     }
     return false;
   }
@@ -812,8 +812,8 @@ public class XMLProcessor {
    */
   /*
     protected void handleRoleSchedule (Node field, PlanElement givenPE) {
-    if (myExtraOutput)
-    System.out.println (getName () + ".handleRoleSchedule - found role schedule.");
+    if (logger.isInfoEnabled())
+    debug (getName () + ".handleRoleSchedule - found role schedule.");
 	
     Node list = field.getFirstChild ();
     NodeList values = list.getChildNodes ();
@@ -826,8 +826,8 @@ public class XMLProcessor {
 	  
     final String uid = 
     startField.getAttributes().getNamedItem ("value").getNodeValue();
-    if (myExtraOutput) 
-    System.out.println ("Looking for UID " + uid);
+    if (logger.isInfoEnabled()) 
+    debug ("Looking for UID " + uid);
 
     Collection results;
 	  
@@ -839,7 +839,7 @@ public class XMLProcessor {
     results = query (new UnaryPredicate () {
     public boolean execute (Object obj) {
     if (obj instanceof PlanElement) {
-				//System.out.println ("\t found PE with uid <" + ((PlanElement) obj).getUID () + ">");
+				//debug ("\t found PE with uid <" + ((PlanElement) obj).getUID () + ">");
 				return ((PlanElement) obj).getUID ().equals (uid);
 				}
 			
@@ -857,7 +857,7 @@ public class XMLProcessor {
 				endField.getAttributes().getNamedItem ("value").setNodeValue(endString);
 				}
 				else
-				System.out.println (getName () + ".handleRoleSchedule : ERROR - could not find plan element UID " + 
+				debug (getName () + ".handleRoleSchedule : ERROR - could not find plan element UID " + 
 				uid);
 		
 				}
@@ -918,7 +918,7 @@ public class XMLProcessor {
     Map fields = new HashMap ();
     Map newNames = new HashMap ();
 
-    boolean debug = false;
+    //    boolean debug = false;
 	
     public void addFields (Node node) {
       NodeList nlist = node.getChildNodes();
@@ -943,9 +943,11 @@ public class XMLProcessor {
 
       if (!namedFields.contains (type)) {
 	namedFields.add (type);
+	/*
 	if (debug && namedFields.size () > 1)
-	  System.out.println ("\tfield " + name + 
+	  debug ("\tfield " + name + 
 			      " now " + namedFields);
+	*/
       }
     }
 
@@ -956,10 +958,12 @@ public class XMLProcessor {
 	nameTypePairs = new HashSet ();
 	newNames.put (oldname, nameTypePairs);
       }
+      /*
       if (debug)
-	System.out.println ("OD.addNewNameType - for oldname " + oldname + 
+	debug ("OD.addNewNameType - for oldname " + oldname + 
 			    " adding newname " + newname + 
 			    " newtype " + newtype);
+      */
 	  
       nameTypePairs.add (new String [] { newname, newtype });
     }
@@ -976,7 +980,7 @@ public class XMLProcessor {
   }
 
   protected VishnuComm getComm () { return comm; }
-  protected boolean    getExtraOutput () { return myExtraOutput; }
+  //  protected boolean    getExtraOutput () { return logger.isInfoEnabled(); }
   
   protected boolean showFormatXML = false;
   protected boolean showDataXML = false;
@@ -987,11 +991,10 @@ public class XMLProcessor {
   protected VishnuComm comm;
   protected VishnuDomUtil domUtil;
   protected ParamMap myParamTable;
-  protected boolean myExtraOutput;
-  protected boolean myExtraExtraOutput;
   protected String vishnuEpochStartTime;
   protected String vishnuEpochEndTime;
   protected XMLizer dataXMLizer;
+  protected Logger logger, formatXMLizeLogger, dataXMLizeLogger;
   
   ConfigFinder configFinder;
 }

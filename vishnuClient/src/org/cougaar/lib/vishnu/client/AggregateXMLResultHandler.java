@@ -25,6 +25,7 @@ import org.cougaar.planning.ldm.asset.Asset;
 import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.lib.param.ParamMap;
 import org.cougaar.util.StringKey;
+import org.cougaar.util.log.Logger;
 
 import org.w3c.dom.Document;
 
@@ -44,8 +45,8 @@ public class AggregateXMLResultHandler extends XMLResultHandler {
   /** called by VishnuAggregatorPlugin#createXMLResultHandler */
   public AggregateXMLResultHandler (ModeListener parent, VishnuComm comm, XMLProcessor xmlProcessor, 
 				    VishnuDomUtil domUtil, VishnuConfig config,
-				    ParamMap myParamTable) {
-    super (parent, comm, xmlProcessor, domUtil, config, myParamTable);
+				    ParamMap myParamTable, Logger logger) {
+    super (parent, comm, xmlProcessor, domUtil, config, myParamTable, logger);
   }
 
   /**
@@ -62,17 +63,17 @@ public class AggregateXMLResultHandler extends XMLResultHandler {
    */
   protected void parseStartElement (String name, Attributes atts) {
     try {
-      if (myExtraExtraOutput)
-	System.out.println (getName() + ".parseStartElement got " + name);
+      if (logger.isDebugEnabled())
+	logger.debug (getName() + ".parseStartElement got " + name);
 	  
       if (name.equals ("MULTITASK")) {
-	if (myExtraOutput || debugParseAnswer) {
-	  System.out.println (getName () + ".parseStartElement -\nAssignment: " + 
-			      " resource = " + atts.getValue ("resource") +
-			      " start = " + atts.getValue ("start") +
-			      " end = " + atts.getValue ("end") +
-			      " setup = " + atts.getValue ("setup") +
-			      " wrapup = " + atts.getValue ("wrapup"));
+	if (logger.isInfoEnabled() || debugParseAnswer) {
+	  logger.info (getName () + ".parseStartElement -\nAssignment: " + 
+		       " resource = " + atts.getValue ("resource") +
+		       " start = " + atts.getValue ("start") +
+		       " end = " + atts.getValue ("end") +
+		       " setup = " + atts.getValue ("setup") +
+		       " wrapup = " + atts.getValue ("wrapup"));
 	}
 	String resourceUID = atts.getValue ("resource");
 	String startTime   = atts.getValue ("start");
@@ -87,16 +88,16 @@ public class AggregateXMLResultHandler extends XMLResultHandler {
 	assignedAsset = resultListener.getAssetForKey (new StringKey (resourceUID));
 	assetWasUsedBefore = false;
 	if (assignedAsset == null) 
-	  System.out.println (getName () + ".parseStartElement - no asset found with " + resourceUID);
+	  logger.debug (getName () + ".parseStartElement - no asset found with " + resourceUID);
       }
       else if (name.equals ("TASK")) {
-	if (myExtraOutput || debugParseAnswer) {
-	  System.out.println (getName () + ".parseStartElement -\nTask: " + 
-			      " task = " + atts.getValue ("task"));
+	if (logger.isInfoEnabled() || debugParseAnswer) {
+	  logger.info (getName () + ".parseStartElement -\nTask: " + 
+		       " task = " + atts.getValue ("task"));
 	}
 	if (atts.getValue ("task") == null)
-	  System.out.println (getName () + ".parseStartElement - ERROR, no task attribute on TASK element? " + 
-			      "Element attributes were " + atts);
+	  logger.error (getName () + ".parseStartElement - ERROR, no task attribute on TASK element? " + 
+			"Element attributes were " + atts);
 
 	String taskUID = atts.getValue ("task");
 
@@ -106,8 +107,8 @@ public class AggregateXMLResultHandler extends XMLResultHandler {
 	  // Already handled before
 	  assetWasUsedBefore = true;
 	  return;
-	  // System.out.println (getName () + ".parseStartElement - no task found with " + taskUID + " uid.");
-	  // System.out.println ("\tmap keys were " + myTaskUIDtoObject.keySet());
+	  // debug (getName () + ".parseStartElement - no task found with " + taskUID + " uid.");
+	  // debug ("\tmap keys were " + myTaskUIDtoObject.keySet());
 	}
 	else {
 	  alpTasks.add (handledTask);
@@ -116,21 +117,20 @@ public class AggregateXMLResultHandler extends XMLResultHandler {
 	// this is absolutely critical, otherwise VishnuPlugin will make a failed disposition
 	resultListener.removeTask (taskKey);
 	if (debugParseAnswer)
-	  System.out.println (getName () + ".parseStartElement - removing task key " + taskKey);
+	  logger.debug (getName () + ".parseStartElement - removing task key " + taskKey);
       }
       else if (debugParseAnswer) {
-	System.out.println (getName () + ".parseStartElement - ignoring tag " + name);
+	logger.debug (getName () + ".parseStartElement - ignoring tag " + name);
       }
     } catch (ParseException pe) {
-      System.out.println (getName () + ".parseStartElement - start or end time is in bad format " + 
-			  pe + "\ndates were : " +
-			  " start = " + atts.getValue ("start") +
-			  " end = " + atts.getValue ("end") +
-			  " setup = " + atts.getValue ("setup") +
-			  " wrapup = " + atts.getValue ("wrapup"));
+      logger.error (getName () + ".parseStartElement - start or end time is in bad format " + 
+		    pe + "\ndates were : " +
+		    " start = " + atts.getValue ("start") +
+		    " end = " + atts.getValue ("end") +
+		    " setup = " + atts.getValue ("setup") +
+		    " wrapup = " + atts.getValue ("wrapup"), pe);
     } catch (Exception npe) {
-      System.out.println (getName () + ".parseStartElement - got bogus assignment " + npe.getMessage());
-      npe.printStackTrace ();
+      logger.error (getName () + ".parseStartElement - got bogus assignment " + npe.getMessage(), npe);
     }
   }
 
@@ -139,7 +139,7 @@ public class AggregateXMLResultHandler extends XMLResultHandler {
     try {
       if (name.equals ("MULTITASK")) {
 	if (debugParseAnswer) {
-	  System.out.println (getName () + ".parseEndElement - got ending MULTITASK.");
+	  logger.debug (getName () + ".parseEndElement - got ending MULTITASK.");
 	}
 	if (!alpTasks.isEmpty()) {
 	  resultListener.handleMultiAssignment (alpTasks, assignedAsset, start, end, setup, wrapup, assetWasUsedBefore);
@@ -149,11 +149,10 @@ public class AggregateXMLResultHandler extends XMLResultHandler {
       }
       else if (name.equals ("TASK")) {}
       //	  else if (debugParseAnswer) {
-      //		System.out.println (getName () + ".parseEndElement - ignoring tag " + name);
+      //		debug (getName () + ".parseEndElement - ignoring tag " + name);
       //	  }
     } catch (Exception npe) {
-      System.out.println (getName () + ".parseEndElement - got bogus assignment " + npe.getMessage());
-      npe.printStackTrace ();
+      logger.error (getName () + ".parseEndElement - got bogus assignment " + npe.getMessage(), npe);
     }
   }
 

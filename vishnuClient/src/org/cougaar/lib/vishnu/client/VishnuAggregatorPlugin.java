@@ -118,7 +118,7 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 
   /** creates an XMLResultHandler specially for this plugin */
   protected XMLResultHandler createXMLResultHandler () {
-    return new AggregateXMLResultHandler (this, comm, xmlProcessor, domUtil, config, getMyParams ());
+    return new AggregateXMLResultHandler (this, comm, xmlProcessor, domUtil, config, getMyParams (), logger);
   }
 
   public void localSetup() {     
@@ -132,15 +132,15 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
   public void setupFilters () {
     super.setupFilters ();
 
-    if (myExtraOutput)
-      System.out.println (getName () + " : Filtering for Aggregations...");
+    if (isInfoEnabled())
+      debug (getName () + " : Filtering for Aggregations...");
 
     addFilter (myAggCallback    = createAggCallback    ());
 
-    if (myExtraOutput)
-      System.out.println (getName () + " : Filtering for Expansions...");
+    if (isInfoEnabled())
+      debug (getName () + " : Filtering for Expansions...");
 
-    addFilter (new UTILExpansionCallback (this));
+    addFilter (new UTILExpansionCallback (this, logger));
   }
 
 
@@ -156,13 +156,11 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
    * @return UTILFilterCallback -- an instance of UTILWorkflowCallback
    **/
   protected UTILFilterCallback createThreadCallback (UTILGenericListener bufferingThread) { 
-    if (myExtraOutput)
-      System.out.println (getName () + " Filtering for tasks with Workflows...");
+    if (isInfoEnabled())
+      debug (getName () + " Filtering for tasks with Workflows...");
 
-    myWorkflowCallback = new UTILWorkflowCallback  (bufferingThread); 
-    myWorkflowCallback.setExtraDebug (myExtraOutput);
-    myWorkflowCallback.setExtraExtraDebug (myExtraExtraOutput);
-	
+    myWorkflowCallback = new UTILWorkflowCallback  (bufferingThread, logger); 
+
     return myWorkflowCallback;
   } 
   /** Callback for input tasks ***/
@@ -177,7 +175,7 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
   protected UTILAggregationCallback getAggCallback    () { return myAggCallback; }
   /** Callback for Aggregations **/
   protected UTILAggregationCallback createAggCallback () { 
-    return new UTILAggregationCallback  (this); 
+    return new UTILAggregationCallback  (this, logger); 
   } 
 
 
@@ -192,7 +190,7 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
     if (!isInteresting && 
 	((t.getPlanElement().getReportedResult() != null) && 
 	 !t.getPlanElement().getReportedResult().isSuccess ())) {
-      System.out.println (getName () + ".interestingParentTask - ignoring failed task : " + t.getUID ());
+      debug (getName () + ".interestingParentTask - ignoring failed task : " + t.getUID ());
     }
 	
     return isInteresting;
@@ -206,8 +204,8 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
   public void handleSuccessfulAggregation(Aggregation agg) {
     if (agg.getEstimatedResult().getConfidenceRating() > UTILAllocate.MEDIUM_CONFIDENCE) {
       // handleRemovedAggregation (agg);
-    } else if (myExtraOutput) {
-      System.out.println (getName () + 
+    } else if (isInfoEnabled()) {
+      debug (getName () + 
 			  ".handleSuccessfulAggregation : got changed agg (" + 
 			  agg.getUID () + 
 			  ") with intermediate confidence."); 
@@ -216,7 +214,7 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 
   /** implemented for AggregationListener */
   public void handleRemovedAggregation (Aggregation agg) {	
-    // System.out.println("VishnuAggregatorPlugin.handleRemovedAggregation called");
+    // debug("VishnuAggregatorPlugin.handleRemovedAggregation called");
 
     Vector removedTasks = new Vector();
     removedTasks.add(agg.getTask());
@@ -276,9 +274,9 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
    * @see org.cougaar.lib.callback.UTILExpansionListener
    */
   public void reportChangedExpansion(Expansion exp) { 
-    if (myExtraExtraOutput || 
+    if (logger.isDebugEnabled() || 
 	(exp.getReportedResult () != null && !exp.getReportedResult().isSuccess ()))
-      System.out.println (getName () + 
+      debug (getName () + 
 			  ".reportChangedExpansion : reporting " + 
 			  (exp.getReportedResult().isSuccess () ? "" : " - FAILED - ") +
 			  " changed expansion " + exp.getUID () + 
@@ -303,9 +301,9 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
    */
   public void handleMultiAssignment (Vector tasks, Asset asset, 
 				     Date start, Date end, Date setupStart, Date wrapupEnd, boolean assetWasUsedBefore) {
-    if (myExtraOutput) {
-      System.out.println (getName() + ".handleMultiAssignment : ");
-      System.out.println ("\nAssigned tasks : ");
+    if (isInfoEnabled()) {
+      debug (getName() + ".handleMultiAssignment : ");
+      debug ("\nAssigned tasks : ");
       for (int i = 0; i < tasks.size (); i++) {
 	Task task = (Task) tasks.get(i);
 
@@ -313,13 +311,13 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 	Date early = UTILPreference.getEarlyDate (task);
 	Date late  = UTILPreference.getLateDate  (task);
 
-	System.out.println ("" + task.getUID() +
+	debug ("" + task.getUID() +
 			    " - ready " + ready + (start.before(ready) ? (" AFTER start " + start) : "") +
 			    " early " + early   + (end.before(early) ? (" AFTER end " + end) : "") +
 			    " best " + UTILPreference.getBestDate (task) + 
 			    " late " + late     + (end.after(late) ? (" BEFORE end " + end) : ""));
       }
-      System.out.println ("\nresource = " + asset +
+      debug ("\nresource = " + asset +
 			  "\nsetup    = " + setupStart +
 			  "\nstart    = " + start +
 			  "\nend      = " + end +
@@ -368,7 +366,7 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
    */
   public void makePlanElement (Vector tasklist, Asset anAsset, Date start, Date end, Date setupStart, Date wrapupEnd,
 			       boolean assetWasUsedBefore) {
-    if (myExtraOutput) UTILAggregate.setDebug (true);
+    if (isInfoEnabled()) UTILAggregate.setDebug (true);
 
     if (assetWasUsedBefore) {
       if (addToPrevious (tasklist, anAsset, start, end, setupStart, wrapupEnd))
@@ -386,7 +384,7 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 						    ((PluginBindingSite) getBindingSite()).getAgentIdentifier(),
 						    getAspectValuesMap(tasklist, start, end),
 						    UTILAllocate.MEDIUM_CONFIDENCE);
-    if (myExtraOutput) UTILAggregate.setDebug (false);
+    if (isInfoEnabled()) UTILAggregate.setDebug (false);
 
     publishList(aggResults);
       
@@ -401,8 +399,8 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
     Task previousTask = getEncapsulatedTask (anAsset, start, end);
 
     if (previousTask != null) { // found transport task
-      if (myExtraOutput) 
-	System.out.println (getName () + ".addToPrevious - found previous task for asset " + 
+      if (isInfoEnabled()) 
+	debug (getName () + ".addToPrevious - found previous task for asset " + 
 			    anAsset.getUID());
 
       Vector directObjects = getDirectObjectsForAgg(tasklist); 
@@ -476,7 +474,7 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 	  if (!isMPTask) return false;
 	  boolean match = ((MPTask) obj).getUID ().toString().equals (parentUID.toString());
 	  /*
-	  System.out.println (getName () + ".getMPTask - Comparing uid " +
+	  debug (getName () + ".getMPTask - Comparing uid " +
 			      ((MPTask) obj).getUID ().toString() + " with key " + parentUID + 
 			      ((match) ? " MATCH! " : " no match"));
 	  */
@@ -507,17 +505,17 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
       Task parentTask = (Task)i.next();
       AspectValue [] aspectValues = (AspectValue []) avMap.get (parentTask);
 
-      if (myExtraOutput) UTILAllocate.setDebug (true); // will show comparison of prefs to aspect value
+      if (isInfoEnabled()) UTILAllocate.setDebug (true); // will show comparison of prefs to aspect value
 
       boolean isSuccess = !UTILAllocate.exceedsPreferences (parentTask, aspectValues);
 
       if (!isSuccess) {
-	showDebugIfFailure ();
-	System.out.println ("VishnuAggregatorPlugin.makeAggregation - making failed aggregation for " + parentTask);
+	// showDebugIfFailure ();
+	debug ("VishnuAggregatorPlugin.makeAggregation - making failed aggregation for " + parentTask);
 	UTILExpand.showPlanElement (parentTask);
       }
 	  
-      if (myExtraOutput) UTILAllocate.setDebug (false);
+      if (isInfoEnabled()) UTILAllocate.setDebug (false);
 	
       AllocationResult estAR = ldmf.newAVAllocationResult(UTILAllocate.HIGHEST_CONFIDENCE,
 							  isSuccess,
@@ -526,8 +524,8 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 					       parentTask,
 					       comp,
 					       estAR);
-      if (myExtraOutput)
-	System.out.println ("VishnuAggregatorPlugin.makeAggregation - Making aggregation for task " + 
+      if (isInfoEnabled())
+	debug ("VishnuAggregatorPlugin.makeAggregation - Making aggregation for task " + 
 			    parentTask.getUID () + 
 			    " agg " + agg.getUID());
       publishAdd (agg);
@@ -757,7 +755,7 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 
       tmp_av_vec.addElement(new AspectValue(at, result));
 
-      //System.out.println (getName() + ".makeAVsFromPrefs - adding type " + at + " value " + result);
+      //debug (getName() + ".makeAVsFromPrefs - adding type " + at + " value " + result);
     }      
 
     AspectValue [] avs = new AspectValue[tmp_av_vec.size()];
@@ -818,8 +816,8 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
       if (next_o instanceof Task) {
 	Task taskToPublish = (Task) next_o;
 	PlanElement pe = taskToPublish.getPlanElement ();
-	if (pe != null && !pe.getEstimatedResult().isSuccess () && myExtraOutput) {
-	  System.out.println (getName () + 
+	if (pe != null && !pe.getEstimatedResult().isSuccess () && isInfoEnabled()) {
+	  debug (getName () + 
 			      ".publishList - Task " + taskToPublish.getUID () +
 			      " failed : ");
 	  UTILExpand.showPlanElement (taskToPublish);

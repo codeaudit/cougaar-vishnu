@@ -49,13 +49,13 @@ public class CustomVishnuAllocatorPlugin extends VishnuAllocatorPlugin {
    * 
    */
   protected XMLProcessor createXMLProcessor  () { 
-    if (myExtraOutput)
-      System.out.println (getName () + ".createXMLProcessor - creating TRANSCOM xml processor.");
+    if (isInfoEnabled())
+      debug (getName () + ".createXMLProcessor - creating TRANSCOM xml processor.");
 
-    return new XMLProcessor (getMyParams(), getName(), getClusterName(), domUtil, comm, getConfigFinder()) {
+    return new XMLProcessor (getMyParams(), getName(), getClusterName(), domUtil, comm, getConfigFinder(), logger, logger, logger) {
 	public void createDataXMLizer (Map nameToDescrip, String assetClassName) {
-	  if (getExtraOutput())
-	    System.out.println (this.getName() + ".createDataXMLizer - setting data xmlizer.");
+	  if (isInfoEnabled())
+	    info (this.getName() + ".createDataXMLizer - setting data xmlizer.");
 		  
 	  setDataXMLizer(createXMLizer(getRunDirectly()));
 	}
@@ -67,7 +67,7 @@ public class CustomVishnuAllocatorPlugin extends VishnuAllocatorPlugin {
    * @see CustomDataXMLize
    */
   protected XMLizer createXMLizer (boolean direct) {
-    return new CustomDataXMLize (direct);
+    return new CustomDataXMLize (direct, logger);
   }
 
   /** 

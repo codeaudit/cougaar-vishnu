@@ -8,6 +8,7 @@ import org.cougaar.lib.vishnu.server.Scheduler;
 import org.cougaar.lib.vishnu.server.SchedulingData;
 import org.cougaar.lib.vishnu.server.TimeOps;
 import org.cougaar.util.StringKey;
+import org.cougaar.util.log.Logger;
 
 import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.planning.ldm.asset.Asset;
@@ -32,9 +33,9 @@ import org.w3c.dom.Document;
 public class DirectMode extends InternalMode {
   public DirectMode (ModeListener parent, VishnuComm comm, XMLProcessor xmlProcessor, 
 		     VishnuDomUtil domUtil, VishnuConfig config, ResultHandler resultHandler,
-		     ParamMap myParamTable) {
+		     ParamMap myParamTable, Logger logger) {
     super (parent, comm, xmlProcessor, domUtil, config, resultHandler,
-	   myParamTable);
+	   myParamTable, logger);
     localSetup ();
   }
 	
@@ -69,8 +70,8 @@ public class DirectMode extends InternalMode {
 						       objectFormatDoc, sched.getTimeOps());
     parent.clearChangedAssets ();
 
-    if (myExtraOutput)
-      System.out.println (getName () + ".prepareData - clearing changed assets!");
+    if (logger.isDebugEnabled())
+      logger.debug (getName () + ".prepareData - clearing changed assets!");
 	   
     if (showTiming)
       domUtil.reportTime (".prepareData - prepared vishnu objects in ", start);
@@ -126,8 +127,7 @@ public class DirectMode extends InternalMode {
       // get the assignments the scheduler made, make plan elements
       ((DirectResultHandler)resultHandler).directlyHandleAssignments (sched, data, timeOps);
     } catch (Exception e) {
-      System.out.println (getName () + ".runDirectly - Got error running scheduler : " + e.getMessage ());
-      e.printStackTrace ();
+      logger.error (getName () + ".runDirectly - Got error running scheduler : " + e.getMessage (), e);
     } finally {
       cleanUpAfterScheduling (unhandledTasks);
     }
@@ -138,8 +138,8 @@ public class DirectMode extends InternalMode {
 				   List changedVishnuResources) {
     Date start = new Date ();
 
-    if (myExtraOutput || true) 
-      System.out.println(getName () + ".runDirectly - adding " + 
+    if (logger.isInfoEnabled()) 
+      logger.info(getName () + ".runDirectly - adding " + 
 			 vishnuTasks.size() + " tasks, " +
 			 vishnuResources.size () + " resources, " +
 			 changedVishnuResources.size () + " changed resources to scheduler data.");
@@ -156,10 +156,10 @@ public class DirectMode extends InternalMode {
       Object vishnuObject = changedVishnuResources.get(i);
       data.replaceResource ((Resource) vishnuObject);
     }
-    if (myExtraExtraOutput)
+    if (logger.isDebugEnabled())
       for (int i = 0; i < data.getResources ().length; i++) {
-	System.out.println (getName () + ".addTasksDirectly - Known Resource #" + i + 
-			    " : \n" + data.getResources()[i]);
+	logger.debug (getName () + ".addTasksDirectly - Known Resource #" + i + 
+		      " : \n" + data.getResources()[i]);
       }
   }
 

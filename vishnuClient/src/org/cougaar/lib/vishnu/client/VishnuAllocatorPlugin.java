@@ -49,6 +49,7 @@ import org.cougaar.lib.util.UTILPreference;
 
 public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocatorPlugin {
   /**
+   * <pre>
    * The idea is to add subscriptions (via the filterCallback), and when 
    * they change, to have the callback react to the change, and tell 
    * the listener (many times the plugin) what to do.
@@ -58,18 +59,20 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
    *
    * By default adds allocation callback after creating it.
    *
+   * </pre>
    * @see #createAllocCallback
    */
   public void setupFilters () {
     super.setupFilters ();
 
-    if (myExtraOutput)
-      System.out.println (getName () + " : Filtering for Allocations...");
+    if (isInfoEnabled())
+      debug (getName () + " : Filtering for Allocations...");
 
     addFilter (myAllocCallback    = createAllocCallback    ());
   }
 
   /**
+   * <pre>
    * Callback for input tasks 
    *
    * Provide the callback that is paired with the buffering thread, which is a
@@ -78,14 +81,15 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
    * Creates an instance of the WorkflowCallback, which means the plugin
    * is looking for tasks that are part of workflows.
    *
+   * </pre>
    * @param bufferingThread -- the thread the callback informs when there are new input tasks
    * @return a WorkflowCallback with the buffering thread as its listener
    */
   protected UTILFilterCallback createThreadCallback (UTILGenericListener bufferingThread) { 
-    if (myExtraOutput)
-      System.out.println (getName () + " Filtering for tasks with Workflows...");
+    if (isInfoEnabled())
+      debug (getName () + " Filtering for tasks with Workflows...");
 
-    myWorkflowCallback = new UTILWorkflowCallback  (bufferingThread); 
+    myWorkflowCallback = new UTILWorkflowCallback  (bufferingThread, logger); 
     return myWorkflowCallback;
   } 
 
@@ -100,7 +104,7 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
    * or different behaviour when triggered.
    */
   protected UTILAllocationCallback createAllocCallback () { 
-    return new UTILAllocationCallback  (this); 
+    return new UTILAllocationCallback  (this, logger); 
   } 
 
   /** 
@@ -241,13 +245,13 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
    * Does nothing by default.
    */
   public void handleRemovedAlloc (Allocation alloc) {
-    if (myExtraOutput) {
+    if (isInfoEnabled()) {
       String owner = "?";
       try {
 	owner =  alloc.getTask().getDirectObject().getUID().getOwner();
       } catch (Exception e) {}
 	
-      System.out.println(getName() + ".handleRemovedAlloc called for task " + alloc.getTask().getUID() + 
+      debug(getName() + ".handleRemovedAlloc called for task " + alloc.getTask().getUID() + 
 			 " from unit " + owner);
     }
 
@@ -278,14 +282,14 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
    * @param wrapupEnd  end   of a wrapup task, equal to end if there is no wrapup task
    **/
   public void handleAssignment (Task task, Asset asset, Date start, Date end, Date setupStart, Date wrapupEnd) {
-    if (myExtraOutput)
-      System.out.println ("VishnuAllocatorPlugin.makePlanElement : " + 
+    if (isInfoEnabled())
+      debug ("VishnuAllocatorPlugin.makePlanElement : " + 
 			  " assigning " + task.getUID() + 
 			  "\nto " + asset.getUID () +
 			  " from " + start + 
 			  " to " + end);
 
-    if (myExtraOutput) UTILAllocate.setDebug (true);
+    if (isInfoEnabled()) UTILAllocate.setDebug (true);
 	
     if (makeSetupAndWrapupTasks && 
 	((setupStart.getTime() < start.getTime()) ||
@@ -307,7 +311,7 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
 			getConfidence (asset),
 			getRole());
     }
-    if (myExtraOutput) UTILAllocate.setDebug (false);
+    if (isInfoEnabled()) UTILAllocate.setDebug (false);
   }
 
   /**

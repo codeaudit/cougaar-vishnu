@@ -5,9 +5,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
-import org.w3c.dom.Document;
-import org.cougaar.planning.ldm.asset.Asset;
+
 import org.cougaar.lib.param.ParamMap;
+import org.cougaar.planning.ldm.asset.Asset;
+import org.cougaar.util.log.Logger;
+import org.w3c.dom.Document;
 
 /** 
  * Base class for Modes and ResultHandlers that help the VishnuPlugin to do its work.
@@ -18,7 +20,8 @@ import org.cougaar.lib.param.ParamMap;
 public class PluginHelper {
   public PluginHelper (ModeListener parent, VishnuComm comm, XMLProcessor xmlProcessor, 
 		       VishnuDomUtil domUtil, VishnuConfig config,
-		       ParamMap myParamTable) {
+		       ParamMap myParamTable,
+		       Logger logger) {
     this.parent = parent;
     this.comm = comm;
     this.xmlProcessor = xmlProcessor;
@@ -26,7 +29,8 @@ public class PluginHelper {
     this.config = config;
 	
     this.myParamTable = myParamTable;
-	
+    this.logger = logger;
+
     localSetup ();
   }
   
@@ -35,22 +39,17 @@ public class PluginHelper {
   }
 
   protected void localSetup () {
-    try {myExtraOutput = getMyParams().getBooleanParam("ExtraOutput");}    
-    catch(Exception e) {myExtraOutput = false;}
-
-    try {myExtraExtraOutput = getMyParams().getBooleanParam("ExtraExtraOutput");}    
-    catch(Exception e) {myExtraExtraOutput = false;}
-
     try {showTiming = 
 	   getMyParams().getBooleanParam("showTiming");}    
     catch(Exception e) {  showTiming = true; }
   }
   
   protected ParamMap myParamTable;
-  VishnuComm comm;
-  ModeListener parent;
-  boolean showTiming, myExtraOutput, myExtraExtraOutput;
-  XMLProcessor xmlProcessor;
-  VishnuDomUtil domUtil;
-  VishnuConfig config;
+  protected VishnuComm comm;
+  protected ModeListener parent;
+  protected boolean showTiming;
+  protected XMLProcessor xmlProcessor;
+  protected VishnuDomUtil domUtil;
+  protected VishnuConfig config;
+  protected Logger logger;
 }

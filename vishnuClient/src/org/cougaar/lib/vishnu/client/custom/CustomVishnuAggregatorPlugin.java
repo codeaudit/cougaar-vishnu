@@ -52,13 +52,13 @@ public class CustomVishnuAggregatorPlugin extends VishnuAggregatorPlugin {
    * 
    */
   protected XMLProcessor createXMLProcessor  () { 
-    if (myExtraOutput)
-      System.out.println (getName () + ".createXMLProcessor - creating TRANSCOM xml processor.");
+    if (isDebugEnabled())
+      debug (getName () + ".createXMLProcessor - creating TRANSCOM xml processor.");
 
-    return new XMLProcessor (getMyParams(), getName(), getClusterName(), domUtil, comm, getConfigFinder()) {
+    return new XMLProcessor (getMyParams(), getName(), getClusterName(), domUtil, comm, getConfigFinder(), logger, logger, logger) {
 	public void createDataXMLizer (Map nameToDescrip, String assetClassName) {
-	  if (getExtraOutput())
-	    System.out.println (this.getName() + ".createDataXMLizer - setting data xmlizer.");
+	  if (isDebugEnabled())
+	    debug (this.getName() + ".createDataXMLizer - setting data xmlizer.");
 		  
 	  setDataXMLizer(createXMLizer(getRunDirectly()));
 	}
@@ -67,7 +67,7 @@ public class CustomVishnuAggregatorPlugin extends VishnuAggregatorPlugin {
 
   /** override to use a different XMLizer */
   protected XMLizer createXMLizer (boolean direct) {
-    return new CustomDataXMLize (direct);
+    return new CustomDataXMLize (direct, logger);
   }
 
   /** 

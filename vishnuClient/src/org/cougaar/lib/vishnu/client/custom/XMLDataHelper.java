@@ -32,6 +32,7 @@ import org.cougaar.planning.ldm.plan.Schedule;
 import org.cougaar.planning.ldm.plan.RoleSchedule;
 import org.cougaar.planning.ldm.plan.PlanElement;
 import org.cougaar.util.TimeSpan;
+import org.cougaar.util.log.Logger;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -51,15 +52,16 @@ public class XMLDataHelper implements DataHelper {
    * 
    * @see #createRoleScheduleListField
    */
-  public XMLDataHelper () {
-	final Calendar calendar = Calendar.getInstance();
-	calendar.set(2100,1,1);
-	endOfWorld = calendar.getTime();
+  public XMLDataHelper (Logger logger) {
+    final Calendar calendar = Calendar.getInstance();
+    calendar.set(2100,1,1);
+    endOfWorld = calendar.getTime();
+    this.logger = logger;
   }
   
   /** set the document that is being created */
   public void setDoc (Document doc) {
-	this.doc = doc;
+    this.doc = doc;
   }
   
   /** 
@@ -72,52 +74,52 @@ public class XMLDataHelper implements DataHelper {
    * @param asset  - the asset with the role schedule
    */
   public void createRoleScheduleListField (Object object, String name, Asset asset) {
-	RoleSchedule unavail = asset.getRoleSchedule ();
+    RoleSchedule unavail = asset.getRoleSchedule ();
 
-	Element field = doc.createElement("FIELD");
-	field.setAttribute ("name",  name);
-	((Element)object).appendChild (field);
-	Element list = doc.createElement("LIST");
-	field.appendChild (list);
+    Element field = doc.createElement("FIELD");
+    field.setAttribute ("name",  name);
+    ((Element)object).appendChild (field);
+    Element list = doc.createElement("LIST");
+    field.appendChild (list);
 
-	createScheduleFields (unavail.getEncapsulatedRoleSchedule(0, endOfWorld.getTime()),
-						  list,
-						  true);
+    createScheduleFields (unavail.getEncapsulatedRoleSchedule(0, endOfWorld.getTime()),
+			  list,
+			  true);
   }
 
   public void createAvailableScheduleListField (Object object, String name, Asset asset) {
-	Element field = doc.createElement("FIELD");
-	field.setAttribute ("name",  name);
-	((Element)object).appendChild (field);
-	Element list = doc.createElement("LIST");
-	field.appendChild (list);
+    Element field = doc.createElement("FIELD");
+    field.setAttribute ("name",  name);
+    ((Element)object).appendChild (field);
+    Element list = doc.createElement("LIST");
+    field.appendChild (list);
 
-	Schedule availSchedule = asset.getRoleSchedule().getAvailableSchedule ();
-	Collection coll = availSchedule.getEncapsulatedScheduleElements (0,endOfWorld.getTime());
-	if (coll.isEmpty ())
-	  System.out.println("XMLDataHelper -- availSchedule is empty");
+    Schedule availSchedule = asset.getRoleSchedule().getAvailableSchedule ();
+    Collection coll = availSchedule.getEncapsulatedScheduleElements (0,endOfWorld.getTime());
+    if (coll.isEmpty ())
+      logger.warn("XMLDataHelper -- availSchedule for " + asset + " is empty");
 
-	createScheduleFields (availSchedule.getEncapsulatedScheduleElements (0,endOfWorld.getTime()), 
-						  list, 
-						  false);
+    createScheduleFields (availSchedule.getEncapsulatedScheduleElements (0,endOfWorld.getTime()), 
+			  list, 
+			  false);
   }
 
   protected void createScheduleFields (Collection schedule, Element list, boolean isRole) {
-	for (Iterator iter = schedule.iterator (); iter.hasNext();) {
-	  TimeSpan span = (TimeSpan) iter.next ();
+    for (Iterator iter = schedule.iterator (); iter.hasNext();) {
+      TimeSpan span = (TimeSpan) iter.next ();
 
-	  Element value = doc.createElement("VALUE");
-	  list.appendChild (value);
+      Element value = doc.createElement("VALUE");
+      list.appendChild (value);
 
-	  Element interval = doc.createElement("OBJECT");
-	  interval.setAttribute ("type", "interval");
-	  value.appendChild (interval);
+      Element interval = doc.createElement("OBJECT");
+      interval.setAttribute ("type", "interval");
+      value.appendChild (interval);
 
-	  createField (interval, "interval", "start", format.format (new Date(span.getStartTime())));
-	  createField (interval, "interval", "end",   format.format (new Date(span.getEndTime())));
-	  if (isRole)
-		createField (interval, "interval", "label1", "" +((PlanElement)span).getTask().getVerb());
-	}
+      createField (interval, "interval", "start", format.format (new Date(span.getStartTime())));
+      createField (interval, "interval", "end",   format.format (new Date(span.getEndTime())));
+      if (isRole)
+	createField (interval, "interval", "label1", "" +((PlanElement)span).getTask().getVerb());
+    }
   }
 
   /** 
@@ -131,15 +133,15 @@ public class XMLDataHelper implements DataHelper {
    * @param loc - the Cougaar GeolocLocation to translate into a DOM structure
    */
   public void createGeoloc (Object parent, String parentFieldName, GeolocLocation loc) {
-	Object geolocObject = createObject (parent, "geoloc");
-	createField(geolocObject, "geoloc", "geolocCode", loc.getGeolocCode ());
-	Object field = createField (geolocObject, "geoloc", "latlong");
-	Object latlongObject = createObject (field, "latlong");
+    Object geolocObject = createObject (parent, "geoloc");
+    createField(geolocObject, "geoloc", "geolocCode", loc.getGeolocCode ());
+    Object field = createField (geolocObject, "geoloc", "latlong");
+    Object latlongObject = createObject (field, "latlong");
 
-	createField(latlongObject, "latlong", "latitude",
-				"" + loc.getLatitude ().getDegrees());
-	createField(latlongObject, "latlong", "longitude",
-				"" + loc.getLongitude ().getDegrees());
+    createField(latlongObject, "latlong", "latitude",
+		"" + loc.getLatitude ().getDegrees());
+    createField(latlongObject, "latlong", "longitude",
+		"" + loc.getLongitude ().getDegrees());
   }
 
   /** 
@@ -149,10 +151,10 @@ public class XMLDataHelper implements DataHelper {
    * @param type   - type of the new OBJECT Element
    */
   public Object createObject (Object parent, String type) {
-	Element elem = doc.createElement("OBJECT");
-	elem.setAttribute ("type",  type);
-	((Element)parent).appendChild (elem);
-	return elem;
+    Element elem = doc.createElement("OBJECT");
+    elem.setAttribute ("type",  type);
+    ((Element)parent).appendChild (elem);
+    return elem;
   }
 
   /** 
@@ -161,18 +163,18 @@ public class XMLDataHelper implements DataHelper {
    * @param parentType - ignored, important in DirectDataHelper
    */
   public Object createField (Object parent, String parentType, String name) {
-	Element elem = doc.createElement("FIELD");
-	elem.setAttribute ("name",  name);
-	((Element)parent).appendChild (elem);
-	return elem;
+    Element elem = doc.createElement("FIELD");
+    elem.setAttribute ("name",  name);
+    ((Element)parent).appendChild (elem);
+    return elem;
   }
 
   /** create field as name-value pair */ 
   protected Object createFieldPair (String name, String value) {
-	Element elem = doc.createElement("FIELD");
-	elem.setAttribute ("name",  name);
-	elem.setAttribute ("value", value);
-	return elem;
+    Element elem = doc.createElement("FIELD");
+    elem.setAttribute ("name",  name);
+    elem.setAttribute ("value", value);
+    return elem;
   }
 
   /** 
@@ -187,7 +189,7 @@ public class XMLDataHelper implements DataHelper {
    * @param value field's value
    */
   public void createField (Object parent, String parentType, String name, String value) {
-	((Element)parent).appendChild ((Element) createFieldPair(name, value));
+    ((Element)parent).appendChild ((Element) createFieldPair(name, value));
   }
 
   /** 
@@ -196,23 +198,24 @@ public class XMLDataHelper implements DataHelper {
    * Translates date into string.
    */
   public void createDateField (Object parent, String name, Date date) {
-	try {
-	  createField (parent, "", name, format.format(date));
-	} catch (Exception e) {}
+    try {
+      createField (parent, "", name, format.format(date));
+    } catch (Exception e) {}
   }
 
   /** shortcut to create a boolean field on <code>parent</code> */
   public void createBooleanField (Object parent, String name, boolean value) {
-	createField (parent, "", name, value ? "true" : "false");
+    createField (parent, "", name, value ? "true" : "false");
   }
 
   /** shortcut to create a float field on <code>parent</code> */
   public void createFloatField (Object parent, String name, float value) {
-	createField (parent, "", name, "" + value);
+    createField (parent, "", name, "" + value);
   }
 
   protected Document doc;
   protected Date endOfWorld;
   private final SimpleDateFormat format = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");
+  Logger logger;
 }
 

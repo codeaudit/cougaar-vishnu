@@ -28,6 +28,7 @@ import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.lib.param.ParamMap;
 import org.cougaar.lib.vishnu.server.Scheduler;
 import org.cougaar.util.StringKey;
+import org.cougaar.util.log.Logger;
 
 import org.w3c.dom.Document;
 
@@ -47,16 +48,16 @@ public class InternalMode extends ExternalMode {
   /** just calls localSetup */
   public InternalMode (ModeListener parent, VishnuComm comm, XMLProcessor xmlProcessor, 
 		       VishnuDomUtil domUtil, VishnuConfig config, ResultHandler resultHandler,
-		       ParamMap myParamTable) {
-    super (parent, comm, xmlProcessor, domUtil, config, resultHandler, myParamTable);
+		       ParamMap myParamTable, Logger logger) {
+    super (parent, comm, xmlProcessor, domUtil, config, resultHandler, myParamTable, logger);
     localSetup ();
   }
 
   /** Create a new scheduler if in batch mode or if called the first time */
   public void setupScheduler () {
     if (!incrementalScheduling || sched == null) {
-      if (myExtraOutput)
-	System.out.println (getName () + ".setupScheduler - creating scheduler.");
+      if (logger.isInfoEnabled())
+	logger.info (getName () + ".setupScheduler - creating scheduler.");
 
       sched = new Scheduler ();
       sched.setupInternalObjects ();
@@ -99,9 +100,9 @@ public class InternalMode extends ExternalMode {
     int unhandledTasks = prepareScheduler ();
 
     try {
-      if (myExtraExtraOutput)
+      if (logger.isDebugEnabled())
 	for (int i = 0; i < sched.getSchedulingData().getResources ().length; i++) {
-	  System.out.println (getName () + ".run - Known Resource #" + i + 
+	  logger.debug (getName () + ".run - Known Resource #" + i + 
 			      " : \n" + sched.getSchedulingData().getResources()[i]);
 	}
 
@@ -111,23 +112,22 @@ public class InternalMode extends ExternalMode {
       // the second argument controls whether to include frozen assignments in those returned
       String assignments = sched.getXMLAssignments(true, !incrementalScheduling);
 	 
-      if (myExtraOutput) 
-	System.out.println(getName () + ".run - scheduled assignments were : " + assignments);
+      if (logger.isInfoEnabled()) 
+	logger.info(getName () + ".run - scheduled assignments were : " + assignments);
 
       SAXParser parser = new SAXParser();
       parser.setContentHandler (((XMLResultHandler)resultHandler).getAssignmentHandler ());
       try {
 	parser.parse (new InputSource (new StringReader (assignments)));
       } catch (SAXException sax) {
-	System.out.println (getName () + ".run - Got sax exception:\n" + sax);
+	logger.error (getName () + ".run - Got sax exception:\n" + sax, sax);
       } catch (IOException ioe) {
-	System.out.println (getName () + ".run - Could not open file : \n" + ioe);
+	logger.error (getName () + ".run - Could not open file : \n" + ioe, ioe);
       } catch (NullPointerException npe) {
-	System.out.println (getName () + ".run - ERROR - no assignments were made, badly confused : \n" + npe);
+	logger.error (getName () + ".run - ERROR - no assignments were made, badly confused : \n" + npe, npe);
       }
     } catch (Exception e) {
-      System.out.println (getName () + ".run - Got error running scheduler : " + e.getMessage ());
-      e.printStackTrace ();
+      logger.error (getName () + ".run - Got error running scheduler : " + e.getMessage (), e);
     } finally {
       cleanUpAfterScheduling (unhandledTasks);
     }
@@ -180,8 +180,8 @@ public class InternalMode extends ExternalMode {
     comm.clearBuffer ();
 
     if (incrementalScheduling) {
-      if (myExtraOutput)
-	System.out.println (getName () + ".cleanUpAfterScheduling - sending freeze all.");
+      if (logger.isDebugEnabled())
+	logger.debug (getName () + ".cleanUpAfterScheduling - sending freeze all.");
 
       serializeAndPostDoc (xmlProcessor.prepareFreezeAll ());
     }
@@ -191,10 +191,10 @@ public class InternalMode extends ExternalMode {
 			  " - created successful plan elements for " +
 			  (unhandledTasks-parent.getNumTasks ()) + " tasks in ", start);
     } else {
-      if (myExtraOutput || true)
-	System.out.println (getName () + 
-			    " - created successful plan elements for " +
-			    (unhandledTasks-parent.getNumTasks ()) + " tasks.");
+      if (logger.isInfoEnabled())
+	logger.info (getName () + 
+		     " - created successful plan elements for " +
+		     (unhandledTasks-parent.getNumTasks ()) + " tasks.");
     }
   }
 

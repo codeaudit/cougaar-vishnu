@@ -48,6 +48,7 @@ import org.cougaar.planning.ldm.plan.Schedule;
 import org.cougaar.planning.ldm.plan.RoleSchedule;
 import org.cougaar.planning.ldm.plan.PlanElement;
 import org.cougaar.util.TimeSpan;
+import org.cougaar.util.log.Logger;
 
 /**
  * Fills in the fields of Vishnu objects sent to the Vishnu Scheduler. <p>
@@ -71,14 +72,15 @@ public class DirectDataHelper implements DataHelper {
    * @param formatDoc - the object format document
    * @param timeOps - the Time Operation object used whenever dates are created
    */
-  public DirectDataHelper (Document formatDoc, TimeOps timeOps) {
-	Calendar calendar = Calendar.getInstance();
-	calendar.set(2100,1,1);
-	endOfWorld = calendar.getTime();
+  public DirectDataHelper (Document formatDoc, TimeOps timeOps, Logger logger) {
+    Calendar calendar = Calendar.getInstance();
+    calendar.set(2100,1,1);
+    endOfWorld = calendar.getTime();
 
-	this.timeOps = timeOps;
+    this.timeOps = timeOps;
 
-	scanFormatDoc (formatDoc);
+    this.logger = logger;
+    scanFormatDoc (formatDoc);
   }
   
   /** 
@@ -88,40 +90,40 @@ public class DirectDataHelper implements DataHelper {
    * @param formatDoc the object format document
    */
   protected void scanFormatDoc (Document formatDoc) {
-	NodeList objectFormats = formatDoc.getElementsByTagName ("OBJECTFORMAT");
-	for (int i = 0; i < objectFormats.getLength(); i++) {
-	  Element objectFormat = (Element) objectFormats.item(i);
-	  NodeList fieldFormats = objectFormat.getElementsByTagName ("FIELDFORMAT");
+    NodeList objectFormats = formatDoc.getElementsByTagName ("OBJECTFORMAT");
+    for (int i = 0; i < objectFormats.getLength(); i++) {
+      Element objectFormat = (Element) objectFormats.item(i);
+      NodeList fieldFormats = objectFormat.getElementsByTagName ("FIELDFORMAT");
 
-	  ObjectInfo objectInfo;
+      ObjectInfo objectInfo;
 	  
-	  objects.put (objectFormat.getAttribute ("name"), objectInfo = new ObjectInfo ());
+      objects.put (objectFormat.getAttribute ("name"), objectInfo = new ObjectInfo ());
 
-	  if (debug)
-		System.out.println ("DirectDataHelper.ctor - " +objectFormat.getAttribute ("name"));
+      if (logger.isDebugEnabled())
+	logger.debug ("DirectDataHelper.ctor - " +objectFormat.getAttribute ("name"));
 	  
-	  for (int j = 0; j < fieldFormats.getLength(); j++) {
-		Element field = (Element) fieldFormats.item(j);
+      for (int j = 0; j < fieldFormats.getLength(); j++) {
+	Element field = (Element) fieldFormats.item(j);
 
 
-		String name = field.getAttribute ("name");
-		String type = field.getAttribute ("datatype");
-		String sub  = field.getAttribute ("is_subobject");
-		String key  = field.getAttribute ("is_key");
-		String list = field.getAttribute ("is_list");
+	String name = field.getAttribute ("name");
+	String type = field.getAttribute ("datatype");
+	String sub  = field.getAttribute ("is_subobject");
+	String key  = field.getAttribute ("is_key");
+	String list = field.getAttribute ("is_list");
 
-		if (debug)
-		  System.out.println ("DirectDataHelper.ctor - field " +name);
+	if (logger.isDebugEnabled())
+	  logger.debug ("DirectDataHelper.ctor - field " +name);
 
-		objectInfo.nameToType.put (name, type);
-		if (sub.equals ("true"))
-		  objectInfo.subObjects.add (type);
-		if (key.equals ("true"))
-		  objectInfo.keys.add (name);
-		if (list.equals ("true"))
-		  objectInfo.lists.add (name);
-	  }
-	}
+	objectInfo.nameToType.put (name, type);
+	if (sub.equals ("true"))
+	  objectInfo.subObjects.add (type);
+	if (key.equals ("true"))
+	  objectInfo.keys.add (name);
+	if (list.equals ("true"))
+	  objectInfo.lists.add (name);
+      }
+    }
   }
 
   /** 
@@ -134,40 +136,40 @@ public class DirectDataHelper implements DataHelper {
    * @param asset  - the asset with the role schedule
    */
   public void createRoleScheduleListField (Object object, String name, Asset asset) {
-	RoleSchedule unavail = asset.getRoleSchedule ();
-	SchObject resource = (SchObject)object;
+    RoleSchedule unavail = asset.getRoleSchedule ();
+    SchObject resource = (SchObject)object;
 
-	resource.addListField (name);
+    resource.addListField (name);
 
-	createScheduleFields (unavail.getEncapsulatedRoleSchedule(0, endOfWorld.getTime()), 
-						  resource, name);
+    createScheduleFields (unavail.getEncapsulatedRoleSchedule(0, endOfWorld.getTime()), 
+			  resource, name);
   }
 
   public void createAvailableScheduleListField (Object object, String name, Asset asset) {
-	SchObject resource = (SchObject)object;
-	resource.addListField (name);
+    SchObject resource = (SchObject)object;
+    resource.addListField (name);
 
-	Schedule availSchedule = asset.getRoleSchedule().getAvailableSchedule ();
-	Collection coll = availSchedule.getEncapsulatedScheduleElements (0,endOfWorld.getTime());
-	if (coll.isEmpty ())
-	  System.out.println("DirectDataHelper -- availSchedule is empty");
+    Schedule availSchedule = asset.getRoleSchedule().getAvailableSchedule ();
+    Collection coll = availSchedule.getEncapsulatedScheduleElements (0,endOfWorld.getTime());
+    if (coll.isEmpty ())
+      logger.debug("DirectDataHelper -- availSchedule is empty");
 	
-	createScheduleFields (availSchedule.getEncapsulatedScheduleElements (0,endOfWorld.getTime()), 
-						  resource, name);
+    createScheduleFields (availSchedule.getEncapsulatedScheduleElements (0,endOfWorld.getTime()), 
+			  resource, name);
   }
   
   protected void createScheduleFields (Collection schedule, SchObject resource, String name) {
-	for (Iterator iter = schedule.iterator (); iter.hasNext();) {
-	  TimeSpan span = (TimeSpan) iter.next ();
-	  SchObject interval = new SchObject (timeOps);
+    for (Iterator iter = schedule.iterator (); iter.hasNext();) {
+      TimeSpan span = (TimeSpan) iter.next ();
+      SchObject interval = new SchObject (timeOps);
 
-	  interval.addDateMillis ("start",  span.getStartTime());
-	  interval.addDateMillis ("end",    span.getEndTime());
-	  if (span instanceof PlanElement)
-		interval.addField ("label1", "string", ((PlanElement)span).getTask().getVerb().toString(), false, false);
+      interval.addDateMillis ("start",  span.getStartTime());
+      interval.addDateMillis ("end",    span.getEndTime());
+      if (span instanceof PlanElement)
+	interval.addField ("label1", "string", ((PlanElement)span).getTask().getVerb().toString(), false, false);
 
       resource.addField (name, "interval", interval, false, true);
-	}
+    }
   }
   
   protected Map geolocCodeCache = new HashMap ();
@@ -260,56 +262,56 @@ public class DirectDataHelper implements DataHelper {
    * @param type - ignored here
    */
   public Object createObject (Object parent, String type) {
-	return new SchObject (timeOps);
+    return new SchObject (timeOps);
   }
 
   /** 
    * shortcut to create a date field on <code>parent</code> 
    */
   public void createDateField (Object parent, String name, Date date) {
-	if (debug)
-	  System.out.println ("DirectDataHelper.createDateField - " +
-						  " name " + name +
-						  " value " + date);
+    if (logger.isDebugEnabled())
+      logger.debug ("DirectDataHelper.createDateField - " +
+	     " name " + name +
+	     " value " + date);
 
-	((SchObject) parent).addDate (name, date);
+    ((SchObject) parent).addDate (name, date);
   }
 
   /** shortcut to create a boolean field on <code>parent</code> */
   public void createBooleanField (Object parent, String name, boolean value) {
-	if (debug)
-	  System.out.println ("DirectDataHelper.createBooleanField - " +
-						  " name " + name +
-						  " value " + value);
+    if (logger.isDebugEnabled())
+      logger.debug ("DirectDataHelper.createBooleanField - " +
+	     " name " + name +
+	     " value " + value);
 
-	((SchObject) parent).addBoolean (name, value);
+    ((SchObject) parent).addBoolean (name, value);
   }
 
   /** shortcut to create a float field on <code>parent</code> */
   public void createFloatField (Object parent, String name, float value) {
-	if (debug)
-	  System.out.println ("DirectDataHelper.createFloatField - " +
-						  " name " + name +
-						  " value " + value);
+    if (logger.isDebugEnabled())
+      logger.debug ("DirectDataHelper.createFloatField - " +
+	     " name " + name +
+	     " value " + value);
 
-	((SchObject) parent).addFloat (name, value);
+    ((SchObject) parent).addFloat (name, value);
   }
 
   /** not used in this helper */
   public Object createField (Object parent, String name) {
-	return null;
+    return null;
   }
 
   /** not used in this helper */
   public Object createFieldPair (String name, String value) {
-	System.err.println ("huh? don't call me");
-	return null;
+    logger.error ("huh? don't call me");
+    return null;
   }
   
   /** not used in this helper */
   public Object createField (Object parent, String name, String value) {
-	System.err.println ("huh? don't call me");
-	return null;
+    logger.error ("huh? don't call me");
+    return null;
   }
 
   /** 
@@ -329,20 +331,20 @@ public class DirectDataHelper implements DataHelper {
    * @param value field's value
    */
   public void createField (Object parent, String parentType, String name, String value) {
-	boolean isKey  = isKey   (parentType, name);
-	boolean isList = isList  (parentType, name);
-	String  type   = getType (parentType, name);
+    boolean isKey  = isKey   (parentType, name);
+    boolean isList = isList  (parentType, name);
+    String  type   = getType (parentType, name);
 	
-	if (debug)
-	  System.out.println ("DirectDataHelper.createField - " +
-						  " parentType " + parentType +
-						  " name " + name +
-						  " type " + type +
-						  " value " + value +
-						  " key " + isKey +
-						  " list " + isList);
+    if (logger.isDebugEnabled())
+      logger.debug ("DirectDataHelper.createField - " +
+	     " parentType " + parentType +
+	     " name " + name +
+	     " type " + type +
+	     " value " + value +
+	     " key " + isKey +
+	     " list " + isList);
 
-	((SchObject) parent).addField (name, type, value, isKey, isList);
+    ((SchObject) parent).addField (name, type, value, isKey, isList);
   }
 
   /** 
@@ -353,51 +355,51 @@ public class DirectDataHelper implements DataHelper {
    * This should never happen, though.
    */
   protected boolean isKey (String parentType, String name) {
-	ObjectInfo oi = (ObjectInfo) objects.get (parentType);
-	if (oi == null) {
-	  if (!isPredefined(parentType))
-		System.err.println ("DirectDataHelper.isKey - ERROR - missing parent type " + parentType);
-	  return false;
-	}
+    ObjectInfo oi = (ObjectInfo) objects.get (parentType);
+    if (oi == null) {
+      if (!isPredefined(parentType))
+	logger.error ("DirectDataHelper.isKey - ERROR - missing parent type " + parentType);
+      return false;
+    }
 	
-	return oi.keys.contains (name);
+    return oi.keys.contains (name);
   }
 
   protected boolean isList (String parentType, String name) {
-	ObjectInfo oi = (ObjectInfo) objects.get (parentType);
-	if (oi == null) {
-	  if (!isPredefined(parentType))
-		System.err.println ("DirectDataHelper.isList - ERROR - missing parent type " + parentType);
-	  return false;
-	}
-	return oi.lists.contains (name);
+    ObjectInfo oi = (ObjectInfo) objects.get (parentType);
+    if (oi == null) {
+      if (!isPredefined(parentType))
+	logger.error ("DirectDataHelper.isList - ERROR - missing parent type " + parentType);
+      return false;
+    }
+    return oi.lists.contains (name);
   }
 
   protected boolean isSub (String parentType, String name) {
-	ObjectInfo oi = (ObjectInfo) objects.get (parentType);
-	if (oi == null) {
-	  if (!isPredefined(parentType))
-		System.err.println ("DirectDataHelper.isSub - ERROR - missing parent type " + parentType);
-	  return false;
-	}
-	return oi.subObjects.contains (name);
+    ObjectInfo oi = (ObjectInfo) objects.get (parentType);
+    if (oi == null) {
+      if (!isPredefined(parentType))
+	logger.error ("DirectDataHelper.isSub - ERROR - missing parent type " + parentType);
+      return false;
+    }
+    return oi.subObjects.contains (name);
   }
 
   protected String getType (String parentType, String name) {
-	ObjectInfo oi = (ObjectInfo) objects.get (parentType);
-	if (oi == null) {
-	  if (!isPredefined(parentType))
-		System.err.println ("DirectDataHelper.getType - ERROR - missing parent type " + parentType);
-	  return parentType;// probably wrong...
-	}
-	return (String) oi.nameToType.get (name);
+    ObjectInfo oi = (ObjectInfo) objects.get (parentType);
+    if (oi == null) {
+      if (!isPredefined(parentType))
+	logger.error ("DirectDataHelper.getType - ERROR - missing parent type " + parentType);
+      return parentType;// probably wrong...
+    }
+    return (String) oi.nameToType.get (name);
   }
 
   protected boolean isPredefined (String type) {
-	return type.equals ("interval") ||
-	  type.equals ("xy_coord") ||
-	  type.equals ("latlong") ||
-	  type.equals ("matrix");
+    return type.equals ("interval") ||
+      type.equals ("xy_coord") ||
+      type.equals ("latlong") ||
+      type.equals ("matrix");
   }
   
   /** 
@@ -406,17 +408,14 @@ public class DirectDataHelper implements DataHelper {
    * @see #createField
    */
   protected class ObjectInfo {
-	public Map nameToType = new HashMap ();
-	public Set subObjects = new HashSet ();
-	public Set keys = new HashSet ();
-	public Set lists = new HashSet ();
+    public Map nameToType = new HashMap ();
+    public Set subObjects = new HashSet ();
+    public Set keys = new HashSet ();
+    public Set lists = new HashSet ();
   }
 
   /** reference to TimeOps object, used whenever a date is created */
   protected TimeOps timeOps;
-
-  /** the object format document */
-  //  protected Document formatDoc;
 
   /** holds Vishnu object attributes per type */
   protected Map objects = new HashMap ();
@@ -424,7 +423,7 @@ public class DirectDataHelper implements DataHelper {
   /** used in createRoleScheduleListField */
   protected Date endOfWorld;
 
-  boolean debug = false;
+  Logger logger;
 }
 
 

@@ -53,15 +53,17 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import org.cougaar.util.ConfigFinder;
+import org.cougaar.util.log.Logger;
 
 import org.cougaar.lib.param.ParamMap;
 
 /** A collection of helper methods for manipulating DOM documents. */
 public class VishnuDomUtil {
-  public VishnuDomUtil (ParamMap myParamTable, String name, ConfigFinder configFinder) {
+  public VishnuDomUtil (ParamMap myParamTable, String name, ConfigFinder configFinder, Logger logger) {
     this.myParamTable = myParamTable;
     this.name = name;
     this.configFinder = configFinder;
+    this.logger = logger;
   }
   
   protected ParamMap getMyParams () {	return myParamTable;  }
@@ -93,7 +95,7 @@ public class VishnuDomUtil {
       serializer.serialize (doc);
       if (showTiming)
 	reportTime (" - got doc as string in ", start);
-    } catch (IOException ioe) {System.out.println ("Exception " + ioe);}
+    } catch (IOException ioe) {logger.error ("Exception " + ioe, ioe);}
     
     return sw.toString ();
   }
@@ -108,7 +110,7 @@ public class VishnuDomUtil {
     XMLSerializer serializer = new XMLSerializer (sw, of);
     try {
       serializer.serialize (doc);
-    } catch (IOException ioe) {System.out.println ("Exception " + ioe);}
+    } catch (IOException ioe) {logger.error ("Exception " + ioe, ioe);}
 
     return sw;
   }
@@ -142,9 +144,9 @@ public class VishnuDomUtil {
       merge (originalAppendLoc, appendDocRoot);
 
     } catch (SAXException sax) {
-      System.out.println (name + ".appendDoc - Got sax exception:\n" + sax);
+      logger.error (name + ".appendDoc - Got sax exception:\n" + sax, sax);
     } catch (IOException ioe) {
-      System.out.println ("Could not open file : \n" + ioe);
+      logger.error ("Could not open file : \n" + ioe, ioe);
     }
   }
 
@@ -177,9 +179,9 @@ public class VishnuDomUtil {
 	merge (originalAppendLoc, appendDoc.getDocumentElement ());
 	  
     } catch (SAXException sax) {
-      System.out.println (name + ".appendDoc - Got sax exception:\n" + sax);
+      logger.error (name + ".appendDoc - Got sax exception:\n" + sax, sax);
     } catch (IOException ioe) {
-      System.out.println ("Could not open file : \n" + ioe);
+      logger.error ("Could not open file : \n" + ioe, ioe);
     }
   }
 
@@ -264,7 +266,7 @@ public class VishnuDomUtil {
 
     try {
       serializer.serialize (doc);
-    } catch (IOException ioe) {System.out.println ("Exception " + ioe);}
+    } catch (IOException ioe) {logger.error ("Exception " + ioe, ioe);}
   }
   
   /*
@@ -294,13 +296,13 @@ public class VishnuDomUtil {
     long sec  = (diff - (min*60000l))/1000l;
     long millis = diff - (min*60000l) - (sec*1000l);
     //	if (min < 1l && sec < 1l && millis < 10l) return;
-    System.out.println  (name + prefix +
-			 min + 
-			 ":" + ((sec < 10) ? "0":"") + sec + 
-			 ":" + ((millis < 10) ? "0":"") + millis + 
-			 " (Wall clock)" + 
-			 " free "  + (rt.freeMemory  ()/(1024*1024)) + "M" +
-			 " total " + (rt.totalMemory ()/(1024*1024)) + "M");
+    logger.info  (name + prefix +
+		  min + 
+		  ":" + ((sec < 10) ? "0":"") + sec + 
+		  ":" + ((millis < 10) ? "0":"") + millis + 
+		  " (Wall clock)" + 
+		  " free "  + (rt.freeMemory  ()/(1024*1024)) + "M" +
+		  " total " + (rt.totalMemory ()/(1024*1024)) + "M");
   }
 
   protected ParamMap myParamTable;
@@ -308,4 +310,5 @@ public class VishnuDomUtil {
   boolean showTiming;
   String name;
   ConfigFinder configFinder;
+  protected Logger logger;
 }

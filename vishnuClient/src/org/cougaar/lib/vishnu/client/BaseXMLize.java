@@ -47,6 +47,8 @@ import java.util.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import org.cougaar.util.log.Logger;
+
 /**
  * Create and return xml for first class log plan objects.
  * <p>
@@ -67,17 +69,19 @@ public abstract class BaseXMLize {
   protected Class abstractMeasureClass;
   protected Map classToBeanInfo;
   protected Map commonUnitToNoUnders;
+  protected Logger logger;
 
-  public BaseXMLize () {
-	try {
-	  numberClass  = Class.forName ("java.lang.Number");
-	  booleanClass = Class.forName ("java.lang.Boolean");
-	  stringClass  = Class.forName ("java.lang.String");
-	  classClass   = Class.forName ("java.lang.Class");
-	  abstractMeasureClass = Class.forName ("org.cougaar.planning.ldm.measure.AbstractMeasure");
-	} catch (ClassNotFoundException cnfe) {}
-	classToBeanInfo = new HashMap();
-	commonUnitToNoUnders = new HashMap ();
+  public BaseXMLize (Logger logger) {
+    try {
+      numberClass  = Class.forName ("java.lang.Number");
+      booleanClass = Class.forName ("java.lang.Boolean");
+      stringClass  = Class.forName ("java.lang.String");
+      classClass   = Class.forName ("java.lang.Class");
+      abstractMeasureClass = Class.forName ("org.cougaar.planning.ldm.measure.AbstractMeasure");
+    } catch (ClassNotFoundException cnfe) {}
+    classToBeanInfo = new HashMap();
+    commonUnitToNoUnders = new HashMap ();
+    this.logger = logger;
   }
 
   public Element getPlanObjectXML(Object obj, Document doc, String resourceClassName) {
@@ -85,11 +89,11 @@ public abstract class BaseXMLize {
   }
 
   public Element getPlanObjectXML(Object obj, Document doc,
-								  int searchDepth, String resourceClassName) {
+				  int searchDepth, String resourceClassName) {
     Collection nodes = getPlanObjectXMLNodes (obj, doc, DEFAULT_UID_DEPTH, resourceClassName);
-	if (nodes.isEmpty ())
-	  return null;
-	return (Element) nodes.iterator().next ();
+    if (nodes.isEmpty ())
+      return null;
+    return (Element) nodes.iterator().next ();
   }
   
   public Collection getPlanObjectXMLNodes (Object obj, Document doc, String resourceClassName) {
@@ -97,19 +101,19 @@ public abstract class BaseXMLize {
   }
 
   public Collection getPlanObjectXMLNodes(Object obj, Document doc, 
-										  int searchDepth, String resourceClassName) {
+					  int searchDepth, String resourceClassName) {
     String tag;
-	boolean isResource = false;
-	boolean isTask  = false;
+    boolean isResource = false;
+    boolean isTask  = false;
 	
     if (Asset.class.isInstance(obj)) {
-	  tag = "Asset";
-	  isResource = true;
-	  if (debug) System.out.println ("BaseXMLize - getPlanObjectXMLNodes thinks " + obj + " is a resource");
+      tag = "Asset";
+      isResource = true;
+      if (logger.isInfoEnabled()) logger.info ("BaseXMLize - getPlanObjectXMLNodes thinks " + obj + " is a resource");
     } else if (Task.class.isInstance(obj)) {
       tag = ((Task) obj).getVerb ().toString();
-	  isTask = true;
-	  if (debug) System.out.println ("BaseXMLize - getPlanObjectXMLNodes thinks " + obj + " is a task");
+      isTask = true;
+      if (logger.isInfoEnabled()) logger.info ("BaseXMLize - getPlanObjectXMLNodes thinks " + obj + " is a task");
     } else {
       tag = obj.getClass().getName();
       int i = tag.lastIndexOf(".");
@@ -120,23 +124,23 @@ public abstract class BaseXMLize {
       if (i >= 0) {
         tag = tag.substring(0, i);
       }
-	  if (debug) System.out.println ("BaseXMLize - getPlanObjectXMLNodes thinks " + obj + 
-									 " is neither a task nor a resource.");
+      if (logger.isInfoEnabled()) logger.info ("BaseXMLize - getPlanObjectXMLNodes thinks " + obj + 
+			" is neither a task nor a resource.");
     }
-	Element root = createRootNode(doc, tag, isTask, isResource, obj, resourceClassName);
-	Set createdNodes = new HashSet ();
-	createdNodes.add (root);
+    Element root = createRootNode(doc, tag, isTask, isResource, obj, resourceClassName);
+    Set createdNodes = new HashSet ();
+    createdNodes.add (root);
     addNodes(doc, obj, root, searchDepth, createdNodes);
     return createdNodes;
   }
 
   /** subclass to generate different tag */
   protected abstract Element createRootNode (Document doc,
-											 String tag,
-											 boolean isTask,
-											 boolean isResource,
-											 Object obj,
-											 String resourceClassName);
+					     String tag,
+					     boolean isTask,
+					     boolean isResource,
+					     Object obj,
+					     String resourceClassName);
   
   /** 
    * <b>Recursively</b> introspect and add nodes to the XML document.
@@ -150,20 +154,20 @@ public abstract class BaseXMLize {
    */
 
   protected void addNodes(
-      Document doc, Object obj, 
-      Element parentElement, 
-      int searchDepth, 
-	  Collection createdNodes) {
+			  Document doc, Object obj, 
+			  Element parentElement, 
+			  int searchDepth, 
+			  Collection createdNodes) {
     if (obj == null) {
       return;
     }
 
     if (searchDepth <= 0) {
-	  generateElementReachedMaxDepth (doc, parentElement, obj);
+      generateElementReachedMaxDepth (doc, parentElement, obj);
       return;
     }
 
-	Map listProps = new HashMap ();
+    Map listProps = new HashMap ();
 
     List propertyNameValues = getProperties (obj, listProps);
 
@@ -171,28 +175,28 @@ public abstract class BaseXMLize {
     for (int i = 0; i < propertyNameValues.size(); i++) {
       PropertyNameValue pnv = 
         (PropertyNameValue) propertyNameValues.get(i);
-	  generateElem (doc, parentElement, pnv.name, pnv.value, 
-					searchDepth, false, false, createdNodes);
+      generateElem (doc, parentElement, pnv.name, pnv.value, 
+		    searchDepth, false, false, createdNodes);
     }
   }
 
   protected void generateElem (Document doc, Element parentElement, 
-							   String propertyName, Object propertyValue,
-							   int searchDepth,
-							   boolean isList, boolean isFirst, 
-							   Collection createdNodes) {
-	// check if this should be a leaf
-	boolean isLeaf = !isList &&
-	  (stringClass.isInstance (propertyValue) ||
-	   classClass.isInstance  (propertyValue));
+			       String propertyName, Object propertyValue,
+			       int searchDepth,
+			       boolean isList, boolean isFirst, 
+			       Collection createdNodes) {
+    // check if this should be a leaf
+    boolean isLeaf = !isList &&
+      (stringClass.isInstance (propertyValue) ||
+       classClass.isInstance  (propertyValue));
 
-	if (isLeaf) 
-	  generateLeaf    (doc, parentElement, propertyName, propertyValue);
-	else {
-	  generateNonLeaf (doc, parentElement, propertyName, propertyValue, 
-					   searchDepth, isList, isFirst, 
-					   createdNodes);
-	}
+    if (isLeaf) 
+      generateLeaf    (doc, parentElement, propertyName, propertyValue);
+    else {
+      generateNonLeaf (doc, parentElement, propertyName, propertyValue, 
+		       searchDepth, isList, isFirst, 
+		       createdNodes);
+    }
   }
 
   /**
@@ -200,54 +204,53 @@ public abstract class BaseXMLize {
    * Write the UID if possible, otherwise write the "toString".
    */
   protected abstract void generateElementReachedMaxDepth (Document doc, Element parentElement, 
-														  Object obj);
+							  Object obj);
 
   protected abstract void generateLeaf (Document doc, Element parentElement, 
-										String propertyName, Object propertyValue);
+					String propertyName, Object propertyValue);
   
   protected abstract void generateNonLeaf (Document doc, Element parentElement, 
-										   String propertyName, Object propertyValue,
-										   int searchDepth,
-										   boolean isList, boolean isFirst, 
-										   Collection createdNodes);
+					   String propertyName, Object propertyValue,
+					   int searchDepth,
+					   boolean isList, boolean isFirst, 
+					   Collection createdNodes);
 
   protected boolean isUniqueObject (Object obj) {
-	return (obj instanceof UniqueObject) &&
-	  (((UniqueObject)obj).getUID() != null);
+    return (obj instanceof UniqueObject) &&
+      (((UniqueObject)obj).getUID() != null);
   }
   
   protected List getProperties (Object obj, Map listProps) {
     BeanInfo info = null;
     List propertyNameValues;
 	
-	Class objectClass =
-	  ((!(LockedPG.class.isInstance(obj))) ?
-	   obj.getClass() :
-	   ((LockedPG)obj).getIntrospectionClass());
+    Class objectClass =
+      ((!(LockedPG.class.isInstance(obj))) ?
+       obj.getClass() :
+       ((LockedPG)obj).getIntrospectionClass());
 
-	int mods = objectClass.getModifiers();
-	if (debug)
-	  System.out.println("BaseXMLize.getProperties - Introspecting on: " + objectClass + 
-						 " modifiers: " + Modifier.toString(mods));
-	if (!Modifier.isPublic(mods)) {
-	  propertyNameValues = specialIntrospection(obj);
-	} else {
-	  try {
-		info = (BeanInfo) classToBeanInfo.get (objectClass);
-		if (info == null) {
-		  info = Introspector.getBeanInfo(objectClass);
-		  classToBeanInfo.put (objectClass, info);
-		}
-	  } catch (IntrospectionException e) {
-		System.out.println("Exception in converting object to XML: " + 
-						   e.getMessage());
-	  }
-
-	  propertyNameValues = 
-		getPropertyNamesAndValues(info.getPropertyDescriptors(), obj, listProps);
+    int mods = objectClass.getModifiers();
+    if (logger.isInfoEnabled())
+      logger.info("BaseXMLize.getProperties - Introspecting on: " + objectClass + 
+	    " modifiers: " + Modifier.toString(mods));
+    if (!Modifier.isPublic(mods)) {
+      propertyNameValues = specialIntrospection(obj);
+    } else {
+      try {
+	info = (BeanInfo) classToBeanInfo.get (objectClass);
+	if (info == null) {
+	  info = Introspector.getBeanInfo(objectClass);
+	  classToBeanInfo.put (objectClass, info);
 	}
+      } catch (IntrospectionException e) {
+	logger.error("Exception in converting object to XML: ", e);
+      }
 
-	return propertyNameValues;
+      propertyNameValues = 
+	getPropertyNamesAndValues(info.getPropertyDescriptors(), obj, listProps);
+    }
+
+    return propertyNameValues;
   }
 	  
   /*
@@ -265,8 +268,8 @@ public abstract class BaseXMLize {
   */
 
   private List specialIntrospection(Object obj) {
-    if (debug) 
-	  System.out.println("Performing special introspection for:" + obj);
+    if (logger.isInfoEnabled()) 
+      logger.info("Performing special introspection for:" + obj);
 
     Class objClass = obj.getClass();
     Class[] interfaces;
@@ -287,74 +290,74 @@ public abstract class BaseXMLize {
     }
     List propertyNameValues = new ArrayList(10);
     for (int i = 0; i < interfaces.length; i++) {
-      if (debug)
-		System.out.println("Interface:" + interfaces[i].toString());
+      if (logger.isInfoEnabled())
+	logger.info("Interface:" + interfaces[i].toString());
       try {
-		BeanInfo info = (BeanInfo) classToBeanInfo.get (interfaces[i]);
-		if (info == null) {
-		  info = Introspector.getBeanInfo(interfaces[i]);
-		  classToBeanInfo.put (interfaces[i], info);
-		}
+	BeanInfo info = (BeanInfo) classToBeanInfo.get (interfaces[i]);
+	if (info == null) {
+	  info = Introspector.getBeanInfo(interfaces[i]);
+	  classToBeanInfo.put (interfaces[i], info);
+	}
 
         PropertyDescriptor[] properties = info.getPropertyDescriptors();
-		Map listProps = new HashMap ();
+	Map listProps = new HashMap ();
         List tmp = getPropertyNamesAndValues(properties, 
-											 Beans.getInstanceOf(obj, interfaces[i]), 
-											 listProps);
+					     Beans.getInstanceOf(obj, interfaces[i]), 
+					     listProps);
         if (tmp != null)
-		  propertyNameValues.addAll (tmp);
+	  propertyNameValues.addAll (tmp);
       } catch (IntrospectionException e) {
-        System.out.println(
-          "Exception generating XML for plan object:" + e.getMessage());
+        logger.error(
+	      "Exception generating XML for plan object:" + e.getMessage(), e);
       }
     }
-    // for debugging
+    // for infoging
     //    for (int i = 0; i < propertyNameValues.size(); i++) {
     //      PropertyNameValue p = (PropertyNameValue)(propertyNameValues.elementAt(i));
-    //      System.out.println("Property Name: " + p.name + " Property Value: " + p.value);
+    //      info("Property Name: " + p.name + " Property Value: " + p.value);
     //    }
     return propertyNameValues;
   }
 
-    /**
-     * Get the property names and values (returned in a vector)
-     * from the given property descriptors and for the given object.
-     *
-     * Removes redundant properties from measure objects.
-     */
+  /**
+   * Get the property names and values (returned in a vector)
+   * from the given property descriptors and for the given object.
+   *
+   * Removes redundant properties from measure objects.
+   */
 
   private List getPropertyNamesAndValues(PropertyDescriptor[] properties, 
-										 Object obj, Map listProps) {
+					 Object obj, Map listProps) {
     List pv = new ArrayList();
 
     // IGNORE JAVA.SQL.DATE CLASS
     if (Date.class.isInstance  (obj) ||
-		String.class.isInstance(obj)) {
+	String.class.isInstance(obj)) {
       return pv;
     }
 
     if (abstractMeasureClass.isInstance(obj)) {
-	  properties = 
-	    prunePropertiesFromMeasure ((AbstractMeasure)obj, properties);
+      properties = 
+	prunePropertiesFromMeasure ((AbstractMeasure)obj, properties);
     }
 
     for (int i = 0; i < properties.length; i++) {
       PropertyDescriptor pd = properties[i];
-	  if (debug)
-		System.out.println ("getPropertyNamesAndValues - " + pd.getPropertyType () +  
-							" : " + pd.getName ());
+      if (logger.isInfoEnabled())
+	logger.info ("getPropertyNamesAndValues - " + pd.getPropertyType () +  
+	       " : " + pd.getName ());
       Method rm = pd.getReadMethod();
       if (rm == null) {
-		if (debug)
-		  System.out.println ("\tread method was null.");
+	if (logger.isInfoEnabled())
+	  logger.info ("\tread method was null.");
         continue;
       }
 
       // invoke the read method for each property
       Object childObject = getReadResult (obj, rm);
       if (childObject == null) {
-		if (debug)
-		  System.out.println ("\tread result of " + rm.getName () + " was null.");
+	if (logger.isInfoEnabled())
+	  logger.info ("\tread result of " + rm.getName () + " was null.");
         continue;
       }
       
@@ -362,56 +365,56 @@ public abstract class BaseXMLize {
       String name = pd.getName();
       if (pd.getPropertyType().isArray()) {
         int length = Array.getLength(childObject);
-		listProps.put (name, new Integer(length));
-		if (debug)
-		  System.out.println ("getProp - " + pd.getPropertyType () + 
-							  " : " + name + " - " + length + " now " + listProps.size() + " props");
+	listProps.put (name, new Integer(length));
+	if (logger.isInfoEnabled())
+	  logger.info ("getProp - " + pd.getPropertyType () + 
+		 " : " + name + " - " + length + " now " + listProps.size() + " props");
 		
         for (int j = 0; j < length; j++) {
           Object value = Array.get(childObject, j);
           if (value.getClass().isPrimitive()) {
-			if (isPrimitiveFloat (value.getClass ()))
-			  value = getValueOfPrimitiveFloat (value);
-			else
-			  value = String.valueOf(value);
+	    if (isPrimitiveFloat (value.getClass ()))
+	      value = getValueOfPrimitiveFloat (value);
+	    else
+	      value = String.valueOf(value);
           }
           pv.add(new PropertyNameValue(name, value));
         }
       } else {
-		// need first class object, can't have a reference to a primitive
-		if (isPrimitive(childObject.getClass())) {
-	      childObject = String.valueOf(childObject);
-		  if (debug)
-			System.out.println ("getProp - " + pd.getName () + 
-								" - childObject " + childObject + " is a primitive.");
-		}
-		if (!ignoreClass (childObject.getClass()))
-		  pv.add(new PropertyNameValue(name, childObject));
+	// need first class object, can't have a reference to a primitive
+	if (isPrimitive(childObject.getClass())) {
+	  childObject = String.valueOf(childObject);
+	  if (logger.isInfoEnabled())
+	    logger.info ("getProp - " + pd.getName () + 
+		   " - childObject " + childObject + " is a primitive.");
+	}
+	if (!ignoreClass (childObject.getClass()))
+	  pv.add(new PropertyNameValue(name, childObject));
       }
     }
 
-	if (Asset.class.isInstance (obj))
-	  pv.addAll (getDynamicAssetProperties ((Asset) obj));
+    if (Asset.class.isInstance (obj))
+      pv.addAll (getDynamicAssetProperties ((Asset) obj));
 
     Collections.sort(pv, lessStringIgnoreCase);
     return pv;
   }
 
   protected boolean isPrimitiveFloat (Class theClass) {
-	return (theClass == Float.TYPE) || (theClass == Double.TYPE);
+    return (theClass == Float.TYPE) || (theClass == Double.TYPE);
   }
 
   protected String getValueOfPrimitiveFloat (Object value) {
-	String stringValue = String.valueOf(value);
-	char first = stringValue.charAt(0);
+    String stringValue = String.valueOf(value);
+    char first = stringValue.charAt(0);
 	
-	if (first == 'I' || first == '-') {
-	  if (stringValue.equals ("Infinity"))
-		stringValue = MAX_VALUE_STRING;
-	  else if (stringValue.equals ("-Infinity"))
-		stringValue = MIN_VALUE_STRING;
-	}
-	return stringValue;
+    if (first == 'I' || first == '-') {
+      if (stringValue.equals ("Infinity"))
+	stringValue = MAX_VALUE_STRING;
+      else if (stringValue.equals ("-Infinity"))
+	stringValue = MIN_VALUE_STRING;
+    }
+    return stringValue;
   }
 
   /**
@@ -419,14 +422,14 @@ public abstract class BaseXMLize {
    * Ignore : Class, AspectScoreRange, WorkflowImpl
    */
   protected boolean ignoreClass (Class aClass) {
-	return (aClass == Class.class) ||
-	  (aClass == org.cougaar.planning.ldm.plan.AspectScoreRange.class) ||
-	  (aClass == org.cougaar.planning.ldm.plan.WorkflowImpl.class) ||
-	  (aClass == org.cougaar.planning.ldm.plan.RelationshipScheduleImpl.class) || 
-	  (aClass == org.cougaar.planning.ldm.plan.AspectValue.class) ||
-	  (aClass == org.cougaar.planning.ldm.plan.AllocationImpl.class) ||
-	  (org.cougaar.core.plugin.PluginAdapter.class.isAssignableFrom (aClass)) ||
-	  (org.cougaar.planning.ldm.asset.LockedPG.class.isAssignableFrom (aClass));
+    return (aClass == Class.class) ||
+      (aClass == org.cougaar.planning.ldm.plan.AspectScoreRange.class) ||
+      (aClass == org.cougaar.planning.ldm.plan.WorkflowImpl.class) ||
+      (aClass == org.cougaar.planning.ldm.plan.RelationshipScheduleImpl.class) || 
+      (aClass == org.cougaar.planning.ldm.plan.AspectValue.class) ||
+      (aClass == org.cougaar.planning.ldm.plan.AllocationImpl.class) ||
+      (org.cougaar.core.plugin.PluginAdapter.class.isAssignableFrom (aClass)) ||
+      (org.cougaar.planning.ldm.asset.LockedPG.class.isAssignableFrom (aClass));
   }
   
   private final Comparator lessStringIgnoreCase = 
@@ -438,121 +441,119 @@ public abstract class BaseXMLize {
         }
       };
 
-    /** 
-     * Invoke read method on object
-     * 
-     * @return Object that is the result of the read
-     */
-    protected Object getReadResult (Object obj, Method rm) {
-	// invoke the read method for each property
-	Object childObject = null;
-	try {
-	    childObject = rm.invoke(obj, null);
-	} catch (InvocationTargetException ie) {
-	  if (!(ie.getTargetException () instanceof IndexOutOfBoundsException)) {
-	    System.out.println("Invocation target exception invoking: " + 
-			       rm.getName() + 
-			       " on object of class:" + 
-			       obj.getClass().getName());
-	    System.out.println(ie.getTargetException().getMessage());
-	  }
-	} catch (Exception e) {
-	    System.out.println("Exception " + e.toString() + 
-			       " invoking: " + rm.getName() + 
-			       " on object of class:" + 
-			       obj.getClass().getName());
-	    System.out.println(e.getMessage());
-	}
-	return childObject;
-    }
-
-    /** 
-     * Removes redundant measure properties.
-     * Returns only the common unit measure.  
-     * For example, for Distance, returns only the meters property and discards furlongs.
-     *
-     * (Converts underscores in common unit names.)
-     * 
-     * @param measure needed so can get common unit
-     * @param properties initial complete set of measure properties
-     * @return array containing the one property descriptor for the common unit property
-     */
-    protected PropertyDescriptor[] prunePropertiesFromMeasure (AbstractMeasure measure, 
-								      PropertyDescriptor [] properties) {
-	
-	  String cu = measure.getUnitName(measure.getCommonUnit());
-	  if (cu == null) {
-		return new PropertyDescriptor[0];
-	  }
-	  String noUnders;
-	  if ((noUnders = (String) commonUnitToNoUnders.get (cu)) == null) {
-		int pos = 0;
-		int underIndex = -1;
-		noUnders = "";
-		while ((underIndex = cu.indexOf ('_', pos)) != -1) {
-		  noUnders = noUnders + cu.substring (pos, underIndex) +
-			cu.substring (underIndex+1, underIndex+2).toUpperCase ();
-		  pos = underIndex+2;
-		}
-		while ((underIndex = cu.indexOf ('/', pos)) != -1) {
-		  noUnders = noUnders + cu.substring (pos, underIndex) + "Per" +
-			cu.substring (underIndex+1, underIndex+2).toUpperCase ();
-		  pos = underIndex+2;
-		}
-		noUnders = noUnders + cu.substring (pos);
-		commonUnitToNoUnders.put (cu, noUnders);
-	  }
-	
-	  for (int i = 0; i < properties.length; i++) {
-		PropertyDescriptor pd = properties[i];
-	  
-		if (pd.getName ().equals (noUnders))
-		  return new PropertyDescriptor[]{pd};
-	  }
-	  return null;
-    }
-	
-    /**
-     * Includes Double, Integer, etc. and Boolean as primitive types.
-     *
-     * Checks to see if class is a direct descendant of Number or a 
-     * Boolean.
-     *
-     * @return true when class is of a primitive type
-     */
-    protected boolean isPrimitive (Class propertyClass) {
-      if (propertyClass.isPrimitive())
-	  return true;
-      try {
-	  Class superClass = propertyClass.getSuperclass ();
-	  if (superClass.equals (numberClass))
-	      return true;
-	  if (propertyClass.equals (booleanClass))
-	      return true;
-      } catch (Exception e) {
-	  System.out.println ("Exception " + e);
+  /** 
+   * Invoke read method on object
+   * 
+   * @return Object that is the result of the read
+   */
+  protected Object getReadResult (Object obj, Method rm) {
+    // invoke the read method for each property
+    Object childObject = null;
+    try {
+      childObject = rm.invoke(obj, null);
+    } catch (InvocationTargetException ie) {
+      if (!(ie.getTargetException () instanceof IndexOutOfBoundsException)) {
+	logger.error("Invocation target exception invoking: " + 
+	      rm.getName() + 
+	      " on object of class:" + 
+	      obj.getClass().getName() + " msg " + ie.getTargetException().getMessage(), ie);
       }
-      
-      return false;
+    } catch (Exception e) {
+      logger.error("Exception " + e.toString() + 
+	    " invoking: " + rm.getName() + 
+	    " on object of class:" + 
+	    obj.getClass().getName(), e);
     }
+    return childObject;
+  }
+
+  /** 
+   * Removes redundant measure properties.
+   * Returns only the common unit measure.  
+   * For example, for Distance, returns only the meters property and discards furlongs.
+   *
+   * (Converts underscores in common unit names.)
+   * 
+   * @param measure needed so can get common unit
+   * @param properties initial complete set of measure properties
+   * @return array containing the one property descriptor for the common unit property
+   */
+  protected PropertyDescriptor[] prunePropertiesFromMeasure (AbstractMeasure measure, 
+							     PropertyDescriptor [] properties) {
+	
+    String cu = measure.getUnitName(measure.getCommonUnit());
+    if (cu == null) {
+      return new PropertyDescriptor[0];
+    }
+    String noUnders;
+    if ((noUnders = (String) commonUnitToNoUnders.get (cu)) == null) {
+      int pos = 0;
+      int underIndex = -1;
+      noUnders = "";
+      while ((underIndex = cu.indexOf ('_', pos)) != -1) {
+	noUnders = noUnders + cu.substring (pos, underIndex) +
+	  cu.substring (underIndex+1, underIndex+2).toUpperCase ();
+	pos = underIndex+2;
+      }
+      while ((underIndex = cu.indexOf ('/', pos)) != -1) {
+	noUnders = noUnders + cu.substring (pos, underIndex) + "Per" +
+	  cu.substring (underIndex+1, underIndex+2).toUpperCase ();
+	pos = underIndex+2;
+      }
+      noUnders = noUnders + cu.substring (pos);
+      commonUnitToNoUnders.put (cu, noUnders);
+    }
+	
+    for (int i = 0; i < properties.length; i++) {
+      PropertyDescriptor pd = properties[i];
+	  
+      if (pd.getName ().equals (noUnders))
+	return new PropertyDescriptor[]{pd};
+    }
+    return null;
+  }
+	
+  /**
+   * Includes Double, Integer, etc. and Boolean as primitive types.
+   *
+   * Checks to see if class is a direct descendant of Number or a 
+   * Boolean.
+   *
+   * @return true when class is of a primitive type
+   */
+  protected boolean isPrimitive (Class propertyClass) {
+    if (propertyClass.isPrimitive())
+      return true;
+    try {
+      Class superClass = propertyClass.getSuperclass ();
+      if (superClass.equals (numberClass))
+	return true;
+      if (propertyClass.equals (booleanClass))
+	return true;
+    } catch (Exception e) {
+      logger.error ("Exception " + e, e);
+    }
+      
+    return false;
+  }
 
   public List getDynamicAssetProperties (Asset asset) {
-	List propertyNameValues = new ArrayList ();
+    List propertyNameValues = new ArrayList ();
     try {
       // get all dynamic properties of asset
       Enumeration dynamicProperties = asset.getOtherProperties();
       while (dynamicProperties.hasMoreElements()) {
-		Object dynamicProperty = dynamicProperties.nextElement();
-		if (debug)
-		  System.out.println("Adding dynamic property: " + 
-							 dynamicProperty.toString() +
-							 " Value: " + dynamicProperty.toString() +
-							 " Class: " + dynamicProperty.getClass().toString());
-		propertyNameValues.add(new PropertyNameValue(prettyName(dynamicProperty.getClass().toString()), 
-													 dynamicProperty));
+	Object dynamicProperty = dynamicProperties.nextElement();
+	if (logger.isInfoEnabled())
+	  logger.info("Adding dynamic property: " + 
+		dynamicProperty.toString() +
+		" Value: " + dynamicProperty.toString() +
+		" Class: " + dynamicProperty.getClass().toString());
+	propertyNameValues.add(new PropertyNameValue(prettyName(dynamicProperty.getClass().toString()), 
+						     dynamicProperty));
       }
     } catch (Exception e) {
-      System.out.println("Asset introspection exception: " + e.toString());
+      logger.error("Asset introspection exception: " + e.toString());
     }
     return propertyNameValues;
   }
@@ -575,13 +576,11 @@ public abstract class BaseXMLize {
     long diff = end.getTime () - start.getTime ();
     long min  = diff/60000l;
     long sec  = (diff - (min*60000l))/1000l;
-    System.out.println  ("\n" + prefix +
-			 min + 
-			 ":" + ((sec < 10) ? "0":"") + sec + 
-			 " (Wall clock time)" + 
-			 " free "  + (rt.freeMemory  ()/(1024*1024)) + "M" +
-			 " total " + (rt.totalMemory ()/(1024*1024)) + "M");
+    logger.info ("\n" + prefix +
+	    min + 
+	    ":" + ((sec < 10) ? "0":"") + sec + 
+	    " (Wall clock time)" + 
+	    " free "  + (rt.freeMemory  ()/(1024*1024)) + "M" +
+	    " total " + (rt.totalMemory ()/(1024*1024)) + "M");
   }
-
-  private boolean debug = false;
 }

@@ -91,11 +91,10 @@ public class VishnuExpanderPlugin extends VishnuPlugin implements UTILExpanderPl
    * @see org.cougaar.lib.callback.UTILWorkflowCallback
    */
   protected UTILFilterCallback createThreadCallback (UTILGenericListener bufferingThread) { 
-    if (myExtraOutput)
-      System.out.println (getName () + " : Filtering for Expandable Tasks...");
+    if (isInfoEnabled())
+      debug (getName () + " : Filtering for Expandable Tasks...");
 
-    myInputTaskCallback = new UTILExpandableTaskCallback (bufferingThread);  
-    myInputTaskCallback.setExtraDebug (myExtraExtraOutput);
+    myInputTaskCallback = new UTILExpandableTaskCallback (bufferingThread, logger);  
     return myInputTaskCallback;
   } 
 
@@ -115,10 +114,10 @@ public class VishnuExpanderPlugin extends VishnuPlugin implements UTILExpanderPl
    * create the expansion callback
    */
   protected UTILFilterCallback createExpansionCallback () { 
-    if (myExtraOutput)
-      System.out.println (getName () + " : Filtering for Expansions...");
+    if (isInfoEnabled())
+      debug (getName () + " : Filtering for Expansions...");
         
-    return new UTILExpansionCallback (this); 
+    return new UTILExpansionCallback (this, logger); 
   }
 
   /**
@@ -191,8 +190,8 @@ public class VishnuExpanderPlugin extends VishnuPlugin implements UTILExpanderPl
    * @see org.cougaar.lib.filter.UTILPluginAdapter#updateAllocationResult
    */
   public void reportChangedExpansion(Expansion exp) { 
-      if (myExtraExtraOutput)
-	  System.out.println (getName () + 
+      if (logger.isDebugEnabled())
+	  debug (getName () + 
 			      " : reporting changed expansion to superior.");
       updateAllocationResult (exp);
   }
@@ -205,8 +204,8 @@ public class VishnuExpanderPlugin extends VishnuPlugin implements UTILExpanderPl
    * @param exp Expansion that has succeeded.
    */
   public void handleSuccessfulExpansion(Expansion exp, List successfulSubtasks) { 
-      if (myExtraOutput)
-	  System.out.println (getName () + 
+      if (isInfoEnabled())
+	  debug (getName () + 
 			      " : got successful expansion for task " + exp.getTask ().getUID());
   }
 
@@ -218,8 +217,8 @@ public class VishnuExpanderPlugin extends VishnuPlugin implements UTILExpanderPl
    * @param exp Expansion that has succeeded.
    */
   public void handleFailedExpansion(Expansion exp, List failedSubtasks) { 
-      if (myExtraOutput)
-	  System.out.println (getName () + 
+      if (isInfoEnabled())
+	  debug (getName () + 
 			      " : got failed expansion for task " + exp.getTask ().getUID());
   }
 
@@ -284,7 +283,7 @@ public class VishnuExpanderPlugin extends VishnuPlugin implements UTILExpanderPl
    * Default does nothing!  Subclass should override.
    */
   public Vector getSubtasks(Task t) { 
-    System.out.println (getName () + 
+    debug (getName () + 
 			" : WARNING - getSubtasks should be overriden." +
 			" Default does nothing.");
     return new Vector (); 

@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 1997-2001 BBNT Solutions, LLC
+ *  Copyright 1997-2002 BBNT Solutions, LLC
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
  * 
  *  This program is free software; you can redistribute it and/or modify
@@ -42,6 +42,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import org.cougaar.util.log.Logger;
+
 import org.cougaar.lib.vishnu.client.XMLProcessor.ObjectDescrip;
 
 /**
@@ -64,21 +66,20 @@ public class DataXMLize extends FormatXMLize {
   protected Map globalToName = new HashMap ();  // global object -> global name mapping
   protected Map classToInstances = new HashMap ();
 
-  public DataXMLize (boolean debug) {
-	super (false);
-	try {
-	  roleScheduleImplClass = Class.forName ("org.cougaar.planning.ldm.plan.RoleScheduleImpl");
-	  uniqueObjectClass = Class.forName ("org.cougaar.core.util.UniqueObject");
-	} catch (ClassNotFoundException cnfe) {}
-	this.debug = debug;
+  public DataXMLize (Logger logger) {
+    super (logger);
+    try {
+      roleScheduleImplClass = Class.forName ("org.cougaar.planning.ldm.plan.RoleScheduleImpl");
+      uniqueObjectClass = Class.forName ("org.cougaar.core.util.UniqueObject");
+    } catch (ClassNotFoundException cnfe) {}
   }
 
   public void setNameToDescrip (Map nameToDescrip) {
-	this.nameToDescrip = nameToDescrip;
+    this.nameToDescrip = nameToDescrip;
   }
 
   public void setResourceName (String resourceName) {
-	this.resourceName = resourceName;
+    this.resourceName = resourceName;
   }
   
   int numAddNodes = 0;
@@ -97,172 +98,171 @@ public class DataXMLize extends FormatXMLize {
 
   Map unique = new HashMap ();
 
-  protected void addNodes(
-      Document doc, Object obj, 
-      Element parentElement, 
-      int searchDepth,
-	  Collection createdNodes) {
+  protected void addNodes(Document doc, Object obj, 
+			  Element parentElement, 
+			  int searchDepth,
+			  Collection createdNodes) {
     if (obj == null) {
       return;
     }
 
-	if (ignoreClass (obj.getClass())) {
-	  if (debug) System.out.println ("----> ignored " + obj.getClass ());
-	  return;
-	}
-
-	if (debug) {
-	  if (unique.containsKey (obj))
-		unique.put (obj, new Integer (((Integer)unique.get(obj)).intValue() +1));
-	  else
-		unique.put (obj, new Integer (1));
-	}
-
-	//System.out.println ("DataXMLize.addNodes - Search depth " + searchDepth);
-	if (debug && ((numAddNodes++ % 100) == 0))
-	  System.out.println ("addNodes called " + numAddNodes + " times");
-	
-	String parentType = parentElement.getAttribute("type");
-	if (debug) 
-	  System.out.println ("parentType - " + parentType);
-	ObjectDescrip od = (ObjectDescrip) nameToDescrip.get (parentType.toLowerCase());
-	if (od == null && !printedDataWarning && !parentType.toLowerCase().startsWith("string")) {
-	  printWarning  (parentType);
-	  printedDataWarning = true;
-	}
-	  
-    if (searchDepth <= 0) {
-	  generateElementReachedMaxDepth (doc, parentElement, obj, od);
+    if (ignoreClass (obj.getClass())) {
+      if (logger.isDebugEnabled()) logger.debug ("----> ignored " + obj.getClass ());
       return;
     }
 
-	Map listProps = new HashMap ();
+    if (logger.isDebugEnabled()) {
+      if (unique.containsKey (obj))
+	unique.put (obj, new Integer (((Integer)unique.get(obj)).intValue() +1));
+      else
+	unique.put (obj, new Integer (1));
+    }
+
+    //debug ("DataXMLize.addNodes - Search depth " + searchDepth);
+    if (logger.isDebugEnabled() && ((numAddNodes++ % 100) == 0))
+      logger.debug ("addNodes called " + numAddNodes + " times");
+	
+    String parentType = parentElement.getAttribute("type");
+    if (logger.isDebugEnabled()) 
+      logger.debug ("parentType - " + parentType);
+    ObjectDescrip od = (ObjectDescrip) nameToDescrip.get (parentType.toLowerCase());
+    if (od == null && !printedDataWarning && !parentType.toLowerCase().startsWith("string")) {
+      printWarning  (parentType);
+      printedDataWarning = true;
+    }
+	  
+    if (searchDepth <= 0) {
+      generateElementReachedMaxDepth (doc, parentElement, obj, od);
+      return;
+    }
+
+    Map listProps = new HashMap ();
     List propertyNameValues = getProperties (obj, listProps);
-	//	System.out.println ("getProps for parentType - " + parentType + " listProps = " + listProps);
+    //	debug ("getProps for parentType - " + parentType + " listProps = " + listProps);
 	
-	if (listProps.isEmpty ())
-	  noListProcessProperties (propertyNameValues,
-							   doc,
-							   parentElement, searchDepth, od, createdNodes);
-	else {
-	  // add the nodes for the properties and values
-	  boolean foundDateAspect = false;
-	  PropertyNameValue [] currentLatLong = new PropertyNameValue [2];
+    if (listProps.isEmpty ())
+      noListProcessProperties (propertyNameValues,
+			       doc,
+			       parentElement, searchDepth, od, createdNodes);
+    else {
+      // add the nodes for the properties and values
+      boolean foundDateAspect = false;
+      PropertyNameValue [] currentLatLong = new PropertyNameValue [2];
 	
-	  for (int i = 0; i < propertyNameValues.size();) {
-		PropertyNameValue pnv = 
-		  (PropertyNameValue) propertyNameValues.get(i);
-		if (checkForLatLong (doc, parentElement, pnv, currentLatLong)) {
-		  i++;
-		  continue;
-		}
+      for (int i = 0; i < propertyNameValues.size();) {
+	PropertyNameValue pnv = 
+	  (PropertyNameValue) propertyNameValues.get(i);
+	if (checkForLatLong (doc, parentElement, pnv, currentLatLong)) {
+	  i++;
+	  continue;
+	}
 	  
-		foundDateAspect = checkForDateAspect (pnv, foundDateAspect);
+	foundDateAspect = checkForDateAspect (pnv, foundDateAspect);
 	  
-		boolean isFirst = false;
-		Integer numListElems = (Integer) listProps.get (pnv.name);
-		//	  System.out.println ("for " + pnv.name + " numListElems = " + numListElems);
+	boolean isFirst = false;
+	Integer numListElems = (Integer) listProps.get (pnv.name);
+	//	  debug ("for " + pnv.name + " numListElems = " + numListElems);
 	  
-		boolean isList = (numListElems != null);
-		if (isList) {
-		  //System.out.println ("found list for " + pnv.name + " with " + numListElems + " elems.");
+	boolean isList = (numListElems != null);
+	if (isList) {
+	  //debug ("found list for " + pnv.name + " with " + numListElems + " elems.");
 		
-		  isFirst = true;
-		  Element field = createField (doc, pnv.name, pnv.value, true, od);
-		  parentElement.appendChild (field);
-		  Element list = createList (doc);
-		  field.appendChild (list);
-		  for (int j = 0; j < numListElems.intValue(); j++) {
-			Element value = createValue (doc);
-			list.appendChild (value);
-			pnv = (PropertyNameValue) propertyNameValues.get(i++);
-			generateNonLeaf (doc, value, pnv.name, pnv.value, 
-							 searchDepth, isList, isFirst, od, createdNodes);
-			if (value.getFirstChild () != null) {
-			  Element objectNode = (Element) value.getFirstChild ().getFirstChild ();
-			  value.removeChild (value.getFirstChild ());
-			  if (objectNode != null)
-				value.appendChild (objectNode);
-			}
-			isFirst = false;
-		  }
-		}
-		else {
-		  generateElem (doc, parentElement, pnv.name, pnv.value, 
-						searchDepth, isList, isFirst, od, createdNodes);
-		  i++;
-		}
+	  isFirst = true;
+	  Element field = createField (doc, pnv.name, pnv.value, true, od);
+	  parentElement.appendChild (field);
+	  Element list = createList (doc);
+	  field.appendChild (list);
+	  for (int j = 0; j < numListElems.intValue(); j++) {
+	    Element value = createValue (doc);
+	    list.appendChild (value);
+	    pnv = (PropertyNameValue) propertyNameValues.get(i++);
+	    generateNonLeaf (doc, value, pnv.name, pnv.value, 
+			     searchDepth, isList, isFirst, od, createdNodes);
+	    if (value.getFirstChild () != null) {
+	      Element objectNode = (Element) value.getFirstChild ().getFirstChild ();
+	      value.removeChild (value.getFirstChild ());
+	      if (objectNode != null)
+		value.appendChild (objectNode);
+	    }
+	    isFirst = false;
 	  }
 	}
+	else {
+	  generateElem (doc, parentElement, pnv.name, pnv.value, 
+			searchDepth, isList, isFirst, od, createdNodes);
+	  i++;
+	}
+      }
+    }
 	
   }
 
   protected void printWarning (String parentType) {
-	System.out.println ("\n-----------------------------------------------\n" + 
-						"DataXMLize.addNodes - descrip was null for " + parentType.toLowerCase() + "." +
-						"\nThis means that the default code in VishnuPlugin.getTemplateTasks, which only\n" +
-						"looks at the first few tasks to define the problem format should be subclassed, or the\n" +
-						"firstTemplateTasks parameter increased to close to the number of tasks expected.\n" +
-						"(It's OK if it's larger than the number of tasks.)\n" +
-						"Basically what this means is that many different kinds of tasks are being sent to Vishnu\n" +
-						"and when the task format is being created, more tasks have to be sampled to generate a\n" +
-						"a format that represents all these different tasks.  For more info, call Gordon Vidaver\n" +
-						"at BBN - 617 873 3558 or email gvidaver@bbn.com.\n" +
-						"-----------------------------------------------");
+    logger.debug ("\n-----------------------------------------------\n" + 
+	   "DataXMLize.addNodes - descrip was null for " + parentType.toLowerCase() + "." +
+	   "\nThis means that the default code in VishnuPlugin.getTemplateTasks, which only\n" +
+	   "looks at the first few tasks to define the problem format should be subclassed, or the\n" +
+	   "firstTemplateTasks parameter increased to close to the number of tasks expected.\n" +
+	   "(It's OK if it's larger than the number of tasks.)\n" +
+	   "Basically what this means is that many different kinds of tasks are being sent to Vishnu\n" +
+	   "and when the task format is being created, more tasks have to be sampled to generate a\n" +
+	   "a format that represents all these different tasks.  For more info, call Gordon Vidaver\n" +
+	   "at BBN - 617 873 3558 or email gvidaver@bbn.com.\n" +
+	   "-----------------------------------------------");
   }
 
   protected void noListProcessProperties (List propertyNameValues,
-										  Document doc,
-										  Element parentElement, 
-										  int searchDepth, 
-										  ObjectDescrip od,
-										  Collection createdNodes) {
-	boolean foundDateAspect = false;
-	PropertyNameValue [] currentLatLong = new PropertyNameValue [2];
+					  Document doc,
+					  Element parentElement, 
+					  int searchDepth, 
+					  ObjectDescrip od,
+					  Collection createdNodes) {
+    boolean foundDateAspect = false;
+    PropertyNameValue [] currentLatLong = new PropertyNameValue [2];
     for (int i = 0; i < propertyNameValues.size();) {
       PropertyNameValue pnv = 
         (PropertyNameValue) propertyNameValues.get(i);
-	  if (checkForLatLong (doc, parentElement, pnv, currentLatLong)) {
-		i++;
-		continue;
-	  }
+      if (checkForLatLong (doc, parentElement, pnv, currentLatLong)) {
+	i++;
+	continue;
+      }
 	  
-	  foundDateAspect = checkForDateAspect (pnv, foundDateAspect);
+      foundDateAspect = checkForDateAspect (pnv, foundDateAspect);
 	  
-	  generateElem (doc, parentElement, pnv.name, pnv.value, 
-					searchDepth, false, false, od, createdNodes);
-	  i++;
+      generateElem (doc, parentElement, pnv.name, pnv.value, 
+		    searchDepth, false, false, od, createdNodes);
+      i++;
     }
   }
 
   protected void generateElem (Document doc, Element parentElement, 
-							   String propertyName, Object propertyValue,
-							   int searchDepth,
-							   boolean isList, boolean isFirst,
-							   ObjectDescrip od,
-							   Collection createdNodes) {
-	// check if this should be a leaf
-	boolean isLeaf = !isList &&
-	  (stringClass.isInstance (propertyValue) ||
-	   classClass.isInstance  (propertyValue));
+			       String propertyName, Object propertyValue,
+			       int searchDepth,
+			       boolean isList, boolean isFirst,
+			       ObjectDescrip od,
+			       Collection createdNodes) {
+    // check if this should be a leaf
+    boolean isLeaf = !isList &&
+      (stringClass.isInstance (propertyValue) ||
+       classClass.isInstance  (propertyValue));
 
-	if (isLeaf) 
-	  generateLeaf    (doc, parentElement, propertyName, propertyValue, od);
-	else {
-	  generateNonLeaf (doc, parentElement, propertyName, propertyValue, 
-					   searchDepth, isList, isFirst, od,
-					   createdNodes);
-	}
+    if (isLeaf) 
+      generateLeaf    (doc, parentElement, propertyName, propertyValue, od);
+    else {
+      generateNonLeaf (doc, parentElement, propertyName, propertyValue, 
+		       searchDepth, isList, isFirst, od,
+		       createdNodes);
+    }
   }
 
   /** subclass to generate different tag */
   protected Element createRootNode (Document doc,
-									String tag,
-									boolean isTask,
-									boolean isResource,
-									Object obj,
-									String resourceClassName) {
-	return createObject(doc, tag, obj, isTask, isResource);
+				    String tag,
+				    boolean isTask,
+				    boolean isResource,
+				    Object obj,
+				    String resourceClassName) {
+    return createObject(doc, tag, obj, isTask, isResource);
   }
 
   /**
@@ -270,58 +270,58 @@ public class DataXMLize extends FormatXMLize {
    * Write the UID if possible, otherwise write the "toString".
    */
   protected void generateElementReachedMaxDepth (Document doc, Element parentElement, 
-												 Object obj, 
-												 ObjectDescrip od) {
-	if (debug)
-	  System.out.println("Object traversed already/max depth: " + 
-						 obj.getClass().toString() + " " + obj);
-	if (isUniqueObject (obj)) {
-	  Element item = createField (doc, "UID", "string(40)", false, od);
-	  if (debug) 
-		System.out.println ("maxDepth - " + "UID" + " - " + "string(40)");
+						 Object obj, 
+						 ObjectDescrip od) {
+    if (logger.isDebugEnabled())
+      logger.debug("Object traversed already/max depth: " + 
+	    obj.getClass().toString() + " " + obj);
+    if (isUniqueObject (obj)) {
+      Element item = createField (doc, "UID", "string(40)", false, od);
+      if (logger.isDebugEnabled()) 
+	logger.debug ("maxDepth - " + "UID" + " - " + "string(40)");
 
-	  parentElement.appendChild(item);
-	} else {
-	  parentElement.appendChild(createField(doc, obj.toString(), obj, false, od));
-	  if (debug) 
-		System.out.println ("maxDepth - " + obj);
-	}
+      parentElement.appendChild(item);
+    } else {
+      parentElement.appendChild(createField(doc, obj.toString(), obj, false, od));
+      if (logger.isDebugEnabled()) 
+	logger.debug ("maxDepth - " + obj);
+    }
   }
 
   protected boolean checkForLatLong (Document doc, Element parentElem, 
-									 PropertyNameValue pnv, 
-									 PropertyNameValue [] currentLatLong) {
-	boolean skip = false;
+				     PropertyNameValue pnv, 
+				     PropertyNameValue [] currentLatLong) {
+    boolean skip = false;
 	
-	if (pnv.name.charAt(0) == 'l') {
-	  if (pnv.name.equals ("latitude")) {
-		currentLatLong[0] = pnv;
-		skip = true;
-	  }
-	  else if (pnv.name.equals ("longitude")) {
-		currentLatLong[1] = pnv;
-		skip = true;
-	  }
-	}
+    if (pnv.name.charAt(0) == 'l') {
+      if (pnv.name.equals ("latitude")) {
+	currentLatLong[0] = pnv;
+	skip = true;
+      }
+      else if (pnv.name.equals ("longitude")) {
+	currentLatLong[1] = pnv;
+	skip = true;
+      }
+    }
 
-	if (currentLatLong[0] != null && currentLatLong[1] != null) {
-	  Element latlong = createLatlong (doc, 
-									   "" + ((Latitude) currentLatLong[0].value).getDegrees  (), 
-									   "" + ((Longitude)currentLatLong[1].value).getDegrees ());
-	  parentElem.appendChild (latlong);
-	}
-	return skip;
+    if (currentLatLong[0] != null && currentLatLong[1] != null) {
+      Element latlong = createLatlong (doc, 
+				       "" + ((Latitude) currentLatLong[0].value).getDegrees  (), 
+				       "" + ((Longitude)currentLatLong[1].value).getDegrees ());
+      parentElem.appendChild (latlong);
+    }
+    return skip;
   }
   
   protected void generateLeaf (Document doc, Element parentElement, 
-							   String propertyName, Object propertyValue,
-							   ObjectDescrip od) {
-	Element item = createField(doc, propertyName, propertyValue, false, od);
-	parentElement.appendChild(item);
+			       String propertyName, Object propertyValue,
+			       ObjectDescrip od) {
+    Element item = createField(doc, propertyName, propertyValue, false, od);
+    parentElement.appendChild(item);
 	
-	if (debug) 
-	  System.out.println ("isLeaf - field " + propertyName + " - " + propertyValue +
-						  " to parent " + parentElement.getTagName());
+    if (logger.isDebugEnabled()) 
+      logger.debug ("isLeaf - field " + propertyName + " - " + propertyValue +
+	     " to parent " + parentElement.getTagName());
   }
   
   /**
@@ -359,101 +359,101 @@ public class DataXMLize extends FormatXMLize {
    * @param od createdNodes - IGNORED
    */
   protected void generateNonLeaf (Document doc, Element parentElement, 
-								  String propertyName, Object propertyValue,
-								  int searchDepth,
-								  boolean isList, boolean isFirst,
-								  ObjectDescrip od,
-								  Collection createdNodes) {
-	// this removes the class name following the $ for Locked classes
-	int index = propertyName.indexOf('$');
-	if (index > 0) {
-	  propertyName = propertyName.substring(0, index);
+				  String propertyName, Object propertyValue,
+				  int searchDepth,
+				  boolean isList, boolean isFirst,
+				  ObjectDescrip od,
+				  Collection createdNodes) {
+    // this removes the class name following the $ for Locked classes
+    int index = propertyName.indexOf('$');
+    if (index > 0) {
+      propertyName = propertyName.substring(0, index);
+    }
+
+    Element fieldNode = null;
+    if (!ignoreObject (propertyValue)) {
+      fieldNode = createField(doc, propertyName, propertyValue, true, od);
+      parentElement.appendChild(fieldNode);
+    }
+
+    if (logger.isDebugEnabled()) 
+      logger.debug ("DataXMLize.nonLeaf - " + propertyName + " - " + propertyValue);
+    if (!skipObject (propertyValue)) {
+      boolean isGlobal = isGlobal(propertyValue);
+      boolean seenGlobalBefore = false;
+      boolean removedObjectNode = false;
+      if (isGlobal) {
+	seenGlobalBefore = globalToNode.containsKey (propertyValue);
+	if (logger.isDebugEnabled()) 
+	  logger.debug ("DataXMLize.nonLeaf - " + propertyValue + " is global");
+	if (logger.isDebugEnabled() && seenGlobalBefore)
+	  logger.debug ("DataXMLize.nonLeaf - " + propertyValue + " saw before.  Skipping.");
+      }
+      Element objectNode = null;
+      if (!isGlobal || !seenGlobalBefore) {
+	objectNode = createObject(doc, propertyName, propertyValue, false, false);
+	fieldNode.appendChild (objectNode);
+	if (logger.isDebugEnabled()) 
+	  logger.debug ("DataXMLize.nonLeaf - adding object to field.");
+	removedObjectNode = false;
+	addNodes(doc, propertyValue, objectNode, (searchDepth-1), createdNodes);
+
+	// check to see if it's a role schedule, in which case, we need to append plan elem info
+	// yes, this is a hack -- we remove the needless roleSchedule field and the scheduleElements
+	// these are useless
+	if (roleScheduleImplClass.isInstance(propertyValue)) {
+	  if (logger.isDebugEnabled()) 
+	    logger.debug ("DataXMLize.nonLeaf - found role schedule");
+	  removeChildNamed (objectNode, "roleSchedule");
+	  removeChildNamed (objectNode, "scheduleElements");
+	  removeChildNamed (objectNode, "availableSchedule");
+	  objectNode.appendChild(createIntervalNamed ("scheduleElements",  doc, (Schedule) propertyValue));
+	  objectNode.appendChild(createIntervalNamed ("availableSchedule", doc, ((RoleSchedule) propertyValue).getAvailableSchedule()));
 	}
-
-	Element fieldNode = null;
-	if (!ignoreObject (propertyValue)) {
-	  fieldNode = createField(doc, propertyName, propertyValue, true, od);
-	  parentElement.appendChild(fieldNode);
+	// if there are no fields in the object
+	if (objectNode.getChildNodes().getLength() == 0) {
+	  fieldNode.removeChild (objectNode);
+	  parentElement.removeChild (fieldNode);
+	  if (logger.isDebugEnabled()) 
+	    logger.debug ("DataXMLize : nonLeaf - REMOVING - " + propertyName + " - " + propertyValue);
+	  removedObjectNode = true;
 	}
-
-	if (debug) 
-	  System.out.println ("DataXMLize.nonLeaf - " + propertyName + " - " + propertyValue);
-	if (!skipObject (propertyValue)) {
-	  boolean isGlobal = isGlobal(propertyValue);
-	  boolean seenGlobalBefore = false;
-	  boolean removedObjectNode = false;
-	  if (isGlobal) {
-		seenGlobalBefore = globalToNode.containsKey (propertyValue);
-		if (debug) 
-		  System.out.println ("DataXMLize.nonLeaf - " + propertyValue + " is global");
-		if (debug && seenGlobalBefore)
-		  System.out.println ("DataXMLize.nonLeaf - " + propertyValue + " saw before.  Skipping.");
-	  }
-	  Element objectNode = null;
-	  if (!isGlobal || !seenGlobalBefore) {
-		objectNode = createObject(doc, propertyName, propertyValue, false, false);
-		fieldNode.appendChild (objectNode);
-		if (debug) 
-		  System.out.println ("DataXMLize.nonLeaf - adding object to field.");
-		removedObjectNode = false;
-		addNodes(doc, propertyValue, objectNode, (searchDepth-1), createdNodes);
-
-		// check to see if it's a role schedule, in which case, we need to append plan elem info
-		// yes, this is a hack -- we remove the needless roleSchedule field and the scheduleElements
-		// these are useless
-		if (roleScheduleImplClass.isInstance(propertyValue)) {
-		  if (debug) 
-			System.out.println ("DataXMLize.nonLeaf - found role schedule");
-		  removeChildNamed (objectNode, "roleSchedule");
-		  removeChildNamed (objectNode, "scheduleElements");
-		  removeChildNamed (objectNode, "availableSchedule");
-		  objectNode.appendChild(createIntervalNamed ("scheduleElements",  doc, (Schedule) propertyValue));
-		  objectNode.appendChild(createIntervalNamed ("availableSchedule", doc, ((RoleSchedule) propertyValue).getAvailableSchedule()));
-		}
-		// if there are no fields in the object
-		if (objectNode.getChildNodes().getLength() == 0) {
-		  fieldNode.removeChild (objectNode);
-		  parentElement.removeChild (fieldNode);
-		  if (debug) 
-			System.out.println ("DataXMLize : nonLeaf - REMOVING - " + propertyName + " - " + propertyValue);
-		  removedObjectNode = true;
-		}
-	  }
+      }
 	 
-	  if (isGlobal) {
-		if (!removedObjectNode && !seenGlobalBefore) {
-		  fieldNode.removeChild (objectNode);
+      if (isGlobal) {
+	if (!removedObjectNode && !seenGlobalBefore) {
+	  fieldNode.removeChild (objectNode);
 
-		  if (debug) 
-			System.out.println ("DataXMLize.nonLeaf - mapping " + propertyValue.getClass () + " to " + objectNode);
+	  if (logger.isDebugEnabled()) 
+	    logger.debug ("DataXMLize.nonLeaf - mapping " + propertyValue.getClass () + " to " + objectNode);
 
-		  // store the node for later
-		  globalToNode.put (propertyValue, objectNode);
-		  globalsToSend.add (propertyValue);
+	  // store the node for later
+	  globalToNode.put (propertyValue, objectNode);
+	  globalsToSend.add (propertyValue);
 		  
-		  // get the type
-		  String typeName = getTypeName (propertyValue, true);
-		  List instances = (List) classToInstances.get (typeName);
-		  if (instances == null)
-			classToInstances.put (typeName, instances = new ArrayList ());
-		  if (instances.contains (propertyValue))
-			System.out.println ("DataXMLize.nonLeaf - Huh? found second occurence of instance?");
-		  else 
-			instances.add (propertyValue);
+	  // get the type
+	  String typeName = getTypeName (propertyValue, true);
+	  List instances = (List) classToInstances.get (typeName);
+	  if (instances == null)
+	    classToInstances.put (typeName, instances = new ArrayList ());
+	  if (instances.contains (propertyValue))
+	    logger.debug ("DataXMLize.nonLeaf - Huh? found second occurence of instance?");
+	  else 
+	    instances.add (propertyValue);
 	  
-		  String name = (instances.size () > 1) ? typeName + instances.indexOf (propertyValue) : typeName;
-		  if (debug) System.out.println ("DataXMLize.nonLeaf - " + propertyValue.getClass () +  " " +
-										 instances.size () + " instances, " + 
-										 " name " + name);
+	  String name = (instances.size () > 1) ? typeName + instances.indexOf (propertyValue) : typeName;
+	  if (logger.isDebugEnabled()) logger.debug ("DataXMLize.nonLeaf - " + propertyValue.getClass () +  " " +
+			    instances.size () + " instances, " + 
+			    " name " + name);
 
-		  // store the object's global name
-		  globalToName.put (propertyValue, name);
-		  fieldNode.setAttribute("value", name);
-		}
-		else
-		  fieldNode.setAttribute("value", (String) globalToName.get(propertyValue));
-	  }
+	  // store the object's global name
+	  globalToName.put (propertyValue, name);
+	  fieldNode.setAttribute("value", name);
 	}
+	else
+	  fieldNode.setAttribute("value", (String) globalToName.get(propertyValue));
+      }
+    }
   }
   
   /**
@@ -474,85 +474,85 @@ public class DataXMLize extends FormatXMLize {
    * @return result document
    */
   public synchronized Document createDoc (Collection items, Collection changedAssets, String assetClassName) {
-      Document doc = new DocumentImpl(); 
-      Element root = doc.createElement("PROBLEM");
-	doc.appendChild (root);
-	Element df   = doc.createElement("DATA");
-	root.appendChild(df);
-	Element window = doc.createElement("WINDOW");
-	window.setAttribute ("starttime", "2000-01-01 00:00:00");
-	window.setAttribute ("endtime",   "2002-01-01 00:00:00");
-	df.appendChild (window);
+    Document doc = new DocumentImpl(); 
+    Element root = doc.createElement("PROBLEM");
+    doc.appendChild (root);
+    Element df   = doc.createElement("DATA");
+    root.appendChild(df);
+    Element window = doc.createElement("WINDOW");
+    window.setAttribute ("starttime", "2000-01-01 00:00:00");
+    window.setAttribute ("endtime",   "2002-01-01 00:00:00");
+    df.appendChild (window);
 	
-	Element newobjects = doc.createElement("NEWOBJECTS");
-	df.appendChild (newobjects);
+    Element newobjects = doc.createElement("NEWOBJECTS");
+    df.appendChild (newobjects);
 
-	Element changedobjects = doc.createElement("CHANGEDOBJECTS");
-	df.appendChild (changedobjects);
+    Element changedobjects = doc.createElement("CHANGEDOBJECTS");
+    df.appendChild (changedobjects);
 	
     Element element   = null;
-	Date start = new Date();
+    Date start = new Date();
     for (Iterator iter = items.iterator(); iter.hasNext ();) {
-	  Object obj = iter.next();
-	  boolean changed = changedAssets.contains (obj);
+      Object obj = iter.next();
+      boolean changed = changedAssets.contains (obj);
       Collection nodes = getPlanObjectXMLNodes (obj, doc, RECURSION_DEPTH, assetClassName);
-	  Element placeToAdd = (changed) ? changedobjects : newobjects;
-	  for (Iterator iter2 = nodes.iterator(); iter2.hasNext ();)
-		placeToAdd.appendChild ((Element) iter2.next());
+      Element placeToAdd = (changed) ? changedobjects : newobjects;
+      for (Iterator iter2 = nodes.iterator(); iter2.hasNext ();)
+	placeToAdd.appendChild ((Element) iter2.next());
     }
-	if (debug)  
-	  reportTime ("DataXMLize.createDoc - did addNodes in ", start);
+    if (logger.isDebugEnabled())  
+      reportTime ("DataXMLize.createDoc - did addNodes in ", start);
 
-	if (debug) {
-	  int i = 0;
-	  for (Iterator iter = unique.keySet().iterator(); iter.hasNext (); ){
-		Object obj = iter.next();
-		System.out.println ("" + i++ + " - " + obj.getClass () + " - " + unique.get (obj) + " - " + 
-							((obj instanceof org.cougaar.planning.ldm.asset.PropertyGroup) ? " PG " : ""));
-	  }
-	}
+    if (logger.isDebugEnabled()) {
+      int i = 0;
+      for (Iterator iter = unique.keySet().iterator(); iter.hasNext (); ){
+	Object obj = iter.next();
+	logger.debug ("" + i++ + " - " + obj.getClass () + " - " + unique.get (obj) + " - " + 
+		      ((obj instanceof org.cougaar.planning.ldm.asset.PropertyGroup) ? " PG " : ""));
+      }
+    }
 
-	// only send those globals not sent since last set
-	for (Iterator iter = globalsToSend.iterator(); iter.hasNext (); ){
-	  Object global = iter.next();
-	  Element globalElem = doc.createElement("GLOBAL");
-	  String globalName = (String) globalToName.get (global);
-	  if (debug) 
-		System.out.println ("DataXMLize - global " + global.getClass () + " name " + globalName);
+    // only send those globals not sent since last set
+    for (Iterator iter = globalsToSend.iterator(); iter.hasNext (); ){
+      Object global = iter.next();
+      Element globalElem = doc.createElement("GLOBAL");
+      String globalName = (String) globalToName.get (global);
+      if (logger.isDebugEnabled()) 
+	logger.debug ("DataXMLize - global " + global.getClass () + " name " + globalName);
 
-	  globalElem.setAttribute ("name", globalName);
-	  Element node = (Element) globalToNode.get(global);
-	  if (node == null) 
-		System.out.println ("no node for global?");
+      globalElem.setAttribute ("name", globalName);
+      Element node = (Element) globalToNode.get(global);
+      if (node == null) 
+	logger.debug ("no node for global?");
 
-	  globalElem.appendChild (node);
-	  newobjects.appendChild (globalElem);
-	}
+      globalElem.appendChild (node);
+      newobjects.appendChild (globalElem);
+    }
 
-	globalsToSend.clear ();
+    globalsToSend.clear ();
 	
-	return doc;
+    return doc;
   }
 
   protected Element createObject (Document doc, String name, Object theObj, boolean isTask, boolean isResource) {
     Element elem = doc.createElement("OBJECT");
-	String cn;
+    String cn;
 	
-	if (isResource) {
-	  cn = resourceName;
+    if (isResource) {
+      cn = resourceName;
 
-	  if (debug)
-		System.out.println ("DataXMLize.createObject - Using resource name " + resourceName);
-	}
-	else {
-	  cn = theObj.getClass ().toString();
-	  cn = cn.substring (cn.lastIndexOf ('.') + 1);
-	  cn = cn.substring (cn.lastIndexOf ('$') + 1);
-	}
+      if (logger.isDebugEnabled())
+	logger.debug ("DataXMLize.createObject - Using resource name " + resourceName);
+    }
+    else {
+      cn = theObj.getClass ().toString();
+      cn = cn.substring (cn.lastIndexOf ('.') + 1);
+      cn = cn.substring (cn.lastIndexOf ('$') + 1);
+    }
 
-	elem.setAttribute ("type", (isTask) ? name : cn);
+    elem.setAttribute ("type", (isTask) ? name : cn);
 
-	return elem;
+    return elem;
   }
 
   private final SimpleDateFormat format =
@@ -580,114 +580,114 @@ public class DataXMLize extends FormatXMLize {
    * @return the field element that is created
    */
   protected Element createField (Document doc,
-								 String name,
-								 Object theObj,
-								 boolean hasObject,
-								 ObjectDescrip od) {
+				 String name,
+				 Object theObj,
+				 boolean hasObject,
+				 ObjectDescrip od) {
     Element elem = doc.createElement("FIELD");
-	Set nameTypePairs = null;
+    Set nameTypePairs = null;
 
-	if (od == null)
-	  elem.setAttribute ("name", name);
-	else
-	  nameTypePairs = od.getNameTypePairs (name);
+    if (od == null)
+      elem.setAttribute ("name", name);
+    else
+      nameTypePairs = od.getNameTypePairs (name);
 
-	if (nameTypePairs != null) {
-	  String typeName = getTypeName (theObj, hasObject);
-	  if (debug) 
-		System.out.println ("type " + typeName + " hasObject = " + hasObject);
-	  for (Iterator iter = nameTypePairs.iterator (); iter.hasNext(); ) {
-		String [] nameTypePair = (String []) iter.next ();
-		if (typeName.equals (nameTypePair[1]) || 
-			((typeName.charAt(0) == 's') &&
-			 (typeName.startsWith ("string(") && nameTypePair[1].startsWith("string(")))) {
-		  name = nameTypePair[0];
-		  if (debug) 
-			System.out.println ("\tFOUND MATCH! new name " + name);
-		  break;
-		}
-	  }
+    if (nameTypePairs != null) {
+      String typeName = getTypeName (theObj, hasObject);
+      if (logger.isDebugEnabled()) 
+	logger.debug ("type " + typeName + " hasObject = " + hasObject);
+      for (Iterator iter = nameTypePairs.iterator (); iter.hasNext(); ) {
+	String [] nameTypePair = (String []) iter.next ();
+	if (typeName.equals (nameTypePair[1]) || 
+	    ((typeName.charAt(0) == 's') &&
+	     (typeName.startsWith ("string(") && nameTypePair[1].startsWith("string(")))) {
+	  name = nameTypePair[0];
+	  if (logger.isDebugEnabled()) 
+	    logger.debug ("\tFOUND MATCH! new name " + name);
+	  break;
 	}
-	elem.setAttribute ("name", name);
+      }
+    }
+    elem.setAttribute ("name", name);
 		
-	if (dateClass.isInstance(theObj)) {
-	  try {
-		String dateAsString = format.format ((Date) theObj);
-		elem.setAttribute ("value", dateAsString);
-	  } catch (NumberFormatException nfe) {}
-	}
-	else if (uniqueObjectClass.isInstance(theObj)) {
-	  UniqueObject unique = (UniqueObject) theObj;
-	  UID uniqueUID = unique.getUID ();
-	  String UIDString = "ERROR_novalue";
-	  try {
-		UIDString = uniqueUID.toString ();
-	  } catch (NullPointerException npe) {
-		System.out.println ("DataXMLize - null pointer on " + unique + 
-							" - no UID set?");
-	  }
+    if (dateClass.isInstance(theObj)) {
+      try {
+	String dateAsString = format.format ((Date) theObj);
+	elem.setAttribute ("value", dateAsString);
+      } catch (NumberFormatException nfe) {}
+    }
+    else if (uniqueObjectClass.isInstance(theObj)) {
+      UniqueObject unique = (UniqueObject) theObj;
+      UID uniqueUID = unique.getUID ();
+      String UIDString = "ERROR_novalue";
+      try {
+	UIDString = uniqueUID.toString ();
+      } catch (NullPointerException npe) {
+	logger.debug ("DataXMLize - null pointer on " + unique + 
+	       " - no UID set?");
+      }
 
-	  if (UIDString.indexOf ('<') != -1)
-		UIDString = UIDString.replace('<','_');
-	  if (UIDString.indexOf ('>') != -1)
-		UIDString = UIDString.replace('>','_');
+      if (UIDString.indexOf ('<') != -1)
+	UIDString = UIDString.replace('<','_');
+      if (UIDString.indexOf ('>') != -1)
+	UIDString = UIDString.replace('>','_');
 
-	  elem.setAttribute ("value", UIDString);
-	}
-	else if (UIDClass.isInstance(theObj)) {
-	  elem.setAttribute ("value", ((UID) theObj).toString ());
-	}
-	else if (isPrimitiveFloat(theObj.getClass()))
-	  elem.setAttribute ("value", getValueOfPrimitiveFloat (theObj));
-	else if (!hasObject) {
-	  String valueString = theObj.toString();
-	  if (valueString.indexOf ('\"') != -1) {
-		valueString = valueString.replace('\"','\'');
-	  }
-	  if (valueString.indexOf ('&') != -1) {
-		valueString = valueString.replace('&','+');
-	  }
-	  if (valueString.indexOf ('<') != -1)
-		valueString = valueString.replace('<','_');
-	  if (valueString.indexOf ('>') != -1)
-		valueString = valueString.replace('>','_');
+      elem.setAttribute ("value", UIDString);
+    }
+    else if (UIDClass.isInstance(theObj)) {
+      elem.setAttribute ("value", ((UID) theObj).toString ());
+    }
+    else if (isPrimitiveFloat(theObj.getClass()))
+      elem.setAttribute ("value", getValueOfPrimitiveFloat (theObj));
+    else if (!hasObject) {
+      String valueString = theObj.toString();
+      if (valueString.indexOf ('\"') != -1) {
+	valueString = valueString.replace('\"','\'');
+      }
+      if (valueString.indexOf ('&') != -1) {
+	valueString = valueString.replace('&','+');
+      }
+      if (valueString.indexOf ('<') != -1)
+	valueString = valueString.replace('<','_');
+      if (valueString.indexOf ('>') != -1)
+	valueString = valueString.replace('>','_');
 
-	  elem.setAttribute ("value", valueString);
-	}
+      elem.setAttribute ("value", valueString);
+    }
 
-	return elem;
+    return elem;
   }
 
   protected String getTypeName (Object theObj, boolean hasObject) {
-	if (dateClass.isInstance(theObj))
-	  return dateString;
-	if (hasObject) {
-	  String cn = theObj.getClass ().toString();
-	  cn = cn.substring (cn.lastIndexOf ('.') + 1);
-	  cn = cn.substring (cn.lastIndexOf ('$') + 1);
-	  return cn;
-	} else
-	  return getTypeFor (theObj);
+    if (dateClass.isInstance(theObj))
+      return dateString;
+    if (hasObject) {
+      String cn = theObj.getClass ().toString();
+      cn = cn.substring (cn.lastIndexOf ('.') + 1);
+      cn = cn.substring (cn.lastIndexOf ('$') + 1);
+      return cn;
+    } else
+      return getTypeFor (theObj);
   }
   
   protected Element createLatlong (Document doc,
-								   String latitude,
-								   String longitude) {
+				   String latitude,
+				   String longitude) {
     Element elem = doc.createElement("FIELD");
-	elem.setAttribute ("name", "latitude");
+    elem.setAttribute ("name", "latitude");
     Element obj = doc.createElement("OBJECT");
-	obj.setAttribute ("type", "latlong");
-	elem.appendChild (obj);
+    obj.setAttribute ("type", "latlong");
+    elem.appendChild (obj);
     Element field = doc.createElement("FIELD");
-	field.setAttribute ("name", "latitude");
-	field.setAttribute ("value", latitude);
-	obj.appendChild (field);
+    field.setAttribute ("name", "latitude");
+    field.setAttribute ("value", latitude);
+    obj.appendChild (field);
     field = doc.createElement("FIELD");
-	field.setAttribute ("name", "longitude");
-	field.setAttribute ("value", longitude);
-	obj.appendChild (field);
+    field.setAttribute ("name", "longitude");
+    field.setAttribute ("value", longitude);
+    obj.appendChild (field);
 
-	return elem;
+    return elem;
   }
 
   /** 
@@ -696,54 +696,52 @@ public class DataXMLize extends FormatXMLize {
    */
   protected Element createIntervalNamed (String name, Document doc, Schedule rs) {
     Element fieldElem = doc.createElement("FIELD");
-	fieldElem.setAttribute ("name", name);
+    fieldElem.setAttribute ("name", name);
     Element listTag = createList (doc);
-	fieldElem.appendChild (listTag);
+    fieldElem.appendChild (listTag);
 
-	// Must get a copy first, even though I know there will be no concurrent modification
-	try {
-	  List copy = new ArrayList (rs);
+    // Must get a copy first, even though I know there will be no concurrent modification
+    try {
+      List copy = new ArrayList (rs);
 	
-	  for (Iterator iter = copy.iterator (); iter.hasNext (); ) {
-		TimeSpan elem = (TimeSpan) iter.next ();
-		Element value = createValue (doc);
-		listTag.appendChild (value);
-		value.appendChild (createLittleInterval (doc, 
-												 new Date (elem.getStartTime ()),
-												 new Date (elem.getEndTime   ())));
-	  }
-	} catch (Exception e) {}
-	finally {
-	  return fieldElem;
-	}
+      for (Iterator iter = copy.iterator (); iter.hasNext (); ) {
+	TimeSpan elem = (TimeSpan) iter.next ();
+	Element value = createValue (doc);
+	listTag.appendChild (value);
+	value.appendChild (createLittleInterval (doc, 
+						 new Date (elem.getStartTime ()),
+						 new Date (elem.getEndTime   ())));
+      }
+    } catch (Exception e) {}
+    finally {
+      return fieldElem;
+    }
   }
   
   protected Element createLittleInterval (Document doc, Date start, Date end) {
-	Element obj = doc.createElement("OBJECT");
-	obj.setAttribute ("type", "interval");
+    Element obj = doc.createElement("OBJECT");
+    obj.setAttribute ("type", "interval");
 
-	Element field = doc.createElement("FIELD");
-	field.setAttribute ("name", "start");
-	field.setAttribute ("value", format.format (start));
-	obj.appendChild (field);
+    Element field = doc.createElement("FIELD");
+    field.setAttribute ("name", "start");
+    field.setAttribute ("value", format.format (start));
+    obj.appendChild (field);
 
-	field = doc.createElement("FIELD");
-	field.setAttribute ("name", "end");
-	field.setAttribute ("value", format.format (end));
-	obj.appendChild (field);
+    field = doc.createElement("FIELD");
+    field.setAttribute ("name", "end");
+    field.setAttribute ("value", format.format (end));
+    obj.appendChild (field);
 
-	return obj;
+    return obj;
   }
 
   protected Element createList (Document doc) {
     Element elem = doc.createElement("LIST");
-	return elem;
+    return elem;
   }
 
   protected Element createValue (Document doc) {
     Element elem = doc.createElement("VALUE");
-	return elem;
+    return elem;
   }
-  
-  private boolean debug = "true".equals (System.getProperty ("vishnu.client.DataXMLize.debug"));
 }

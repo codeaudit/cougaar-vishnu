@@ -51,6 +51,7 @@ import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 
 import org.cougaar.lib.param.ParamMap;
+import org.cougaar.util.log.*;
 
 import org.w3c.dom.Document;
 
@@ -78,7 +79,8 @@ public class VishnuComm {
 		     String name, 
 		     String clusterName,
 		     VishnuDomUtil domUtil,
-		     boolean runInternal) {
+		     boolean runInternal,
+		     Logger logger) {
     this.myParamTable = myParamTable;
 	
     localSetup ();
@@ -97,6 +99,8 @@ public class VishnuComm {
       postCancel ();
       postClear  ();
     }
+
+    this.logger = logger;
   }
 
   protected ParamMap   getMyParams    () { return myParamTable; }
@@ -107,12 +111,6 @@ public class VishnuComm {
   /** sets a variety of parameters */
   protected void localSetup () 
   {
-    try {myExtraOutput = getMyParams().getBooleanParam("ExtraOutput");}    
-    catch(Exception e) {myExtraOutput = false;}
-
-    try {myExtraExtraOutput = getMyParams().getBooleanParam("ExtraExtraOutput");}    
-    catch(Exception e) {myExtraExtraOutput = false;}
-
     try {hostName = getMyParams().getStringParam("hostName");}    
     catch(Exception e) {hostName = "dante.bbn.com";}
 
@@ -217,7 +215,7 @@ public class VishnuComm {
     if (writeXMLToFile) {
       String suffix = (postData) ? "data" : "problem";
       String fileName = getClusterName () + "_" + suffix + "_" + numFilesWritten++ + ".xml";
-      System.out.println (getName () + ".serializeAndPost - Writing XML to file " + fileName);
+      logger.info (getName () + ".serializeAndPost - Writing XML to file " + fileName);
       try {
 	FileOutputStream temp = new FileOutputStream (fileName);
 	domUtil.writeDocToStream (doc, temp);
@@ -287,7 +285,7 @@ public class VishnuComm {
 
   /** dumps warning to stdout when problem definition is out of sync with data format */
   protected void showPostDataWarning () {
-    System.out.println ("\n-----------------------------------------------\n" + 
+    logger.info ("\n-----------------------------------------------\n" + 
 			getName() + ".serializeAndPost - got an error posting data.\n"+
 			"\nThis could be due to one of several causes :\n" + 
 			"1) Connection problems with the web server, if running with a web server OR \n" +
@@ -347,11 +345,11 @@ public class VishnuComm {
 	if (((List) clusterToInstance.get (getClusterName ())).size () > 1) {
 	  myProblem = myProblem + "_" + 
 	    ((List) clusterToInstance.get (getClusterName ())).indexOf (this);
-	  if (myExtraExtraOutput)
-	    System.out.println (getName ()+ ".localSetup - this " + this + " is " + 
-				((List) clusterToInstance.get (getClusterName ())).indexOf (this) +
-				" of " + 
-				((List) clusterToInstance.get (getClusterName ())).size ());
+	  if (logger.isDebugEnabled())
+	    logger.debug (getName ()+ ".localSetup - this " + this + " is " + 
+			  ((List) clusterToInstance.get (getClusterName ())).indexOf (this) +
+			  " of " + 
+			  ((List) clusterToInstance.get (getClusterName ())).size ());
 	}
       }
       // mysql doesn't like -'s
@@ -367,8 +365,8 @@ public class VishnuComm {
       myProblem = myProblem + "_" + machineName;
     }
     catch (UnknownHostException uhe) {
-      System.err.println (getName () + ".localSetup - Huh? Could not find localhost? " +
-			  uhe.getMessage ());
+      logger.error (getName () + ".localSetup - Huh? Could not find localhost? " +
+		    uhe.getMessage (), uhe);
     }
   }
 
@@ -398,11 +396,11 @@ public class VishnuComm {
       domUtil.reportTime (" - did post of data string to URL in ", start);
 
     if (!reply.startsWith ("SUCCESS")) {
-      System.out.println (getName () + ".postData - ERROR : Reply to post data was <" + reply + ">");
+      logger.error (getName () + ".postData - ERROR : Reply to post data was <" + reply + ">");
       return false;
     }
-    else if (myExtraOutput)
-      System.out.println (getName () + ".postData - Reply to post data was <" + reply.trim() + ">");
+    else if (logger.isInfoEnabled())
+      logger.info (getName () + ".postData - Reply to post data was <" + reply.trim() + ">");
 	
     return true;
   }
@@ -430,8 +428,8 @@ public class VishnuComm {
 
     String reply = postToURL (hostName, postProblemFile, sb.toString (), null, true);
 
-    if (myExtraOutput)
-      System.out.println (getName() + ".postProblem - reply was <" + reply.trim() + ">");
+    if (logger.isInfoEnabled())
+      logger.info (getName() + ".postProblem - reply was <" + reply.trim() + ">");
   }
 
   /**
@@ -458,13 +456,13 @@ public class VishnuComm {
     sb.append ("username=" + myUser + "&");
     sb.append ("password=" + myPassword);
 
-    if (myExtraOutput)
-      System.out.println (getName () + ".postCancel - canceling any pending scheduling requests for " + 
+    if (logger.isInfoEnabled())
+      logger.info (getName () + ".postCancel - canceling any pending scheduling requests for " + 
 			  myProblem);
 
     String reply = postToURL (hostName, postCancelFile, sb.toString (), null, true);
-    if (myExtraOutput)
-      System.out.println (getName () + ".postCancel - reply was " + reply);
+    if (logger.isInfoEnabled())
+      logger.info (getName () + ".postCancel - reply was " + reply);
   }
 
   /**
@@ -482,15 +480,15 @@ public class VishnuComm {
     sb.append ("user=" + myUser + "&");
     sb.append ("password=" + myPassword);
 
-    if (myExtraOutput)
-      System.out.println (getName () + ".postClear - clearing data from previous runs " + 
+    if (logger.isInfoEnabled())
+      logger.info (getName () + ".postClear - clearing data from previous runs " + 
 			  myProblem);
 
     String clearDataMsg = sb + "&<PROBLEM NAME="+getProblem ()+"/><CLEARDATABASE" + '\\' + ">";
 
     String reply = postToURL (hostName, postDataFile, clearDataMsg, null, true);
-    if (myExtraOutput)
-      System.out.println (getName () + ".postClear - reply was " + reply);
+    if (logger.isInfoEnabled())
+      logger.info (getName () + ".postClear - reply was " + reply);
   }
 
   /** 
@@ -515,8 +513,8 @@ public class VishnuComm {
     sb.append ("ferris=bueller");
 
     String reply = postToURL (hostName, kickoffFile, sb.toString (), null, true);
-    if (myExtraOutput)
-      System.out.println (getName () + ".startScheduling - reply to kickoff was " + reply.trim());
+    if (logger.isInfoEnabled())
+      logger.info (getName () + ".startScheduling - reply to kickoff was " + reply.trim());
   }
 
   /** 
@@ -543,8 +541,8 @@ public class VishnuComm {
 	gotAnswer = true;
 	break;
       }
-      else if (myExtraOutput) {
-	System.out.println (getName() + ".waitTillFinished - Scheduler not done. Reply was <" + response.trim() + ">");
+      else if (logger.isInfoEnabled()) {
+	logger.info (getName() + ".waitTillFinished - Scheduler not done. Reply was <" + response.trim() + ">");
       }
 
       try { Thread.sleep (waitTime); } catch (Exception e) {}
@@ -570,12 +568,12 @@ public class VishnuComm {
       String url = "http://" + hostName + phpPath + assignmentsFile + getWaitPostVars();
       URL aURL = new URL (url);
 
-      if (myExtraOutput)
-	System.out.println (getName () + ".getAnswer - reading from " + url);
+      if (logger.isInfoEnabled())
+	logger.info (getName () + ".getAnswer - reading from " + url);
 
       readXML (aURL, assignmentHandler);
     } catch (Exception e) {
-      System.out.println (getName () + ".getAnswer - BAD URL : " + e);
+      logger.error (getName () + ".getAnswer - BAD URL : " + e);
       e.printStackTrace ();
     }
   }
@@ -619,20 +617,19 @@ public class VishnuComm {
     try {
       String url = "http://" + host + phpPath + fileToExec;
       if (testing) {
-	System.out.println ("postToURL - (complete) Sending to : " + url);
-	System.out.println (java.net.URLDecoder.decode(data));
+	logger.info ("postToURL - (complete) Sending to : " + url);
+	logger.info (java.net.URLDecoder.decode(data));
       }
-      else if (myExtraOutput) {
-	System.out.println ("postToURL - (partial) Sending to : " + url);
-	System.out.println (data.substring (0,
+      else if (logger.isInfoEnabled()) {
+	logger.info ("postToURL - (partial) Sending to : " + url);
+	logger.info (data.substring (0,
 					    (data.length () > 100) ? 100 : data.length()));
       }
       return postToURL (new URL (url), 
 			data, doc,
 			readResponse);
     } catch (Exception e) {
-      System.out.println ("BAD URL : " + e);
-      e.printStackTrace ();
+      logger.error ("BAD URL : " + e, e);
       return "";
     }
   }
@@ -666,9 +663,8 @@ public class VishnuComm {
       }
     }
     catch(Exception e) {
-      System.err.println ("VishnuPlugin.postToURL -- exception sending data to URL : " + aURL +
-			  "\n" + e.getMessage());
-      e.printStackTrace();
+      logger.error ("VishnuPlugin.postToURL -- exception sending data to URL : " + aURL +
+		    "\n" + e.getMessage(), e);
     }
     return "";
   }
@@ -682,9 +678,9 @@ public class VishnuComm {
    * @see VishnuDomUtil#writeDocToStream
    */
   public void sendData(URLConnection connection, String data, Document doc) throws IOException {
-    if (myExtraOutput) {
-      System.out.println (name + ".sendData - Sending " + data.length () + " characters.");
-      System.out.println ("\tData=" + data.substring (0,
+    if (logger.isInfoEnabled()) {
+      logger.info (name + ".sendData - Sending " + data.length () + " characters.");
+      logger.info ("\tData=" + data.substring (0,
 						      (data.length () > 100) ? 100 : data.length()));
     }
 
@@ -696,14 +692,14 @@ public class VishnuComm {
       /*
 	if (writeXMLToFile) {
 	String fileName = getClusterName () + "_" + numFilesWritten++;
-	System.out.println ("Writing XML to file " + fileName);
+	debug ("Writing XML to file " + fileName);
 	FileOutputStream temp = new FileOutputStream (fileName);
 	writeDocToStream (doc, temp);
 	}
       */
     } else if (writeEncodedXMLToFile) {
       String fileName = clusterName + "_encoded_" + numFilesWritten++;
-      System.out.println (name + ".sendData : Writing XML to file " + fileName);
+      logger.info (name + ".sendData : Writing XML to file " + fileName);
       FileOutputStream temp = new FileOutputStream (fileName);
       bytes = data.getBytes ();
       temp.write(bytes);
@@ -734,13 +730,13 @@ public class VishnuComm {
 	is = connection.getInputStream();
 	madeInputStream = true;
       } catch (IOException ioe) {
-	System.out.println (name + ".getResponse - IO Exception on reading from URL, trying again.");
+	logger.info (name + ".getResponse - IO Exception on reading from URL, trying again.");
 	numTries--;
 	try { Thread.sleep (5000l); } catch (Exception e) {}
       }
     }
     if (!madeInputStream) {
-      System.out.println (name + ".getResponse - ERROR : could not read from URL " + connection);
+      logger.error (name + ".getResponse - ERROR : could not read from URL " + connection);
       return null;
     }
 
@@ -757,7 +753,8 @@ public class VishnuComm {
 					 String phpPath,
 					 String url,
 					 String data, 
-					 boolean readResponse) {
+					 boolean readResponse,
+					 Logger logger) {
     try {
       Socket socket = new Socket (hostName, 80);
       OutputStream os = socket.getOutputStream();
@@ -775,8 +772,7 @@ public class VishnuComm {
       return result;
     }
     catch(Exception e) {
-      System.err.println (e.getMessage());
-      e.printStackTrace();
+      logger.error (e.getMessage(), e);
     }
     return "";
   }
@@ -789,12 +785,12 @@ public class VishnuComm {
    **/
   protected void readXML (URL aURL, DefaultHandler handler) {
     try {
-      if (myExtraOutput) {
+      if (logger.isInfoEnabled()) {
 	URLConnection connection = aURL.openConnection();
 	connection.setDoOutput (false);
 	connection.setDoInput  (true);
 
-	System.out.println (getResponse (connection));
+	logger.info (getResponse (connection));
       }
 
       SAXParser parser = new SAXParser();
@@ -802,8 +798,7 @@ public class VishnuComm {
       parser.parse (aURL.toString());
     }
     catch(Exception e) {
-      System.err.println (e.getMessage());
-      e.printStackTrace();
+      logger.error (e.getMessage(), e);
     }
   }
 
@@ -853,10 +848,6 @@ public class VishnuComm {
 
   /** parameter -- write complete URL to stdout -- little used */
   protected boolean testing;
-  /** parameter -- write verbose debug output to stdout */
-  protected boolean myExtraOutput;
-  /** parameter -- write really verbose debug output to stdout */
-  protected boolean myExtraExtraOutput;
   /** parameter -- write encoded xml to a file */
   protected boolean writeEncodedXMLToFile;
   /** parameter -- write xml to a file */
@@ -879,4 +870,5 @@ public class VishnuComm {
 
   /** holds data posted to URLs when running internally */
   protected StringBuffer internalBuffer = new StringBuffer ();
+  protected Logger logger;
 }

@@ -28,6 +28,7 @@ import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.lib.param.ParamMap;
 import org.cougaar.lib.vishnu.server.Scheduler;
 import org.cougaar.util.StringKey;
+import org.cougaar.util.log.Logger;
 
 import org.w3c.dom.Document;
 
@@ -44,8 +45,8 @@ import org.xml.sax.SAXException;
 public class ExternalMode extends PluginHelper implements SchedulerLifecycle {
   public ExternalMode (ModeListener parent, VishnuComm comm, XMLProcessor xmlProcessor, 
 		       VishnuDomUtil domUtil, VishnuConfig config, ResultHandler resultHandler, 
-		       ParamMap myParamTable) {
-    super (parent, comm, xmlProcessor, domUtil, config, myParamTable);
+		       ParamMap myParamTable, Logger logger) {
+    super (parent, comm, xmlProcessor, domUtil, config, myParamTable, logger);
     this.resultHandler = resultHandler;
     localSetup ();
   }
@@ -108,11 +109,11 @@ public class ExternalMode extends PluginHelper implements SchedulerLifecycle {
 
     XMLizer dataXMLizer = xmlProcessor.getDataXMLizer ();
 	
-    if (myExtraOutput) 
-      System.out.println (getName () + ".sendDataToVishnu - Num tasks/assets before adding changed " + tasks.size ());
+    if (logger.isInfoEnabled()) 
+      logger.info (getName () + ".sendDataToVishnu - Num tasks/assets before adding changed " + tasks.size ());
     tasks.addAll (parent.getChangedAssets());
-    if (myExtraOutput) 
-      System.out.println (getName () + ".sendDataToVishnu - Num tasks/assets after adding changed  " + tasks.size ());
+    if (logger.isInfoEnabled()) 
+      logger.info (getName () + ".sendDataToVishnu - Num tasks/assets after adding changed  " + tasks.size ());
     int totalTasks = tasks.size ();
 	
     while (totalSent < totalTasks) {
@@ -122,8 +123,8 @@ public class ExternalMode extends PluginHelper implements SchedulerLifecycle {
 	  
       Collection chunk = new ArrayList (tasks.subList (totalSent, toIndex));
 
-      if (myExtraOutput)
-	System.out.println (getName () + ".sendDataToVishnu, from " + totalSent + " to " + toIndex);
+      if (logger.isInfoEnabled())
+	logger.info (getName () + ".sendDataToVishnu, from " + totalSent + " to " + toIndex);
 	  
       Document docToSend = 
 	xmlProcessor.prepareDocument (chunk, parent.getChangedAssets(), dataXMLizer, clearDatabase, sendingChangedObjects, assetClassName);
@@ -207,14 +208,14 @@ public class ExternalMode extends PluginHelper implements SchedulerLifecycle {
 
   /** timed out waiting for scheduler to do its job */
   private void showTimedOutMessage () {
-    System.out.println (getName () + ".processTasks -- ERROR -- " + 
-			"Timed out waiting for scheduler to finish.\n" +
-			"Is there a scheduler running?\n" + 
-			"See vishnu/scripts/runScheduler in the vishnu distribution.\n" +
-			"It's good to set the machines property to include only\n" + 
-			"those machines you are running from, or else the scheduler\n" +
-			"could process any job posted by anyone to the web server.\n" +
-			"For more information, contact gvidaver@bbn.com or dmontana@bbn.com");
+    logger.error (getName () + ".processTasks -- ERROR -- " + 
+		  "Timed out waiting for scheduler to finish.\n" +
+		  "Is there a scheduler running?\n" + 
+		  "See vishnu/scripts/runScheduler in the vishnu distribution.\n" +
+		  "It's good to set the machines property to include only\n" + 
+		  "those machines you are running from, or else the scheduler\n" +
+		  "could process any job posted by anyone to the web server.\n" +
+		  "For more information, contact gvidaver@bbn.com or dmontana@bbn.com");
   }
 
   /** used by sendDataToVishnu */

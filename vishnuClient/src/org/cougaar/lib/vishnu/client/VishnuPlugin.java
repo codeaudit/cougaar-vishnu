@@ -114,6 +114,7 @@ import org.xml.sax.InputSource;
  *
  * </pre>
  *
+ * @see org.cougaar.lib.filter.UTILBufferingPluginAdapter#createThreadCallback
  * @see org.cougaar.lib.vishnu.client.VishnuAggregatorPlugin#createThreadCallback
  * @see org.cougaar.lib.vishnu.client.VishnuAllocatorPlugin#createThreadCallback
  * @see org.cougaar.lib.vishnu.client.VishnuExpanderPlugin#createThreadCallback
@@ -184,40 +185,39 @@ public abstract class VishnuPlugin
     // helpful for debugging connection configuration problems
     if (runInternal) {
       if (runDirectly) {
-	System.out.print (getName () + " - will run direct translation internal Vishnu Scheduler.");
+	info (getName () + " - will run direct translation internal Vishnu Scheduler.");
 	resultHandler = createDirectResultHandler ();
 	mode = createDirectMode ();
       }
       else {
-	System.out.print (getName () + " - will run internal Vishnu Scheduler.");
+	info (getName () + " - will run internal Vishnu Scheduler.");
 	resultHandler = createXMLResultHandler ();
 	mode = createInternalMode ();
       }
       if (incrementalScheduling)
-	System.out.print (" - incrementally - ");
+	info (" - incrementally - ");
     }
     else {
-      System.out.print (getName () + " - will try to connect to Vishnu Web Server : " + 
-			hostName + ".");
+      info (getName () + " - will try to connect to Vishnu Web Server : " + 
+		   hostName + ".");
       resultHandler = createXMLResultHandler ();
       mode = createExternalMode ();
     }
     if (useStoredFormat)
-      System.out.println (" Will send stored object format.");
-    else
-      System.out.println ("");
+      info (" Will send stored object format.");
   }
 
   protected VishnuDomUtil createVishnuDomUtil () { 
-    return new VishnuDomUtil (getMyParams(), getName(), getConfigFinder()); 
+    return new VishnuDomUtil (getMyParams(), getName(), getConfigFinder(), logger); 
   }
   protected VishnuComm    createVishnuComm    () { 
-    return new VishnuComm    (getMyParams(), getName(), getClusterName(), domUtil, runInternal); 
+    return new VishnuComm    (getMyParams(), getName(), getClusterName(), domUtil, runInternal, logger); 
   }
   protected XMLProcessor  createXMLProcessor  () { 
-    if (myExtraOutput)
-      System.out.println (getName () + ".createXMLProcessor - creating vanilla xml processor.");
-    return new XMLProcessor (getMyParams(), getName(), getClusterName(), domUtil, comm, getConfigFinder()); 
+    if (isDebugEnabled())
+      debug (getName () + ".createXMLProcessor - creating vanilla xml processor.");
+    return new XMLProcessor (getMyParams(), getName(), getClusterName(), domUtil, comm, getConfigFinder(),
+			     logger, logger, logger);  // later perhaps divide logger name space
   }
 
   public XMLizer getDataXMLizer () {
@@ -229,52 +229,52 @@ public abstract class VishnuPlugin
     if (didSpawn ())
       clusterName = getOriginalAgentID().getAddress();
 
-    return new VishnuConfig  (getMyParams(), getName(), clusterName); 
+    return new VishnuConfig  (getMyParams(), getName(), clusterName, logger); 
   }
 
   protected SchedulerLifecycle createExternalMode () {
-    return new ExternalMode (this, comm, xmlProcessor, domUtil, config, resultHandler, getMyParams ());
+    return new ExternalMode (this, comm, xmlProcessor, domUtil, config, resultHandler, getMyParams (), logger);
   }
 
   protected SchedulerLifecycle createInternalMode () {
-    InternalMode mode = new InternalMode (this, comm, xmlProcessor, domUtil, config, resultHandler, getMyParams ());
+    InternalMode mode = new InternalMode (this, comm, xmlProcessor, domUtil, config, resultHandler, getMyParams (), logger);
 
     return mode;
   }
 
   protected SchedulerLifecycle createDirectMode () {
-    DirectMode mode = new DirectMode (this, comm, xmlProcessor, domUtil, config, resultHandler, getMyParams ());
+    DirectMode mode = new DirectMode (this, comm, xmlProcessor, domUtil, config, resultHandler, getMyParams (), logger);
 
     return mode;
   }
 
   protected XMLResultHandler createXMLResultHandler () {
-    return new XMLResultHandler (this, comm, xmlProcessor, domUtil, config, getMyParams ());
+    return new XMLResultHandler (this, comm, xmlProcessor, domUtil, config, getMyParams (), logger);
   }
 
   protected DirectResultHandler createDirectResultHandler () {
-    return new DirectResultHandler (this, comm, xmlProcessor, domUtil, config, getMyParams ());
+    return new DirectResultHandler (this, comm, xmlProcessor, domUtil, config, getMyParams (), logger);
   }
 
   /** anything you added with register, you will be informed about here upon rehydration */
   /*
     protected void rehydrateState (List stuff) {
-    if (myExtraOutput || true)
-    System.out.println (getName () + ".rehydrateState - stuff has " + stuff.size () + " members.");
+    if (isInfoEnabled() || true)
+    debug (getName () + ".rehydrateState - stuff has " + stuff.size () + " members.");
 	
     myTaskUIDtoObject  = (Map) stuff.get (0);
     myAssetUIDtoObject = (Map) stuff.get (0);
 
     if (stuff.size () > 0) {
     ((InternalMode)mode).setScheduler ((Scheduler) stuff.get(0));
-    if (myExtraOutput || true)
-    System.out.println (getName () + ".rehydrateState - set Scheduler on mode.");
+    if (isInfoEnabled() || true)
+    debug (getName () + ".rehydrateState - set Scheduler on mode.");
     }
 	
-    if (myExtraOutput || true)
-    System.out.println (getName () + ".rehydrateState - myTaskUIDToObject is now " + myTaskUIDtoObject);
-    if (myExtraOutput || true)
-    System.out.println (getName () + ".rehydrateState - myAssetUIDToObject is now " + myAssetUIDtoObject);
+    if (isInfoEnabled() || true)
+    debug (getName () + ".rehydrateState - myTaskUIDToObject is now " + myTaskUIDtoObject);
+    if (isInfoEnabled() || true)
+    debug (getName () + ".rehydrateState - myAssetUIDToObject is now " + myAssetUIDtoObject);
     }
   */
 
@@ -290,8 +290,8 @@ public abstract class VishnuPlugin
   public void setupFilters () {
     super.setupFilters ();
 
-    if (myExtraOutput)
-      System.out.println (getName () + " : Filtering for generic Assets...");
+    if (isInfoEnabled())
+      debug (getName () + " : Filtering for generic Assets...");
 
     addFilter (myAssetCallback    = createAssetCallback    ());
   }
@@ -330,7 +330,7 @@ public abstract class VishnuPlugin
    * @return UTILAssetCallback that was created and has this plugin as a listener
    */
   protected UTILAssetCallback createAssetCallback () { 
-    return new UTILAssetCallback  (this); 
+    return new UTILAssetCallback  (this, logger); 
   } 
 
   /**
@@ -359,14 +359,14 @@ public abstract class VishnuPlugin
       Object asset = newAssets.nextElement ();
       myNewAssets.add (asset);
     }
-    if (myExtraOutput)
-      System.out.println (getName () + ".handleNewAssets - got " + myNewAssets.size ());
+    if (isInfoEnabled())
+      info (getName () + ".handleNewAssets - got " + myNewAssets.size ());
   }
 
   /**
    * Place to handle changed assets.
    *
-   * Does nothing by default - reports changed assets when myExtraOutput set.
+   * Does nothing by default - reports changed assets when isInfoEnabled() set.
    *
    * @param newAssets changed assets found in the container
    */
@@ -375,9 +375,9 @@ public abstract class VishnuPlugin
       Object asset = changedAssets.nextElement ();
       myChangedAssets.add (asset);
     }
-    if (myExtraOutput || true)
-      System.out.println (getName () + ".handleChangedAssets - got " + myChangedAssets.size () + 
-			  " changed assets.");
+    if (isInfoEnabled())
+      info (getName () + ".handleChangedAssets - got " + myChangedAssets.size () + 
+	    " changed assets.");
   }
 
   /** 
@@ -442,7 +442,7 @@ public abstract class VishnuPlugin
    */
   public void processTasks (List tasks) {
     total += tasks.size();
-    System.out.println (getName () + ".processTasks - received " + 
+    debug (getName () + ".processTasks - received " + 
 			tasks.size () + " tasks, " + total + " total so far.");
 
     Date start = new Date();
@@ -463,8 +463,8 @@ public abstract class VishnuPlugin
     // remember these tasks come assignment-time
     setUIDToObjectMap (tasks, myTaskUIDtoObject);
 
-    if (myExtraOutput)
-      System.out.println (getName () + ".processTasks - sending " + 
+    if (isDebugEnabled())
+      debug (getName () + ".processTasks - sending " + 
 			  myTaskUIDtoObject.values ().size () + " tasks.");
 
     int numTasks = getNumTasks ();
@@ -519,8 +519,8 @@ public abstract class VishnuPlugin
     // call.  Hence, there is no need to resend the format even when not doing incremental
     // scheduling.  The only time the problem format needs to be resent is when running
     // internally.  
-    if (myExtraOutput)
-      System.out.println (getName () + ".prepareObjectFormat - discovering object format introspectively.");
+    if (isInfoEnabled())
+      info (getName () + ".prepareObjectFormat - discovering object format introspectively.");
 
     List assetClassName = new ArrayList(); // just a way of returning a second return value from function
     Collection formatTemplates = config.getAssetTemplatesForTasks(tasks, assetClassName, getAllAssets());
@@ -528,11 +528,11 @@ public abstract class VishnuPlugin
 
     formatTemplates.addAll (config.getTemplateTasks(tasks, firstTemplateTasks));
 
-    if (myExtraOutput) {
-      System.out.println (getName () + ".processObjectFormat - " + formatTemplates.size() + " unique assets : ");
+    if (isDebugEnabled()) {
+      debug (getName () + ".processObjectFormat - " + formatTemplates.size() + " unique assets : ");
       for (Iterator iter = formatTemplates.iterator (); iter.hasNext(); )
 	System.out.print ("\t" + iter.next().getClass ());
-      System.out.println ("");
+      debug ("");
     }
 
     Map myNameToDescrip = sendFormat (formatTemplates, singleAssetClassName);
@@ -567,8 +567,8 @@ public abstract class VishnuPlugin
 
       String defaultFormat = config.getFormatFile ();
 
-      if (myExtraOutput)
-	System.out.println (getName () + ".prepareStoredObjectFormat - sending format file " + defaultFormat);
+      if (isDebugEnabled())
+	debug (getName () + ".prepareStoredObjectFormat - sending format file " + defaultFormat);
 
       DOMParser parser = new DOMParser ();
       InputStream inputStream = getConfigFinder().open(defaultFormat);
@@ -582,7 +582,7 @@ public abstract class VishnuPlugin
       if (showTiming)
 	domUtil.reportTime (" - Vishnu completed format XML processing in ", start);
     } catch (Exception e) {
-      System.out.println (getName () + ".prepareStoredObjectFormat - ERROR with file " + e.getMessage());
+      debug (getName () + ".prepareStoredObjectFormat - ERROR with file " + e.getMessage());
     }
 
     return formatDoc;
@@ -603,19 +603,19 @@ public abstract class VishnuPlugin
    */
   protected void prepareData (List stuffToSend, Document objectFormatDoc) {
     Collection allAssets = getAllAssets();
-    if (myExtraOutput)
-      System.out.println (getName () + ".prepareData - sending " + 
-			  allAssets.size () + " assets.");
+    if (isDebugEnabled())
+      debug (getName () + ".prepareData - sending " + 
+	     allAssets.size () + " assets.");
 
     stuffToSend.addAll (allAssets);
 
     setUIDToObjectMap (allAssets, myAssetUIDtoObject);
 
-    if (myExtraExtraOutput) {
+    if (logger.isDebugEnabled()) {
       for (Iterator iter = stuffToSend.iterator (); iter.hasNext (); ) {
 	Object obj = iter.next ();
 
-	System.out.println (getName () + ".prepareData sending stuff " + 
+	debug (getName () + ".prepareData sending stuff " + 
 			    ((UniqueObject) obj).getUID ());
       }
     }
@@ -656,7 +656,7 @@ public abstract class VishnuPlugin
       StringKey key = new StringKey (obj.getUID().toString());
       if (!UIDtoObject.containsKey (key)) {
 	UIDtoObject.put (key, obj);
-	// System.out.println("setUIDToObjectMap: added " + key + " = " + obj + " to map");
+	// debug("setUIDToObjectMap: added " + key + " = " + obj + " to map");
       }
     }
   }
@@ -674,14 +674,14 @@ public abstract class VishnuPlugin
     if (blackboard.didRehydrate () || localDidRehydrate) {
       localDidRehydrate = false;
 	  
-      if (myExtraOutput || true)
-	System.out.println(getName() + ".getAllAssets - getting all assets because of rehydration.");
+      if (isDebugEnabled())
+	debug(getName() + ".getAllAssets - getting all assets because of rehydration.");
 
       return getAssetCallback().getSubscription ().getCollection();
     }
     else {
-      if (myExtraOutput)
-	System.out.println(getName() + ".getAllAssets - normal mode -- NOT rehydrating.");
+      if (isDebugEnabled())
+	debug(getName() + ".getAllAssets - normal mode -- NOT rehydrating.");
     }
 	
     Set newAssetsCopy = new HashSet (myNewAssets);
@@ -708,8 +708,8 @@ public abstract class VishnuPlugin
    * @return map of the object types to their object descriptions
    */
   protected Map sendFormat (Collection templates, String assetClassName) {
-    if (myExtraOutput)
-      System.out.println (getName () + ".sendFormat, resource " + assetClassName);
+    if (isDebugEnabled())
+      debug (getName () + ".sendFormat, resource " + assetClassName);
     Map nameInfo = null;
     Date start = new Date ();
 	
@@ -746,18 +746,18 @@ public abstract class VishnuPlugin
     // append the scheduling specs
     String specsFile = config.getSpecsFile();
 
-    if (myExtraOutput)
-      System.out.println (getName () + ".sendFormat - appending " + 
-			  specsFile + " vishnu specs xml file");
+    if (isDebugEnabled())
+      debug (getName () + ".sendFormat - appending " + 
+	     specsFile + " vishnu specs xml file");
 
     domUtil.appendDoc (problemFormatDoc, specsFile);
 
     // append the ga specs
     specsFile = config.getGASpecsFile(); 
 
-    if (myExtraOutput)
-      System.out.println (getName () + ".sendFormat - appending " + 
-			  specsFile + " vishnu ga specs xml file");
+    if (isDebugEnabled())
+      debug (getName () + ".sendFormat - appending " + 
+	     specsFile + " vishnu ga specs xml file");
 
     domUtil.appendDoc (problemFormatDoc, specsFile);
   }
@@ -771,8 +771,8 @@ public abstract class VishnuPlugin
     String otherDataFormat = config.getOtherDataFormat();
     try {
       if (getConfigFinder ().open (otherDataFormat) != null) {
-	if (myExtraOutput)
-	  System.out.println (getName () + ".sendFormat -  appending " + 
+	if (isDebugEnabled())
+	  debug (getName () + ".sendFormat -  appending " + 
 			      otherDataFormat + " other data format file");
 
 	Element dataFormatNode = (Element)
@@ -781,13 +781,12 @@ public abstract class VishnuPlugin
 	domUtil.appendDoc (problemFormatDoc, dataFormatNode, otherDataFormat);
       }
     } catch (FileNotFoundException fnf) {
-      if (myExtraOutput)
-	System.out.println (getName () + 
-			    ".appendGlobalDataFormat - could not find optional file : " + 
-			    otherDataFormat );
+      if (isInfoEnabled())
+	info (getName () + 
+	       ".appendGlobalDataFormat - could not find optional file : " + 
+	       otherDataFormat );
     } catch (Exception ioe) {
-      System.out.println (getName() + ".appendGlobalDataFormat - Exception " + ioe.getMessage());
-      ioe.printStackTrace ();
+      logger.error (getName() + ".appendGlobalDataFormat - Exception " + ioe.getMessage(), ioe);
     }
   }
   
@@ -808,7 +807,7 @@ public abstract class VishnuPlugin
   public void prepareVishnuObjects (List tasksAndResources, Collection changedAssets,
 				    List vishnuTasks, List vishnuResources, List changedVishnuResources,
 				    Document objectFormat, TimeOps timeOps) { 
-    System.err.println (getName ()+ ".prepareVishnuObjects - ERROR - don't run directly if you haven't defined this method.");
+    error (getName ()+ ".prepareVishnuObjects - ERROR - don't run directly if you haven't defined this method.");
   }
 
 
@@ -869,7 +868,7 @@ public abstract class VishnuPlugin
 
     boolean match = ((UniqueObject) obj).getUID ().toString().equals (uid.toString());
 
-    System.out.println (getName () + ".findUniqueObject - Comparing uid " +
+    debug (getName () + ".findUniqueObject - Comparing uid " +
     ((UniqueObject) obj).getUID ().toString() + " with key " + uid + 
     ((match) ? " MATCH! " : " no match"));
 
@@ -893,7 +892,7 @@ public abstract class VishnuPlugin
    */
   protected void handleImpossibleTasks (Collection impossibleTasks) {
     if (!impossibleTasks.isEmpty ())
-      System.out.println (getName () + 
+      debug (getName () + 
 			  ".handleImpossibleTasks - failing " + 
 			  impossibleTasks.size () + 
 			  " tasks.");
@@ -904,7 +903,7 @@ public abstract class VishnuPlugin
     }
 
     if (stopOnFailure && !impossibleTasks.isEmpty()) {
-      System.out.println (getName() + ".handleImpossibleTasks - stopping on failure!");
+      debug (getName() + ".handleImpossibleTasks - stopping on failure!");
       System.exit (-1);
     }
   }
@@ -969,21 +968,21 @@ public abstract class VishnuPlugin
    * @return List of subtasks created
    */
   protected List makeSetupWrapupExpansion (Task task, Asset asset, Date start, Date end, Date setupStart, Date wrapupEnd) {
-    if (myExtraOutput)
-      System.out.println (getName () + ".makeSetupWrapupExpansion : " + 
+    if (isDebugEnabled())
+      debug (getName () + ".makeSetupWrapupExpansion : " + 
 			  " assigning " + task.getUID() + 
 			  "\nto " + asset.getUID () +
 			  " from " + start + 
 			  " to " + end);
 
     if (setupStart.after (start))
-      System.err.println (getName () + ".makeSetupWrapupExpansion : ERROR, assigned setupStart - " + setupStart + " after start " + start + 
+      error (getName () + ".makeSetupWrapupExpansion : ERROR, assigned setupStart - " + setupStart + " after start " + start + 
 			  " for task " + task);
     if (start.after (end))
-      System.err.println (getName () + ".makeSetupWrapupExpansion : ERROR, assigned start - " + start + " after end " + end + 
+      error (getName () + ".makeSetupWrapupExpansion : ERROR, assigned start - " + start + " after end " + end + 
 			  " for task " + task);
     if (end.after (wrapupEnd))
-      System.err.println (getName () + ".makeSetupWrapupExpansion : ERROR, assigned end - " + end + " after wrapupEnd " + wrapupEnd + 
+      error (getName () + ".makeSetupWrapupExpansion : ERROR, assigned end - " + end + " after wrapupEnd " + wrapupEnd + 
 			  " for task " + task);
 	  
     boolean wantConfidence = false;
@@ -998,14 +997,14 @@ public abstract class VishnuPlugin
 
     if (makeSetupAndWrapupTasks) {
       if (setupStart.getTime() < start.getTime()) {
-	if (myExtraOutput)
-	  System.out.println (getName () + ".makeSetupWrapupExpansion : making setup task for " + task.getUID());
+	if (isDebugEnabled())
+	  debug (getName () + ".makeSetupWrapupExpansion : making setup task for " + task.getUID());
 	subtasks.add (createSetupTask (task, asset, start, end, setupStart, wrapupEnd));
       }
 
       if (wrapupEnd.getTime() > end.getTime()) {
-	if (myExtraOutput)
-	  System.out.println (getName () + ".makeSetupWrapupExpansion : making wrapup task for " + task.getUID());
+	if (isDebugEnabled())
+	  debug (getName () + ".makeSetupWrapupExpansion : making wrapup task for " + task.getUID());
 	subtasks.add (createWrapupTask (task, asset, start, end, setupStart, wrapupEnd));
       }
     }
@@ -1030,7 +1029,7 @@ public abstract class VishnuPlugin
     NewTask mainTask = (NewTask) UTILExpand.makeSubTask (ldmf, task, task.getDirectObject(), task.getSource());
     mainTask.setPrepositionalPhrases (getPrepPhrases (task, asset).elements());
     mainTask.setPreferences (getPreferences (task, start, start, end, end).elements());
-    if (myExtraOutput) System.out.println (getName () + ".createMainTask : made main task : " + mainTask.getUID());
+    if (isDebugEnabled()) debug (getName () + ".createMainTask : made main task : " + mainTask.getUID());
     return mainTask;
   }
 
@@ -1051,7 +1050,7 @@ public abstract class VishnuPlugin
     setupTask.setVerb (Constants.Verb.Transit);
     setupTask.setPrepositionalPhrases (getPrepPhrases (task, asset).elements());
     setupTask.setPreferences (getPreferences (task, setupStart, setupStart, start, start).elements());
-    if (myExtraOutput) System.out.println (getName () + ".createSetupTask : made setup task : " + setupTask.getUID());
+    if (isDebugEnabled()) debug (getName () + ".createSetupTask : made setup task : " + setupTask.getUID());
     return setupTask;
   }
 
@@ -1072,7 +1071,7 @@ public abstract class VishnuPlugin
     wrapupTask.setVerb (Constants.Verb.Transit);
     wrapupTask.setPrepositionalPhrases (getPrepPhrases (task, asset).elements());
     wrapupTask.setPreferences (getPreferences(task, end, end, wrapupEnd, wrapupEnd).elements());
-    if (myExtraOutput) System.out.println (getName () + ".createWrapupTask : made wrapup task : " + wrapupTask.getUID());
+    if (isDebugEnabled()) debug (getName () + ".createWrapupTask : made wrapup task : " + wrapupTask.getUID());
     return wrapupTask;
   }
 
@@ -1110,8 +1109,8 @@ public abstract class VishnuPlugin
    * @param subtasks the expanded subtasks
    */
   public void publishSubtasks (boolean wantConfidence, Task t, List subtasks) {
-    if (myExtraOutput){
-      System.out.println(getName() + ".handleTask: Subtask(s) created for task :" + 
+    if (isDebugEnabled()){
+      debug(getName() + ".handleTask: Subtask(s) created for task :" + 
 			 t.getUID());
     }
 
@@ -1125,8 +1124,8 @@ public abstract class VishnuPlugin
       exp = UTILExpand.makeExpansion (ldmf, wf);
     }
 
-    if (myExtraOutput){
-      System.out.println(getName () + ".handleTask: Expansion created. (" +
+    if (isDebugEnabled()){
+      debug(getName () + ".handleTask: Expansion created. (" +
 			 exp.getUID() + ")");
     }
     
@@ -1135,8 +1134,8 @@ public abstract class VishnuPlugin
     }
     publishAdd(exp);
 
-    if (myExtraOutput){
-      System.out.println(getName() + ".handleTask: Expansion published. Workflow has " + 
+    if (isDebugEnabled()){
+      debug(getName() + ".handleTask: Expansion published. Workflow has " + 
 			 UTILAllocate.enumToList(exp.getWorkflow ().getTasks()).size () + " subtasks." );
     }
 
