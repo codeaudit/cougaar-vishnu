@@ -1,14 +1,13 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingSpecs.java,v 1.19 2001-08-07 18:25:53 gvidaver Exp $
-
 package org.cougaar.lib.vishnu.server;
 
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.awt.Color;
 
 /**
@@ -56,6 +55,7 @@ public class SchedulingSpecs {
   private ArrayList operators = new ArrayList();
   private Reusable reuse = new Reusable();
   private TimeOps timeOps;
+  
   private static boolean debug = 
     ("true".equals (System.getProperty ("vishnu.debug")));
   private static boolean timing = 
@@ -162,9 +162,21 @@ public class SchedulingSpecs {
       cachedCapableResources = new HashMap();
       for (int i = 0; i < tasks.length; i++) {
         ArrayList capable = new ArrayList();
-        for (int j = 0; j < resources.length; j++) {
+		/*
+		  for (int j = 0; j < resources.length; j++) {
           if (isCapable (tasks[i], resources[j])) {
             capable.add (resources[j]);
+		*/
+
+		// avoids pushing and popping the same task resource.length times
+		isCapableSetTask (tasks[i]);
+		
+		for (int j = 0; j < resources.length; j++) {
+          if (isCapableConstantTask (resources[j])) {
+            capable.add (resources[j]);
+
+		isCapableClearTask ();
+
 	    if (debug)
 	      System.out.println ("SchedulingSpecs.capableResources - " +
                                   resources[j].getKey() + "(" + j + " of " +
@@ -199,6 +211,51 @@ public class SchedulingSpecs {
     return b.booleanValue();
   }
 
+  /** 
+   * meant to be called in order :
+   * isCapableSetResource, isCapableConstantResource (n times), isCapableClearResource
+   */
+  public void isCapableSetResource (Resource resource) {
+    data.put ("resource", resource);
+  }
+  
+  public boolean isCapableConstantResource (Task task) {
+    if (capabilityConstraint == null)
+      return true;
+    data.put ("task", task);
+    Boolean b = (Boolean) capabilityConstraint.getResult (data);
+    data.remove ("task");
+    reuse.resetObjects();
+    if (b == null)
+      return true;
+    return b.booleanValue();
+  }
+
+  public void isCapableClearResource () {
+    data.remove ("resource");
+  }
+
+
+  public void isCapableSetTask (Task task) {
+    data.put ("task", task);
+  }
+  
+  public boolean isCapableConstantTask (Resource resource) {
+    if (capabilityConstraint == null)
+      return true;
+    data.put ("resource", resource);
+    Boolean b = (Boolean) capabilityConstraint.getResult (data);
+    data.remove ("resource");
+    reuse.resetObjects();
+    if (b == null)
+      return true;
+    return b.booleanValue();
+  }
+
+  public void isCapableClearTask () {
+    data.remove ("task");
+  }
+  
   public boolean ignoringTime() {
     return (((taskDurationCache == null) &&
              (setupDuration == null) &&
@@ -381,6 +438,8 @@ public class SchedulingSpecs {
             (linked == null));
   }
 
+  private List emptyList = new ArrayList ();
+  
   public TimeBlock[] taskUnavailableTimes (Task task, Task[] prereqs,
                                            int startTime, int endTime,
                                            Resource resource,
@@ -392,7 +451,12 @@ public class SchedulingSpecs {
                                          timeOps)};
     if (taskUnavailableTimesCache == null)
       return blocks;
-    data.put ("prerequisites", new ArrayList (Arrays.asList (prereqs)));
+
+	if (prereqs.length > 0)
+	  data.put ("prerequisites", new ArrayList (Arrays.asList (prereqs)));
+	else
+	  data.put ("prerequisites", emptyList);
+
     data.put ("duration", new Reusable.RFloat ((float) duration));
     Object obj = taskUnavailableTimesCache.getResult (task, resource,
                                                       schedChanged);
