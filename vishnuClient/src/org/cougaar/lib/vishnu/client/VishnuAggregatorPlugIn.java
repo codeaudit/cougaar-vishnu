@@ -405,14 +405,29 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
   }
 
   protected void handleMultiAssignment (Vector tasks, Asset asset, Date start, Date end, Date setupStart, Date wrapupEnd) {
-	if (myExtraOutput)
-	  System.out.println (getName() + ".handleMultiAssignment : "+
-						  "\ntasks     = " + tasks +
-						  "\nresource = " + asset +
+	if (myExtraOutput) {
+	  System.out.println (getName() + ".handleMultiAssignment : ");
+	  System.out.println ("\nAssigned tasks : ");
+	  for (int i = 0; i < tasks.size (); i++) {
+		Task task = (Task) tasks.get(i);
+
+		Date ready = UTILPreference.getReadyAt   (task);
+		Date early = UTILPreference.getEarlyDate (task);
+		Date late  = UTILPreference.getLateDate  (task);
+
+		System.out.println ("" + task.getUID() +
+							" - ready " + ready + (start.before(ready) ? (" AFTER start " + start) : "") +
+							" early " + early   + (end.before(early) ? (" AFTER end " + end) : "") +
+							" best " + UTILPreference.getBestDate (task) + 
+							" late " + late     + (end.after(late) ? (" BEFORE end " + end) : ""));
+	  }
+	  System.out.println ("\nresource = " + asset +
 						  "\nsetup    = " + setupStart +
 						  "\nstart    = " + start +
 						  "\nend      = " + end +
 						  "\nwrapup   = " + wrapupEnd);
+	}
+  
 	makePlanElement (tasks, asset, start, end, setupStart, wrapupEnd);
   }
   
@@ -646,7 +661,7 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
 	for (Iterator iter = g.iterator (); iter.hasNext (); ) {
 	  Task task = (Task) iter.next ();
 	  taskToAspectValue.put (task, 
-							 makeAVsFromPrefs(UTILAllocate.enumToVector(task.getPreferences ())));
+							 makeAVsFromPrefs(UTILAllocate.enumToVector(task.getPreferences ()), start, end));
 	}
 	return taskToAspectValue;
   }
@@ -686,6 +701,40 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
       tmp_av_vec.addElement(new AspectValue(at, result));
 
 	  //System.out.println (getName() + ".makeAVsFromPrefs - adding type " + at + " value " + result);
+    }      
+
+    AspectValue [] avs = new AspectValue[tmp_av_vec.size()];
+    Iterator av_i = tmp_av_vec.iterator();
+    int i = 0;
+    while (av_i.hasNext())
+      avs[i++] = (AspectValue)av_i.next();
+
+    // if there were no preferences...return an empty vector (0 elements)
+    return avs;
+  }
+
+  /** replace start and end time aspect values with those from the assignment */
+  protected AspectValue [] makeAVsFromPrefs(Vector prefs, Date start, Date end) {
+    Vector tmp_av_vec = new Vector(prefs.size());
+    Iterator pref_i = prefs.iterator();
+    while (pref_i.hasNext()) {
+      // do something really simple for now.
+      Preference pref = (Preference) pref_i.next();
+      int at = pref.getAspectType();
+	  double result = 0;
+	  
+	  if (at == AspectType.START_TIME) {
+		result = (double) start.getTime();
+	  }
+	  else if (at == AspectType.END_TIME) {
+		result = (double) end.getTime();
+	  }
+	  else {
+		ScoringFunction sf = pref.getScoringFunction();
+		// allocate as if you can do it at the "Best" point
+		result = ((AspectScorePoint)sf.getBest()).getValue();
+	  }
+	  tmp_av_vec.addElement(new AspectValue(at, result));
     }      
 
     AspectValue [] avs = new AspectValue[tmp_av_vec.size()];
