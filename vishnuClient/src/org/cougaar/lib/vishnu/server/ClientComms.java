@@ -101,7 +101,7 @@ public class ClientComms {
   }
 
   private static Exception printDiagnostic (Exception e, String stringURL) {
-    System.err.println (e.getMessage());
+    System.err.println ("ClientComms.printDiagnositic - exception : " + e.getMessage());
     if (stringURL != null)
       System.out.println
         ("ClientComms.readXML - could not connect to :\n" + stringURL);
@@ -140,11 +140,11 @@ public class ClientComms {
     } catch (ConnectException ce) {
       return printDiagnostic (ce, stringURL);
     } catch (Exception e) {
-      System.err.println (e.getMessage());
+      System.err.println ("ClientComms.readXML - Got exception : " + e.getMessage());
 //      e.printStackTrace();
       try {
-	  System.out.println ("readXML - returned html was :\n" +
-			      testURL (new URL (stringURL)));
+	  System.out.println ("ClientComms.readXML - returned html was :\n" +
+						  testURL (new URL (stringURL)));
       } catch (Exception ee) {}
       return e;
     }
