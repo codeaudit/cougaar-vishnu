@@ -12,10 +12,10 @@
                   "where  problem = \"" . $problem . "\";");
   $result = mysql_db_query ("vishnu_central",
               "select percent_complete from scheduler_request where " .
-              "problem = \"" . $problem ."\" and number = -1;");
+              "problem = '" . $problem . "'");
   $value = mysql_fetch_row ($result);
 
-  echo "<message>OK, now " . $value[0] . "</message>";
+  echo "<message>OK, for " . $problem . " now percent complete is " . $value[0] . "</message>";
 
   mysql_close();
 ?>
