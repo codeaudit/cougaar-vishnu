@@ -497,7 +497,7 @@
   }
 
   function getimagewidth() {
-    return 800;
+    return 700;
   }
 
 
