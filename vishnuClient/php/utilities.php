@@ -420,6 +420,8 @@
     $height = getimageheight();
     $total_secs = $end_time - $start_time;
     $secs_per_pixel = ((float) $total_secs) / ((float) $width);
+    if ($secs_per_pixel == 0.0)
+      $secs_per_pixel = 0.0001;
     $top = 2;
     $bottom = $height - 3;
     $multi2 = $isgrouped || $ismultitask;
