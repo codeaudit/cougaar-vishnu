@@ -49,6 +49,8 @@ public class SchedulingData {
     ("true".equals (System.getProperty ("vishnu.debug")));
   private static boolean reportTiming = 
     ("true".equals (System.getProperty ("vishnu.Scheduler.reportTiming")));
+  private static boolean throwExceptionOnMissingField = 
+    ("true".equals (System.getProperty ("vishnu.SchedulingData.throwExceptionOnMissingField", "false")));
 
   public SchedulingData (TimeOps timeOps) {
     this.timeOps = timeOps;
@@ -559,9 +561,18 @@ public class SchedulingData {
         fieldname = atts.getValue ("name");
         FieldFormat ff = (FieldFormat)
           ((HashMap) formats.get (objectType)).get (fieldname);
-        if (ff == null)
-          throw new RuntimeException ("Undefined field named " + fieldname +
-                                      " for object type " + objectType);
+        if (ff == null) {
+		  if (throwExceptionOnMissingField) {
+			throw new RuntimeException ("Undefined field named " + fieldname +
+										" for object type " + objectType);
+		  }
+		  else {
+			System.out.println ("SchedulingData.startElement - NOTE : found undefined field " +
+								fieldname + " for object type " + objectType + 
+								". Ignoring.");
+		  }
+		}
+		
         prefixes.push (prefix);
         if (ff.is_list) {
           listFormats.push (listFormat);
