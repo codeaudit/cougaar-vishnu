@@ -89,7 +89,7 @@
   <? 
     if ($value["percent_complete"] == 0 && $timeDiff > 20) {
 	echo "<font size=-1>";
-	echo "* To run a scheduler, use the runScheduler script in "; 
+	echo "* To run a scheduler, use the <i>runScheduler</i> script in "; 
 	echo "vishnu/scripts in the vishnu distribution.<br>";
 	echo "See setup instructions at the top of the <i>runScheduler</i> script.<br><br>"; 
 	echo "Also, for more information, see "; 
