@@ -1500,12 +1500,6 @@ aggregators, the MP task created by the aggregation is expanded.  And for
 allocators, there is a one-to-two or three expansion, and each subtask gets
 allocated to the assigned resource. </p>
 
-<? makeSubsection ("Assignment Freezing", "br3"); ?>
-
-<P>There is another facility provided by the bridge for expanders and aggregators.  Since resource availability is represented in the role schedule, and since the role schedule does not reflect an assignment until an allocation is made, there is a gap of time between when an assignment is returned and when the resource's availability reflects the assignment.  During this period, a new task could come in and be scheduled against the asset during the interval of a previous assignment.  To protect against this, expanders and aggregators freeze task assignments until the plugin detects, through the allocation result, that an allocation has been made against the asset.  Once this happens, the assignment is unfrozen and can be cleared from the Vishnu database.</P>
-
-Note : This facility is only active in batch mode.
-
 <? makeSubsection ("Parameters", "br4"); ?>
 
 <P>There are a number of parameters set in the Cluster's env.xml file that affect the behavior of the bridge.
@@ -1550,53 +1544,6 @@ Note : This facility is only active in batch mode.
 </TABLE>
 <br>
 
-<BR><B>File Parameters</B><BR><BR>
-<TABLE BORDER CELLSPACING=1 CELLPADDING=7 WIDTH=625>
-<TR><TD WIDTH="21%" VALIGN="TOP">
-<B><P>Parameter Name</B></TD>
-<TD WIDTH="50%" VALIGN="TOP">
-<B><P>Use</B></TD>
-<TD WIDTH="29%" VALIGN="TOP">
-<B><P>Default Value</B></TD>
-</TR>
-<TR><TD WIDTH="21%" VALIGN="TOP">
-<P>postProblemFile</TD>
-<TD WIDTH="50%" VALIGN="TOP">
-<P>Php file that’s part of the URL to post a problem</TD>
-<TD WIDTH="29%" VALIGN="TOP">
-<P>postproblem.php</TD>
-</TR>
-<TR><TD WIDTH="21%" VALIGN="TOP">
-<P>postDataFile</TD>
-<TD WIDTH="50%" VALIGN="TOP">
-<P>Php file that’s part of the URL to post the data for a problem</TD>
-<TD WIDTH="29%" VALIGN="TOP">
-<P>postdata.php</TD>
-</TR>
-<TR><TD WIDTH="21%" VALIGN="TOP">
-<P>kickoffFile</TD>
-<TD WIDTH="50%" VALIGN="TOP">
-<P>Php file that’s part of the URL to post a scheduling request</TD>
-<TD WIDTH="29%" VALIGN="TOP">
-<P>postkickoff.php</TD>
-</TR>
-<TR><TD WIDTH="21%" VALIGN="TOP">
-<P>readStatusFile</TD>
-<TD WIDTH="50%" VALIGN="TOP">
-<P>Php file that’s part of the URL to get the scheduler status</TD>
-<TD WIDTH="29%" VALIGN="TOP">
-<P>readstatus.php</TD>
-</TR>
-<TR><TD WIDTH="21%" VALIGN="TOP">
-<P>assignmentsFile</TD>
-<TD WIDTH="50%" VALIGN="TOP">
-<P>Php file that’s part of the URL to get the generated assignments</TD>
-<TD WIDTH="29%" VALIGN="TOP">
-<P>assignments.php</TD>
-</TR>
-</TABLE>
-<br>
-
 <br><b>Misc Parameters</b><br><BR>
 <TABLE BORDER CELLSPACING=1 CELLPADDING=7 WIDTH=619>
 <TR><TD WIDTH="26%" VALIGN="TOP">
@@ -1610,6 +1557,27 @@ Note : This facility is only active in batch mode.
 <P>runInternal</TD>
 <TD WIDTH="54%" VALIGN="TOP">
 <P>Run using an internal scheduler.  Don't use the Vishnu web server.</TD>
+<TD WIDTH="19%" VALIGN="TOP">
+<P>false</TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>runDirectly</TD>
+<TD WIDTH="54%" VALIGN="TOP">
+<P>Run using direct translation.  A subtype of internal mode.  Only compatible with custom translation mode.</TD>
+<TD WIDTH="19%" VALIGN="TOP">
+<P>false</TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>useStoredFormat</TD>
+<TD WIDTH="54%" VALIGN="TOP">
+<P>Get problem format from a file (<b>ClusterName</b>.dff.xml, or settable with the defaultFormat parameter).  When false, will try to automatically discover problem format from the tasks and assets given as input.</TD>
+<TD WIDTH="19%" VALIGN="TOP">
+<P>false</TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>incrementalScheduling</TD>
+<TD WIDTH="54%" VALIGN="TOP">
+<P>Remember the assignments from previous jobs of the same problem.  When false, the problem state is cleared before each job.</TD>
 <TD WIDTH="19%" VALIGN="TOP">
 <P>false</TD>
 </TR>
@@ -1656,11 +1624,39 @@ Note : This facility is only active in batch mode.
 <P>10</TD>
 </TR>
 <TR><TD WIDTH="26%" VALIGN="TOP">
+<P>sendDataChunkSize</TD>
+<TD WIDTH="54%" VALIGN="TOP">
+<P>How many tasks and assets to send at one time.  Useful if web server has low post size limitations. Not relevant to direct mode.</TD>
+<TD WIDTH="19%" VALIGN="TOP">
+<P>100</TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>firstTemplateTasks</TD>
+<TD WIDTH="54%" VALIGN="TOP">
+<P>How many tasks to examine in automatic translation mode to determine the general task format.  If there is much variation in the structure of the input tasks, this number should be higher.  Related to the maxSize parameter</TD>
+<TD WIDTH="19%" VALIGN="TOP">
+<P>2</TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
 <P>problemName</TD>
 <TD WIDTH="54%" VALIGN="TOP">
 <P>Name of the problem. Defaults to "cluster name"_"machine name" .</TD>
 <TD WIDTH="19%" VALIGN="TOP">
 <P>cluster_machine</TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>legalHosts</TD>
+<TD WIDTH="54%" VALIGN="TOP">
+<P>A comma separated list of machines that are legal hosts for schedulers for this problem.  Only relevant to external mode.</TD>
+<TD WIDTH="19%" VALIGN="TOP">
+<P>Empty list = all hosts are OK</TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>wantMediumConfidenceOnExpansion</TD>
+<TD WIDTH="54%" VALIGN="TOP">
+<P>Whether expansions created by VishnuPlugIn will have a medium (0.5) or full (1) confidence.</TD>
+<TD WIDTH="19%" VALIGN="TOP">
+<P>false</TD>
 </TR>
 <TR><TD WIDTH="26%" VALIGN="TOP">
 <P>showTiming</TD>
@@ -1682,6 +1678,20 @@ Note : This facility is only active in batch mode.
 <B><P>Default Value</B></TD>
 </TR>
 <TR><TD WIDTH="26%" VALIGN="TOP">
+<P>ExtraOutput</TD>
+<TD WIDTH="54%" VALIGN="TOP">
+<P>Dump to standard out a variety of general debugging information.</TD>
+<TD WIDTH="19%" VALIGN="TOP">
+<P>false</TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>ExtraExtraOutput</TD>
+<TD WIDTH="54%" VALIGN="TOP">
+<P>Dump to standard out extremely verbose debugging info, including information about subscriptions.</TD>
+<TD WIDTH="19%" VALIGN="TOP">
+<P>false</TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
 <P>testing</TD>
 <TD WIDTH="54%" VALIGN="TOP">
 <P>Prints out XML that is sent to Vishnu</TD>
@@ -1689,9 +1699,9 @@ Note : This facility is only active in batch mode.
 <P>false</TD>
 </TR>
 <TR><TD WIDTH="26%" VALIGN="TOP">
-<P>showALPXML</TD>
+<P>stopOnFailue</TD>
 <TD WIDTH="54%" VALIGN="TOP">
-<P>Prints out output of XMLize</TD>
+<P>Does an exit when the scheduler returns an impossible task -- one with no assignment.  This can make it easier to debug when there is a quick sequence of jobs.</TD>
 <TD WIDTH="19%" VALIGN="TOP">
 <P>false</TD>
 </TR>
@@ -1710,6 +1720,20 @@ Note : This facility is only active in batch mode.
 <P>false</TD>
 </TR>
 <TR><TD WIDTH="26%" VALIGN="TOP">
+<P>writeXMLToFile</TD>
+<TD WIDTH="54%" VALIGN="TOP">
+<P>Writes out xml sent to Vishnu to a sequence of files.  The first is <b>ProblemName</b>_problem_0.xml, which defines the problem.  There will follow <b>ProblemName</b>_data_1.xml, _data_2.xml. etc.  These can be uploaded to the web server independent of the Vishnu bridge.</TD>
+<TD WIDTH="19%" VALIGN="TOP">
+<P>false</TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>writeEncodedXMLToFile</TD>
+<TD WIDTH="54%" VALIGN="TOP">
+<P>Writes out encoded xml sent to Vishnu to a sequence of files. Useful if debugging encoding problems.</TD>
+<TD WIDTH="19%" VALIGN="TOP">
+<P>false</TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
 <P>ignoreSpecsFile</TD>
 <TD WIDTH="54%" VALIGN="TOP">
 <P>Don’t send the Cluster.vsh.xml file.  Useful if you don’t want to step on the specs on the server.</TD>
@@ -1717,14 +1741,75 @@ Note : This facility is only active in batch mode.
 <P>false</TD>
 </TR>
 <TR><TD WIDTH="26%" VALIGN="TOP">
-<P>sendSpecsEveryTime</TD>
+<P>debugParseAnswer</TD>
 <TD WIDTH="54%" VALIGN="TOP">
-<P>Send problem definition, including scheduling logic, every time.  Useful if you want to alter the logic from job to job.</TD>
+<P>Show much more information about the assignments returned from the scheduler.</TD>
+<TD WIDTH="19%" VALIGN="TOP">
+<P>false</TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>debugFormatXMLizer</TD>
+<TD WIDTH="54%" VALIGN="TOP">
+<P>Debug format xmlizer -- the object that generates the object format.</TD>
+<TD WIDTH="19%" VALIGN="TOP">
+<P>false</TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>debugDataXMLizer</TD>
+<TD WIDTH="54%" VALIGN="TOP">
+<P>Debug data xmlizer -- the object that produces the data xml stream for Vishnu.</TD>
 <TD WIDTH="19%" VALIGN="TOP">
 <P>false</TD>
 </TR>
 </TABLE>
-<br><BR>
+<br><BR><B>File Parameters (Informational purposes only - don't alter)</B><BR><BR>
+<TABLE BORDER CELLSPACING=1 CELLPADDING=7 WIDTH=625>
+<TR><TD WIDTH="21%" VALIGN="TOP">
+<B><P>Parameter Name</B></TD>
+<TD WIDTH="50%" VALIGN="TOP">
+<B><P>Use</B></TD>
+<TD WIDTH="29%" VALIGN="TOP">
+<B><P>Default Value</B></TD>
+</TR>
+<TR><TD WIDTH="21%" VALIGN="TOP">
+<P>postProblemFile</TD>
+<TD WIDTH="50%" VALIGN="TOP">
+<P>Php file that’s part of the URL to post a problem</TD>
+<TD WIDTH="29%" VALIGN="TOP">
+<P>postproblem.php</TD>
+</TR>
+<TR><TD WIDTH="21%" VALIGN="TOP">
+<P>postDataFile</TD>
+<TD WIDTH="50%" VALIGN="TOP">
+<P>Php file that’s part of the URL to post the data for a problem</TD>
+<TD WIDTH="29%" VALIGN="TOP">
+<P>postdata.php</TD>
+</TR>
+<TR><TD WIDTH="21%" VALIGN="TOP">
+<P>kickoffFile</TD>
+<TD WIDTH="50%" VALIGN="TOP">
+<P>Php file that’s part of the URL to post a scheduling request</TD>
+<TD WIDTH="29%" VALIGN="TOP">
+<P>postkickoff.php</TD>
+</TR>
+<TR><TD WIDTH="21%" VALIGN="TOP">
+<P>readStatusFile</TD>
+<TD WIDTH="50%" VALIGN="TOP">
+<P>Php file that’s part of the URL to get the scheduler status</TD>
+<TD WIDTH="29%" VALIGN="TOP">
+<P>readstatus.php</TD>
+</TR>
+<TR><TD WIDTH="21%" VALIGN="TOP">
+<P>assignmentsFile</TD>
+<TD WIDTH="50%" VALIGN="TOP">
+<P>Php file that’s part of the URL to get the generated assignments</TD>
+<TD WIDTH="29%" VALIGN="TOP">
+<P>assignments.php</TD>
+</TR>
+</TABLE>
+<br>
+
+<BR>
 </div>
 
 <? makeSection ("Currently Defined Functions", "a", "A"); ?>
