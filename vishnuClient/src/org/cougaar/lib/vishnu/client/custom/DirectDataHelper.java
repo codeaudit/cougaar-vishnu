@@ -251,14 +251,24 @@ public class DirectDataHelper implements DataHelper {
     float latDegrees = (float) loc.getLatitude  ().getDegrees();
     float lonDegrees = (float) loc.getLongitude ().getDegrees();
 
-    SchObject latLonObject = new SchObject ("latlong", schedData);
+    SchObject latlong = new SchObject ("latlong", schedData);
     // fill in the fields on the predefined type
-    latLonObject.addFloat ("latitude",  latDegrees);
-    latLonObject.addFloat ("longitude", lonDegrees);
+    latlong.addFloat ("latitude",  latDegrees);
+    latlong.addFloat ("longitude", lonDegrees);
 
     SchObject objectParent = (SchObject) parent;
+    
+    // have to explicitly add these lines to the parent object!
+    objectParent.addFloat ("DesiredLocation.latitude", latDegrees);
+    objectParent.addFloat ("DesiredLocation.longitude", lonDegrees);
+
     // fill in the fields on the root task/resource
-    objectParent.addField (parentFieldName, "latlong", latLonObject, false, false);
+    String val = objectParent.addField (parentFieldName, "latlong", latlong, false, false);
+    if (val != null)
+      logger.warn ("got error " + val + " adding lat long to " + parentFieldName);
+    //else
+    //  logger.warn ("field is " + objectParent.getField(parentFieldName));
+
   }
 
   private class GeolocData {
@@ -373,7 +383,7 @@ public class DirectDataHelper implements DataHelper {
     boolean isKey  = isKey   (parentType, name);
     boolean isList = isList  (parentType, name);
     String  type   = getType (parentType, name);
-	
+
     if (logger.isDebugEnabled())
       logger.debug ("DirectDataHelper.createField - " +
 	     " parentType " + parentType +
