@@ -67,10 +67,10 @@ public class CustomDataXMLize implements XMLizer, DirectTranslator {
    * @param direct - do direct Cougaar->Vishnu Object translation, no XML
    */
   public CustomDataXMLize (boolean direct) {
-	this.direct = direct;
+    this.direct = direct;
 
-	if (!direct)
-	  dataHelper = new XMLDataHelper ();
+    if (!direct)
+      dataHelper = new XMLDataHelper ();
   }
 
   /** 
@@ -81,8 +81,8 @@ public class CustomDataXMLize implements XMLizer, DirectTranslator {
    * @param timeOps - allows creation of Vishnu date fields
    */
   public void setFormatDoc (Document formatDoc, TimeOps timeOps) {
-	this.timeOps = timeOps;
-	dataHelper = new DirectDataHelper (formatDoc, timeOps);
+    this.timeOps = timeOps;
+    dataHelper = new DirectDataHelper (formatDoc, timeOps);
   }
   
   /** 
@@ -95,74 +95,74 @@ public class CustomDataXMLize implements XMLizer, DirectTranslator {
    * @param ignoredAssetClassName - ignored
    **/
   public Document createDoc (Collection items, Collection changedAssets, String ignoredAssetClassName) {
-	doc = new DocumentImpl();
-	((XMLDataHelper)dataHelper).setDoc (doc);
+    doc = new DocumentImpl();
+    ((XMLDataHelper)dataHelper).setDoc (doc);
 	
-	Element newobjects = createHeader(doc);
+    Element newobjects = createHeader(doc);
 
-	Element changedobjects = doc.createElement("CHANGEDOBJECTS");
-	Element df = (Element) doc.getElementsByTagName ("DATA").item(0);
-	df.appendChild (changedobjects);
+    Element changedobjects = doc.createElement("CHANGEDOBJECTS");
+    Element df = (Element) doc.getElementsByTagName ("DATA").item(0);
+    df.appendChild (changedobjects);
 	
-	if (debug)
-	  System.out.println ("CustomDataXMLize.createDoc - got " + items.size () + " items, " + 
-						  changedAssets.size () + " changed assets.");
-	if (minorDebug)
-	  System.out.println ("CustomDataXMLize.createDoc - initially, NEWOBJECTS tag has " + 
-						  newobjects.getChildNodes().getLength() + " children.");
+    if (debug)
+      System.out.println ("CustomDataXMLize.createDoc - got " + items.size () + " items, " + 
+			  changedAssets.size () + " changed assets.");
+    if (minorDebug)
+      System.out.println ("CustomDataXMLize.createDoc - initially, NEWOBJECTS tag has " + 
+			  newobjects.getChildNodes().getLength() + " children.");
 	
     for (Iterator iter = items.iterator(); iter.hasNext ();) {
-	  Object taskOrAsset = iter.next ();
-	  Element object = doc.createElement("OBJECT");
+      Object taskOrAsset = iter.next ();
+      Element object = doc.createElement("OBJECT");
 
-	  if (taskOrAsset instanceof Asset) {
-		if (processAsset (object, taskOrAsset)) {
-		  boolean changed = changedAssets.contains (taskOrAsset);
-		  if (changed) {
-			if (debug) System.out.println ("CustomDataXMLize.createDoc - appending " + taskOrAsset + " to changed.");
-			changedobjects.appendChild (object);
-		  }
-		  else {
-			if (debug) System.out.println ("CustomDataXMLize.createDoc - appending " + taskOrAsset + " to new.");
-			newobjects.appendChild (object);
-		  }
-		} 
-		else if (debug)
-		  System.out.println ("CustomDataXMLize.createDoc - ignoring asset " + taskOrAsset);
+      if (taskOrAsset instanceof Asset) {
+	if (processAsset (object, taskOrAsset)) {
+	  boolean changed = changedAssets.contains (taskOrAsset);
+	  if (changed) {
+	    if (debug) System.out.println ("CustomDataXMLize.createDoc - appending " + taskOrAsset + " to changed.");
+	    changedobjects.appendChild (object);
 	  }
-	  else { // it's a task
-		if (processTask (object, taskOrAsset)) {
-		  newobjects.appendChild (object);
-		} 
-		else if (debug)
-		  System.out.println ("CustomDataXMLize.createDoc - ignoring task " + taskOrAsset);
+	  else {
+	    if (debug) System.out.println ("CustomDataXMLize.createDoc - appending " + taskOrAsset + " to new.");
+	    newobjects.appendChild (object);
 	  }
-	}
+	} 
+	else if (debug)
+	  System.out.println ("CustomDataXMLize.createDoc - ignoring asset " + taskOrAsset);
+      }
+      else { // it's a task
+	if (processTask (object, taskOrAsset)) {
+	  newobjects.appendChild (object);
+	} 
+	else if (debug)
+	  System.out.println ("CustomDataXMLize.createDoc - ignoring task " + taskOrAsset);
+      }
+    }
 
-	if (debug)
-	  System.out.println ("CustomDataXMLize.createDoc - sending " + 
-						  newobjects.getChildNodes().getLength() + " NEWOBJECTS.");
+    if (debug)
+      System.out.println ("CustomDataXMLize.createDoc - sending " + 
+			  newobjects.getChildNodes().getLength() + " NEWOBJECTS.");
 
-	if (writeXMLToFile) {
-	  String fileName = "Custom_data_" + numFilesWritten++ + ".xml";
-	  System.out.println ("CustomDataXMLize.createDoc - Writing document to file " + fileName);
-	  try {
-		FileOutputStream temp = new FileOutputStream (fileName);
-		writeDocToStream (doc, temp);
-	  } 
-	  catch (FileNotFoundException fnfe) { /* never happen */ }
-	  catch (IOException ioe) { /* never happen */ }
-	}
+    if (writeXMLToFile) {
+      String fileName = "Custom_data_" + numFilesWritten++ + ".xml";
+      System.out.println ("CustomDataXMLize.createDoc - Writing document to file " + fileName);
+      try {
+	FileOutputStream temp = new FileOutputStream (fileName);
+	writeDocToStream (doc, temp);
+      } 
+      catch (FileNotFoundException fnfe) { /* never happen */ }
+      catch (IOException ioe) { /* never happen */ }
+    }
 
-	return doc;
+    return doc;
   }
 
   /** serialize doc to stream */
   protected void writeDocToStream (Document doc, OutputStream os) {
     OutputFormat of = new OutputFormat (doc, "UTF-8", true);
-	of.setLineWidth (150);
+    of.setLineWidth (150);
 	
-	XMLSerializer serializer = new XMLSerializer (os, of);
+    XMLSerializer serializer = new XMLSerializer (os, of);
 
     try {
       serializer.serialize (doc);
@@ -178,37 +178,37 @@ public class CustomDataXMLize implements XMLizer, DirectTranslator {
    * @see #processAsset
    */
   public void createVishnuObjects (List items, Collection changed, 
-								   List vishnuTasks, List vishnuResources, List changedVishnuResources) {
+				   List vishnuTasks, List vishnuResources, List changedVishnuResources) {
 	
-	if (debug)
-	  System.out.println ("CustomDataXMLize.createVishnuObjects - got " + items.size () + " items, " + 
-						  changed.size () + " changed.");
+    if (debug)
+      System.out.println ("CustomDataXMLize.createVishnuObjects - got " + items.size () + " items, " + 
+			  changed.size () + " changed.");
 
-	items.addAll (changed);
+    items.addAll (changed);
 
     for (Iterator iter = items.iterator(); iter.hasNext ();) {
-	  Object taskOrAsset = iter.next ();
+      Object taskOrAsset = iter.next ();
 	  
-	  if (taskOrAsset instanceof Asset) {
-		Object vishnuObject = new Resource(timeOps);
-		if (processAsset (vishnuObject, taskOrAsset)) {
-		  if (changed.contains (taskOrAsset))
-			changedVishnuResources.add (vishnuObject);
-		  else
-			vishnuResources.add (vishnuObject);
-		} 
-		else if (debug)
-		  System.out.println ("CustomDataXMLize.createVishnuObjects - ignoring asset " + taskOrAsset);
-	  }
-	  else { // it's a task
-		Object vishnuObject = new org.cougaar.lib.vishnu.server.Task(timeOps);
-		if (processTask (vishnuObject, taskOrAsset)) {
-		  vishnuTasks.add (vishnuObject);
-		} 
-		else if (debug)
-		  System.out.println ("CustomDataXMLize.createVishnuObjects - ignoring task " + taskOrAsset);
-	  }
-	}
+      if (taskOrAsset instanceof Asset) {
+	Object vishnuObject = new Resource(timeOps);
+	if (processAsset (vishnuObject, taskOrAsset)) {
+	  if (changed.contains (taskOrAsset))
+	    changedVishnuResources.add (vishnuObject);
+	  else
+	    vishnuResources.add (vishnuObject);
+	} 
+	else if (debug)
+	  System.out.println ("CustomDataXMLize.createVishnuObjects - ignoring asset " + taskOrAsset);
+      }
+      else { // it's a task
+	Object vishnuObject = new org.cougaar.lib.vishnu.server.Task(timeOps);
+	if (processTask (vishnuObject, taskOrAsset)) {
+	  vishnuTasks.add (vishnuObject);
+	} 
+	else if (debug)
+	  System.out.println ("CustomDataXMLize.createVishnuObjects - ignoring task " + taskOrAsset);
+      }
+    }
   }
 
   /** 
@@ -218,20 +218,20 @@ public class CustomDataXMLize implements XMLizer, DirectTranslator {
    * @return the new objects tag to attach all the new objects to
    */
   protected Element createHeader (Document doc) {
-	Element root = doc.createElement("PROBLEM");
-	doc.appendChild (root);
+    Element root = doc.createElement("PROBLEM");
+    doc.appendChild (root);
 
-	Element data   = doc.createElement("DATA");
-	root.appendChild(data);
-	Element window = doc.createElement("WINDOW");
-	window.setAttribute ("starttime", "2000-01-01 00:00:00");
-	window.setAttribute ("endtime",   "2002-01-01 00:00:00");
-	data.appendChild (window);
+    Element data   = doc.createElement("DATA");
+    root.appendChild(data);
+    Element window = doc.createElement("WINDOW");
+    window.setAttribute ("starttime", "2000-01-01 00:00:00");
+    window.setAttribute ("endtime",   "2002-01-01 00:00:00");
+    data.appendChild (window);
 	
-	Element newobjects = doc.createElement("NEWOBJECTS");
-	data.appendChild (newobjects);
+    Element newobjects = doc.createElement("NEWOBJECTS");
+    data.appendChild (newobjects);
 	
-	return newobjects;
+    return newobjects;
   }
   
   /** 
@@ -242,30 +242,30 @@ public class CustomDataXMLize implements XMLizer, DirectTranslator {
    * @return true if should add object to list of new objects
    */
   protected boolean processAsset (Object object, Object taskOrAsset) {
-	setType (object, "Asset");
-	return true;
+    setType (object, "Asset");
+    return true;
   }
 
   /** if not doing direct translation, set the type of the Element */
   protected void setType (Object object, String type) {
-	if (!direct)
-	  ((Element)object).setAttribute ("type", type);
+    if (!direct)
+      ((Element)object).setAttribute ("type", type);
   }
   
   /** set the type, name, and id of the object */
   protected String setName (String parentType, Object object, Asset asset) {
-	String type = getAssetType(asset);
-	String name = getAssetName(asset);
+    String type = getAssetType(asset);
+    String name = getAssetName(asset);
 
-	dataHelper.createField(object, parentType, "id", asset.getUID().toString());
-	dataHelper.createField(object, parentType, "type", type);
-	dataHelper.createField(object, parentType, "name", name);
+    dataHelper.createField(object, parentType, "id", asset.getUID().toString());
+    dataHelper.createField(object, parentType, "type", type);
+    dataHelper.createField(object, parentType, "name", name);
 
-	if (debug)
-	  System.out.println ("CustomDataXMLize.processAsset - asset " + asset.getUID() + 
-						  " type " + type + " name " + name);
+    if (debug)
+      System.out.println ("CustomDataXMLize.processAsset - asset " + asset.getUID() + 
+			  " type " + type + " name " + name);
 	
-	return type;
+    return type;
   }
   
   /** 
@@ -276,19 +276,19 @@ public class CustomDataXMLize implements XMLizer, DirectTranslator {
    * @return true if should add object to list of new objects
    */
   protected boolean processTask (Object object, Object taskOrAsset) {
-	Task task = (Task) taskOrAsset;
-	String taskName = getTaskName (); 
+    Task task = (Task) taskOrAsset;
+    String taskName = getTaskName (); 
 
-	setType (object, taskName);
+    setType (object, taskName);
 
-	dataHelper.createField(object, taskName, "id", task.getUID().toString());
+    dataHelper.createField(object, taskName, "id", task.getUID().toString());
 
-	return true;
+    return true;
   }
 
   /** Transport by default -- override to use a different name for the task */
   protected String getTaskName () {
-	return "Transport";
+    return "Transport";
   }
 
   /** 
@@ -301,25 +301,25 @@ public class CustomDataXMLize implements XMLizer, DirectTranslator {
    * @return the name
    */
   protected String getAssetName (Asset asset) {
-	String name = "";
+    String name = "";
 
-	try {
-	  name = //asset.getItemIdentificationPG().getNomenclature() + "-" +
-		asset.getItemIdentificationPG().getItemIdentification();
-	} catch (Exception e) {
-	  System.err.println ("CustomDataXMLize.createDoc - ERROR - no item id pg on " + asset);
-	}
+    try {
+      name = //asset.getItemIdentificationPG().getNomenclature() + "-" +
+	asset.getItemIdentificationPG().getItemIdentification();
+    } catch (Exception e) {
+      System.err.println ("CustomDataXMLize.createDoc - ERROR - no item id pg on " + asset);
+    }
 		
-	if (name == null || name.length () == 0) {
-	  try {
-		name = asset.getTypeIdentificationPG().getNomenclature() + "-" +
-		  asset.getTypeIdentificationPG().getTypeIdentification(); 
-	  } catch (Exception e) {
-		System.err.println ("CustomDataXMLize.createDoc - ERROR - no type id pg on " + asset);
-	  }
-	}
+    if (name == null || name.length () == 0) {
+      try {
+	name = asset.getTypeIdentificationPG().getNomenclature() + "-" +
+	  asset.getTypeIdentificationPG().getTypeIdentification(); 
+      } catch (Exception e) {
+	System.err.println ("CustomDataXMLize.createDoc - ERROR - no type id pg on " + asset);
+      }
+    }
 
-	return fixName(name);
+    return fixName(name);
   }
 
   /** 
@@ -330,34 +330,34 @@ public class CustomDataXMLize implements XMLizer, DirectTranslator {
    * @return the type
    */
   protected String getAssetType (Asset asset) {
-	String name = "";
+    String name = "";
 
-	try {
-	  name = asset.getTypeIdentificationPG().getNomenclature();
-	} catch (Exception e) {
-	  System.err.println ("CustomDataXMLize.createDoc - ERROR - no type id pg on " + asset);
-	}
+    try {
+      name = asset.getTypeIdentificationPG().getNomenclature();
+    } catch (Exception e) {
+      System.err.println ("CustomDataXMLize.createDoc - ERROR - no type id pg on " + asset);
+    }
 
-	if (name == null) {
-	  try {
-		name = asset.getTypeIdentificationPG().getTypeIdentification();
-	  } catch (Exception e) {
-		System.err.println ("CustomDataXMLize.createDoc - ERROR - no type id pg on " + asset);
-	  }
-	}
-	if (name == null) name = "";
+    if (name == null) {
+      try {
+	name = asset.getTypeIdentificationPG().getTypeIdentification();
+      } catch (Exception e) {
+	System.err.println ("CustomDataXMLize.createDoc - ERROR - no type id pg on " + asset);
+      }
+    }
+    if (name == null) name = "";
 	
-	return fixName(name);
+    return fixName(name);
   }
 
   /** remove XML tags from name -- confuses parsing... */
   protected String fixName (String name) {
-	if (name.indexOf ('<') != -1)
-	  name = name.replace('<','_');
-	if (name.indexOf ('>') != -1)
-	  name = name.replace('>','_');
+    if (name.indexOf ('<') != -1)
+      name = name.replace('<','_');
+    if (name.indexOf ('>') != -1)
+      name = name.replace('>','_');
 
-	return name;
+    return name;
   }
 
   /** document that is created, if producing XML = not direct mode */

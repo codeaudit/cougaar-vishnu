@@ -31,54 +31,54 @@ import org.w3c.dom.Document;
  */
 public class DirectMode extends InternalMode {
   public DirectMode (ModeListener parent, VishnuComm comm, XMLProcessor xmlProcessor, 
-					 VishnuDomUtil domUtil, VishnuConfig config, ResultHandler resultHandler,
-					 ParamMap myParamTable) {
-	super (parent, comm, xmlProcessor, domUtil, config, resultHandler,
-		   myParamTable);
-	localSetup ();
+		     VishnuDomUtil domUtil, VishnuConfig config, ResultHandler resultHandler,
+		     ParamMap myParamTable) {
+    super (parent, comm, xmlProcessor, domUtil, config, resultHandler,
+	   myParamTable);
+    localSetup ();
   }
 	
   protected void localSetup () {
-	super.localSetup ();
+    super.localSetup ();
 
-	try {debugParseAnswer = 
-		   getMyParams().getBooleanParam("debugParseAnswer");}    
-	catch(Exception e) {debugParseAnswer = false;}
+    try {debugParseAnswer = 
+	   getMyParams().getBooleanParam("debugParseAnswer");}    
+    catch(Exception e) {debugParseAnswer = false;}
   }
   
   /**  
-	* Handles direct mode differently from external/internal. 
-	* <p> 
-	* Calls prepareVishnuObjects on listener to populate <tt>vishnuTasks</tt> and 
-	* <tt>vishnuResources</tt> lists with Vishnu objects.  
-	* <p>
-	* Also sends header with the time window information, and any other 
-	* data to scheduler via the internal buffer (in VishnuComm). 
-	* @param stuffToSend Cougaar tasks and assets
-	* @param objectFormatDoc used to figure out info about fields
-	*/
+   * Handles direct mode differently from external/internal. 
+   * <p> 
+   * Calls prepareVishnuObjects on listener to populate <tt>vishnuTasks</tt> and 
+   * <tt>vishnuResources</tt> lists with Vishnu objects.  
+   * <p>
+   * Also sends header with the time window information, and any other 
+   * data to scheduler via the internal buffer (in VishnuComm). 
+   * @param stuffToSend Cougaar tasks and assets
+   * @param objectFormatDoc used to figure out info about fields
+   */
   public void prepareData (List stuffToSend, Document objectFormatDoc) {
-	vishnuTasks     = new ArrayList ();
-	vishnuResources = new ArrayList ();
-	changedVishnuResources = new ArrayList ();
+    vishnuTasks     = new ArrayList ();
+    vishnuResources = new ArrayList ();
+    changedVishnuResources = new ArrayList ();
 
-	Date start = new Date ();
+    Date start = new Date ();
 	   
-	((DirectModeListener)parent).prepareVishnuObjects (stuffToSend, parent.getChangedAssets(), 
-													   vishnuTasks, vishnuResources, changedVishnuResources,
-													   objectFormatDoc, sched.getTimeOps());
-	parent.clearChangedAssets ();
+    ((DirectModeListener)parent).prepareVishnuObjects (stuffToSend, parent.getChangedAssets(), 
+						       vishnuTasks, vishnuResources, changedVishnuResources,
+						       objectFormatDoc, sched.getTimeOps());
+    parent.clearChangedAssets ();
 
-	if (myExtraOutput)
-	  System.out.println (getName () + ".prepareData - clearing changed assets!");
+    if (myExtraOutput)
+      System.out.println (getName () + ".prepareData - clearing changed assets!");
 	   
-	if (showTiming)
-	  domUtil.reportTime (".prepareData - prepared vishnu objects in ", start);
+    if (showTiming)
+      domUtil.reportTime (".prepareData - prepared vishnu objects in ", start);
 	   
-	// think it's OK to send this more than once
-	serializeAndPostDoc (xmlProcessor.getVanillaHeader ());
+    // think it's OK to send this more than once
+    serializeAndPostDoc (xmlProcessor.getVanillaHeader ());
 
-	sendOtherData ();
+    sendOtherData ();
   }
 
   /**
@@ -99,68 +99,68 @@ public class DirectMode extends InternalMode {
    * @see org.cougaar.lib.vishnu.server.Scheduler#scheduleInternal
    */
   public void run () {
-	Date start = new Date ();
+    Date start = new Date ();
 
-	int unhandledTasks = prepareScheduler ();
+    int unhandledTasks = prepareScheduler ();
 	 
-	// These are things created by the scheduler during setup that
-	// are needed for direct object writing.
-	TimeOps timeOps = sched.getTimeOps();
-	SchedulingData data = sched.getSchedulingData();
-	sched.clearCaches ();
+    // These are things created by the scheduler during setup that
+    // are needed for direct object writing.
+    TimeOps timeOps = sched.getTimeOps();
+    SchedulingData data = sched.getSchedulingData();
+    sched.clearCaches ();
 
-	// add tasks and resources to data
-	// vishnuTasks & Resources created in prepareData and set in prepareVishnuObjects
-	addTasksDirectly (data, vishnuTasks, vishnuResources, changedVishnuResources);
+    // add tasks and resources to data
+    // vishnuTasks & Resources created in prepareData and set in prepareVishnuObjects
+    addTasksDirectly (data, vishnuTasks, vishnuResources, changedVishnuResources);
 
-	 // Call scheduleInternal after adding all the data
-	Date start2 = new Date ();
+    // Call scheduleInternal after adding all the data
+    Date start2 = new Date ();
 
-	try {
-	  sched.scheduleInternal();
+    try {
+      sched.scheduleInternal();
 
-	  if (showTiming)
-		domUtil.reportTime (".runDirectly - scheduler processed " +
-							parent.getNumTasks () + " tasks in ", start2);
+      if (showTiming)
+	domUtil.reportTime (".runDirectly - scheduler processed " +
+			    parent.getNumTasks () + " tasks in ", start2);
 
-	  // get the assignments the scheduler made, make plan elements
-	  ((DirectResultHandler)resultHandler).directlyHandleAssignments (sched, data, timeOps);
-	} catch (Exception e) {
-	  System.out.println (getName () + ".runDirectly - Got error running scheduler : " + e.getMessage ());
+      // get the assignments the scheduler made, make plan elements
+      ((DirectResultHandler)resultHandler).directlyHandleAssignments (sched, data, timeOps);
+    } catch (Exception e) {
+      System.out.println (getName () + ".runDirectly - Got error running scheduler : " + e.getMessage ());
       e.printStackTrace ();
-	} finally {
-	  cleanUpAfterScheduling (unhandledTasks);
-	}
+    } finally {
+      cleanUpAfterScheduling (unhandledTasks);
+    }
   }
 
   /** calls methods on SchedulingData to add tasks, resources, and changed resources */
   protected void addTasksDirectly (SchedulingData data, List vishnuTasks, List vishnuResources,
-								   List changedVishnuResources) {
-	Date start = new Date ();
+				   List changedVishnuResources) {
+    Date start = new Date ();
 
-	if (myExtraOutput || true) 
-	  System.out.println(getName () + ".runDirectly - adding " + 
-						 vishnuTasks.size() + " tasks, " +
-						 vishnuResources.size () + " resources, " +
-						 changedVishnuResources.size () + " changed resources to scheduler data.");
+    if (myExtraOutput || true) 
+      System.out.println(getName () + ".runDirectly - adding " + 
+			 vishnuTasks.size() + " tasks, " +
+			 vishnuResources.size () + " resources, " +
+			 changedVishnuResources.size () + " changed resources to scheduler data.");
 
-	for (int i = 0; i < vishnuTasks.size (); i++) {
-	  Object vishnuObject = vishnuTasks.get(i);
-	  data.addTask ((org.cougaar.lib.vishnu.server.Task) vishnuObject);
-	}
-	for (int i = 0; i < vishnuResources.size (); i++) {
-	  Object vishnuObject = vishnuResources.get(i);
-	  data.addResource ((Resource) vishnuObject);
-	}
-	for (int i = 0; i < changedVishnuResources.size (); i++) {
-	  Object vishnuObject = changedVishnuResources.get(i);
-	  data.replaceResource ((Resource) vishnuObject);
-	}
-	if (myExtraExtraOutput)
-	  for (int i = 0; i < data.getResources ().length; i++) {
-		System.out.println (getName () + ".addTasksDirectly - Known Resource #" + i + 
-							" : \n" + data.getResources()[i]);
-	  }
+    for (int i = 0; i < vishnuTasks.size (); i++) {
+      Object vishnuObject = vishnuTasks.get(i);
+      data.addTask ((org.cougaar.lib.vishnu.server.Task) vishnuObject);
+    }
+    for (int i = 0; i < vishnuResources.size (); i++) {
+      Object vishnuObject = vishnuResources.get(i);
+      data.addResource ((Resource) vishnuObject);
+    }
+    for (int i = 0; i < changedVishnuResources.size (); i++) {
+      Object vishnuObject = changedVishnuResources.get(i);
+      data.replaceResource ((Resource) vishnuObject);
+    }
+    if (myExtraExtraOutput)
+      for (int i = 0; i < data.getResources ().length; i++) {
+	System.out.println (getName () + ".addTasksDirectly - Known Resource #" + i + 
+			    " : \n" + data.getResources()[i]);
+      }
   }
 
   protected String getName () { return parent.getName () + "-DirectMode"; }
