@@ -209,6 +209,12 @@ public class Scheduler {
         if ((assign != null) && (reportFrozen || (! assign.getFrozen()))) {
           assign.setColor (specs.getColor (tasks[i], SchedulingSpecs.TASK));
           assign.setText (specs.taskText (tasks[i]));
+          if (specs.doSetupColor())
+            assign.setSetupColor
+              (specs.getColor (tasks[i], SchedulingSpecs.SETUP));
+          if (specs.doWrapupColor())
+            assign.setWrapupColor
+              (specs.getColor (tasks[i], SchedulingSpecs.WRAPUP));
           text.append (assign).append ("\n");
           if ((! isEndTime) && (maxTime < assign.getEndTime()))
             maxTime = assign.getEndTime();
@@ -228,9 +234,16 @@ public class Scheduler {
         MultitaskAssignment[] multi = resources[i].getMultitaskAssignments();
         for (int j = 0; j < multi.length; j++) {
           if (updateActivity (multi[j], maxTime)) {
-            multi[j].setColor (specs.getColor (multi[j].getTasks(),
-                                               SchedulingSpecs.GROUPED_TASKS));
-            multi[j].setText (specs.groupedText (multi[j].getTasks()));
+            Task[] t = multi[j].getTasks();
+            multi[j].setColor
+              (specs.getColor (t, SchedulingSpecs.GROUPED_TASKS));
+            multi[j].setText (specs.groupedText (t));
+            if (specs.doSetupColor())
+              multi[j].setSetupColor
+                (specs.getColor (t, SchedulingSpecs.GROUPED_SETUP));
+            if (specs.doWrapupColor())
+              multi[j].setWrapupColor
+                (specs.getColor (t, SchedulingSpecs.GROUPED_WRAPUP));
             text.append (multi[j].xmlString (reportFrozen)).append ("\n");
           }
         }
