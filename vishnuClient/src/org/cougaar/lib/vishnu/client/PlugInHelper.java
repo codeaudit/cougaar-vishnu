@@ -9,6 +9,12 @@ import org.w3c.dom.Document;
 import org.cougaar.domain.planning.ldm.asset.Asset;
 import org.cougaar.lib.param.ParamMap;
 
+/** 
+ * Base class for Modes and ResultHandlers that help the VishnuPlugIn to do its work.
+ * <p>
+ * Holds references to the ModeListener(VishnuPlugIn) and utility objects like the 
+ * xmlProcessor, VishnuComm, DomUtil, Config, and the parameter map.
+ */
 public class PlugInHelper {
   public PlugInHelper (ModeListener parent, VishnuComm comm, XMLProcessor xmlProcessor, 
 					   VishnuDomUtil domUtil, VishnuConfig config,
@@ -34,6 +40,10 @@ public class PlugInHelper {
 
     try {myExtraExtraOutput = getMyParams().getBooleanParam("ExtraExtraOutput");}    
     catch(Exception e) {myExtraExtraOutput = false;}
+
+    try {showTiming = 
+		   getMyParams().getBooleanParam("showTiming");}    
+    catch(Exception e) {  showTiming = true; }
   }
   
   protected ParamMap myParamTable;
