@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/ExpressionCompiler.java,v 1.3 2001-02-02 19:08:22 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/ExpressionCompiler.java,v 1.4 2001-02-23 16:35:35 gvidaver Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -27,8 +27,6 @@ public class ExpressionCompiler {
   private Map objectGlobalPtrs = null;
   private long waitInterval = 5000;
 
-  private static boolean php4 = 
-    ("true".equals (System.getProperty ("org.cougaar.lib.vishnu.server.Scheduler.php4")));
   private static String PHP_SUFFIX = ".php";
 
   // need to receive data structure defs, variable names/types, and
@@ -37,6 +35,8 @@ public class ExpressionCompiler {
 
   private void run() {
     ClientComms.initialize();
+	System.out.println ("ExpressionCompiler ready to compile expressions posted to " + 
+						ClientComms.getHost () + ".");
     while (true) {
       boolean success = getProblem() == null;
       if ((! success) || (problem == null))
