@@ -1,4 +1,4 @@
-/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/Attic/VishnuAllocatorPlugIn.java,v 1.2 2001-07-16 22:46:34 gvidaver Exp $ */
+/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/Attic/VishnuAllocatorPlugIn.java,v 1.3 2001-07-24 22:38:52 rwu Exp $ */
 
 package org.cougaar.lib.vishnu.client;
 
@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.Vector;
 
 import org.cougaar.lib.filter.UTILAllocatorPlugIn;
 
@@ -183,9 +184,7 @@ public class VishnuAllocatorPlugIn extends VishnuPlugIn implements UTILAllocator
    * @see org.cougaar.lib.callback.UTILAllocationCallback#reactToChangedAlloc
    * @see #needToRescind
    */
-  public boolean handleRescindedAlloc (Allocation alloc) {
-    return false;
-  }
+  public boolean handleRescindedAlloc (Allocation alloc) { return false; }
 
   /**
    * Implemented for UTILAllocationListener
@@ -210,12 +209,15 @@ public class VishnuAllocatorPlugIn extends VishnuPlugIn implements UTILAllocator
    * @see #needToRescind
    */
   public void handleSuccessfulAlloc (Allocation alloc) {
-	if (alloc.getEstimatedResult().getConfidenceRating() > UTILAllocate.MEDIUM_CONFIDENCE)
-	  handleRemovedAlloc (alloc);
-	else if (myExtraOutput) {
+    if (alloc.getEstimatedResult().getConfidenceRating() > UTILAllocate.MEDIUM_CONFIDENCE) {
+      // Set tasks = new HashSet();
+      // tasks.add(alloc.getTask ());
+      // sendUpdatedRoleSchedule(alloc, alloc.getAsset (), tasks);
+    }
+    else if (myExtraOutput) {
       System.out.println (getName () + ".handleSuccessfulAlloc : got changed alloc (" + alloc.getUID () + 
 						  " with intermediate confidence."); 
-	}
+    }
   }
 
   /** 
@@ -229,10 +231,13 @@ public class VishnuAllocatorPlugIn extends VishnuPlugIn implements UTILAllocator
    * Does nothing by default.
    */
   public void handleRemovedAlloc (Allocation alloc) {
-	Set tasks = new HashSet();
-	tasks.add(alloc.getTask ());
 	  
-	//	sendUpdatedRoleSchedule(alloc, alloc.getAsset (), tasks);
+    System.out.println("VishnuAllocatorPlugIn.handleRemovedAlloc called");
+
+    Vector removedTasks = new Vector();
+    removedTasks.add(alloc.getTask());
+
+    handleRemovedTasks(removedTasks.elements());
   }
 
   /**

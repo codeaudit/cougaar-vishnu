@@ -106,9 +106,23 @@ public abstract class VishnuPlugIn
     try {hostName = getMyParams().getStringParam("hostName");}    
     catch(Exception e) {hostName = "dante.bbn.com";}
 
+    try {runInternal = 
+		   getMyParams().getBooleanParam("runInternal");}    
+    catch(Exception e) {runInternal = false;}
+
+    try {incrementalScheduling = 
+		   getMyParams().getBooleanParam("incrementalScheduling");}    
+    catch(Exception e) {incrementalScheduling = false;}
+
     try {alwaysClearDatabase = 
 		   getMyParams().getBooleanParam("alwaysClearDatabase");}    
     catch(Exception e) {alwaysClearDatabase = true;}
+
+    // Can't do incremental scheduling for runInternal (yet . . . )
+    if (runInternal) incrementalScheduling = false;
+
+    // Don't clear database on each send if scheduling incrementally
+    if (incrementalScheduling) alwaysClearDatabase = false;
 
     try {showTiming = 
 		   getMyParams().getBooleanParam("showTiming");}    
@@ -117,10 +131,6 @@ public abstract class VishnuPlugIn
     try {makeSetupAndWrapupTasks = 
 		   getMyParams().getBooleanParam("makeSetupAndWrapupTasks");}    
     catch(Exception e) {makeSetupAndWrapupTasks = true;}
-
-    try {runInternal = 
-		   getMyParams().getBooleanParam("runInternal");}    
-    catch(Exception e) {runInternal = false;}
 
     try {useStoredFormat = 
 		   getMyParams().getBooleanParam("useStoredFormat");}    
@@ -255,6 +265,25 @@ public abstract class VishnuPlugIn
 	if (myExtraOutput)
 	  System.out.println (getName () + ".handleChangedAssets - got changed assets.");
   }
+
+  /**
+   * <pre>
+   * Place to handle rescinded tasks.
+   *
+   * Sends XML to unfreeze the task assignment and delete it.
+   *
+   * </pre>
+   * @param newAssets changed assets found in the container
+   */
+  protected void handleRemovedTasks(Enumeration removedTasks) {
+    if (incrementalScheduling) {
+      Document docToSend = xmlProcessor.prepareRescind(removedTasks);
+      
+      comm.serializeAndPostData (docToSend, runInternal, internalBuffer);
+    }
+  }
+
+
   
   /**
    * <pre>
@@ -382,9 +411,14 @@ public abstract class VishnuPlugIn
 	  domUtil.reportTime (" - Vishnu did " + numTasks + " tasks in ", start);
   }
 
+  
   protected void prepareObjectFormat (List tasks) {
 	Date start = new Date();
 
+	// The problem format, as opposed to the data, is not cleared on the <CLEARDATABASE>
+	// call.  Hence, there is no need to resend the format even when not doing incremental
+	// scheduling.  The only time the problem format needs to be resent is when running
+	// internally.  
 	if (!sentFormatAlready) {
 	  List assetClassName = new ArrayList(); // just a way of returning a second return value from function
 	  Collection formatTemplates = config.getAssetTemplatesForTasks(tasks, assetClassName, getAllAssets());
@@ -457,38 +491,47 @@ public abstract class VishnuPlugIn
    *
    */
   protected void prepareData (List stuffToSend) {
-	Collection allAssets = getAllAssets();
-	if (myExtraOutput)
-	  System.out.println (getName () + ".processTasks - sending " + 
-						  allAssets.size () + " assets.");
+    // Add assets to the data unless you're scheduling incrementally
+    // and the assets have already been sent
+    if (!(incrementalScheduling && sentAssetsAlready)) {
+      Collection allAssets = getAllAssets();
+      if (myExtraOutput)
+	System.out.println (getName () + ".processTasks - sending " + 
+			    allAssets.size () + " assets.");
+      
+      stuffToSend.addAll (allAssets);
+      if (!runInternal)
+	sentAssetsAlready = true;
+      
+      setUIDToObjectMap (allAssets, myAssetUIDtoObject);
+    }
 	  
-	stuffToSend.addAll (allAssets);
-	  
-	if (myExtraExtraOutput) 
-	  for (Iterator iter = stuffToSend.iterator (); iter.hasNext (); ) {
-		Object obj = iter.next ();
-		  
-		System.out.println (getName () + ".processTasks sending stuff " + 
-							((UniqueObject) obj).getUID ());
-	  }
-	  
-	setUIDToObjectMap (allAssets, myAssetUIDtoObject);
-	  
-	sendDataToVishnu (stuffToSend, myNameToDescrip, 
-					  alwaysClearDatabase, 
-					  false, // send assets as NEWOBJECTS
-					  singleAssetClassName);
+    if (myExtraExtraOutput) {
+      for (Iterator iter = stuffToSend.iterator (); iter.hasNext (); ) {
+	Object obj = iter.next ();
+	
+	System.out.println (getName () + ".processTasks sending stuff " + 
+			    ((UniqueObject) obj).getUID ());
+      }
+    }
+
+    // Send problem data to vishnu
+    sendDataToVishnu (stuffToSend, 
+		      myNameToDescrip, 
+		      alwaysClearDatabase,
+		      false, // send assets as NEWOBJECTS
+		      singleAssetClassName);
   }
   
   protected void waitForAnswer () {
-	if (runInternal) {
-	  runInternally ();
-	} else {
-	  comm.startScheduling ();
-	
-	  if (!waitTillFinished ())
-		showTimedOutMessage ();
-	}
+    if (runInternal) {
+      runInternally ();
+    } else {
+      comm.startScheduling ();
+      
+      if (!waitTillFinished ())
+	showTimedOutMessage ();
+    }
   }
   
   private void showTimedOutMessage () {
@@ -553,6 +596,7 @@ public abstract class VishnuPlugIn
 	  StringKey key = new StringKey (obj.getUID().getUID());
 	  if (!UIDtoObject.containsKey (key)) {
 		UIDtoObject.put (key, obj);
+		// System.out.println("setUIDToObjectMap: added " + key + " = " + obj + " to map");
 	  }
 	}
   }
@@ -688,7 +732,6 @@ public abstract class VishnuPlugIn
 	int totalSent  = 0;
 
 	XMLizer dataXMLizer = xmlProcessor.getDataXMLizer ();
-	boolean sentOtherData = false;
 	
 	while (totalSent < totalTasks) {
 	  int toIndex = totalSent+sendDataChunkSize;
@@ -702,8 +745,9 @@ public abstract class VishnuPlugIn
 	  
 	  Document docToSend = 
 		xmlProcessor.prepareDocument (chunk, dataXMLizer, clearDatabase, sendingChangedObjects, assetClassName,
-									  sentOtherData, config.getOtherData());
-	  sentOtherData = true;
+									  sentOtherDataAlready, config.getOtherData());
+	  if (!runInternal && incrementalScheduling)
+	    sentOtherDataAlready = true;
 
 	  comm.serializeAndPostData (docToSend, runInternal, internalBuffer);
 
@@ -711,6 +755,8 @@ public abstract class VishnuPlugIn
 	  totalSent += sendDataChunkSize;
 	}
   }
+
+
 
   /** wait until the scheduler is done.  Parse the answer if there was one. */
   public boolean waitTillFinished () {
@@ -822,8 +868,11 @@ public abstract class VishnuPlugIn
 		StringKey taskKey = new StringKey (taskUID);
 		Task handledTask    = (Task)  myTaskUIDtoObject.get (taskKey);
 		if (handledTask == null) {
-		  System.out.println ("VishnuPlugIn - AssignmentHandler.startElement no task found with " + taskUID);
-		  System.out.println ("\tmap was " + myTaskUIDtoObject);
+		  // Ignore this assignment since it has already been handled previously
+		  return;
+		  
+		  // System.out.println ("VishnuPlugIn - AssignmentHandler.startElement no task found with " + taskUID);
+		  // System.out.println ("\tmap was " + myTaskUIDtoObject);
 		}
 		else {
 		  myTaskUIDtoObject.remove (taskKey);
@@ -870,10 +919,12 @@ public abstract class VishnuPlugIn
 
 		StringKey taskKey = new StringKey (taskUID);
 		Task handledTask = (Task) myTaskUIDtoObject.get (taskKey);
-		if (handledTask == null) 
-		  System.out.println (getName () + ".parseStartElement - no task found with " + taskUID + 
-							  " uid.");
-		else
+		if (handledTask == null) {
+		  // Ignore since task has already been handled
+		  return;
+
+		  // System.out.println (getName () + ".parseStartElement - no task found with " + taskUID + " uid.");
+		} else
 		  alpTasks.add (handledTask);
 
 		// this is absolutely critical, otherwise VishnuPlugIn will make a failed disposition
@@ -1154,6 +1205,7 @@ public abstract class VishnuPlugIn
 
   protected int total = 0;
   protected boolean runInternal = true;
+  protected boolean incrementalScheduling = false;
   protected StringBuffer internalBuffer = new StringBuffer ();
   protected Map myNameToDescrip;
 
@@ -1161,6 +1213,8 @@ public abstract class VishnuPlugIn
   protected int firstTemplateTasks;
   protected int sendDataChunkSize;
   protected boolean sentFormatAlready = false;
+  protected boolean sentAssetsAlready = false;
+  protected boolean sentOtherDataAlready = false;
 
   protected boolean mySentAssetDataAlready = false;
   protected Map myTaskUIDtoObject = new HashMap ();

@@ -151,9 +151,9 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
   public void reportChangedAggregation(Aggregation agg) { updateAllocationResult (agg); }
   /** implemented for AggregationListener */
   public void handleSuccessfulAggregation(Aggregation agg) {
-	if (agg.getEstimatedResult().getConfidenceRating() > UTILAllocate.MEDIUM_CONFIDENCE)
-	  handleRemovedAggregation (agg);
-	else if (myExtraOutput) {
+    if (agg.getEstimatedResult().getConfidenceRating() > UTILAllocate.MEDIUM_CONFIDENCE) {
+	  // handleRemovedAggregation (agg);
+    } else if (myExtraOutput) {
       System.out.println (getName () + 
 						  ".handleSuccessfulAggregation : got changed agg (" + 
 						  agg.getUID () + 
@@ -163,6 +163,12 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
 
   /** implemented for AggregationListener */
   public void handleRemovedAggregation (Aggregation agg) {	
+    System.out.println("VishnuAggregatorPlugIn.handleRemovedAggregation called");
+
+    Vector removedTasks = new Vector();
+    removedTasks.addAll(agg.getComposition().getParentTasks());
+
+    handleRemovedTasks(removedTasks.elements());
 	/*
 	sendUpdatedRoleSchedule(null, 
 							getAssetFromMPTask (agg.getComposition().getCombinedTask ()), 
@@ -314,9 +320,10 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
 		StringKey taskKey = new StringKey (taskUID);
 		Task handledTask = (Task) myTaskUIDtoObject.get (taskKey);
 		if (handledTask == null) {
-		  System.out.println (getName () + ".parseStartElement - no task found with " + taskUID + 
-							  " uid.");
-		  System.out.println ("\tmap keys were " + myTaskUIDtoObject.keySet());
+		  // Already handled before
+		  return;
+		  // System.out.println (getName () + ".parseStartElement - no task found with " + taskUID + " uid.");
+		  // System.out.println ("\tmap keys were " + myTaskUIDtoObject.keySet());
 		}
 		else {
 		  alpTasks.add (handledTask);
@@ -351,8 +358,10 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
 		if (debugParseAnswer) {
 		  System.out.println (getName () + ".parseEndElement - got ending MULTITASK.");
 		}
-		makePlanElement (alpTasks, assignedAsset, start, end, setup, wrapup);
-		alpTasks.clear ();
+		if (!alpTasks.isEmpty()) {
+		  makePlanElement (alpTasks, assignedAsset, start, end, setup, wrapup);
+		  alpTasks.clear ();
+		}
 	  }
 	  else if (name.equals ("TASK")) {}
 	  else if (debugParseAnswer) {

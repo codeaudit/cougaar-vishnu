@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -31,6 +32,7 @@ import org.cougaar.lib.vishnu.client.VishnuDomUtil;
 
 import org.cougaar.lib.param.ParamMap;
 import org.cougaar.util.ConfigFinder;
+import org.cougaar.domain.planning.ldm.plan.Task;
 
 /**
  * <pre>
@@ -828,6 +830,43 @@ public class XMLProcessor {
 	newRoot.appendChild (freeze);
 
 	return doc;
+  }
+
+  public Document prepareRescind(Enumeration removedTasks) {
+    Document doc = new DocumentImpl();
+    Element newRoot = doc.createElement("PROBLEM");
+    newRoot.setAttribute ("NAME", comm.getProblem ());
+    doc.appendChild(newRoot);
+    
+    Element df   = doc.createElement("DATA");
+    
+    Element window = doc.createElement("WINDOW");
+    window.setAttribute ("starttime", "2000-01-01 00:00:00");
+    window.setAttribute ("endtime",   "2002-01-01 00:00:00");
+    df.appendChild (window);
+	
+    Element deletedobjects = doc.createElement("DELETEDOBJECTS");
+    df.appendChild (deletedobjects);
+
+    while (removedTasks.hasMoreElements()) {
+      Task t = (Task) removedTasks.nextElement();
+
+      Element unfreeze = doc.createElement("UNFREEZE");
+      unfreeze.setAttribute ("TASK", t.getUID ().getUID());
+      newRoot.appendChild (unfreeze);
+
+      Element obj = doc.createElement("OBJECT");
+      obj.setAttribute ("type", "Transport");
+      
+      Element elem = doc.createElement("FIELD");
+      elem.setAttribute ("name",  "id");
+      elem.setAttribute ("value", t.getUID().getUID());
+      obj.appendChild (elem);
+      deletedobjects.appendChild (obj);
+    }
+    newRoot.appendChild(df);
+
+    return doc;
   }
 
   public class ObjectDescrip {
