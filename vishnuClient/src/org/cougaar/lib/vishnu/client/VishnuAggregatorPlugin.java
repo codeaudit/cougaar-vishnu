@@ -213,11 +213,11 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 		// removed.  How this is possible, I don't completely understand...
 		Collection parentsToReplan = new HashSet ();
 
-		for (Enumeration enum = ((MPTask)mpt).getParentTasks(); enum.hasMoreElements(); ) {
-		  Task parent = (Task) enum.nextElement();
+		for (Enumeration en = ((MPTask)mpt).getParentTasks(); en.hasMoreElements(); ) {
+		  Task parent = (Task) en.nextElement();
 		  if (parent.getPlanElement () != null) {
 		    if (isInfoEnabled ()) {
-		      info ("uidToMPTask - from MPTask parent enum - removing plan element from parent " + parent.getUID());
+		      info ("uidToMPTask - from MPTask parent enumeration - removing plan element from parent " + parent.getUID());
 		    }
 		    parentsToReplan.add (parent);
 		  }
@@ -381,9 +381,9 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 	warn ("no expansion of mp task " + mpTask.getUID() + " must be in the middle of rescinds...");
       }
       else {
-	Enumeration enum = exp.getWorkflow ().getTasks();
-	while (enum.hasMoreElements()) {
-	  Task subtask = (Task) enum.nextElement();
+	Enumeration en = exp.getWorkflow ().getTasks();
+	while (en.hasMoreElements()) {
+	  Task subtask = (Task) en.nextElement();
 
 	  Vector newSet = new Vector ();
 	  newSet.addAll (newGroup.getAssets());
@@ -428,12 +428,12 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 	
     Workflow wf = exp.getWorkflow();
 	
-    Enumeration enum = wf.getTasks();
+    Enumeration en = wf.getTasks();
 	
     Object firstTask = null;
 	
-    if (enum.hasMoreElements ())
-      firstTask = enum.nextElement();
+    if (en.hasMoreElements ())
+      firstTask = en.nextElement();
     if (firstTask != null)
       return prepHelper.hasPrepNamed ((Task)firstTask, "VISHNU"); 
     else
@@ -598,8 +598,8 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 
       if (isInfoEnabled ()) {
 	int numParents = 0;
-	for (Enumeration enum = ((MPTask)mpTask).getParentTasks(); enum.hasMoreElements(); ) {
-	  Task parent = (Task) enum.nextElement ();
+	for (Enumeration en = ((MPTask)mpTask).getParentTasks(); en.hasMoreElements(); ) {
+	  Task parent = (Task) en.nextElement ();
 	  numParents++;
 	}
 	info (getName() + 
@@ -778,8 +778,8 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 
       if (isInfoEnabled ()) {
 	int numParents = 0;
-	for (Enumeration enum = mpTask.getParentTasks(); enum.hasMoreElements(); ) {
-	  Task parent = (Task) enum.nextElement ();
+	for (Enumeration en = mpTask.getParentTasks(); en.hasMoreElements(); ) {
+	  Task parent = (Task) en.nextElement ();
 	  numParents++;
 	}
 
@@ -1023,8 +1023,8 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
     Set parentDirectObjects = new HashSet();
 
     int numParents = 0;
-    for (Enumeration enum = mpTask.getParentTasks(); enum.hasMoreElements(); ) {
-      Task parent = (Task) enum.nextElement ();
+    for (Enumeration en = mpTask.getParentTasks(); en.hasMoreElements(); ) {
+      Task parent = (Task) en.nextElement ();
       parentDirectObjects.add (parent.getDirectObject());
       numParents++;
     }
@@ -1077,10 +1077,10 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
       return null;
   }
 
-  protected Vector enumToVector (Enumeration enum) {
+  protected Vector enumToVector (Enumeration en) {
     Vector vector = new Vector (13);
-    for (;enum.hasMoreElements ();) {
-      vector.add (enum.nextElement ());
+    for (;en.hasMoreElements ();) {
+      vector.add (en.nextElement ());
     }
     return vector;
   }
