@@ -43,7 +43,6 @@ import org.cougaar.lib.filter.UTILAllocatorPlugin;
  * Vishnu plugin that takes Vishnu assignments and creates allocations out of them
  * 
  */
-
 public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocatorPlugin {
   /**
    * <pre>
@@ -63,7 +62,7 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
     super.setupFilters ();
 
     if (isInfoEnabled())
-      debug (getName () + " : Filtering for Allocations...");
+      info (getName () + " : Filtering for Allocations...");
 
     addFilter (myAllocCallback    = createAllocCallback    ());
   }
@@ -84,7 +83,7 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
    */
   protected UTILFilterCallback createThreadCallback (UTILGenericListener bufferingThread) { 
     if (isInfoEnabled())
-      debug (getName () + " Filtering for tasks with Workflows...");
+      info (getName () + " Filtering for tasks with Workflows...");
 
     myWorkflowCallback = new UTILWorkflowCallback  (bufferingThread, logger); 
     return myWorkflowCallback;
@@ -119,10 +118,11 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
   /**
    * Implemented for UTILAllocationListener        <p>
    *
-   * OVERRIDE to see which task notifications you
-   * think are interesting
+   * OVERRIDE to specify task notifications (i.e. changed 
+   * (allocations) the plugin is interested in. <p>
    *
-   * Just calls interestingTask by default.
+   * Just calls interestingTask by default, which is generally
+   * what you want.
    *
    * @param t task to check for notification
    * @return boolean true if task is interesting
@@ -132,6 +132,7 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
   }
 
   /**
+   * <pre>
    * Implemented for UTILAllocationListener
    *
    * Defines conditions for rescinding tasks.
@@ -143,30 +144,33 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
    *
    * If in making an allocation, a preference
    * threshold is exceeded, the returned plan element will be
-   * a Disposition (see alloc.makeAllocation ()).
+   * a Disposition (see UTILAllocate.makeAllocation ()).
    *
    * Called by UTILAllocationCallback.reactToChangedAlloc.
    *
+   * </pre>
    * @param alloc the allocation to check
    * @return boolean true if the allocation needs to be rescinded
    *         Also returns false if there is no reported alloc result
    *         attached to allocation
    * @see #handleRescindedAlloc
    * @see org.cougaar.lib.callback.UTILAllocationCallback#reactToChangedAlloc
-   * @see org.cougaar.lib.util.alloc.makeAllocation
-   * @see org.cougaar.lib.util.alloc.isFailedPE
+   * @see org.cougaar.lib.util.UTILAllocate#makeAllocation
+   * @see org.cougaar.lib.util.UTILAllocate#isFailedPE
    */
   public boolean needToRescind(Allocation alloc){
     return false;
   }
 
   /**
+   * <pre>
    * Implemented for UTILAllocationListener
    *
    * Public version of publishRemove
    *
    * Called by UTILAllocationCallback.reactToChangedAlloc.
    *
+   * </pre>
    * @param alloc Allocation to remove from cluster's logPlan
    * @see org.cougaar.lib.callback.UTILAllocationCallback#reactToChangedAlloc
    */
@@ -175,6 +179,7 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
   }
 
   /**
+   * <pre>
    * Implemented for UTILAllocationListener
    *
    * Defines re-allocation of a rescinded task.  
@@ -193,6 +198,7 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
    *
    * Does nothing by default.
    *
+   * </pre>
    * @param alloc the allocation that should be rescinded
    * @return false since doesn't rescind the allocation
    * @see org.cougaar.lib.filter.UTILPluginAdapter#updateAllocationResult
@@ -203,6 +209,7 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
   public boolean handleRescindedAlloc (Allocation alloc) { return false; }
 
   /**
+   * <pre>
    * Implemented for UTILAllocationListener
    *
    * Called automatically by the UTILAllocationCallback 
@@ -218,6 +225,7 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
    *
    * Does nothing by default.
    *
+   * </pre>
    * @param alloc the allocation that was successful
    * @see org.cougaar.lib.filter.UTILPluginAdapter#updateAllocationResult
    * @see org.cougaar.lib.callback.UTILAllocationListener#updateAllocationResult
@@ -227,6 +235,7 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
   public void handleSuccessfulAlloc (Allocation alloc) {}
 
   /** 
+   * <pre>
    * Called when an allocation is removed from the cluster.
    * I.e. an upstream cluster removed an allocation, and that 
    * rescind has resulted in this allocation being removed.
@@ -239,10 +248,17 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
    * replan.  If needToRescind returns true, a downstream
    * cluster will see handleRemovedAlloc get called.
    *
-   * Does nothing by default.
+   * Calls VishnuPlugin.handleRemovedTasks.  If in incremental mode,
+   * the SchedulerLifecycle Mode will tell the scheduler to forget about
+   * the removed task.
+   * </pre>
+   * @param alloc that was removed from the blackboard
+   * @see org.cougaar.lib.vishnu.client.VishnuPlugin#handleRemovedTasks
+   * @see org.cougaar.lib.vishnu.client.InternalMode#handleRemovedTasks
+   * @see org.cougaar.lib.vishnu.client.ExternalMode#handleRemovedTasks
    */
   public void handleRemovedAlloc (Allocation alloc) {
-    if (isInfoEnabled()) {
+    if (isDebugEnabled()) {
       String owner = "?";
       try {
 	owner =  alloc.getTask().getDirectObject().getUID().getOwner();
@@ -324,7 +340,10 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
     return allocHelper.HIGHEST_CONFIDENCE;
   }
 
-  /** transporter by default, override to use a different role */
+  /** 
+   * Transporter by default, override to use a different role
+   * Specifies role in the allocation plan element. 
+   */
   protected Role getRole () {
     return Role.getRole("Transporter");
   }
@@ -359,6 +378,8 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
     return allocation;
   }
 
+  /** callback handling/monitoring incoming tasks */
   protected UTILWorkflowCallback   myWorkflowCallback;
+  /** callback handling/monitoring outgoing allocation */
   protected UTILAllocationCallback myAllocCallback;
 }
