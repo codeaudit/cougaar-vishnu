@@ -2636,6 +2636,16 @@ mode where the automated scheduler is run internal to another Java process
 accepts the same XML input as the web-based mode.  It would give the
 user the option of being more efficient if the scheduler were to
 accept Java objects directly instead of parsing the XML into Java objects.
+<li> <b>Recheck Constraints for Frozen Tasks</b> - Instead of just
+assigning the frozen task to the same resource with the same start and
+end time, first check to make sure that the task is still of the same
+duration, that the task is still available, that the resource is still
+available, etc.  Updating the frozen assignments can get complicated
+if the effects ripple into other frozen assignments.
+<li> <b>User-selectable Alerting</b> - Using formulas, let the user define
+certain conditions under which he or she wants to be alerted.  Generally,
+this will be when the assignment (or lack of assignment) for a particular
+task is far enough from the ideal to warrant human intervention.
 <ul>
 </div>
 
