@@ -291,8 +291,8 @@
 <?
     $args = "problem=" . $problem;
     echo "<BR><h2>Color specifications</h2>\n<TABLE BORDER=1>\n";
-    echo "<tr><th>Color</th><th>Object Type</th>" .
-         "<th>Legend Entry</th><th>Formula</th></tr>\n";
+    echo "<tr><th>&nbsp;Color&nbsp;</th><th>&nbsp;Object Type&nbsp;</th>" .
+         "<th>&nbsp;Legend Entry&nbsp;</th><th>Formula</th></tr>\n";
     $result = mysql_db_query ("vishnu_prob_" . $problem,
                               "select * from color_tests;");
     while ($value = mysql_fetch_array ($result)) {
