@@ -16,7 +16,7 @@
     $number = -1;
     if ($value)
       $number = deletecurrentrequest ($problem);
-    insertrequest ($problem, $username, $number + 1);
+    insertrequest ($problem, $username, $number + 1, $legalhosts);
     $result = "SUCCESS\n";
   }
   mysql_close();

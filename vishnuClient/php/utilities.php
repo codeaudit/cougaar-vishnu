@@ -690,15 +690,17 @@
   }
 
   // insert new scheduler request into database
-  function insertrequest ($problem, $username, $number) {
+  function insertrequest ($problem, $username, $number, $legalhosts = "") {
     mysql_db_query ("vishnu_central",
                     "insert into scheduler_request values (\"" .
                     $problem . "\", \"" . makedate (mktime()) .
-                    "\", \"" . $username . "\", $number, 0, NULL);");
+                    "\", \"" . $username . "\", $number, 0, NULL, " .
+                    "\"$legalhosts\");");
     return reportSqlError ("vishnu_central",
 	                   "insert into scheduler_request values (\"" .
                            $problem . "\", \"" . makedate (mktime()) .
-                           "\", \"" . $username . "\", $number, 0, NULL);");
+                           "\", \"" . $username . "\", $number, 0, NULL, " .
+                           "\"$legalhosts\");");
   }
 
   function reportSqlError ($database, $sql) {

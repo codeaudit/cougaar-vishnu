@@ -20,10 +20,21 @@
   }
   else {
     while ($value = mysql_fetch_array ($result)) {
-      $problem = $value["problem"];
-      $number = $value["number"];
-      echo "<PROBLEM name=\"" . $problem . "\" number=\"" .
-           $number . "\" />\n";
+      if ($value["legal_hosts"]) {
+        $legalhosts = explode (",", $value["legal_hosts"]);
+        $found = 0;
+        while (list ($key, $host) = each ($legalhosts)) {
+          $host = trim ($host);
+          if ($host == substr ($localhost, 0, strlen ($host))) {
+            $found = 1;
+            break;
+          }
+        }
+        if (! $found)
+          continue;
+      }
+      echo "<PROBLEM name=\"" . $value["problem"] . "\" number=\"" .
+           $value["number"] . "\" />\n";
     }
   }
 
