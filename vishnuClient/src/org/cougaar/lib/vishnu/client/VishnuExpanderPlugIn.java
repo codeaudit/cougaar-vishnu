@@ -28,7 +28,6 @@ import org.cougaar.domain.planning.ldm.plan.Task;
 import org.cougaar.domain.planning.ldm.plan.Workflow;
 
 import org.cougaar.core.util.XMLizable;
-import org.cougaar.util.ConfigFileFinder;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
