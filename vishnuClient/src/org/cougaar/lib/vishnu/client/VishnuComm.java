@@ -1,4 +1,4 @@
-/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/VishnuComm.java,v 1.5 2001-03-07 03:00:00 gvidaver Exp $ */
+/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/VishnuComm.java,v 1.6 2001-04-11 20:48:40 gvidaver Exp $ */
 
 package org.cougaar.lib.vishnu.client;
 
@@ -356,7 +356,7 @@ public class VishnuComm {
   }
 
   protected String getUserPostVar () {
-    return "username=" + myUser;
+    return "user=" + myUser;
   }
 
   public URLConnection getConnection (String host,
