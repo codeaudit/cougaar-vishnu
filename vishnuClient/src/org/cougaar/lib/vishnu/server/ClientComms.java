@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/ClientComms.java,v 1.2 2001-01-25 15:28:31 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/ClientComms.java,v 1.3 2001-02-05 19:34:13 gvidaver Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -32,6 +32,8 @@ public class ClientComms {
   private static boolean debugXML = 
     "true".equals (System.getProperty ("org.cougaar.lib.vishnu.server.debugXML"));
 
+  public static String getHost () { return host; }
+  
   public static void initialize() {
     String defaultHost = "";
     try {

@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/GeneticAlgorithm.java,v 1.2 2001-01-18 23:03:48 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/GeneticAlgorithm.java,v 1.3 2001-02-05 19:34:13 gvidaver Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -141,6 +141,12 @@ public class GeneticAlgorithm {
 							((topDogAge > maxTopDogAge)  ? "topDogAge (" + topDogAge + ") >= maxTopDogAge (" + maxTopDogAge + ")" : "") +
 							((System.currentTimeMillis() > stopTime) ? "currentTime (" + new Date () + ") >= stopTime (" + new Date(stopTime) + ")" : ""));
 			    
+		if (numDuplicates > maxDuplicates)
+		  System.out.println ("\t\nThis means that the problem is so small that\n" + 
+							  "the population contains all possible solutions,\n" + 
+							  "but the number of members in the population is less than the population size.\n" +
+							  "For more information, " + 
+							  "contact Gordon Vidaver (gvidaver@bbn.com) or Dave Montana (dmontana@bbn.com)");
     }
 
   private void resetCounts() {

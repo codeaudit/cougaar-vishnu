@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Scheduler.java,v 1.3 2001-01-17 21:54:16 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Scheduler.java,v 1.4 2001-02-05 19:34:13 gvidaver Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -59,6 +59,7 @@ public class Scheduler {
       System.out.println ("Scheduler will only process problems from these machines : " + 
 						  allowedMachines);
     }
+	
 	String waitIntervalProp = null;
 	try {
 	  waitIntervalProp = 
@@ -81,6 +82,7 @@ public class Scheduler {
 
   private void run() {
     ClientComms.initialize();
+	System.out.println ("Scheduler ready to schedule problems posted to " + ClientComms.getHost());
     while (true) {
       Exception error = getProblem();
       if ((error != null) || (problem == null))
