@@ -1,4 +1,4 @@
-/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/Attic/VishnuPlugIn.java,v 1.6 2001-02-15 22:30:43 gvidaver Exp $ */
+/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/Attic/VishnuPlugIn.java,v 1.7 2001-02-16 20:52:26 gvidaver Exp $ */
 
 package org.cougaar.lib.vishnu.client;
 
@@ -123,7 +123,7 @@ public abstract class VishnuPlugIn
   private static String OTHER_FORMAT_SUFFIX = ".odf.xml";
   private static String OTHER_DATA_SUFFIX = ".odd.xml";
 
-  private static Map clusterToInstance = new HashMap ();
+  //  private static Map clusterToInstance = new HashMap ();
 
   /**
    * Here all the various runtime parameters get set.  See documentation for details.
@@ -133,30 +133,6 @@ public abstract class VishnuPlugIn
 
     try {hostName = getMyParams().getStringParam("hostName");}    
     catch(Exception e) {hostName = "dante.bbn.com";}
-
-    try {phpPath = getMyParams().getStringParam("phpPath");}    
-    catch(Exception e) {phpPath = "/~dmontana/vishnu/";}
-
-    try {myUser = getMyParams().getStringParam("user");}    
-    catch(Exception e) {myUser = "vishnu";}
-
-    try { myPassword = getMyParams().getStringParam("password");} 
-	catch(Exception e) {myPassword = "vishnu";}
-
-    try {postProblemFile = getMyParams().getStringParam("postProblemFile");}    
-    catch(Exception e) {postProblemFile = "postproblem" + PHP_SUFFIX;}
-
-    try {postDataFile = getMyParams().getStringParam("postDataFile");}    
-    catch(Exception e) {postDataFile = "postdata" + PHP_SUFFIX;}
-
-    try {kickoffFile = getMyParams().getStringParam("kickoffFile");}    
-    catch(Exception e) {kickoffFile = "postkickoff" + PHP_SUFFIX;}
-
-    try {readStatusFile = getMyParams().getStringParam("readStatusFile");}    
-    catch(Exception e) {readStatusFile = "readstatus" + PHP_SUFFIX;}
-
-    try {assignmentsFile = getMyParams().getStringParam("assignmentsFile");}    
-    catch(Exception e) {assignmentsFile = "assignments" + PHP_SUFFIX;}
 
     try {testing = getMyParams().getBooleanParam("testing");}    
     catch(Exception e) {testing = false;}
@@ -199,11 +175,6 @@ public abstract class VishnuPlugIn
 		   getMyParams().getBooleanParam("writeXMLToFile");}    
     catch(Exception e) {writeXMLToFile = false;}
 
-	// writes the XML sent to Vishnu web server to a file (machine readable)
-    try {writeEncodedXMLToFile = 
-		   getMyParams().getBooleanParam("writeEncodedXMLToFile");}    
-    catch(Exception e) {writeEncodedXMLToFile = false;}
-
     try {debugFormatXMLizer = 
 		   getMyParams().getBooleanParam("debugFormatXMLizer");}
     catch(Exception e) {debugFormatXMLizer = false;}
@@ -224,95 +195,20 @@ public abstract class VishnuPlugIn
 		   getMyParams().getStringParam("vishnuEpochEndTime");}    
     catch(Exception e) {vishnuEpochEndTime = "2002-01-01 00:00:00";}
 
-    // seconds - total wait time is maxWaitCycles * waitTime
-    try {waitTime = getMyParams().getLongParam("waitTime")*1000L;}    
-    catch(Exception e) {waitTime = 5000L;}
-
-    // how many times to poll Vishnu before giving up 
-	// total wait time is maxWaitCycles * waitTime
-    try {maxWaitCycles = getMyParams().getIntParam("maxWaitCycles");}    
-    catch(Exception e) {maxWaitCycles = 10;}
-
     // how many of the input tasks to use as templates when producing the 
 	// OBJECT FORMAT for tasks
     try {firstTemplateTasks = getMyParams().getIntParam("firstTemplateTasks");}    
     catch(Exception e) {firstTemplateTasks = 2;}
-
-	setProblemName ();
 	
-    URL = "http://" + hostName + phpPath;
+	domUtil = new VishnuDomUtil (getMyParams(), getName(), getCluster());
+	comm    = new VishnuComm (getMyParams(), getName (), getClusterName (), domUtil);
 
-	domUtil = new VishnuDomUtil (showTiming, getName(), getCluster());
-	comm    = new VishnuComm (showTiming, testing, myExtraOutput, writeEncodedXMLToFile, phpPath,
-							  getName (), getClusterName (), domUtil);
-	
 	// helpful for debugging connection configuration problems
 	if (runInternal)
 	  System.out.println (getName () + " - will run internal Vishnu Scheduler.");
 	else
 	  System.out.println (getName () + " - will try to connect to Vishnu Web Server : " + 
 						  hostName);
-  }
-
-  /**
-   * <pre>
-   * sets Problem name used by Vishnu
-   *
-   * Uses a shared, static Map of cluster names to plugin instances so
-   * that if there is more than one Vishnu plugin per cluster, can
-   * number them in ascending order.
-   *
-   * Appends the machine name to divide the name space of problems 
-   * automatically.
-   *
-   * For example, if there were an expander and aggregator in the
-   * AsmaraTFSP cluster, run on a machine named pumpernickle, 
-   * the names would be 
-   *   AsmaraTFSP_0_pumpernickle and
-   *   AsmaraTFSP_1_pumpernickle
-   *
-   * (There is nothing to tell which is which in the name.)
-   *
-   * </pre>
-   */
-  protected void setProblemName () {
-	synchronized (clusterToInstance) {
-	  List instances = (List) clusterToInstance.get (getClusterName ());
-	  if (instances == null) {
-		clusterToInstance.put (getClusterName (), instances = new ArrayList ());
-	  }
-	  instances.add (this);
-	}
-
-    try {myProblem = getMyParams().getStringParam("problemName");}    
-    catch(Exception e) {
-	  myProblem = getClusterName();
-
-	  synchronized (clusterToInstance) {
-		if (((List) clusterToInstance.get (getClusterName ())).size () > 1) {
-		  myProblem = myProblem + "_" + 
-			((List) clusterToInstance.get (getClusterName ())).indexOf (this);
-		  if (myExtraExtraOutput)
-			System.out.println (getName ()+ ".localSetup - this " + this + " is " + 
-								((List) clusterToInstance.get (getClusterName ())).indexOf (this) +
-								" of " + 
-								((List) clusterToInstance.get (getClusterName ())).size ());
-		}
-	  }
-	}
-	
-	try {
-	    String machineName = java.net.InetAddress.getLocalHost().getHostName ().replace('-', '_');
-	    if (machineName.indexOf('.') != -1) {
-		machineName = machineName.substring (0, machineName.indexOf('.'));
-	    }
-	    machineName = machineName.replace('.', '_');
-	    myProblem = myProblem + "_" + machineName;
-	}
-	catch (UnknownHostException uhe) {
-	  System.err.println (getName () + ".localSetup - Huh? Could not find localhost? " +
-						  uhe.getMessage ());
-	}
   }
 
   /****************************************************************
@@ -441,7 +337,7 @@ public abstract class VishnuPlugIn
 	
 	Document doc = new DocumentImpl ();
     Element newRoot = doc.createElement("PROBLEM");
-	newRoot.setAttribute ("NAME", myProblem);
+	newRoot.setAttribute ("NAME", comm.getProblem());
     doc.appendChild(newRoot);
 	
 	for (Iterator iter = frozenTasks.iterator (); iter.hasNext (); ) {
@@ -577,15 +473,24 @@ public abstract class VishnuPlugIn
 	  if (runInternal) {
 		runInternally ();
 	  } else {
-		startScheduling ();
+		comm.startScheduling ();
 	
 		if (!waitTillFinished ())
-		  System.out.println ("VishnuPlugIn.processTasks -- " + 
-							  "timed out waiting for scheduler to finish.");
+		  showTimedOutMessage ();
 	  }
 	  if (showTiming)
 		domUtil.reportTime (" - Vishnu did " + numTasks + " tasks in ", start);
 	} // end of synchronized
+  }
+
+  private void showTimedOutMessage () {
+	System.out.println (getName () + ".processTasks -- " + 
+						"timed out waiting for scheduler to finish.\n" +
+						"Is there a scheduler running?\n" + 
+						"See vishnu/scripts/runScheduler in the vishnu distribution.\n" +
+						"It's good to set the machines property to include only\n" + 
+						"those machines you are running from, or else the scheduler\n" +
+						"could process any job posted by anyone to the web server.");
   }
 
   /** 
@@ -797,10 +702,10 @@ public abstract class VishnuPlugIn
       nameInfo = removeDuplicates (dataformat, problemFormatDoc);
 
       // label the problem with the name of the problem
-      ((Element)root).setAttribute ("NAME", myProblem);
+      ((Element)root).setAttribute ("NAME", comm.getProblem());
 
       if (myExtraOutput)
-		System.out.println (getName () + ".sendFormat - problem is " + myProblem);
+		System.out.println (getName () + ".sendFormat - problem is " + comm.getProblem());
 
       // appending any global other data object formats 
       String otherDataFormat = getOtherDataFormat();
@@ -851,21 +756,6 @@ public abstract class VishnuPlugIn
     }
     return nameInfo;
   }
-
-  /** 
-   * Get a document that is equivalent to <code>taskAndAssets</code> 
-   * collection
-   */
-  /*
-  protected Document getDoc (Collection taskAndAssets) {
-    Document doc = new DocumentImpl(); 
-    Element root = doc.createElement("CHANGEDOBJECTS");
-    doc.appendChild(root);
-    domUtil.addObjectsToDocument (taskAndAssets.iterator (), doc, root);
-
-    return doc;
-  }
-  */
 
   /** uses formatXMLizer to generate XML for Vishnu */
   protected Document getFormatDoc (Collection taskAndAssets) {
@@ -1352,7 +1242,7 @@ public abstract class VishnuPlugIn
 		System.out.println (domUtil.getDocAsString(dataDoc));
 
       Node root = dataDoc.getDocumentElement ();
-      ((Element)root).setAttribute ("NAME", myProblem);
+      ((Element)root).setAttribute ("NAME", comm.getProblem ());
 
       Node dataNode = root.getFirstChild ();
       Node windowNode = dataNode.getFirstChild ();
@@ -1510,16 +1400,14 @@ public abstract class VishnuPlugIn
 	if (runInternal)
 	  appendToInternalBuffer( domUtil.getDocAsArray (doc).toString());
 	else {
-	  if (postData) {
-		//	  postData (doc);
-		postData (domUtil.getDocAsArray (doc).toString());
-	  } else {
-		//		postProblem (getDocAsString (doc));
-		postProblem (domUtil.getDocAsArray (doc).toString());
-	  }
+	  if (postData)
+		comm.postData (domUtil.getDocAsArray (doc).toString());
+	  else
+		comm.postProblem (domUtil.getDocAsArray (doc).toString());
+
 	  if (writeXMLToFile) {
 		String suffix = (postData) ? "data" : "problem";
-		String fileName = getClusterName () + "_" + suffix + "_" + numFilesWritten++;
+		String fileName = getClusterName () + "_" + suffix + "_" + numFilesWritten++ + ".xml";
 		System.out.println (getName () + ".serializeAndPost - Writing XML to file " + fileName);
 		try {
 		  FileOutputStream temp = new FileOutputStream (fileName);
@@ -1537,109 +1425,14 @@ public abstract class VishnuPlugIn
 	}
   }
 
-  public void postData (String data) {
-    StringBuffer sb = new StringBuffer ();
-    sb.append ("?" + "bogus=ferris&");
-    sb.append (getProblemPostVar ());
-    sb.append (getInstancePostVar () + "&");
-    sb.append ("user=" + myUser + "&");
-    sb.append ("password=" + myPassword + "&");
-    sb.append ("data=");
-    sb.append (java.net.URLEncoder.encode(data));
-
-	Date start = new Date();
-    String reply =
-      comm.postToURL (hostName, postDataFile, sb.toString (), null, true);
-	if (showTiming)
-	  domUtil.reportTime (" - did post of data string to URL in ", start);
-	
-    if (myExtraOutput)
-      System.out.println (getName () + ".postData - Reply to post data <" + reply.trim() + ">");
-  }
-
-  public void postData (Document dataDoc) {
-    StringBuffer sb = new StringBuffer ();
-    sb.append ("?" + "bogus=ferris&");
-    sb.append (getProblemPostVar ());
-    sb.append (getInstancePostVar () + "&");
-    sb.append ("user=" + myUser + "&");
-    sb.append ("password=" + myPassword + "&");
-    sb.append ("data=");
-
-	Date start = new Date();
-    String reply =
-      comm.postToURL (hostName, postDataFile, sb.toString (), dataDoc, true);
-	if (showTiming)
-	  domUtil.reportTime (" - did post of data Doc to URL in ", start);
-	
-	if (!reply.startsWith ("SUCCESS"))
-      System.out.println (getName () + ".postData - ERROR : Reply to post data was <" + reply + ">");
-	else if (myExtraOutput)
-      System.out.println (getName () + ".postData - Reply to post data was <" + reply.trim() + ">");
-  }
-
-  /**
-   * bogus is sent first because user would not arrive 
-   * at php with value if it was sent first.  No idea why.
-   *
-   */
-  public void postProblem (String data) {
-    StringBuffer sb = new StringBuffer ();
-    sb.append ("?" + "bogus=ferris&"); 
-    sb.append ("user=" + myUser + "&");
-    sb.append ("password=" + myPassword + "&");
-    sb.append ("data=");
-    sb.append (java.net.URLEncoder.encode(data));
-
-    String reply =
-	  comm.postToURL (hostName, postProblemFile, sb.toString (), null, true);
-
-    if (myExtraOutput)
-      System.out.println (getName() + ".postProblem - reply was <" + reply.trim() + ">");
-  }
-
-  public void startScheduling () {
-    StringBuffer sb = new StringBuffer ();
-    sb.append ("?" + "bogus=ferris&" + getProblemPostVar ());
-    sb.append (getInstancePostVar () + "&");
-    sb.append (getUserPostVar () + "&");
-    sb.append ("password=" + myPassword + "&");
-    sb.append ("ferris=bueller");
-
-    String reply = comm.postToURL (hostName, kickoffFile, sb.toString (), null, true);
-    if (myExtraOutput)
-	System.out.println (getName () + ".startScheduling - reply to kickoff was " + reply.trim());
-  }
-
   public boolean waitTillFinished () {
-    StringBuffer sb = new StringBuffer ();
-    sb.append ("?" + "bogus=ferris&" + getProblemPostVar ());
-    sb.append (getInstancePostVar () + "&");
-    sb.append ("user=" + myUser + "&");
-    sb.append ("password=" + myPassword + "&");
-    sb.append ("ferris=bueller");
-    String postVars = sb.toString ();
+	boolean gotAnswer = comm.waitTillFinished ();
 
-    boolean gotAnswer = false;
-    for (int i = 0; i < maxWaitCycles; i++) {
-      String response = 
-	  comm.postToURL (hostName, readStatusFile, postVars, null, true);
-      if (response.indexOf (done) != -1) {
-		gotAnswer = true;
-		break;
-      }
-      else if (myExtraOutput) {
-		System.out.println (getName() + ".waitTillFinished - Scheduler not done. Reply was <" + response.trim() + ">");
-	  }
-
-      try { Thread.sleep (waitTime); } catch (Exception e) {}
-    }
-	
 	if (!alwaysClearDatabase)
 	  sendFreezeAll ();
 
     if (gotAnswer)
-	  parseAnswer(postVars);
+	  parseAnswer();
 
     return gotAnswer;
   }
@@ -1655,37 +1448,25 @@ public abstract class VishnuPlugIn
    *
    * @param postVars - the variables to send to the script
    */
-    protected void parseAnswer(String postVars) {
-      if (myExtraOutput)
-		System.out.println (getName() + ".waitTillFinished - Vishnu scheduler result returned!");
-      try {
-		String url = "http://" + hostName + phpPath + assignmentsFile + postVars;
-		URL aURL = new URL (url);
+  protected void parseAnswer() {
+	if (myExtraOutput)
+	  System.out.println (getName() + ".waitTillFinished - Vishnu scheduler result returned!");
+	int unhandledTasks = myTaskUIDtoObject.size ();
 
-		int unhandledTasks = myTaskUIDtoObject.size ();
+	comm.getAnswer (new AssignmentHandler ());
 
-		if (myExtraOutput)
-		  System.out.println (getName () + ".parseAnswer - reading from " + url);
+	if (myExtraOutput)
+	  System.out.println (getName () + ".parseAnswer - created successful plan elements for " +
+						  (unhandledTasks-myTaskUIDtoObject.size ()) + " tasks.");
 
-		comm.readXML (aURL, new AssignmentHandler ());
-
-		if (myExtraOutput)
-		  System.out.println (getName () + ".parseAnswer - created successful plan elements for " +
-							  (unhandledTasks-myTaskUIDtoObject.size ()) + " tasks.");
-
-		handleImpossibleTasks (myTaskUIDtoObject.values ());
-		myTaskUIDtoObject.clear ();
-		
-      } catch (Exception e) {
-		System.out.println ("BAD URL : " + e);
-		e.printStackTrace ();
-      }
-    }
+	handleImpossibleTasks (myTaskUIDtoObject.values ());
+	myTaskUIDtoObject.clear ();
+  }
 
   protected void sendFreezeAll () {
 	Document doc = new DocumentImpl ();
     Element newRoot = doc.createElement("PROBLEM");
-	newRoot.setAttribute ("NAME", myProblem);
+	newRoot.setAttribute ("NAME", comm.getProblem ());
     doc.appendChild(newRoot);
 	
 	Element freeze = doc.createElement("FREEZEALL");
@@ -1694,58 +1475,8 @@ public abstract class VishnuPlugIn
 	serializeAndPostData (doc);
   }
 
-  protected String getProblemPostVar () {
-    return "problem=" + myProblem + "&";
-  }
-
-  protected String getInstancePostVar () {
-    return "instance=" + myInstance;
-  }
-
-  protected String getUserPostVar () {
-    return "username=" + myUser;
-  }
-
   protected void clearInternalBuffer () {
 	internalBuffer = new StringBuffer ();
-  }
-
-  /**
-    Sends data on the connection.
-   */
-
-  public void sendData(URLConnection connection, String data, Document doc) throws IOException {
-    if (myExtraOutput) {
-	  System.out.println (getName () + ".sendData - Sending " + data.length () + " characters.");
-	  System.out.println ("\tData=" + data.substring (0,
-													  (data.length () > 100) ? 100 : data.length()));
-    }
-
-    OutputStream os = new BufferedOutputStream(connection.getOutputStream ());
-    byte [] bytes = data.getBytes ();
-    os.write(bytes);
-	if (doc != null) {
-	  domUtil.writeDocToStream (doc, os);
-	  /*
-	  if (writeXMLToFile) {
-		String fileName = getClusterName () + "_" + numFilesWritten++;
-		System.out.println ("Writing XML to file " + fileName);
-		FileOutputStream temp = new FileOutputStream (fileName);
-		writeDocToStream (doc, temp);
-	  }
-	  */
-	} else if (writeEncodedXMLToFile) {
-	  String fileName = getClusterName () + "_encoded_" + numFilesWritten++;
-	  System.out.println (getName () + ".sendData : Writing XML to file " + fileName);
-	  FileOutputStream temp = new FileOutputStream (fileName);
-	  bytes = data.getBytes ();
-	  temp.write(bytes);
-	  temp.flush ();
-	  temp.close ();
-	}
-	
-    os.flush ();
-    os.close ();
   }
 
   /**
@@ -2116,15 +1847,8 @@ public abstract class VishnuPlugIn
   protected StringBuffer internalBuffer = new StringBuffer ();
   protected Map myTypesToNodes, myNameToDescrip;
 
-  protected String myProblem  = "testProblem";
-  protected String myInstance = "testInstance";
-  protected String myUser     = "vishnu";
-  protected String myPassword = "vishnu";
-
   protected UTILAssetCallback         myAssetCallback;
-  protected int maxWaitCycles = 10;
   protected int firstTemplateTasks;
-  protected long waitTime      = 1000;
   protected boolean sentFormatAlready = false;
   protected boolean mySentOtherDataAlready = false;
   protected boolean mySentAssetDataAlready = false;
@@ -2133,17 +1857,6 @@ public abstract class VishnuPlugIn
   protected Set myFrozenTasks = new HashSet ();
 
   protected String hostName = "dante.bbn.com";
-  protected String phpPath  = "/~dmontana/vishnu/";
-  protected String URL      = "http://" + hostName + phpPath;
-
-  protected String PHP_SUFFIX = ".php";
-  protected String postProblemFile = "postproblem" + PHP_SUFFIX;
-  protected String postDataFile    = "postdata" + PHP_SUFFIX;
-  protected String kickoffFile     = "postkickoff" + PHP_SUFFIX;
-  protected String readStatusFile  = "readstatus" + PHP_SUFFIX;
-  protected String assignmentsFile = "assignments" + PHP_SUFFIX;
-
-  protected String done            = "percent_complete=100";
 
   protected boolean testing = false;
   protected boolean showFormatXML = false;
@@ -2153,7 +1866,7 @@ public abstract class VishnuPlugIn
   protected boolean alwaysClearDatabase = false;
   protected boolean showTiming = true;
   protected boolean writeXMLToFile = false;
-  protected boolean writeEncodedXMLToFile = false;
+
   protected int numFilesWritten = 0; // how many files have been written out via the writeXMLToFile flag
   protected boolean sendRoleScheduleUpdates = false;
   protected boolean makeSetupAndWrapupTasks = true;
