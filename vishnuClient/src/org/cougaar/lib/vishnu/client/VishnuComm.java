@@ -1,4 +1,4 @@
-/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/VishnuComm.java,v 1.4 2001-02-21 02:33:24 gvidaver Exp $ */
+/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/VishnuComm.java,v 1.5 2001-03-07 03:00:00 gvidaver Exp $ */
 
 package org.cougaar.lib.vishnu.client;
 
@@ -55,6 +55,9 @@ public class VishnuComm {
     URL = "http://" + hostName + phpPath;
 
 	setProblemName ();
+
+	// clears any pending jobs for this problem
+	postCancel ();
   }
 
   protected ParamTable getMyParams    () { return myParamTable; }
@@ -245,6 +248,45 @@ public class VishnuComm {
       System.out.println (getName() + ".postProblem - reply was <" + reply.trim() + ">");
   }
 
+  /**
+   * <pre>
+   * Cancels any pending jobs.
+   * 
+   * Should only be done once, when the plugin loads.
+   *
+   * This is an insurance policy against the case where someone
+   * starts a society and runs it, but never starts a scheduler, or otherwise
+   * gets a problem into the state of "processing" but not "complete."  
+   * Once in the "processing" state, the scheduler will not accept new 
+   * jobs for this problem, effectively blocking it for all time.
+   *
+   * </pre>
+   * bogus is sent first because <code>user</code> would not arrive 
+   * at php with value if it was sent first.  No idea why.
+   *
+   */
+  public void postCancel () {
+    StringBuffer sb = new StringBuffer ();
+    sb.append ("?" + "bogus=ferris&"); 
+    sb.append (getProblemPostVar  () + "&");
+    sb.append ("username=" + myUser + "&");
+    sb.append ("password=" + myPassword);
+
+    if (myExtraOutput)
+	  System.out.println (getName () + ".postCancel - canceling any pending scheduling requests for " + 
+						  myProblem);
+
+	String reply = postToURL (hostName, postCancelFile, sb.toString (), null, true);
+    if (myExtraOutput)
+	  System.out.println (getName () + ".postCancel - reply was " + reply);
+  }
+
+  /** 
+   * bogus is sent first because <code>user</code> would not arrive 
+   * at php with it's value if it was sent first.  No idea why. 
+   *
+   * BOZO - Still a problem???
+   */
   public void startScheduling () {
     StringBuffer sb = new StringBuffer ();
     sb.append ("?" + "bogus=ferris&" + getProblemPostVar ());
@@ -457,8 +499,10 @@ public class VishnuComm {
 		try { Thread.sleep (5000l); } catch (Exception e) {}
 	  }
 	}
-	if (!madeInputStream)
-		System.out.println (name + ".getResponse - ERROR : could not read from URL " + connection);
+	if (!madeInputStream) {
+	  System.out.println (name + ".getResponse - ERROR : could not read from URL " + connection);
+	  return null;
+	}
 
     byte b[] = new byte[1024];
     int len;
@@ -530,6 +574,7 @@ public class VishnuComm {
   protected String kickoffFile     = "postkickoff" + PHP_SUFFIX;
   protected String readStatusFile  = "readstatus" + PHP_SUFFIX;
   protected String assignmentsFile = "assignments" + PHP_SUFFIX;
+  protected String postCancelFile  = "postcancel" + PHP_SUFFIX;
   protected String done            = "percent_complete=100";
 
   protected int maxWaitCycles = 10;
