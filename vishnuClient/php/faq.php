@@ -1,8 +1,8 @@
 <?
   $qs = array();
-  function addq ($question, $answer, $name="") {
+  function addq ($question, $answer, $name="", $putbrs=1) {
     global $qs;
-    $qs[] = array ($question, $answer, $name);
+    $qs[] = array ($question, $answer, $name, $putbrs);
   }
 
   addq ("What is Vishnu?",
@@ -70,33 +70,33 @@
         A more in-depth description and an architecture diagram are
         provided in <a href=\"fulldoc.php#arch\">Section 2</a> of the
         full documentation.");
-  addq ("How do I get set up to use Vishnu?",
-        "First, try to locate a properly configured web server that you
-        can use.  If none exists, you will have to install one (see the
-        question on installation of a web server).  If the Vishnu code
-        is not already on this server, you will have to put it there.
-        To do this, place all the files
-        in the php directory into a directory on the server that can be
-        accessed via the web server (e.g., in a subdirectory of public_html).
-        Then, place the vishnu.jar file onto the machine (most likely the
-        server) where you will be running the scheduler and the formula
-        compiler.  Set your CLASSPATH variable to include this jar file.
-        Obtain an account for the MySQL database.  Run the initializesql
-        script to get the initial tables set up with the command<br>
-        mysql -u[username] -p[password] &lt; initializesql<br>
-        Start the scheduler with the command<br>
-        java -Dorg.cougaar.lib.vishnu.server.host=[hostname]
-+-        -Dorg.cougaar.lib.vishnu.server.path=[pathname] -Dorg.cougaar.lib.vishnu.server.user=[username]
-        -Dorg.cougaar.lib.vishnu.server.password=[password]
-        -Dorg.cougaar.lib.vishnu.server.port=[portnumber] org.cougaar.lib.vishnu.server.Scheduler<br>
-        Start the formula compiler with the same command with
-        ExpressionCompiler
-        substituted for Scheduler.  (Note that it is best to make a small
-        script file for starting the scheduler and compiler.  Also note
-        that the defaults are hostname=[localhost], path=\"/~vishnu/\",
-        user=vishnu, password=\"\", and portnumber=80.)
-        You are now all set up.");
-  addq ("I am now set up.  How do I get started?",
+  addq ("How do I install Vishnu and get it running?",
+        "<a href=\"fulldoc.php#d\">Appendix D</a> of the full documentation
+        provides a full description of the installation and setup of
+        Vishnu.  In brief, the steps are as follows:
+        <ol>
+        <li> Install the web server.  This involves installing compatible
+        versions of Apache, MySQL, PHP, and GD.
+        The easiest way to install the Apache/MySQL/PHP/GD
+        combination is to use AbriaSQL Standard from
+        <a href=\"http://www.abriasoft.com\">Abriasoft</a>.
+        This will do the whole install automatically.
+        If you prefer to do it yourself, there are instructions on how
+        to install the Apache/MySQL/PHP/GD combination on a UNIX
+        machine in the documentation.
+        <li> Install Java and an XML Java library on the machines
+        where the scheduler(s) and compiler(s) will be running.  (This
+        can be the same machine as the web server.
+        <li> Install the Vishnu code.
+        </ol>",
+        "", 0);
+  addq ("Do I need my own personal web server to run Vishnu?",
+        "No, Vishnu is designed to share a web sharer with other
+        applications and among the different Vishnu problems.
+        The intent of the design of Vishnu is that a particular site
+        should require only a single Vishnu server and that this server
+        should be able to handle many different problems.");
+  addq ("I now have Vishnu installed.  How do I get started?",
         "The best way to get started with Vishnu is to start playing with
         the sample problems.  In the directory testdata, there are a
         variety of files which can be loaded into the web server using
@@ -133,20 +133,9 @@
         This is also described in <a href=\"fulldoc.php#gui\">Section
         6</a> of the full documentation.",
         "saving");
-  addq ("How do I install the web server?",
-        "The easiest way to install the Apache/MySQL/PHP/GD
-        combination is to use Abriasoft (www.abriasoft.com).  They
-        sell software that will do the whole install automatically.
-        If you prefer to do it yourself, there are instructions on how
-        to install the Apache/MySQL/PHP/GD combination on a UNIX
-        machine in the documentation.");
-  addq ("Do I need my own personal web server to run Vishnu?",
-        "No, Vishnu is designed to share a web sharer with other
-        applications and among the different Vishnu problems.  Any
-        properly configured web server should do.");
-  addq ("Do I need a web server to run Vishnu?",
-        "No, you can run just the automated scheduler portion of Vishnu
-        independent of the web server,
+  addq ("Can I run Vishnu withoug a web server?",
+        "Yes, you can run just the automated scheduler portion of Vishnu
+        independent of the web server.
         There is an internal mode which
         allows you to invoke the scheduler directly from a Java
         application.  However, there are three important caveats.
@@ -155,9 +144,11 @@
         this currently requires you to have
         compiled (XML) versions of the scheduling specs, which means
         that you should have first set up the problem using the full
-        web-based system.  Third, because you must invoke the scheduler
-        from a Java application, you must have the expertise to write such an
-        application.");
+        web-based system (since the compiler does not run without the
+        web server).  Third, because you must invoke the scheduler
+        from a Java application, you must either
+        have the expertise to write such an application or else
+        use the <a href=\"faq.php#bridge\">Cougaar-Vishnu bridge</a>.");
   addq ("Can I run more than one automated scheduler with a single
         web server?",
         "Yes, multiple schedulers can accept problems from a single web
@@ -332,7 +323,7 @@
     for ($i = 0; $i < sizeof ($qs); $i++) {
       $ref = $qs[$i][2] ? $qs[$i][2] : ("q" . ($i + 1));
       echo "<a name=\"" . $ref . "\"><b>" . $qs[$i][0] .
-           "</b></a></br>\n" . $qs[$i][1] . "<br><br>\n";
+           "</b></a></br>\n" . $qs[$i][1] . ($qs[$i][3] ? "<br><br>\n" : "\n");
     }
     echo "</DIV>\n";
   }

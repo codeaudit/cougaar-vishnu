@@ -25,11 +25,11 @@
          ". " . $name . "</font></a><br>\n";
   }
 
-  function refSubsection ($name, $label) {
+  function refSubsection ($name, $label, $app="") {
     global $sectioncounter2, $subsectioncounter2;
     $subsectioncounter2++;
     echo "<a href=\"fulldoc.php#" . $label . "\"><font>" .
-         $sectioncounter2 . "." . $subsectioncounter2 .
+         ($app ? $app : $sectioncounter2) . "." . $subsectioncounter2 .
          ". " . $name . "</font></a><br>\n";
   }
 
@@ -42,11 +42,11 @@
          ". " . $name . "</font></b></a></p>\n";
   }
 
-  function makeSubsection ($name, $label) {
+  function makeSubsection ($name, $label, $app="") {
     global $sectioncounter, $subsectioncounter;
     $subsectioncounter++;
     echo "<p><a name=\"" . $label . "\"><b><font size=+1>" .
-         $sectioncounter . "." . $subsectioncounter .
+         ($app ? $app : $sectioncounter) . "." . $subsectioncounter .
          ". " . $name . "</font></b></a></p>\n";
   }
 
@@ -76,7 +76,18 @@
     refSection ("Currently Defined Functions", "a", "A");
     refSection ("XML Data Formats", "b", "B");
     refSection ("Test Problem Descriptions", "c", "C");
-    refSection ("Installation Procedure", "d", "D");
+    refSubsection ("Job-Shop Scheduling Problem (testdata/jobshop/mt06.vsh)",
+                   "c1", "C");
+    refSubsection ("Traveling Salesman Problem (testdata/TSP/bays29.vsh)",
+                   "c2", "C");
+    refSubsection ("Vehicle Routing Problem with Time Windows (testdata/VRP/solomon101.vsh)",
+                   "c3", "C");
+    refSubsection ("Generalized Assignment Problem (testdata/assignment/c515-1.vsh)",
+                   "c4", "C");
+    refSection ("Installation and Setup Procedure", "d", "D");
+    refSubsection ("Installing the Web Server", "d1", "D");
+    refSubsection ("Installing Java", "d2", "D");
+    refSubsection ("Installing Vishnu", "d3", "D");
     refSection ("To Do List", "e", "E");
 ?>
 
@@ -1611,7 +1622,8 @@ Returns the sum of all delta evaluations for all the tasks already assigned to a
 problems are contained in the testdata directory.  We also list the specifications here, since they are good and simple examples of how to configure
 Vishnu for a particular problem.
  
-<b>C.1 Job-Shop Scheduling Problem (testdata/jobshop/mt06.vsh)</b>
+<? makeSubsection ("Job-Shop Scheduling Problem (testdata/jobshop/mt06.vsh)",
+                   "c1", "C"); ?>
  
 <p>The classic NxM research problem is as follows.  There are M machines and N manufacturing jobs to be completed.  Each job has M tasks/stages,
 with each stage corresponding to a different specified machine.  There is a specified order in which the tasks for a certain job must be performed, with
@@ -1818,7 +1830,8 @@ unavailable times constraint is required to constrain the task to have a start t
  
 <p>This color coding will allow easy visual separation of steps by job.
 
-<p><b>C.2 Traveling Salesman Problem (testdata/TSP/bays29.vsh)</b>
+<? makeSubsection ("Traveling Salesman Problem (testdata/TSP/bays29.vsh)",
+                   "c2", "C"); ?>
 
 <p>The traveling salesman problem is as follows.  There is a salesman who needs to start at a given city, travel to a set of other cities visiting each city
 once, and then return to the starting city.  The distances from any city to any other city is provided.  The objective is to minimize the total distance
@@ -1920,7 +1933,8 @@ problem are:<br><br>
 <p>One thing to note is that distances and durations are treated interchangeably, basically assuming that the salesman travels one unit of distance in a
 second.
 
-<p><b>C.3. Vehicle Routing Problem with Time Windows (testdata/VRP/solomon101.vsh)</b>
+<? makeSubsection ("Vehicle Routing Problem with Time Windows (testdata/VRP/solomon101.vsh)",
+                   "c3", "C"); ?>
 
 <p>The vehicle routing problem with time windows (VRPTW) is an extension of the capacitated vehicle routing problem (CVRP).  In CVRP, there are M
 vehicles and N customers from whom to pick up cargo.  Each vehicle has a limited capacity for cargo, and each piece of cargo contributes different
@@ -2081,7 +2095,8 @@ global data.  The metadata for these object types are:
  
 <p>One thing to note is how the delta criterion tells the incremental increase in the optimization criterion due to adding a task to a resource.
 
-<p><b>C. 4 Generalized Assignment Problem (testdata/assignment/c515-1.vsh)</b>
+<? makeSubsection ("Generalized Assignment Problem (testdata/assignment/c515-1.vsh)",
+                   "c4", "C"); ?>
 
 <p>The generalized assignment problem is not a true scheduling problem in that there are no times associated with the assignments of tasks to resources. 
 There are N jobs to be assigned to M agents.  There is a predefined set of assignment costs associated, one associated with each pairing of a job and
@@ -2188,7 +2203,9 @@ The metadata are:
 </table>
 </div>
 
-<? makeSection ("Installation Procedure", "d", "D"); ?>
+<? makeSection ("Installation and Setup Procedure", "d", "D"); ?>
+
+<? makeSubsection ("Installing the Web Server", "d1", "D"); ?>
 
 By far, the easiest way to install the required web server setup is
 to use the product AbriaSQL Standard from
@@ -2367,6 +2384,34 @@ Libpng          -  http://www.libpng.org/pub/png/src/libpng-1.0.8.tar.gz<br>
 JPEG-6b         -  http://cygutils.netpedia.net/V1.1/jpeg-6b/jpegsrc.v6b.tar.gz<br>
 <p>
 <b>Dependancies:</b><br>
+
+<? makeSubsection ("Installing Java", "d2", "D"); ?>
+
+<? makeSubsection ("Installing Vishnu", "d3", "D"); ?>
+
+<p>????????
+        To do this, place all the files
+        in the php directory into a directory on the server that can be
+        accessed via the web server (e.g., in a subdirectory of public_html).
+        Then, place the vishnu.jar file onto the machine (most likely the
+        server) where you will be running the scheduler and the formula
+        compiler.  Set your CLASSPATH variable to include this jar file.
+        Obtain an account for the MySQL database.  Run the initializesql
+        script to get the initial tables set up with the command<br>
+        mysql -u[username] -p[password] &lt; initializesql<br>
+        Start the scheduler with the command<br>
+        java -Dorg.cougaar.lib.vishnu.server.host=[hostname]
+        -Dorg.cougaar.lib.vishnu.server.path=[pathname]
+        -Dorg.cougaar.lib.vishnu.server.user=[username]
+        -Dorg.cougaar.lib.vishnu.server.password=[password]
+        -Dorg.cougaar.lib.vishnu.server.port=[portnumber] org.cougaar.lib.vishnu.server.Scheduler<br>
+        Start the formula compiler with the same command with
+        ExpressionCompiler
+        substituted for Scheduler.  (Note that it is best to make a small
+        script file for starting the scheduler and compiler.  Also note
+        that the defaults are hostname=[localhost], path="/~vishnu/",
+        user=vishnu, password="\", and portnumber=80.)
+        You are now all set up.
 
 <? makeSection ("To Do List", "e", "E"); ?>
 
