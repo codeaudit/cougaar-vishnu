@@ -1,6 +1,6 @@
 /*
  * <copyright>
- *  Copyright 2001 BBNT Solutions, LLC 
+ *  Copyright 2001 BBNT Solutions, LLC
  *  under sponsorship of the Defense Advanced Research Projects Agency (DARPA).
  * 
  *  This program is free software; you can redistribute it and/or modify
@@ -18,7 +18,7 @@
  *  PERFORMANCE OF THE COUGAAR SOFTWARE.
  * </copyright>
  */
-/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/VishnuDomUtil.java,v 1.6 2001-08-23 12:29:45 mthome Exp $ */
+/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/VishnuDomUtil.java,v 1.7 2001-08-23 15:25:00 mthome Exp $ */
 
 package org.cougaar.lib.vishnu.client;
 
