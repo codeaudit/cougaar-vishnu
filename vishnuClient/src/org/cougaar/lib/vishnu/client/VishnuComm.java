@@ -1,4 +1,4 @@
-/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/VishnuComm.java,v 1.3 2001-02-21 00:38:34 gvidaver Exp $ */
+/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/VishnuComm.java,v 1.4 2001-02-21 02:33:24 gvidaver Exp $ */
 
 package org.cougaar.lib.vishnu.client;
 
@@ -167,6 +167,8 @@ public class VishnuComm {
 								((List) clusterToInstance.get (getClusterName ())).size ());
 		}
 	  }
+	  // mysql doesn't like -'s
+	  myProblem = myProblem.replace('-', '_');
 	}
 	
 	try {
