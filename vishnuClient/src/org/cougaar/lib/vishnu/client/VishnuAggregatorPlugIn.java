@@ -208,7 +208,7 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
   protected void parseStartElement (String name, AttributeList atts) {
 	try {
 	  if (myExtraExtraOutput || debugParseAnswer)
-		System.out.println ("parseStartElement got " + name);
+		System.out.println ("VishnuAggregatorPlugIn.parseStartElement got " + name);
 	  
 	  if (name.equals ("MULTITASK")) {
 		if (myExtraOutput || debugParseAnswer) {
@@ -239,18 +239,28 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
 		  System.out.println (getName () + ".parseStartElement -\nTask: " + 
 							  " task = " + atts.getValue ("task"));
 		}
+		if (atts.getValue ("task") == null)
+		  System.out.println (getName () + ".parseStartElement - ERROR, no task attribute on TASK element? " + 
+							  "Element attributes were " + atts);
+
 		String taskUID = atts.getValue ("task");
 
 		StringKey taskKey = new StringKey (taskUID);
 		Task handledTask = (Task) myTaskUIDtoObject.get (taskKey);
-		if (handledTask == null) 
+		if (handledTask == null) {
 		  System.out.println (getName () + ".parseStartElement - no task found with " + taskUID + 
 							  " uid.");
-		else
+		  System.out.println ("\tmap keys were " + myTaskUIDtoObject.keySet());
+		}
+		else {
 		  alpTasks.add (handledTask);
+		}
 
 		// this is absolutely critical, otherwise VishnuPlugIn will make a failed disposition
 		myTaskUIDtoObject.remove (taskKey);
+		if (debugParseAnswer)
+		  System.out.println (getName () + ".parseStartElement - removing task key " + taskKey);
+
 		myFrozenTasks.add (handledTask);
 	  }
 	  else if (debugParseAnswer) {

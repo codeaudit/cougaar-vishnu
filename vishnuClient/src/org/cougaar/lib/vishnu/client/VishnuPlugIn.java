@@ -1,4 +1,4 @@
-/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/Attic/VishnuPlugIn.java,v 1.10 2001-02-21 02:19:39 gvidaver Exp $ */
+/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/Attic/VishnuPlugIn.java,v 1.11 2001-02-21 22:35:19 gvidaver Exp $ */
 
 package org.cougaar.lib.vishnu.client;
 
@@ -410,10 +410,13 @@ public abstract class VishnuPlugIn
 	  }
       
 	  setUIDToObjectMap (tasks, myTaskUIDtoObject);
-      
+
 	  if (myExtraOutput)
 		System.out.println (getName () + ".processTasks - sending " + 
 							myTaskUIDtoObject.values ().size () + " tasks.");
+	  if (myExtraExtraOutput)
+		System.out.println (getName () + ".processTasks - task uid map keys " + myTaskUIDtoObject.keySet());
+      
 	  int numTasks = myTaskUIDtoObject.values ().size ();
       
 	  Date dataStart = new Date();
@@ -1405,10 +1408,15 @@ public abstract class VishnuPlugIn
   }
 
   public boolean waitTillFinished () {
+	Date start = new Date();
+	
 	boolean gotAnswer = comm.waitTillFinished ();
 
 	if (!alwaysClearDatabase)
 	  sendFreezeAll ();
+
+	if (showTiming)
+	  domUtil.reportTime (" - Vishnu received answer, was waiting for ", start);
 
     if (gotAnswer)
 	  parseAnswer();
