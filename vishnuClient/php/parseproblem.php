@@ -139,6 +139,11 @@
       do_query ("central", "setting up", "", $problem,
                 "create database vishnu_prob_" . $problem . ";");
       do_query ("prob_" . $problem, "setting up", "", $problem,
+                "create table description (d text not null);");
+      do_query ("prob_" . $problem, "setting up", "", $problem,
+                "insert into description values (\"" .
+                $attribs["DESCRIPTION"] . "\");");
+      do_query ("prob_" . $problem, "setting up", "", $problem,
                 "create table capacities (" .
                 "ID varchar(255) not null, " .
                 "value varchar(255) not null);");

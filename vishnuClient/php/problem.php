@@ -37,7 +37,11 @@
   }
 
   function mainContent () {
-    global $problem;
+    global $problem, $description;
+
+    if ($description)
+      mysql_db_query ("vishnu_prob_$problem",
+          "update description set d = \"$description\";");
 
     $arr = gettaskandresourcetypes ($problem);
     $taskobject = $arr[0];
@@ -54,8 +58,10 @@
     mysql_free_result ($result);
 ?>
 
-<font size=+3>Viewing problem<br>
-<i><font color="000099"><? echo $problem ?></font></i><br>
+<font size=+3>
+<font color="000099"><? echo $problem ?></font><br></font>
+
+<TABLE CELLPADDING=1><TR><TD><TD></TR></TABLE>
 <TABLE CELLPADDING=1><TR><TD><TD></TR></TABLE>
 
 <table COLS=2 WIDTH=700 >
@@ -285,9 +291,34 @@
 </td>
 </tr>
 
-</table>
-<TABLE CELLPADDING=0><TR><TD><TD></TR></TABLE>
+<tr>
+<td>&nbsp;</td>
+<td></td>
+</tr>
 
-<font size=+1><a href="vishnu.php"/>Home</a></font>
+<tr>
+<td COLSPAN="2" BGCOLOR="<? echo getcolor(); ?>">
+<font size=+2>Problem Description</font></td>
+</tr>
+<tr><td colspan=2><TABLE CELLPADDING=0><TR><TD><TD></TR></TABLE></td></tr>
+
+<tr><td colspan="2" align=center>
+<form method=post action="problem.php">
+<textarea name="description" rows=4 cols=70>
+<?
+    $result = mysql_db_query ("vishnu_prob_$problem",
+                              "select d from description;");
+    if ($result) {
+      $value = mysql_fetch_array ($result);
+      echo $value[0];
+    }
+?>
+</textarea></font><br>
+<input type=hidden name=problem value="<? echo $problem; ?>">
+<input type=submit value="Update Description">
+</form>
+</td></tr>
+
+</table>
 
 <? } ?>

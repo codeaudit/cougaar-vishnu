@@ -18,7 +18,13 @@
   echo "<?xml version='1.0'?>\n";
 
   if ($includeproblem) {
-    echo "<PROBLEM name=\"" . $problem . "\" >\n";
+    $result = mysql_db_query ("vishnu_prob_$problem",
+                              "select d from description;");
+    $value = mysql_fetch_array ($result);
+    $lines = explode ("\n", $value[0]);
+    $desc = implode ("\\\\n", $lines);
+    echo "<PROBLEM name=\"$problem\" description=\"" .
+         htmlentities ($desc) . "\" >\n";
     writedataformat ($problem);
     writeschedulingspecs ($problem);
     writegaparms ($problem);
