@@ -46,7 +46,7 @@ import org.w3c.dom.Element;
 
 public abstract class BaseXMLize {
   /** Maximum search depth -- Integer.MAX_VALUE means unlimited. **/
-  protected final int DEFAULT_UID_DEPTH = 3;
+  protected final int DEFAULT_UID_DEPTH = 6;
   protected static final String MAX_VALUE_STRING = "" + Float.MAX_VALUE;
   protected static final String MIN_VALUE_STRING = "" + Float.MIN_VALUE;
   protected Class numberClass;
@@ -152,6 +152,7 @@ public abstract class BaseXMLize {
     }
 
 	Map listProps = new HashMap ();
+
     List propertyNameValues = getProperties (obj, listProps);
 
     // add the nodes for the properties and values
@@ -336,7 +337,7 @@ public abstract class BaseXMLize {
       Method rm = pd.getReadMethod();
       if (rm == null) {
 		if (debug)
-		  System.out.println ("\tread method " + rm.getName () + " was null.");
+		  System.out.println ("\tread method was null.");
         continue;
       }
 
@@ -413,7 +414,9 @@ public abstract class BaseXMLize {
 	  (aClass == org.cougaar.domain.planning.ldm.plan.AspectScoreRange.class) ||
 	  (aClass == org.cougaar.domain.planning.ldm.plan.WorkflowImpl.class) ||
 	  (aClass == org.cougaar.domain.planning.ldm.plan.RelationshipScheduleImpl.class) || 
-	  (aClass == org.cougaar.domain.planning.ldm.plan.AspectValue.class);
+	  (aClass == org.cougaar.domain.planning.ldm.plan.AspectValue.class) ||
+	  (aClass == org.cougaar.domain.planning.ldm.plan.AllocationImpl.class) ||
+	  (org.cougaar.core.plugin.PlugInAdapter.class.isAssignableFrom (aClass));
   }
   
   private final Comparator lessStringIgnoreCase = 
@@ -436,11 +439,13 @@ public abstract class BaseXMLize {
 	try {
 	    childObject = rm.invoke(obj, null);
 	} catch (InvocationTargetException ie) {
+	  if (!(ie.getTargetException () instanceof IndexOutOfBoundsException)) {
 	    System.out.println("Invocation target exception invoking: " + 
 			       rm.getName() + 
 			       " on object of class:" + 
 			       obj.getClass().getName());
 	    System.out.println(ie.getTargetException().getMessage());
+	  }
 	} catch (Exception e) {
 	    System.out.println("Exception " + e.toString() + 
 			       " invoking: " + rm.getName() + 
@@ -528,10 +533,11 @@ public abstract class BaseXMLize {
       Enumeration dynamicProperties = asset.getOtherProperties();
       while (dynamicProperties.hasMoreElements()) {
 		Object dynamicProperty = dynamicProperties.nextElement();
-		//	System.out.println("Adding dynamic property: " + 
-		//                         dynamicProperty.toString() +
-		//			   " Value: " + dynamicProperty.toString() +
-		//			   " Class: " + dynamicProperty.getClass().toString());
+		if (debug)
+		  System.out.println("Adding dynamic property: " + 
+							 dynamicProperty.toString() +
+							 " Value: " + dynamicProperty.toString() +
+							 " Class: " + dynamicProperty.getClass().toString());
 		propertyNameValues.add(new PropertyNameValue(prettyName(dynamicProperty.getClass().toString()), 
 													 dynamicProperty));
       }
