@@ -26,7 +26,6 @@
   function mainContent () {
     $width = 550;
 ?>
-<BR>
 <TABLE WIDTH="<? echo $width; ?>" >
 <TR><TD BGCOLOR="<? echo getcolor(); ?>">
 <font size=+2>Select Loaded Problem</font></TD></TR>
