@@ -11,7 +11,7 @@
         $realpassword = "";
     }
 
-    mysql_connect ("localhost", $realuser, $realpassword);
+	mysql_connect ("localhost", $realuser, $password);
 
     if (mysql_errno())
       return "Error: Could not connect to database, user = " .
