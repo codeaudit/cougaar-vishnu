@@ -4,6 +4,8 @@
 # When it finds a request has been posted, it gets the problem and its scheduling specs
 # and produces a schedule.  This schedule is then posted back to the web server.
 
+# For values of properties 1-4, see vishnu_server.env.xml in this directory
+
 # CLASSPATH - the scheduler needs the vishnu jar and the xerces jar in the CLASSPATH
 
 # PROPERTIES -
