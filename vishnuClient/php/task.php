@@ -1,6 +1,6 @@
 <?
   require ("browserlink.php");
-  require ("utilities.php");
+  require_once ("utilities.php");
   require ("editobject.php");
 
   if (! $action)

@@ -1,6 +1,6 @@
 <?
   require ("browserlink.php");
-  require ("utilities.php");
+  require_once ("utilities.php");
   require ("parseproblem.php");
 
   $atomictypes = array ("string", "number", "datetime", "boolean");
