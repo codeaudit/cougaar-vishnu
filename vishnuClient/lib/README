@@ -1,0 +1,21 @@
+Jar info
+--------
+
+Gordon Vidaver
+Feb 13, 2001
+
+* The xerces jar is necessary for the files in the vishnu server directory.
+No other jar should be necessary to run the scheduler.  It does not depend on any alp jars.
+
+* The client plugins should only need the core and toolkit jars in addition to xerces.jar.
+
+* WARNING : 
+    Be careful to put the xerces jar ahead of the xml4j_2_0_11 jar in the classpath or 
+  neither the client nor server will work properly.
+
+* The xerces jar is a later, improved version of the xml4j_2_0_11 jar.  
+  See http://xml.apache.org/xerces-j/index.html for more information.
+
+
+
+
