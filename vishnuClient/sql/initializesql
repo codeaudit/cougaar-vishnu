@@ -12,7 +12,8 @@ create table scheduler_request (problem varchar(255) not null,
                                 requester varchar(255) not null,
                                 number int unsigned not null,
                                 percent_complete tinyint not null,
-                                error_message varchar(255));
+                                error_message varchar(255),
+                                legal_hosts varchar(255) not null);
 create table compiler_request (problem varchar(255) not null,
                                expression text not null,
                                request_time datetime not null,
