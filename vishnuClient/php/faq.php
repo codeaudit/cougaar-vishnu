@@ -107,7 +107,9 @@
         and see how the results change.  Don't worry about messing
         up the problems; you can always reload them again from file.
         When you understand the sample problems, then try making a problem
-        of your own.");
+        of your own.  <a href=\"fulldoc.php#gui\">Section
+        6</a> of the full documentation is good to read if you prefer
+        to start by reading rather than by playing.");
   addq ("I am now ready to define a problem of my own.  How do I do it?",
         "There are three ways to define a problem.
         The first is to use a web browser.
@@ -133,7 +135,7 @@
         This is also described in <a href=\"fulldoc.php#gui\">Section
         6</a> of the full documentation.",
         "saving");
-  addq ("Can I run Vishnu withoug a web server?",
+  addq ("Can I run Vishnu without a web server?",
         "Yes, you can run just the automated scheduler portion of Vishnu
         independent of the web server.
         There is an internal mode which
