@@ -11,6 +11,8 @@
   require ("browserlink.php");
   require ("parseproblem.php");
 
+  $COMPILER_TIMEOUT=30; // seconds
+
   if (! $spec) {
     if (($objtype == "task") || ($objtype == "setup") ||
         ($objtype == "wrapup")) {
@@ -49,6 +51,7 @@
   function mainContent () {
     global $problem, $color, $objtype, $oldcolor, $text, $title;
     global $spec, $choice, $name;
+    global $COMPILER_TIMEOUT;
 
     $xml = "";
 
@@ -65,7 +68,10 @@
                   "\", \"" . addslashes($text) . "\", \"" . $date .
                   "\", \"" . $user . "\", \"" . $spec .
                   "\", NULL, NULL, \"outstanding\");");
-      while (1) {
+
+      $maxSecsToWait = $COMPILER_TIMEOUT;
+
+      while ($maxSecsToWait > 0) {
         sleep (1);
         $result = mysql_db_query ("vishnu_central",
                     "select response_text, error_text from compiler_request " .
@@ -78,7 +84,23 @@
         $value = mysql_fetch_row ($result);
         if ($value[0] || $value[1])
           break;
+	$maxSecsToWait--;
       }
+
+      if ($maxSecsToWait == 0) {
+	echo "Timed out waiting for expression compiler to finish.<br>";
+	echo "Are you running an expression compiler?  See the <br>";
+	echo "<b>runCompiler</b> script in the scripts directory.<p>";
+	echo "If you are still having problems, you can post a question<br>";
+	echo "to the <a href='http://groups.yahoo.com/group/vishnu-users'>vishnu mailing list</a>." ;
+        echo "<p><DIV align=CENTER><H2><a href=\"viewspecs.php" . 
+         "?problem=" . $problem . "\">" . "Return to problem specs</DIV></H2>";
+
+	mysql_close();
+
+	return;
+      }
+
       if ($value[1]) {
         echo "<H2>" . stripslashes ($value[1]) . "</H2>\n";
       }
