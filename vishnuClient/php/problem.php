@@ -95,12 +95,22 @@ parameters that control the behavior of the automated scheduler.
 ?????
 <li> <b>Check the status of the automated scheduler -</b>
 ?????
+The scheduler status page also contains the option of canceling
+the current scheduler request.
 <li> <b>Load more data into the problem -</b>
 ?????
 <li> <b>Save the problem to a file -</b>
+This will save the entire problem or a portion of the problem
+to a file.  This allows you to save a current snapshot of the
+problem before it changes or gets deleted.  It also allows easy
+transfer of problems between different Vishnu servers.
 ?????
 <li> <b>Make a copy of the problem -</b>
-?????
+Clicking on "Copy the Problem" will make an exact copy of this
+problem under a different problem name.  You will be prompted
+for the problem name at the next page.
+This is very useful for doing what-if analyses (since you can
+copy a problem, change it a little, and see the results).
 </ul>
 <?
   }
