@@ -2574,8 +2574,10 @@ Javasoft web site</a>.
 The other component of the Java environment that Vishnu requires is
 an XML Java library.  We have used the Xerces library available at
 <a href="http://xml.apache.org/xerces-j/index.html">this web site</a>.
-After downloading this library, you must add the full path of the
-xerces.jar file to your CLASSPATH environment variable.
+For convenience, we have included the same xerces.jar file you would
+get from this site in the Vishnu package in the directory lib.
+After either downloading xerces.jar or copying it from lib,
+you must add its full path to your CLASSPATH environment variable.
 
 <? makeSubsection ("Installing and Executing Vishnu", "d3", "D"); ?>
 
