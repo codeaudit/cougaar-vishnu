@@ -90,9 +90,12 @@
     if ($value["percent_complete"] == 0 && $timeDiff > 20) {
 	echo "<font size=-1>";
 	echo "* To run a scheduler, either use the runScheduler script in "; 
-	echo "TOPS/scripts <i>or</i><br> copy that script and "; 
-	echo "add the property -Dorg.cougaar.lib.vishnu.server.Scheduler.problems='problem_machine'";
-	echo "<br>For example -Dorg.cougaar.lib.vishnu.server.Scheduler.problems='TFSP_alp_43'";
+	echo "vishnu/scripts in the vishnu distribution.<br>";
+	echo "See setup instructions at the top of the <b>runScheduler</b> script."; 
+	echo "Also, for more information, see "; 
+	echo "<a href=\"vishnu/php/fulldoc.php#d3\"/>Installing and Executing Vishnu</a> or<br>";
+	echo "email <a href=\"mailto:gvidaver@bbn.com\"\>Gordon Vidaver</a> or";
+	echo " <a href=\"mailto:dmontana@bbn.com\"\>Dave Montana</a>."; 
 	echo "</font size=-1>";
     }
   } linkToProblem ($problem);
