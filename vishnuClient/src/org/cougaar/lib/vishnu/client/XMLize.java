@@ -33,7 +33,7 @@ public class XMLize extends BaseXMLize {
 									String tag,
 									boolean isTask,
 									boolean isResource,
-									Object obj) {
+									Object obj, String resourceClass) {
     return doc.createElement(tag);
   }
 
