@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.7 2001-01-30 16:18:36 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.8 2001-02-01 23:45:28 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -153,9 +153,11 @@ public class SchedulingData {
     initializeCapacities (specs);
     computePrerequisites (specs);
     computeGroupings (specs);
-    computeLinks (specs);
-    computeLinkedToFrozen();
-    computePrimaryLinked (specs);
+    if (specs.areLinks()) {
+      computeLinks (specs);
+      computeLinkedToFrozen();
+      computePrimaryLinked (specs);
+    }
   }
 
   public void createActivities (SchedulingSpecs specs) {

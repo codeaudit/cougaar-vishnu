@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingSpecs.java,v 1.4 2001-01-29 20:00:47 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingSpecs.java,v 1.5 2001-02-01 23:45:28 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -462,6 +462,10 @@ public class SchedulingSpecs {
     if (b == null)
       return false;
     return b.booleanValue();
+  }
+
+  public boolean areLinks() {
+    return linked != null;
   }
 
   public boolean areLinked (Task task1, Task task2) {
