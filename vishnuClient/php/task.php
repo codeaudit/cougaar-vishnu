@@ -257,28 +257,11 @@ The pick list of possible resources to assign the task to will only
 contain those resources that are capable of performing the task
 and are free for that time period.
 <?
-    } else if ($action == "View All") {
+    } else if ($action == "View All")
       showHints();
-    } else if ($action == "Create") {
-?>
-To create an object, enter the value for each field
-in its corresponding box.
-Then, click on the "Create Object" button.
-If all the fields are valid, it will tell you that you have
-successfully create the object. Otherwise, it will indicate
-what the problem was.
-<?
-    } else if ($action == "Edit") {
-?>
-To edit the object, edit the value for each field
-in its corresponding box.
-Then, click on the "Edit Object" button.
-If all the fields are valid, it will tell you that you have
-successfully create the object. Otherwise, it will indicate
-what the problem was.
-<p>
-To delete the object, click on the "Delete Object" button.
-<?
-    }
+    else if ($action == "Create")
+      hintsForCreate();
+    else if ($action == "Edit")
+      hintsForEdit();
   }
 ?>

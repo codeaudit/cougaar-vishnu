@@ -125,4 +125,28 @@
     else
       return $str;
   }
+
+  function hintsForEdit() {
+?>
+To edit the object, edit the value for each field
+in its corresponding box.
+Then, click on the "Edit Object" button.
+If all the fields are valid, it will tell you that you have
+successfully create the object. Otherwise, it will indicate
+what the problem was.
+<p>
+To delete the object, click on the "Delete Object" button.
+<?
+  }
+
+  function hintsForCreate() {
+?>
+To create an object, enter the value for each field
+in its corresponding box.
+Then, click on the "Create Object" button.
+If all the fields are valid, it will tell you that you have
+successfully create the object. Otherwise, it will indicate
+what the problem was.
+<?
+  }
 ?>
