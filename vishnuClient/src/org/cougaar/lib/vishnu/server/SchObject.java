@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchObject.java,v 1.4 2001-04-12 17:50:31 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchObject.java,v 1.5 2001-08-03 18:54:29 gvidaver Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -55,16 +55,10 @@ public class SchObject {
 	  value = new Reusable.RInteger (0);
 	  System.out.println ("SchObject.addField - <" + name + ">" +
 			      " type " + type +
-			      " value " + value +
+			      " value " + v +
 			      " : value not in number format.");
 	}
       }
-//      else if (! type.equals ("string")) {
-//	System.out.println ("SchObject.addField - <" + name + ">" +
-//			    " type " + type +
-//			    " value " + value +
-//			    " uses an unknown type.");
-//      }
       if (iskey)
         key = v;
     }
@@ -89,7 +83,13 @@ public class SchObject {
   }
 
   public Object getField (String name) {
-    return data.get (name);
+	Object field = data.get (name);
+	
+	if (field == null)
+	  System.err.println ("SchObject.getField -- ERROR - getting unknown field " + name + 
+						  " on " + getKey ());
+
+	return field;
   }
 
   public String getKey() {
@@ -97,10 +97,13 @@ public class SchObject {
   }
 
   public String toString () {
+	String retval = "SchObject :\n";
+	
     for (Iterator iter = data.keySet ().iterator (); iter.hasNext (); ) {
       Object key = iter.next (); 
-      return "" + key  + "=" + data.get(key);
+      retval = retval + "" + key  + " = " + data.get(key) + "\n";
     }
-    return "SchObject";
+
+    return retval;
   }
 }
