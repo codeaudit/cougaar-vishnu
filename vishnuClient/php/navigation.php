@@ -54,16 +54,25 @@ function putseparator ($width=120) {
 <TR><TD></TD></TR>
 <tr><td align=center>
 <? } ?>
-<a href="vishnu.php">Home</a>
-<? if ($problem) { ?>
+<? if (($hints != "yes") && function_exists ("hintsForPage")) { ?>
+<a href="<?
+  echo $REQUEST_URI . (strpos ($REQUEST_URI, "?") ? "&" : "?");
+?>hints=yes" target=_blank>
+Hints for this page</a>
 <? putseparator(); ?>
+<? } ?>
+<? if ($hints != "yes") { ?>
+<a href="vishnu.php">Home</a>
+<? putseparator(); ?>
+<? } ?>
+<? if ($problem && ($hints != "yes")) { ?>
 <a href="problem.php?problem=<? echo $problem ?>">
   <? echo $problem ?> main page</a>
 <? putseparator(); ?>
 <a href="schedule.php?problem=<? echo $problem ?>">
   <? echo $problem ?> schedule</a>
-<? } ?>
 <? putseparator(); ?>
+<? } ?>
 <a href="fulldoc.php">Full Vishnu Documentation</a>
 <? putseparator(); ?>
 <a href="faq.php">Frequently Asked Questions</a>
@@ -78,10 +87,24 @@ function putseparator ($width=120) {
 </td>
 <td width=100% align=center valign=top>
 <? } ?>
-<H1><? getHeader (); ?></H1>
 
-<H2><? getSubheader(); ?></H2>
-<? mainContent (); ?>
+<? if ($hints == "yes") { ?>
+<H1>Hints for page
+<? $p = pathinfo ($PHP_SELF); echo $p["basename"]; ?>
+</H1>
+<? if (function_exists ("hintsForPage")) {
+     echo "<div align=left><font size=+1>\n";
+     hintsForPage();
+     echo "</font></div>\n";
+   } else
+     echo "<H2>Sorry, no help exists for this page yet.</H2>";
+?>
+<? } else { ?>
+<H1><? if (function_exists ("getHeader")) getHeader (); ?></H1>
+<H2><? if (function_exists ("getSubheader")) getSubheader(); ?></H2>
+<? if (function_exists ("mainContent")) mainContent (); ?>
+<? } ?>
+
 <? if (! $horizbar) { ?>
 </td>
 <? if (! $norightbar) { ?>

@@ -30,7 +30,7 @@
     exit;
   }
 
-  if ($login && (! $HTTP_COOKIE_VARS["VishnuLogin"])) {
+  if ($login && (! $hints) && (! $HTTP_COOKIE_VARS["VishnuLogin"])) {
     setcookie ("VishnuLogin", 1, time() + $loginCookieLifetime);
     fail();
   }

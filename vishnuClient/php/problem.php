@@ -25,6 +25,12 @@
   function getSubheader() {
   }
 
+  function hintsForPage() {
+?>
+Working on it.
+<?
+  }
+
   function selectBoxes ($viewall = 0) {
     global $problem;
 ?>
