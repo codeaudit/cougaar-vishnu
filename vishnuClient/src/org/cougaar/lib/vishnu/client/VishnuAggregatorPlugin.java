@@ -27,6 +27,7 @@ package org.cougaar.lib.vishnu.client;
 
 import org.cougaar.planning.ldm.asset.Asset;
 import org.cougaar.planning.ldm.asset.AssetGroup;
+import org.cougaar.planning.ldm.asset.NewItemIdentificationPG;
 
 import org.cougaar.planning.ldm.plan.Aggregation;
 import org.cougaar.planning.ldm.plan.AllocationResult;
@@ -75,6 +76,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import java.text.ParseException;
@@ -372,7 +374,32 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
     if (mpTask == null)
       error ("no mp task on aggregation of " + agg.getTask().getUID());
     else {
-      removeFromDirectObject (agg.getTask(), mpTask); // ignore returned asset group
+      AssetGroup newGroup = 
+	removeFromDirectObject (agg.getTask(), mpTask);
+      Expansion exp = (Expansion) mpTask.getPlanElement();
+      if (exp == null) {
+	warn ("no expansion of mp task " + mpTask.getUID() + " must be in the middle of rescinds...");
+      }
+      else {
+	Enumeration enum = exp.getWorkflow ().getTasks();
+	while (enum.hasMoreElements()) {
+	  Task subtask = (Task) enum.nextElement();
+
+	  Vector newSet = new Vector ();
+	  newSet.addAll (newGroup.getAssets());
+	  AssetGroup newAssetGroup = 
+	    assetHelper.makeAssetGroup (getLDMService().getLDM().getFactory(), newSet);
+	  ((NewItemIdentificationPG) newAssetGroup.getItemIdentificationPG()).setItemIdentification("group_for_subtask_of_" + 
+												    mpTask.getUID() + "_with_" +
+												    newSet.size() +"_members");
+	  ((NewTask) subtask).setDirectObject (newAssetGroup);
+
+	  publishChange (subtask); // tell persistence these have changed too!
+	}
+
+	// post condition check 
+	checkMPTaskDO (mpTask);
+      }
     }
   }
 
@@ -566,6 +593,18 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 	info ("uidToMPTask - mapping mptask " + mpTask.getUID());
       }
       uidToMPTask.put (mpTask.getUID(), mpTask);
+
+      if (isInfoEnabled ()) {
+	int numParents = 0;
+	for (Enumeration enum = ((MPTask)mpTask).getParentTasks(); enum.hasMoreElements(); ) {
+	  Task parent = (Task) enum.nextElement ();
+	  numParents++;
+	}
+	info (getName() + 
+	      ".addToPrevious - MPTask " + mpTask.getUID() + 
+	      " has " + numParents + 
+	      " parents.");
+      }
     }
 
     // store each distinct assignment so we can get it later in addToPrevious
@@ -653,15 +692,35 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 
       Vector directObjects = getDirectObjectsForAgg(tasklist); 
       // step 1 - add to d.o. of transport task
-      Asset directObject = addToDirectObject (previousTask, directObjects);
+      AssetGroup directObject = addToDirectObject (previousTask, directObjects);
       if (makeSetupAndWrapupTasks) {
 	if (setupStart.getTime() < start.getTime()) {
 	  // step 2 - add to d.o. of setup
-	  addToPreviousSetupWrapup (anAsset, directObject, setupStart, start, "setup");
+	  Vector newSet = new Vector ();
+	  Vector assetsInGroup = directObject.getAssets ();
+	  newSet.addAll (assetsInGroup);
+	  AssetGroup newAssetGroup = 
+	    assetHelper.makeAssetGroup (getLDMService().getLDM().getFactory(), newSet);
+	  ((NewItemIdentificationPG)
+	   newAssetGroup.getItemIdentificationPG()).setItemIdentification("setup_group_with_" + 
+									  newSet.size()+ 
+									  "_members");
+
+	  addToPreviousSetupWrapup (anAsset, newAssetGroup, setupStart, start, "setup");
 	}
 	if (wrapupEnd.getTime() > end.getTime()) {
 	  // step 3 - add to d.o. of wrapup
-	  addToPreviousSetupWrapup (anAsset, directObject, end, wrapupEnd, "wrapup");
+	  Vector newSet = new Vector ();
+	  Vector assetsInGroup = directObject.getAssets ();
+	  newSet.addAll (assetsInGroup);
+	  AssetGroup newAssetGroup = 
+	    assetHelper.makeAssetGroup (getLDMService().getLDM().getFactory(), newSet);
+	  ((NewItemIdentificationPG)
+	   newAssetGroup.getItemIdentificationPG()).setItemIdentification("wrapup_group_with_" + 
+									  newSet.size()+ 
+									  "_members");
+
+	  addToPreviousSetupWrapup (anAsset, newAssetGroup, end, wrapupEnd, "wrapup");
 	}
       }
 
@@ -689,7 +748,17 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
       }
 
       // step 4 - add to d.o. of MPTask parent
-      ((NewMPTask) mpTask).setDirectObject (directObject);
+      Vector newSet = new Vector ();
+      Vector assetsInGroup = directObject.getAssets ();
+      newSet.addAll (assetsInGroup);
+      AssetGroup newAssetGroup = 
+	assetHelper.makeAssetGroup (getLDMService().getLDM().getFactory(), newSet);
+      ((NewItemIdentificationPG)
+       newAssetGroup.getItemIdentificationPG()).setItemIdentification("mpt_transport_group_with_" + 
+								      newSet.size()+ 
+								      "_members");
+
+      ((NewMPTask) mpTask).setDirectObject (newAssetGroup);
 
       // step 5 - Make MP Task know of new parents
       Enumeration parents = mpTask.getParentTasks ();
@@ -704,6 +773,19 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
       NewComposition comp = (NewComposition) mpTask.getComposition ();
       addAggregations (comp, tasklist, start, end);
       publishChange (comp);
+
+      if (isInfoEnabled ()) {
+	int numParents = 0;
+	for (Enumeration enum = mpTask.getParentTasks(); enum.hasMoreElements(); ) {
+	  Task parent = (Task) enum.nextElement ();
+	  numParents++;
+	}
+
+	info (getName() + 
+	      ".addToPrevious - MPTask " + mpTask.getUID() + 
+	      " has " + numParents + 
+	      " parents.");
+      }
       
       return true;
     }
@@ -868,12 +950,29 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
   protected AssetGroup addToDirectObject (Task task, Vector objects) {
     AssetGroup group = (AssetGroup) task.getDirectObject ();
     Vector assetsInGroup = group.getAssets ();
-    assetsInGroup.addAll (objects);
+
+    Vector newSet = new Vector ();
+    newSet.addAll (assetsInGroup);
+    newSet.addAll (objects);
+    AssetGroup newAssetGroup = 
+      assetHelper.makeAssetGroup (getLDMService().getLDM().getFactory(), newSet);
+    
+    ((NewTask)task).setDirectObject(newAssetGroup);
+    ((NewItemIdentificationPG)
+     newAssetGroup.getItemIdentificationPG()).setItemIdentification("transport_group_with_" + 
+								    newSet.size()+ 
+								    "_members");
+
     if (isInfoEnabled ()) {
-      info (getName() + " - publish changing " + task.getUID());
+      info (getName() + 
+	    " - publish changing " + task.getUID() + 
+	    " now has " + newSet.size() + 
+	    " items in d.o.");
     }
+
     publishChange (task);
-    return group;
+
+    return newAssetGroup;
   }
 
   /**
@@ -887,16 +986,72 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
   protected AssetGroup removeFromDirectObject (Task removedTask, MPTask mpTask) {
     AssetGroup group = (AssetGroup) mpTask.getDirectObject ();
     Vector assetsInGroup = group.getAssets ();
-    assetsInGroup.remove (removedTask.getDirectObject());
+    //    assetsInGroup.remove (removedTask.getDirectObject());
     if (isInfoEnabled ()) {
       info (getName() + 
 	    " - removing " + removedTask.getUID () + 
 	    "'s direct object " + removedTask.getDirectObject () + 
 	    " from mptask " + mpTask.getUID() + "'s direct object");
     }
+
+    Vector newSet = new Vector ();
+    newSet.addAll (assetsInGroup);
+    if (!newSet.remove (removedTask.getDirectObject())) {
+      error (getName() + " removed task " + removedTask.getUID() + "'s d.o. " + removedTask.getDirectObject() +
+	     " is not part of mp task d.o. for mp task " + mpTask.getUID());
+    }
+
+    AssetGroup newAssetGroup = 
+      assetHelper.makeAssetGroup (getLDMService().getLDM().getFactory(), newSet);
+    
+    ((NewMPTask)mpTask).setDirectObject(newAssetGroup);
+
     publishChange (mpTask);
 
-    return group;
+    return newAssetGroup;
+  }
+
+  /**
+   * post-condition check : MPTask d.o. should be the sum of all parents' d.o.s
+   * no more, no less
+   */
+  protected void checkMPTaskDO (MPTask mpTask) {
+    Vector mpTaskDOVector = ((AssetGroup) mpTask.getDirectObject()).getAssets();
+
+    Set parentDirectObjects = new HashSet();
+
+    int numParents = 0;
+    for (Enumeration enum = mpTask.getParentTasks(); enum.hasMoreElements(); ) {
+      Task parent = (Task) enum.nextElement ();
+      parentDirectObjects.add (parent.getDirectObject());
+      numParents++;
+    }
+    if (isInfoEnabled ()) {
+      info (getName() + 
+	    " - MPTask " + mpTask.getUID() + 
+	    " has " + numParents + 
+	    " parents.");
+    }
+
+    Set parentsNotRepresentedInMPTask = new HashSet (parentDirectObjects);
+    parentsNotRepresentedInMPTask.removeAll (mpTaskDOVector);
+    if (!parentsNotRepresentedInMPTask.isEmpty()) {
+      for (Iterator iter = parentsNotRepresentedInMPTask.iterator(); iter.hasNext(); ) {
+	error (getName() + " - MPTask " + mpTask.getUID() + 
+	       " d.o. is missing parent's d.o. " + iter.next());
+      }
+    }
+
+    if (false) { // this has excessive false positives
+      Set excessAssetsInMPTaskDO = new HashSet (mpTaskDOVector);
+      excessAssetsInMPTaskDO.removeAll (parentDirectObjects);
+      if (!excessAssetsInMPTaskDO.isEmpty()) {
+	for (Iterator iter = excessAssetsInMPTaskDO.iterator(); iter.hasNext(); ) {
+	  error (getName() + " - MPTask " + mpTask.getUID() + 
+		 " d.o. has extra asset that is not in any parent " + iter.next());
+	}
+      }
+    }
   }
 
   /** 
