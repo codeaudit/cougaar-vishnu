@@ -718,9 +718,7 @@ public class DataXMLize extends FormatXMLize {
 						 new Date (elem.getEndTime   ())));
       }
     } catch (Exception e) {}
-    finally {
-      return fieldElem;
-    }
+    return fieldElem;
   }
   
   protected Element createLittleInterval (Document doc, Date start, Date end) {
