@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedDecoder.java,v 1.1 2001-01-10 19:29:55 rwu Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedDecoder.java,v 1.2 2001-01-18 23:03:48 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -17,7 +17,7 @@ import java.util.Date;
 public class OrderedDecoder implements GADecoder {
 
   private static boolean timing = 
-    ("true".equals (System.getProperty ("org.cougaar.lib.vishnu.server.Scheduler.debug")));
+    ("true".equals (System.getProperty ("org.cougaar.lib.vishnu.server.timing")));
 
   boolean ignoringTime;
   boolean multitask;
@@ -127,7 +127,9 @@ public class OrderedDecoder implements GADecoder {
   long totaltime = 0;
 
   public void reportTiming () { 
-    System.out.println ("unavail # called " + visits + " times " + totaltime + " milliseconds");
+    if (timing)
+      System.out.println ("unavail # called " + visits + " times " +
+                          totaltime + " milliseconds");
   }
   
   

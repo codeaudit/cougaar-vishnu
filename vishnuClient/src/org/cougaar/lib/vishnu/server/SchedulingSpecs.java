@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingSpecs.java,v 1.1 2001-01-10 19:29:55 rwu Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingSpecs.java,v 1.2 2001-01-18 23:03:48 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -53,7 +53,7 @@ public class SchedulingSpecs {
   private static boolean debug = 
     ("true".equals (System.getProperty ("org.cougaar.lib.vishnu.server.debug")));
   private static boolean timing = 
-    ("true".equals (System.getProperty ("org.cougaar.lib.vishnu.server.Scheduler.debug")));
+    ("true".equals (System.getProperty ("org.cougaar.lib.vishnu.server.timing")));
 
   public SchedulingSpecs (TimeOps timeOps) {
     this.timeOps = timeOps;
@@ -210,10 +210,12 @@ public class SchedulingSpecs {
   long wdTotaltime = 0;
 
   public void reportTiming () { 
-    System.out.println ("wrapup # called " + wdVisits +
-                        " times " + wdTotaltime + " milliseconds");
-    System.out.println ("setup # called " + sdVisits +
-                        " times " + sdTotaltime + " milliseconds");
+    if (timing) {
+      System.out.println ("wrapup # called " + wdVisits +
+                          " times " + wdTotaltime + " milliseconds");
+      System.out.println ("setup # called " + sdVisits +
+                          " times " + sdTotaltime + " milliseconds");
+    }
   }
 
   public int setupDuration (Task task, Task previous, Resource resource) {

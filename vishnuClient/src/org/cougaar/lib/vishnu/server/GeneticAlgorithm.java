@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/GeneticAlgorithm.java,v 1.1 2001-01-10 19:29:55 rwu Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/GeneticAlgorithm.java,v 1.2 2001-01-18 23:03:48 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -168,6 +168,9 @@ public class GeneticAlgorithm {
           scheduler.ackProblem (percent, null))
         return true;
       reportTime = System.currentTimeMillis() + 1000 * ((long) reportInterval);
+      System.out.println ("After " + numEvals + " evaluations, best " +
+                          "score is " +
+                          ((Member) population.get(0)).evaluation);
     }
     return false;
   }
