@@ -59,13 +59,19 @@
     $value = mysql_fetch_array ($result);
     mysql_free_result ($result);
     echo "</td></tr><tr><td align=right>Object Type</td>\n<td>";
-    $isg = isgrouped ($problem);
-    multiplechoice ("objtype",
-                    array ($isg ? "grouped_tasks" : "task",
-                           $isg ? "grouped_setup" : "setup",
-                           $isg ? "grouped_wrapup" : "wrapup",
-                           "activity"),
-                    $value["obj_type"]);
+    $result = mysql_db_query ("vishnu_prob_" . $problem,
+                  "select multitasking, setup_display, " .
+                  "wrapup_display from constraints;");
+    $value = mysql_fetch_row ($result);
+    mysql_free_result ($result);
+    $isg = $value[0] == "grouped";
+    $arr = array ($isg ? "grouped_tasks" : "task");
+    if ($value[1] == "color")
+      $arr[] = $isg ? "grouped_setup" : "setup";
+    if ($value[2] == "color")
+      $arr[] = $isg ? "grouped_wrapup" : "wrapup";
+    $arr[] = "activity";
+    multiplechoice ("objtype", $arr, $value["obj_type"]);
     echo "</td></tr><tr><td align=right>" .
          "Description for legend</td>\n<td>";
     echo "<INPUT type=\"text\" size=30 maxlength=80 name=\"title\" " .

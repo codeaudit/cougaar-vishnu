@@ -48,6 +48,8 @@
                       $attribs["WRAPUP"] . "\", \"" .
                       $attribs["FROZEN"] . "\", \"" .
                       $attribs["COLOR"] . "\", \"" .
+                      $attribs["SETUPCOLOR"] . "\", \"" .
+                      $attribs["WRAPUPCOLOR"] . "\", \"" .
                       $attribs["TEXT"] . "\");");
     }
     else if ($name == "MULTITASK") {
@@ -86,6 +88,8 @@
                       $attribs["END"] . "\", \"" .
                       $attribs["WRAPUP"] . "\", \"" .
                       $attribs["COLOR"] . "\", \"" .
+                      $attribs["SETUPCOLOR"] . "\", \"" .
+                      $attribs["WRAPUPCOLOR"] . "\", \"" .
                       $attribs["TEXT"] . "\");");
     }
   }

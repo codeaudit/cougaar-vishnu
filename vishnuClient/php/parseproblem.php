@@ -275,6 +275,8 @@
                 "wrapup_time datetime not null, " .
                 "frozen enum (\"yes\", \"no\"), " .
                 "color varchar(255), " .
+                "setup_color varchar(255), " .
+                "wrapup_color varchar(255), " .
                 "text varchar(255));");
       do_query ("prob_" . $problem, "setting up", "", $problem,
                 "create table multitaskassignments (" .
@@ -287,6 +289,8 @@
                 "end_time datetime not null, " .
                 "wrapup_time datetime, " .
                 "color varchar(255), " .
+                "setup_color varchar(255), " .
+                "wrapup_color varchar(255), " .
                 "text varchar(255));");
       do_query ("prob_" . $problem, "setting up", "", $problem,
                 "create table activities (" .

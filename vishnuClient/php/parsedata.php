@@ -174,7 +174,7 @@
                   $attribs["START"] . "\", \"" .
                   $attribs["START"] . "\", \"" .
                   $attribs["END"] . "\", \"" .
-                  $attribs["END"] . "\", \"yes\", \"\", \"\");");
+                  $attribs["END"] . "\", \"yes\", \"\", \"\", \"\", \"\");");
       }
     }
     else if ($name == "UNFREEZE") {
