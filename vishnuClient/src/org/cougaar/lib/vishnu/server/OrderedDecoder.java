@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedDecoder.java,v 1.14 2001-07-03 18:05:32 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedDecoder.java,v 1.15 2001-07-03 20:50:55 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -30,7 +30,7 @@ public class OrderedDecoder implements GADecoder {
   TimeOps timeOps;
 
   public void generateAssignments (Chromosome chrom, SchedulingData data,
-                                   SchedulingSpecs specs) {
+                                   SchedulingSpecs specs, boolean explain) {
     timeOps = specs.getTimeOps();
     Resource[] r = data.getResources();
     ignoringTime = specs.ignoringTime();
@@ -64,15 +64,34 @@ public class OrderedDecoder implements GADecoder {
         }
         if (readyButUnable) {
           tasks.remove (i);
+          if (explain)
+            System.out.println ("Task " + task.getKey() + " not " +
+                 "scheduled because prerequisites not all scheduled");
           break;
         }
         Resource[] resources = specs.capableResources (task, data);
         Task[] linked = data.getLinkedTasks (task);
+        if (resources.length == 0) {
+          if (explain)
+            System.out.println ("Task " + task.getKey() + " not " +
+                 "scheduled because there were no capable resources");
+        }
         // if only one capable resource, just do assignment
-        if (resources.length == 1) {
-          if (resources[0].enoughCapacity (task.getCapacityContribs()) &&
-              (makeAssignment (task, resources[0], prereqs,
-                               specs, data, true, true, linked) != null)) {
+        else if (resources.length == 1) {
+          if (! resources[0].enoughCapacity (task.getCapacityContribs())) {
+            if (explain)
+              System.out.println ("Task " + task.getKey() + " not " +
+                 "scheduled on resource " + resources[0].getKey() +
+                 " because there was not enough capacity");
+          }
+          else if (makeAssignment (task, resources[0], prereqs,
+                               specs, data, true, true, linked) == null) {
+            if (explain)
+              System.out.println ("Task " + task.getKey() + " not " +
+                 "scheduled on resource " + resources[0].getKey() +
+                 " because there was no available time");
+          }
+          else {
             float delta = specs.evaluateSingleAssignment (task, resources[0]);
             if (delta != 0.0f)
               resources[0].addDelta (delta);
@@ -87,14 +106,24 @@ public class OrderedDecoder implements GADecoder {
           boolean computeUnavail = true;
           for (int j = 0; j < resources.length; j++) {
             Resource resource = resources[j];
-            if (! resource.enoughCapacity (task.getCapacityContribs()))
+            if (! resource.enoughCapacity (task.getCapacityContribs())) {
+              if (explain)
+                System.out.println ("Task " + task.getKey() + " not " +
+                   "scheduled on resource " + resource.getKey() +
+                   " because there was not enough capacity");
               continue;
+            }
             Resource.Block b =
               makeAssignment (task, resource, prereqs, specs,
                               data, false, computeUnavail, linked);
             computeUnavail = false;
-            if (b == null)
+            if (b == null) {
+              if (explain)
+                System.out.println ("Task " + task.getKey() + " not " +
+                   "scheduled on resource " + resource.getKey() +
+                   " because there was no available time");
               continue;
+            }
             float delta = specs.evaluateSingleAssignment (task, resource);
             if ((bestResource == null) ||
                 (specs.isMinimizing() && (delta < bestDelta)) ||

@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/GeneticAlgorithm.java,v 1.6 2001-04-12 17:50:30 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/GeneticAlgorithm.java,v 1.7 2001-07-03 20:50:55 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -55,6 +55,8 @@ public class GeneticAlgorithm {
 
   private static boolean debug = 
     ("true".equals (System.getProperty ("vishnu.Scheduler.debug")));
+  private static boolean explain = 
+    ("true".equals (System.getProperty ("vishnu.explain")));
 
   public static float getRandomFloat() {
     return random.nextFloat();
@@ -87,7 +89,7 @@ public class GeneticAlgorithm {
         continue;
       }
       data.clearAssignments();
-      decoder.generateAssignments (c, data, specs);
+      decoder.generateAssignments (c, data, specs, false);
       float val = specs.evaluate ();
       numEvals++;
       boolean isBest = insertNewIndividual (c, val);
@@ -108,10 +110,10 @@ public class GeneticAlgorithm {
       ((OrderedDecoder)decoder).reportTiming ();
     }
 
-    if (topDogAge != 0) {
+    if (explain || (topDogAge != 0)) {
       data.clearAssignments();
       decoder.generateAssignments (((Member) population.get(0)).chromosome,
-                                   data, specs);
+                                   data, specs, explain);
     }
     return false;
   }
