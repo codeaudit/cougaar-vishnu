@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Operator.java,v 1.3 2001-03-27 18:19:20 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Operator.java,v 1.4 2001-04-06 18:50:31 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -13,7 +13,29 @@ import java.util.ArrayList;
  * accessors.  These are the non-terminal nodes of the parse trees
  * for formulas/expressions.
  *
- * Copyright (C) 2000 BBN Technologies
+ * When adding a new function, there are certain steps that should be
+ * followed:
+ * (1) Define a new constant for this function whose value is equal to
+ *     NUM_OPS and set NUM_OPS to the next higher number.
+ * (2) In the method initOpStrings, set opStrings[<const>] = <name>,
+ *     numArgs[<const>] = <number of arguments>, and
+ *     opsScheduleDependent[<const>] = <whether the value of this function
+ *                             can be changed by changing the assignments>
+ * (3) In getResult, implement what the function does.
+ * (4) In getResultType, tell what type will be returned given particular
+ *     input types.
+ * (5) In argTypesLegal, check whether or not the given input types
+ *     are legal for this function.
+ * (6) If the function defines a new variable, in variablesUsed, tell
+ *     how many.
+ *
+ * <copyright>
+ *  Copyright 2000-2001 Defense Advanced Research Projects
+ *  Agency (DARPA) and ALPINE (a BBN Technologies (BBN) and
+ *  Raytheon Systems Company (RSC) Consortium).
+ *  This software to be used only in accordance with the
+ *  COUGAAR license agreement.
+ * </copyright>
  */
 
 public class Operator implements ResultProducer {

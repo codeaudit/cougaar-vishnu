@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingSpecs.java,v 1.8 2001-03-27 18:19:20 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingSpecs.java,v 1.9 2001-04-06 18:50:32 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -15,7 +15,13 @@ import java.awt.Color;
  * Stores and executes the different components of the scheduling
  * semantics.
  *
- * Copyright (C) 2000 BBN Technologies
+ * <copyright>
+ *  Copyright 2000-2001 Defense Advanced Research Projects
+ *  Agency (DARPA) and ALPINE (a BBN Technologies (BBN) and
+ *  Raytheon Systems Company (RSC) Consortium).
+ *  This software to be used only in accordance with the
+ *  COUGAAR license agreement.
+ * </copyright>
  */
 
 public class SchedulingSpecs {
@@ -67,8 +73,8 @@ public class SchedulingSpecs {
     data.put ("end_time", new Reusable.RInteger (sdata.getEndTime()));
     if (debug)
       System.out.println ("SchedulingSpecs.initializeData - Start time=" + 
-			  data.get ("start_time") + " end " + data.get ("end_time"));
-
+			  data.get ("start_time") + " end " +
+                          data.get ("end_time"));
     data.put ("tasks", new ArrayList (Arrays.asList (sdata.getTasks())));
     data.put ("resources",
               new ArrayList (Arrays.asList (sdata.getResources())));
@@ -154,13 +160,15 @@ public class SchedulingSpecs {
           if (isCapable (tasks[i], resources[j])) {
             capable.add (resources[j]);
 	    if (debug)
-	      System.out.println ("SchedulingSpecs.capableResources - " + resources[j] + 
-				  "(" + j + " of " + resources.length + ")" +
+	      System.out.println ("SchedulingSpecs.capableResources - " +
+                                  resources[j] + "(" + j + " of " +
+                                  resources.length + ")" +
 				  " is capable of doing " + tasks[i]);
 	  } else {
 	    if (debug)
-	      System.out.println ("SchedulingSpecs.capableResources - " + resources[j] + 
-				  "(" + j + " of " + resources.length + ")" +
+	      System.out.println ("SchedulingSpecs.capableResources - " +
+                                  resources[j] + "(" + j + " of " +
+                                  resources.length + ")" +
 				  " is NOT capable of doing " + tasks[i]);
 	  }
         }
@@ -707,6 +715,7 @@ public class SchedulingSpecs {
   }
 
 
+  /** Parses the XML representation of the specs */
   private class SpecsHandler extends DefaultHandler {
 
     private FastStack stack = new StackImpl();

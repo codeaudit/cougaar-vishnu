@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/ClientComms.java,v 1.7 2001-04-04 14:50:56 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/ClientComms.java,v 1.8 2001-04-06 18:50:31 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -17,9 +17,18 @@ import org.xml.sax.helpers.DefaultHandler;
 /**
  * Contains a bunch of utility routines to allow clients (scheduler,
  * expression compiler, and external clients such as the COUGAAR bridge)
- * to communicate with the web server
+ * to communicate with the web server.
  *
- * Copyright (C) 2000 BBN Technologies
+ * Everything is static.  Call initialize() before anything else.
+ * The three main methods are postToURL, readFromURL, and defaultArgs.
+ *
+ * <copyright>
+ *  Copyright 2000-2001 Defense Advanced Research Projects
+ *  Agency (DARPA) and ALPINE (a BBN Technologies (BBN) and
+ *  Raytheon Systems Company (RSC) Consortium).
+ *  This software to be used only in accordance with the
+ *  COUGAAR license agreement.
+ * </copyright>
  */
 
 public class ClientComms {

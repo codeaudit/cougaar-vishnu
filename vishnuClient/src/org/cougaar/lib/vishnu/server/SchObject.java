@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchObject.java,v 1.2 2001-03-27 18:19:20 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchObject.java,v 1.3 2001-04-06 18:50:32 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -12,7 +12,13 @@ import java.text.ParseException;
  * For any object (task, resource, or global), stores the mapping between
  * field name and value to allow look up of data in fields.
  *
- * Copyright (C) 2000 BBN Technologies
+ * <copyright>
+ *  Copyright 2000-2001 Defense Advanced Research Projects
+ *  Agency (DARPA) and ALPINE (a BBN Technologies (BBN) and
+ *  Raytheon Systems Company (RSC) Consortium).
+ *  This software to be used only in accordance with the
+ *  COUGAAR license agreement.
+ * </copyright>
  */
 
 public class SchObject {

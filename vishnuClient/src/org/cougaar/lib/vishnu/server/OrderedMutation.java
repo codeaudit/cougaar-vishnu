@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedMutation.java,v 1.2 2001-01-25 20:49:38 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedMutation.java,v 1.3 2001-04-06 18:50:31 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -6,9 +6,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * Mutation operator for ordered chromosome
+ * This is the mutation operator for ordered chromosome.
+ * It selects a subset of the positions and randomly shuffles them.
+ * The size of the subset is a random number with a uniform distribution
+ * between 2 and (maxToSwitch * size).
+ * Change the value of the single parameter maxToSwitch in order to control
+ * how large a mutation on average it creates.
+ * (Note: we generally have found setting it to its maximum value of 1
+ * to work best.)
  *
- * Copyright (C) 2000 BBN Technologies
+ * <copyright>
+ *  Copyright 2000-2001 Defense Advanced Research Projects
+ *  Agency (DARPA) and ALPINE (a BBN Technologies (BBN) and
+ *  Raytheon Systems Company (RSC) Consortium).
+ *  This software to be used only in accordance with the
+ *  COUGAAR license agreement.
+ * </copyright>
  */
 
 public class OrderedMutation implements GAOperator {

@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/GeneticAlgorithm.java,v 1.4 2001-03-27 18:19:19 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/GeneticAlgorithm.java,v 1.5 2001-04-06 18:50:31 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -13,8 +13,21 @@ import java.util.Random;
  * A simple genetic algorithm.
  * It was originally intended to be completely independent of the
  * scheduling code, but a few references leaked in.
+ * It implements a steady-state genetic algorithm with an exponential
+ * rank-based selection probability distribution.
+ * It allows the user to define the chromosome, genetic operators,
+ * initializer, and decoder by specifying class names in the
+ * XML parameters input.
+ * At regular intervals, it reports its progress and checks for
+ * cancellation of the run.
  *
- * Copyright (C) 2000 BBN Technologies
+ * <copyright>
+ *  Copyright 2000-2001 Defense Advanced Research Projects
+ *  Agency (DARPA) and ALPINE (a BBN Technologies (BBN) and
+ *  Raytheon Systems Company (RSC) Consortium).
+ *  This software to be used only in accordance with the
+ *  COUGAAR license agreement.
+ * </copyright>
  */
 
 public class GeneticAlgorithm {
@@ -89,7 +102,7 @@ public class GeneticAlgorithm {
       }
     }
     if (debug) {
-	reportTermination ();
+      reportTermination ();
       reportTime ("Did " + numEvals + " evals in ", start);
       System.out.println (getDifference ("Time per eval ",
                                          (new Date ().getTime () -
@@ -116,11 +129,10 @@ public class GeneticAlgorithm {
     Runtime rt = Runtime.getRuntime ();
     long min  = diff/60000l;
     long sec  = (diff - (min*60000l))/1000l;
-    return prefix +
-	  min + 
-	  ":" + ((sec < 10) ? "0":"") + sec + 
-	  " free "  + (rt.freeMemory  ()/(1024*1024)) + "M" +
-	  " total " + (rt.totalMemory ()/(1024*1024)) + "M";
+    return prefix + min + 
+          ":" + ((sec < 10) ? "0":"") + sec + 
+          " free "  + (rt.freeMemory  ()/(1024*1024)) + "M" +
+          " total " + (rt.totalMemory ()/(1024*1024)) + "M";
   }
 
   public DefaultHandler getXMLHandler() {
@@ -134,20 +146,29 @@ public class GeneticAlgorithm {
             (System.currentTimeMillis() > stopTime));
   }
 
-    private void reportTermination () {
-		System.out.println ("GeneticAlgorithm.execute - Terminated because " + 
-							((numEvals >= maxEvals) ? "numEvals (" + numEvals + ") >= maxEvals (" + maxEvals + ")" : "") +
-                            ((numDuplicates > maxDuplicates) ? "numDuplicates (" + numDuplicates + ") >= maxDuplicates (" + maxDuplicates + ")" : "") +
-							((topDogAge > maxTopDogAge)  ? "topDogAge (" + topDogAge + ") >= maxTopDogAge (" + maxTopDogAge + ")" : "") +
-							((System.currentTimeMillis() > stopTime) ? "currentTime (" + new Date () + ") >= stopTime (" + new Date(stopTime) + ")" : ""));
-			    
-		if (numDuplicates > maxDuplicates)
-		  System.out.println ("\t\nThis means that the problem is so small that\n" + 
-							  "the population contains all possible solutions,\n" + 
-							  "but the number of members in the population is less than the population size.\n" +
-							  "For more information, " + 
-							  "contact Gordon Vidaver (gvidaver@bbn.com) or Dave Montana (dmontana@bbn.com)");
-    }
+  private void reportTermination () {
+    System.out.println
+      ("GeneticAlgorithm.execute - Terminated because " + 
+       ((numEvals >= maxEvals) ?
+        "numEvals (" + numEvals + ") >= maxEvals (" + maxEvals + ")" : "") +
+       ((numDuplicates > maxDuplicates) ?
+        "numDuplicates (" + numDuplicates +
+        ") >= maxDuplicates (" + maxDuplicates + ")" : "") +
+       ((topDogAge > maxTopDogAge)  ?
+        "topDogAge (" + topDogAge + ") >= maxTopDogAge (" +
+        maxTopDogAge + ")" : "") +
+       ((System.currentTimeMillis() > stopTime) ?
+        "currentTime (" + new Date () + ") >= stopTime (" +
+        new Date(stopTime) + ")" : ""));
+    if (numDuplicates > maxDuplicates)
+      System.out.println
+        ("\t\nThis means that the problem is so small that\n" + 
+         "the population contains all possible solutions,\n" + 
+         "but the number of members in the population is less " +
+         "than the population size.\n" + "For more information, " + 
+         "contact Gordon Vidaver (gvidaver@bbn.com) or " +
+         "Dave Montana (dmontana@bbn.com)");
+  }
 
   private void resetCounts() {
     numEvals = 0;
@@ -281,6 +302,7 @@ public class GeneticAlgorithm {
     }
   }
 
+  /** Parses the parameters */
   private class ParmsHandler extends DefaultHandler {
 
     ArrayList ops = new ArrayList(4);

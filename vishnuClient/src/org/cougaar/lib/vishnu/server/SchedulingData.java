@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.10 2001-03-27 18:19:20 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.11 2001-04-06 18:50:32 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -17,10 +17,18 @@ import java.lang.Float;
  * in relation to the starttime.  So, perhaps unexpectedly, no matter
  * what WINDOW's starttime is set to, getStartTime will always return 0,
  * it seems.
+ * (Note from DJM: this is true only if the WINDOW tag is before
+ * the rest of the data.  The first time of any kind sets the base time.)
  *
  * Supports nested lists and objects.
  *
- * Copyright (C) 2000 BBN Technologies
+ * <copyright>
+ *  Copyright 2000-2001 Defense Advanced Research Projects
+ *  Agency (DARPA) and ALPINE (a BBN Technologies (BBN) and
+ *  Raytheon Systems Company (RSC) Consortium).
+ *  This software to be used only in accordance with the
+ *  COUGAAR license agreement.
+ * </copyright>
  */
 
 public class SchedulingData {

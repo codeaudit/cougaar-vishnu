@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Scheduler.java,v 1.10 2001-04-04 14:50:56 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Scheduler.java,v 1.11 2001-04-06 18:50:32 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -18,9 +18,27 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 /**
- * The main class for the reconfigurable scheduler
+ * This is the main class for the reconfigurable scheduler.
  *
- * Copyright (C) 2000 BBN Technologies
+ * The scheduler can run in two different modes.
+ * The primary mode is as a separate process.  In this mode, the
+ * scheduler pings a URL at regular intervals to see if there are
+ * any problems that need solving.  If so, it picks one of the
+ * problems and tells a URL which it has picked, reads all the data
+ * specifying the problem from URLs, executes the genetic algorithm,
+ * and writes the assignments of the best schedule back to another URL.
+ *
+ * In a second mode, the scheduler runs as part of another Java process.
+ * Invoking the method runInternalToProcess makes it execute and
+ * return the assignments as a string.
+ *
+ * <copyright>
+ *  Copyright 2000-2001 Defense Advanced Research Projects
+ *  Agency (DARPA) and ALPINE (a BBN Technologies (BBN) and
+ *  Raytheon Systems Company (RSC) Consortium).
+ *  This software to be used only in accordance with the
+ *  COUGAAR license agreement.
+ * </copyright>
  */
 
 public class Scheduler {
@@ -166,6 +184,7 @@ public class Scheduler {
 			 " total " + (rt.totalMemory ()/(1024*1024)) + "M");
   }
 
+  /** Write all the XML representation of assignments to a URL */
   private void writeSchedule() {
     Map args = getArgs();
     String str = textForSchedule();
@@ -176,6 +195,7 @@ public class Scheduler {
     ClientComms.postToURL (args, "postassignments.php");
   }
 
+  /** Compute the XML representation of assignments */
   private String textForSchedule () {
     Task[] tasks = data.getTasks();
     StringBuffer text = new StringBuffer (tasks.length * 200);

@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/TimeOps.java,v 1.2 2001-03-27 18:19:20 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/TimeOps.java,v 1.3 2001-04-06 18:50:32 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -8,9 +8,19 @@ import java.text.SimpleDateFormat;
  * Translates between string values of times and an internal representation
  * of time.  The internal representation stores a base time, which is
  * the first time encountered for a problem, and all times are the
- * number of seconds before or after this base time
+ * number of seconds before or after this base time.
+ * The purpose is to allow representation of times as ints rather
+ * than longs.
+ * This not only is more efficient computationally but also solved a
+ * bug we were encountering with Java and longs.
  *
- * Copyright (C) 2000 BBN Technologies
+ * <copyright>
+ *  Copyright 2000-2001 Defense Advanced Research Projects
+ *  Agency (DARPA) and ALPINE (a BBN Technologies (BBN) and
+ *  Raytheon Systems Company (RSC) Consortium).
+ *  This software to be used only in accordance with the
+ *  COUGAAR license agreement.
+ * </copyright>
  */
 
 public class TimeOps {
