@@ -693,6 +693,8 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
    * point the start and end time preferences have been set to the assigned 
    * times.
    * 
+   * Does not create excess aspect value arrays.
+   *
    * </pre>
    * @param a - the asset associated with the MPTask
    * @param g - parent task list
@@ -700,11 +702,24 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
    */
   protected Map getAspectValuesMap(List g, Date start, Date end) {
     Map taskToAspectValue = new HashMap ();
+    AspectValue [] timeOnlyAspects = null;
+    int i = 0;
     for (Iterator iter = g.iterator (); iter.hasNext (); ) {
       Task task = (Task) iter.next ();
-      taskToAspectValue.put (task, 
-			     makeAVsFromPrefs(UTILAllocate.enumToVector(task.getPreferences ()), start, end));
+      Vector preferences = UTILAllocate.enumToVector(task.getPreferences ());
+      // all the time-only preference items will share the same aspects
+      if (preferences.size () == 2) {
+	if (timeOnlyAspects == null)
+	  timeOnlyAspects = makeAVsFromPrefs(preferences, start, end);
+	taskToAspectValue.put (task, timeOnlyAspects);
+	i++;
+      }
+      else {
+	taskToAspectValue.put (task, 
+			       makeAVsFromPrefs(preferences, start, end));
+      }
     }
+
     return taskToAspectValue;
   }
 
