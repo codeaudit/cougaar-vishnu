@@ -57,9 +57,11 @@ import org.cougaar.lib.util.UTILAllocate;
 import org.cougaar.lib.util.UTILExpand;
 import org.cougaar.lib.util.UTILPreference;
 import org.cougaar.lib.util.UTILPrepPhrase;
+import org.cougaar.lib.vishnu.server.Scheduler;
 import org.cougaar.lib.vishnu.server.TimeOps;
 
 import org.cougaar.util.StringKey;
+import org.cougaar.util.UnaryPredicate;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -169,6 +171,8 @@ public abstract class VishnuPlugIn
 	xmlProcessor = createXMLProcessor ();
 	config  = createVishnuConfig ();
 
+	localDidRehydrate = blackboard.didRehydrate ();
+	
 	// helpful for debugging connection configuration problems
 	if (runInternal) {
 	  if (runDirectly) {
@@ -221,11 +225,15 @@ public abstract class VishnuPlugIn
   }
 
   protected SchedulerLifecycle createInternalMode () {
-	return new InternalMode (this, comm, xmlProcessor, domUtil, config, resultHandler, getMyParams ());
+	InternalMode mode = new InternalMode (this, comm, xmlProcessor, domUtil, config, resultHandler, getMyParams ());
+
+	return mode;
   }
 
   protected SchedulerLifecycle createDirectMode () {
-	return new DirectMode (this, comm, xmlProcessor, domUtil, config, resultHandler, getMyParams ());
+	DirectMode mode = new DirectMode (this, comm, xmlProcessor, domUtil, config, resultHandler, getMyParams ());
+
+	return mode;
   }
 
   protected XMLResultHandler createXMLResultHandler () {
@@ -235,6 +243,28 @@ public abstract class VishnuPlugIn
   protected DirectResultHandler createDirectResultHandler () {
 	return new DirectResultHandler (this, comm, xmlProcessor, domUtil, config, getMyParams ());
   }
+
+  /** anything you added with register, you will be informed about here upon rehydration */
+  /*
+  protected void rehydrateState (List stuff) {
+	if (myExtraOutput || true)
+	  System.out.println (getName () + ".rehydrateState - stuff has " + stuff.size () + " members.");
+	
+	myTaskUIDtoObject  = (Map) stuff.get (0);
+	myAssetUIDtoObject = (Map) stuff.get (0);
+
+	if (stuff.size () > 0) {
+	  ((InternalMode)mode).setScheduler ((Scheduler) stuff.get(0));
+	  if (myExtraOutput || true)
+		System.out.println (getName () + ".rehydrateState - set Scheduler on mode.");
+	}
+	
+	if (myExtraOutput || true)
+	  System.out.println (getName () + ".rehydrateState - myTaskUIDToObject is now " + myTaskUIDtoObject);
+	if (myExtraOutput || true)
+	  System.out.println (getName () + ".rehydrateState - myAssetUIDToObject is now " + myAssetUIDtoObject);
+  }
+  */
 
   public boolean getRunDirectly () {
 	return runDirectly;
@@ -370,6 +400,11 @@ public abstract class VishnuPlugIn
 	* @see org.cougaar.lib.vishnu.client.SchedulerLifecycle#handleRemovedTasks
 	*/
    protected void handleRemovedTasks(Enumeration removedTasks) {
+	 mode.setupScheduler ();
+
+	 if (useStoredFormat)
+	   initializeWithStoredFormat ();
+	 
 	 mode.handleRemovedTasks (removedTasks);
    }
 
@@ -408,12 +443,7 @@ public abstract class VishnuPlugIn
 
 	 if (useStoredFormat) {
 	   // only generate format the document once
-	   if (objectFormatDoc == null)
-		 objectFormatDoc = prepareStoredObjectFormat (tasks);
-	   if (!sentFormatAlready) {
-		 comm.serializeAndPostProblem (objectFormatDoc);
-		 mode.initializeWithFormat ();
-	   }
+	   initializeWithStoredFormat ();
 	 } else {
 	   if (!sentFormatAlready)
 		 prepareObjectFormat (tasks);
@@ -447,6 +477,16 @@ public abstract class VishnuPlugIn
 	   domUtil.reportTime (" - Vishnu did " + numTasks + " tasks in ", start);
    }
 
+  protected void initializeWithStoredFormat () {
+	// only generate format the document once
+	if (objectFormatDoc == null)
+	  objectFormatDoc = prepareStoredObjectFormat ();
+	if (!sentFormatAlready) {
+	  comm.serializeAndPostProblem (objectFormatDoc);
+	  mode.initializeWithFormat ();
+	}
+  }
+  
   /** 
    * Automatically generate object format from Cougaar input tasks (and assets). 
    * <p>
@@ -503,7 +543,7 @@ public abstract class VishnuPlugIn
 	*
 	* @param ignoredTasks does NOT use the input tasks to discover format
 	**/
-   protected Document prepareStoredObjectFormat (List ignoredTasks) {
+   protected Document prepareStoredObjectFormat () {
 	 Date start = new Date();
 
 	 Document formatDoc = null;
@@ -614,15 +654,25 @@ public abstract class VishnuPlugIn
    * @return Collection of assets to send to Vishnu
    */
   protected Collection getAllAssets() {
-	Collection collection = getAssetCallback().getSubscription ().getCollection();
-
 	if (!incrementalScheduling)
-	  return collection;
-	else {
-	  Set newAssetsCopy = new HashSet (myNewAssets);
-	  myNewAssets.clear ();
-	  return newAssetsCopy;
+	  return getAssetCallback().getSubscription ().getCollection();
+
+	if (blackboard.didRehydrate () || localDidRehydrate) {
+	  localDidRehydrate = false;
+	  
+	  if (myExtraOutput || true)
+		System.out.println(getName() + ".getAllAssets - getting all assets because of rehydration.");
+
+	  return getAssetCallback().getSubscription ().getCollection();
 	}
+	else {
+	  if (myExtraOutput || true)
+		System.out.println(getName() + ".getAllAssets - normal mode -- NOT rehydrating.");
+	}
+	
+	Set newAssetsCopy = new HashSet (myNewAssets);
+	myNewAssets.clear ();
+	return newAssetsCopy;
   }
 
   /**
@@ -759,7 +809,8 @@ public abstract class VishnuPlugIn
 
   /** implemented for ResultListener interface */
   public Task getTaskForKey (StringKey key) {
-	return (Task)  myTaskUIDtoObject.get (key);
+	Task task = (Task)  myTaskUIDtoObject.get (key);
+	return task;
   }
 
   /** implemented for ResultListener interface */
@@ -779,8 +830,36 @@ public abstract class VishnuPlugIn
 
   /** implemented for ResultListener interface */
   public Asset getAssetForKey (StringKey key) {
-	return (Asset)  myAssetUIDtoObject.get (key);
+	Asset asset = (Asset)  myAssetUIDtoObject.get (key);
+
+	return asset;
   }
+
+  /*
+  protected UniqueObject findUniqueObject (final StringKey uid) {
+	Thread.dumpStack ();
+	
+	Collection stuff = blackboard.query (new UnaryPredicate () {
+		public boolean execute (Object obj) {
+		  boolean isUnique = (obj instanceof UniqueObject);
+		  if (!isUnique) return false;
+
+		  boolean match = ((UniqueObject) obj).getUID ().toString().equals (uid.toString());
+
+		  System.out.println (getName () + ".findUniqueObject - Comparing uid " +
+							  ((UniqueObject) obj).getUID ().toString() + " with key " + uid + 
+							  ((match) ? " MATCH! " : " no match"));
+
+		  return match;
+		}
+	  });
+
+	if (stuff.isEmpty ())
+	  return null;
+	else
+	  return (UniqueObject) stuff.iterator().next();
+  }
+  */	  
 
   /**
    * Given a collection of impossible tasks, make failed disposition for each. 
@@ -1105,6 +1184,8 @@ public abstract class VishnuPlugIn
   /** object format doc, either generated or from a file */
   protected Document objectFormatDoc;
 
+  protected boolean localDidRehydrate = false;
+  
   /** total tasks received */
   protected int total = 0;
 

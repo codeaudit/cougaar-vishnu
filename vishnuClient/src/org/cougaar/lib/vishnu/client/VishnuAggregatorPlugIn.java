@@ -74,6 +74,7 @@ import java.text.SimpleDateFormat;
 import org.xml.sax.Attributes;
 
 import org.cougaar.util.StringKey;
+import org.cougaar.core.plugin.PluginBindingSite;
 
 /**
  * Aggregator version of ALP-Vishnu Bridge.
@@ -264,7 +265,13 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
 	  return false;
 	
 	Workflow wf = exp.getWorkflow();
-	Object firstTask = wf.getTasks().nextElement();
+	
+	Enumeration enum = wf.getTasks();
+	
+	Object firstTask = null;
+	
+	if (enum.hasMoreElements ())
+	  firstTask = enum.nextElement();
 	if (firstTask != null)
 	  return UTILPrepPhrase.hasPrepNamed ((Task)firstTask, "VISHNU"); 
 	else
@@ -524,7 +531,7 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
 													getPrepPhrasesForAgg(anAsset, tasklist),
 													getDirectObjectsForAgg(tasklist),
 													getPreferencesForAgg(anAsset, tasklist, start, end),
-													getClusterIdentifier(),
+													((PluginBindingSite) getBindingSite()).getAgentIdentifier(),
 													getAspectValuesMap(tasklist, start, end),
 													UTILAllocate.MEDIUM_CONFIDENCE);
 	if (myExtraOutput) UTILAggregate.setDebug (false);
