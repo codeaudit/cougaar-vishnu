@@ -44,7 +44,7 @@
 <TR><TD></TD></TR>
 <? } ?>
 <tr><td align=center>
-<a href="vishnu_description.html">Full Vishnu Documentation</a>
+<a href="fulldoc.php">Full Vishnu Documentation</a>
 </td></tr>
 <TR><TD></TD></TR>
 <TR><TD></TD></TR>

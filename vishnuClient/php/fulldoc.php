@@ -420,6 +420,9 @@ When the fields within an object are themselves objects, chaining
 together accessors will
 access lower-level fields.  For example, resource.location.x will 
 access the x field of the location field of the variable resource.
+Global pointers act just like other fields in terms of chaining
+of accessors.
+
 <p><b>Operators</b> - There is a set of arithmetic operators 
 (+, -, *, /) that add / subtract / multiply / divide two numbers.  
 Addition can also add a datetime
@@ -908,6 +911,14 @@ mod</TD>
 Remainder when dividing the first argument by the second argument</TD>
 </TR>
 <TR><TD style='padding:0in 5.4pt 0in 5.4pt' WIDTH=90 VALIGN="TOP">
+abs</TD>
+<TD style='padding:0in 5.4pt 0in 5.4pt' WIDTH=180 VALIGN="TOP">
+(number)
+=&gt; number</TD>
+<TD style='padding:0in 5.4pt 0in 5.4pt' WIDTH=320 VALIGN="TOP">
+Absolute value of a number</TD>
+</TR>
+<TR><TD style='padding:0in 5.4pt 0in 5.4pt' WIDTH=90 VALIGN="TOP">
 max</TD>
 <TD style='padding:0in 5.4pt 0in 5.4pt' WIDTH=180 VALIGN="TOP">
 (number, &lt;number&gt;<I>, …</I>)
@@ -926,6 +937,24 @@ min</TD>
 =&gt; datetime</TD>
 <TD style='padding:0in 5.4pt 0in 5.4pt' WIDTH=320 VALIGN="TOP">
 Minimum value of arguments</TD>
+</TR>
+<TR><TD style='padding:0in 5.4pt 0in 5.4pt' WIDTH=90 VALIGN="TOP">
+string</TD>
+<TD style='padding:0in 5.4pt 0in 5.4pt' WIDTH=180 VALIGN="TOP">
+(<I>type</I>)
+=&gt; string</TD>
+<TD style='padding:0in 5.4pt 0in 5.4pt' WIDTH=320 VALIGN="TOP">
+Convert any object into a string</TD>
+</TR>
+<TR><TD style='padding:0in 5.4pt 0in 5.4pt' WIDTH=90 VALIGN="TOP">
+append</TD>
+<TD style='padding:0in 5.4pt 0in 5.4pt' WIDTH=180 VALIGN="TOP">
+(string, string)
+=&gt; string  <B>or
+</B><br>(list, list)
+=&gt; list</TD>
+<TD style='padding:0in 5.4pt 0in 5.4pt' WIDTH=320 VALIGN="TOP">
+Appends two strings/lists into a longer string/list</TD>
 </TR>
 <TR><TD style='padding:0in 5.4pt 0in 5.4pt' WIDTH=90 VALIGN="TOP">
 list</TD>
@@ -956,6 +985,23 @@ length</TD>
 (list) =&gt; number</TD>
 <TD style='padding:0in 5.4pt 0in 5.4pt' WIDTH=320 VALIGN="TOP">
 Returns the length of a list</TD>
+</TR>
+<TR><TD style='padding:0in 5.4pt 0in 5.4pt' WIDTH=90 VALIGN="TOP">
+find</TD>
+<TD style='padding:0in 5.4pt 0in 5.4pt' WIDTH=180 VALIGN="TOP">
+(list, string, boolean) =&gt; <i>type</i></TD>
+<TD style='padding:0in 5.4pt 0in 5.4pt' WIDTH=320 VALIGN="TOP">
+Returns the first element in the list such that when the variable named
+by the second argument is set to this element the boolean expression
+given by the third argument is true</TD>
+</TR>
+<TR><TD style='padding:0in 5.4pt 0in 5.4pt' WIDTH=90 VALIGN="TOP">
+position</TD>
+<TD style='padding:0in 5.4pt 0in 5.4pt' WIDTH=180 VALIGN="TOP">
+(list, <i>type</i>) =&gt; number</TD>
+<TD style='padding:0in 5.4pt 0in 5.4pt' WIDTH=320 VALIGN="TOP">
+Returns the first position in the list (with the first element being 1)
+of the given element</TD>
 </TR>
 <TR><TD style='padding:0in 5.4pt 0in 5.4pt' WIDTH=90 VALIGN="TOP">
 mapover</TD>
@@ -1082,6 +1128,13 @@ resourcefor</TD>
 (task) =&gt; resource</TD>
 <TD style='padding:0in 5.4pt 0in 5.4pt' WIDTH=320 VALIGN="TOP">
 Returns the resource assigned to a task, or null if not yet assigned</TD>
+</TR>
+<TR><TD style='padding:0in 5.4pt 0in 5.4pt' WIDTH=90 VALIGN="TOP">
+tasksfor</TD>
+<TD style='padding:0in 5.4pt 0in 5.4pt' WIDTH=180 VALIGN="TOP">
+(resource) =&gt; list</TD>
+<TD style='padding:0in 5.4pt 0in 5.4pt' WIDTH=320 VALIGN="TOP">
+Returns the list of tasks assigned to this resource</TD>
 </TR>
 <TR><TD style='padding:0in 5.4pt 0in 5.4pt' WIDTH=90 VALIGN="TOP">
 complete</TD>
