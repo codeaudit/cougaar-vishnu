@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Scheduler.java,v 1.11 2001-04-06 18:50:32 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Scheduler.java,v 1.12 2001-04-10 17:45:07 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -156,8 +156,14 @@ public class Scheduler {
 
         start = new Date();
         if ((error == null) && (! canceled)) {
-          writeSchedule();
-	  writeCapacities();
+          try {
+            writeSchedule();
+	    writeCapacities();
+          } catch (Exception e) {
+            System.err.println (e.getMessage());
+            e.printStackTrace();
+            error = e;
+          }
         }
         if (debug && (error == null)) reportTime ("Wrote schedule in ", start);
         ackProblem (100, error);
