@@ -567,9 +567,12 @@ public class SchedulingData {
 										" for object type " + objectType);
 		  }
 		  else {
-			System.out.println ("SchedulingData.startElement - NOTE : found undefined field " +
-								fieldname + " for object type " + objectType + 
-								". Ignoring.");
+			if (debug)
+			  System.out.println ("SchedulingData.startElement - NOTE : found undefined field " +
+								  fieldname + " for object type " + objectType + 
+								  ". Ignoring.");
+			prefixes.push (prefix);
+			return;
 		  }
 		}
 		
