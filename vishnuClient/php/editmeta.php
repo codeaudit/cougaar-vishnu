@@ -340,4 +340,68 @@
 
     echo "</DIV>";
   }
+
+  function hintsForPage () {
+    global $object, $action;
+    if ($action == "View") {
+?>
+The "view" option does not allow any actions to be taken.
+<?
+    } else if ($action == "Create") {
+?>
+To create a new object type, you must first select a valid name
+for the object.  A name is valid if
+<ul>
+<li> it is different from all other object names
+<li> it starts with an alphabetic character
+<li> all characters in the name are either alphabetic, numeric, or '_'
+</ul>
+<p>
+You must then decide whether the object type is the task type, the
+object type, or neither.  You need to define exactly one task
+type and one resource type per problem.  If you try to define a
+second task type or resource type, you will receive an error.
+<p>
+If it is a task or resource type, you will need to select the
+name of the field that will be the string that serves as the
+unique identifier for objects of this type.  It will automatically
+define a field of this name in the object.
+<?
+    } else {
+?>
+There are generally four options when editing an object, although
+only those options that are available at the time will be
+presented to the user.  (For example, if there are no fields yet in
+the object, then there are no fields to rename and hence the
+"Rename Field" option will not display.)
+These options are:
+<ul>
+<li><b>Add Field</b> adds a new field with the
+specified name of the specified type.
+<li><b>Delete Field</b> deletes the field with the specified name
+from the object type (and deletes this field from all existing objects
+of this type).
+<li><b>Rename Field</b> changes the name of the specified field.
+<li><b>Change Field</b> changes the data type of the specified field
+(and makes its best attempt to change the data type of existing
+objects accordingly).
+</ul>
+<p>
+For all the options, the following rules apply.  A field name is valid if
+<ul>
+<li> it is different from all other field names in the same object
+<li> it starts with an alphabetic character
+<li> all characters in the name are either alphabetic, numeric, or '_'
+</ul>
+The field type is selected from
+a pick list of all atomic data types (string, number, datetime,
+boolean), predefined object types (interval, latlong, xy_coord, matrix),
+and all user-defined object types that are not either the task type
+or the resource type.  If the "List" option is selected, then the
+data type is a list of objects of the specified type.  If the
+"Global Ptr" option is selected, then the data type is a reference
+to a global data object of the specified type.
+<?
+    }
+  }
 ?>
