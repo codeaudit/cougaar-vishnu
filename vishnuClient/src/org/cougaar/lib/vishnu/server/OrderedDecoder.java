@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedDecoder.java,v 1.4 2001-01-29 14:46:05 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedDecoder.java,v 1.5 2001-01-29 14:57:24 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -259,6 +259,26 @@ public class OrderedDecoder implements GADecoder {
     return bestTime;
   }
 
+  private int findLatestTime (Task task, int notAfter,
+                              SchedulingData data, SchedulingSpecs specs) {
+    Resource[] resources = specs.capableResources (task, data);
+    Task[] prereqs = new Task[0];
+    int bestTime = Integer.MIN_VALUE;
+    for (int i = 0; i < resources.length; i++) {
+      Resource resource = resources[i];
+      int dur = specs.taskDuration (task, resource, i == 0);
+      TimeBlock[] unavail = specs.taskUnavailableTimes
+        (task, prereqs, data.getStartTime(), data.getEndTime(),
+         resource, i == 0);
+      Resource.Block block = resource.latestAvailableBlock
+        (task, dur, unavail, specs, multitask, grouped,
+         notAfter + dur, data.getEndTime());
+      if (block.end > bestTime)
+        bestTime = block.end;
+    }
+    return bestTime;
+  }
+
   private void assignAtTime (Task task, int time,
                              SchedulingData data, SchedulingSpecs specs) {
     Resource[] resources = specs.capableResources (task, data);
@@ -288,7 +308,8 @@ public class OrderedDecoder implements GADecoder {
         removeAssignment (task, resource);
       }
     }
-    makeAssignment2 (task, bestResource, bestBlock, true, false);
+    if (bestResource != null)
+      makeAssignment2 (task, bestResource, bestBlock, true, false);
   }
 
   public void setParms (String parms) {
