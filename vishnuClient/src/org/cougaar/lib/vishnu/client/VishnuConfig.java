@@ -40,6 +40,7 @@ public class VishnuConfig {
   private static String GA_SUFFIX = ".ga.xml";
   private static String OTHER_FORMAT_SUFFIX = ".odf.xml";
   private static String OTHER_DATA_SUFFIX = ".odd.xml";
+  private static String DFF_SUFFIX = ".dff.xml";
 
   public VishnuConfig (ParamMap myParamTable, String pluginName, String clusterName) {
 	this.myParamTable = myParamTable;
@@ -266,6 +267,10 @@ public class VishnuConfig {
 	return getNeededFile ("gaFile", GA_SUFFIX);
   }
 
+  protected String getFormatFile () {
+	return getNeededFile ("defaultFormat", DFF_SUFFIX);
+  }
+
   /**
    * <pre>
    * Get file name for input file.  If the parameter exists, use it,
@@ -281,7 +286,8 @@ public class VishnuConfig {
     try {
 	  envFile = getMyParams().getStringParam (paramName);
 	  if (myExtraOutput)
-		System.out.println ("VishnuConfig.getNeededFile - envFile = " + envFile);
+		System.out.println ("VishnuConfig.getNeededFile - envFile = " + envFile + 
+				    " - paramName - " + paramName);
     } 
     catch (Exception pe) { // no parameter, try default
 	  envFile = getClusterName () + defaultSuffix;

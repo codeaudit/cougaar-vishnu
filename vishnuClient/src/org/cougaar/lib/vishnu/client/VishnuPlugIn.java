@@ -128,7 +128,7 @@ public abstract class VishnuPlugIn
     super.localSetup();
 
 	String hostName;
-	
+
     try {hostName = getMyParams().getStringParam("hostName");}    
     catch(Exception e) {hostName = "dante.bbn.com";}
 
@@ -511,7 +511,7 @@ public abstract class VishnuPlugIn
 	 try {
 	   xmlProcessor.createDataXMLizer (null, null);
 
-	   String defaultFormat = config.getNeededFile ("defaultFormat", ".dff.xml");
+	   String defaultFormat = config.getFormatFile ();
 
 	   if (myExtraOutput)
 		 System.out.println (getName () + ".prepareStoredObjectFormat - sending format file " + defaultFormat);
@@ -663,6 +663,7 @@ public abstract class VishnuPlugIn
 
 	// send to postdata URL
 	comm.serializeAndPostProblem (problemFormatDoc);
+	mode.initializeWithFormat ();
 
     return nameInfo;
   }
