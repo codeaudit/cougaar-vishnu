@@ -34,28 +34,35 @@ import org.cougaar.domain.planning.ldm.plan.TaskScoreTable;
 
 import org.cougaar.domain.glm.ldm.Constants;
 
-/** Does the right computation for workflows which are made up of
-   * equally important tasks with no inter-task constraints.
-   * START_TIME is minimized.
-   * END_TIME is maximized.
-   * DURATION is overall END_TIME - overall START_TIME.
-   * COST is summed.
-   * DANGER is maximized.
-   * RISK is maximized.
-   * QUANTITY is summed.
-   * INTERVAL is summed.
-   * TOTAL_QUANTITY is summed.
-   * TOTAL_SHIPMENTS is summed.
-   * CUSTOMER_SATISFACTION is averaged.
-   * Any extended aspect types are ignored.
-   * 
-   * For AuxiliaryQuery information, if all the query values are the same
-   * across subtasks or one subtask has query info it will be place in the 
-   * aggregate result.  However, if there are conflicting query values, no
-   * information will be put in the aggregated result.
-   * 
-   * returns null when there are no subtasks or any task has no result.
-   **/
+/** 
+ * <pre>
+ * Must be a special allocation result aggregator that does NOT include the transit (setup, wrapup) tasks
+ * in it's time calculations.
+ *
+ * Does the right computation for workflows which are made up of
+ * equally important tasks with no inter-task constraints.
+ * START_TIME is minimized.
+ * END_TIME is maximized.
+ * DURATION is overall END_TIME - overall START_TIME.
+ * COST is summed.
+ * DANGER is maximized.
+ * RISK is maximized.
+ * QUANTITY is summed.
+ * INTERVAL is summed.
+ * TOTAL_QUANTITY is summed.
+ * TOTAL_SHIPMENTS is summed.
+ * CUSTOMER_SATISFACTION is averaged.
+ * Any extended aspect types are ignored.
+ * 
+ * For AuxiliaryQuery information, if all the query values are the same
+ * across subtasks or one subtask has query info it will be place in the 
+ * aggregate result.  However, if there are conflicting query values, no
+ * information will be put in the aggregated result.
+ * 
+ * returns null when there are no subtasks or any task has no result.
+ *
+ * </pre>
+ **/
 public class VishnuAllocationResultAggregator implements AllocationResultAggregator, Serializable {
 
   static final int[] _UTIL_ASPECTS = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14};

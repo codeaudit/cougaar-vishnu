@@ -1,12 +1,5 @@
 package org.cougaar.lib.vishnu.client;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.IOException;
-import java.io.StringReader;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
@@ -17,10 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import org.apache.xerces.dom.DocumentImpl;
-import org.apache.xerces.parsers.DOMParser;
-import org.apache.xerces.parsers.SAXParser;
-
 import org.cougaar.domain.planning.ldm.asset.Asset;
 import org.cougaar.domain.planning.ldm.plan.Task;
 import org.cougaar.lib.param.ParamMap;
@@ -30,10 +19,13 @@ import org.w3c.dom.Document;
 
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.Attributes;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-public class XMLResultHandler extends PlugInHelper {
+/** 
+ * Takes XML results returned from the scheduler and calls methods on the result listener 
+ * to create plan elements 
+ */
+public class XMLResultHandler extends PlugInHelper implements ResultHandler {
   public XMLResultHandler (ModeListener parent, VishnuComm comm, XMLProcessor xmlProcessor, 
 						   VishnuDomUtil domUtil, VishnuConfig config,
 						   ParamMap myParamTable) {
@@ -73,7 +65,7 @@ public class XMLResultHandler extends PlugInHelper {
 						  (unhandledTasks-parent.getNumTasks()) + " tasks.");
   }
 
-  public DefaultHandler getHandler () {
+  public DefaultHandler getAssignmentHandler () {
 	return new AssignmentHandler ();
   }
   
