@@ -21,6 +21,7 @@
 package org.cougaar.lib.vishnu.client.custom;
 
 import org.cougaar.glm.ldm.plan.GeolocLocation;
+import org.cougaar.glm.ldm.plan.Position;
 
 import org.cougaar.planning.ldm.asset.Asset;
 import java.util.Date;
@@ -64,6 +65,9 @@ public interface DataHelper {
    */
   void createField (Object parent, String parentType, String name, String value);
 
+  Object startList (Object object, String name);
+  void addListValue (Object parent, String fieldName, String type, Object toAppend);
+
   /** shortcut to create a date field on <code>parent</code> */
   void createDateField    (Object parent, String name, Date date);
 
@@ -75,6 +79,9 @@ public interface DataHelper {
 
   /** Adds a latlong object to the parent object, and adds the geoloc object to the parent. */
   void createGeoloc (Object parent, String parentFieldName, GeolocLocation loc);
+
+  /** Adds a latlong object to the parent object */
+  void createLatLon (Object parent, String parentFieldName, Position loc);
 
   /** 
    * Translate TimeSpans(PlanElements) in the role schedule into 

@@ -20,7 +20,7 @@
  */
 package org.cougaar.lib.vishnu.client.custom;
 
-import com.bbn.vishnu.objects.SchedulingData;
+import com.bbn.vishnu.scheduling.SchedulingData;
 
 import java.util.Collection;
 import java.util.List;

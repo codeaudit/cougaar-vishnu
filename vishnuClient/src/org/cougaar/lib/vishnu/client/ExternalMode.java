@@ -189,10 +189,22 @@ public class ExternalMode extends PluginHelper implements SchedulerLifecycle {
    */
   public void handleRemovedTasks(Enumeration removedTasks) {
     if (incrementalScheduling) {
-      Document docToSend = xmlProcessor.prepareRescind(removedTasks);
+      Document docToSend = xmlProcessor.prepareRescind(removedTasks, parent.getTaskName());
       comm.serializeAndPostData (docToSend);
     }
   }
+
+  public void unfreezeTasks(Collection tasks) {
+    if (incrementalScheduling) {
+      Document docToSend = xmlProcessor.prepareUnfreeze(tasks);
+      comm.serializeAndPostData (docToSend);
+    }
+  }
+
+  public Collection getTaskKeys () { 
+    logger.error ("ExternalMode.getTaskKeys - not implemented.");
+    return null; 
+  } 
 
   /** 
    * Run externally.  
@@ -251,6 +263,15 @@ public class ExternalMode extends PluginHelper implements SchedulerLifecycle {
   /** name of this object */
   protected String getName () { return "ExternalMode"; }
   
+  /** queries the scheduler to get a full specification of the problem
+   *   (including specs, logic, gaspecs, objects, assignments, etc)
+   *
+   * placeholder in external mode (for now)
+   */
+  public String dumpToXML() {
+      return "";
+  }
+
   Map myNameToDescrip;
   String singleAssetClassName;
   boolean alwaysClearDatabase;

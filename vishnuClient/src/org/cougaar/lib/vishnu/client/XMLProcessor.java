@@ -877,7 +877,7 @@ public class XMLProcessor {
     return doc;
   }
 
-  public Document prepareRescind(Enumeration removedTasks) {
+  public Document prepareRescind(Enumeration removedTasks, String verb) {
     Document doc = new DocumentImpl();
     Element newRoot = doc.createElement("PROBLEM");
     newRoot.setAttribute ("NAME", comm.getProblem ());
@@ -896,16 +896,16 @@ public class XMLProcessor {
     while (removedTasks.hasMoreElements()) {
       Task t = (Task) removedTasks.nextElement();
 
-      Element unfreeze = doc.createElement("UNFREEZE");
-      unfreeze.setAttribute ("task", t.getUID ().toString());
+      //      Element unfreeze = doc.createElement("UNFREEZE");
+      //      unfreeze.setAttribute ("task", t.getUID ().toString());
 
       if (logger.isDebugEnabled())
 	logger.debug ("XMLProcessor.prepareRescind - telling scheduler to forget " + t.getUID ());
 
-      newRoot.appendChild (unfreeze);
+      //      newRoot.appendChild (unfreeze);
 
       Element obj = doc.createElement("OBJECT");
-      obj.setAttribute ("type", "Transport");
+      obj.setAttribute ("type", verb);
       
       Element elem = doc.createElement("FIELD");
       elem.setAttribute ("name",  "id");
@@ -914,6 +914,27 @@ public class XMLProcessor {
       deletedobjects.appendChild (obj);
     }
     newRoot.appendChild(df);
+
+    return doc;
+  }
+
+  public Document prepareUnfreeze(Collection unfreezeTasks) {
+    Document doc = new DocumentImpl();
+    Element newRoot = doc.createElement("PROBLEM");
+    newRoot.setAttribute ("NAME", comm.getProblem ());
+    doc.appendChild(newRoot);
+    
+    for (Iterator iter = unfreezeTasks.iterator(); iter.hasNext();) {
+      Task t = (Task) iter.next();
+
+      Element unfreeze = doc.createElement("UNFREEZE");
+      unfreeze.setAttribute ("task", t.getUID ().toString());
+
+      if (logger.isDebugEnabled())
+	logger.debug ("XMLProcessor.prepareUnfreeze - telling scheduler to unfreeze " + t.getUID ());
+
+      newRoot.appendChild (unfreeze);
+    }
 
     return doc;
   }

@@ -28,9 +28,14 @@ import java.util.Vector;
 import org.cougaar.planning.ldm.asset.Asset;
 
 import org.cougaar.planning.ldm.plan.Allocation;
+import org.cougaar.planning.ldm.plan.AspectType;
+import org.cougaar.planning.ldm.plan.AspectValue;
 import org.cougaar.planning.ldm.plan.PlanElement;
 import org.cougaar.planning.ldm.plan.Role;
 import org.cougaar.planning.ldm.plan.Task;
+import org.cougaar.planning.ldm.plan.NewTask;
+
+import org.cougaar.glm.ldm.Constants;
 
 import org.cougaar.lib.callback.UTILAllocationCallback;
 import org.cougaar.lib.callback.UTILFilterCallback;
@@ -295,13 +300,21 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
    * @param setupStart start of a setup task, equal to start if there is no setup task
    * @param wrapupEnd  end   of a wrapup task, equal to end if there is no wrapup task
    **/
-  public void handleAssignment (Task task, Asset asset, Date start, Date end, Date setupStart, Date wrapupEnd) {
+  public void handleAssignment (org.cougaar.planning.ldm.plan.Task task, Asset asset, 
+				Date start, Date end, Date setupStart, Date wrapupEnd, String contribs, String taskText) {
+    if (isDebugEnabled())
+      debug ("got here with " + task + " and asset " + asset + " with contribs " + contribs + " and taskText " + taskText);
+
     if (isDebugEnabled())
       debug ("VishnuAllocatorPlugin.makePlanElement : " + 
 	     " assigning " + task.getUID() + 
 	     "\nto " + asset.getUID () +
 	     " from " + start + 
 	     " to " + end);
+
+    double quantity = -1;
+    try { quantity = Double.parseDouble (contribs); }
+    catch (Exception e) { info ("Could not parse <" + contribs + "> as double."); }
 
     if (makeSetupAndWrapupTasks && 
 	((setupStart.getTime() < start.getTime()) ||
@@ -310,18 +323,19 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
 	  
       for (Iterator iter = subtasks.iterator(); iter.hasNext(); ) {
 	Task subtask = (Task) iter.next();
+
 	createAllocation (subtask, asset, 
 			  prefHelper.getReadyAt (subtask), 
 			  prefHelper.getBestDate (subtask), 
 			  getConfidence (asset),
-			  getRole());
+			  getRole(),  quantity);
       }
     } else {
       createAllocation (task, asset, 
 			start,
 			end,
 			getConfidence (asset),
-			getRole());
+			getRole(),  quantity);
     }
   }
 
@@ -366,12 +380,24 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
 					  Date start,
 					  Date end,
 					  double confidence,
-					  Role role) {
+					  Role role, double quantity) {
+    AspectValue[] aspects;
+
+    if (prefHelper.hasPrefWithAspectType (task, AspectType.QUANTITY)) {
+      aspects = new AspectValue[3];
+      aspects[2] = AspectValue.newAspectValue (AspectType.QUANTITY,   quantity);
+    }
+    else {
+      aspects = new AspectValue[2];
+    }
+
+    aspects[0] = AspectValue.newAspectValue (AspectType.START_TIME, start.getTime ());
+    aspects[1] = AspectValue.newAspectValue (AspectType.END_TIME,   end.getTime ());
+
     PlanElement allocation = allocHelper.makeAllocation(this,
 							ldmf, realityPlan, 
 							task, asset,
-							start, 
-							end, 
+							aspects, 
 							confidence,
 							role);
 		

@@ -21,12 +21,12 @@
 package org.cougaar.lib.vishnu.client;
 
 import org.cougaar.lib.param.ParamMap;
-import com.bbn.vishnu.objects.Assignment;
-import com.bbn.vishnu.objects.MultitaskAssignment;
-import com.bbn.vishnu.objects.Resource;
+import com.bbn.vishnu.scheduling.Assignment;
+import com.bbn.vishnu.scheduling.MultitaskAssignment;
+import com.bbn.vishnu.scheduling.Resource;
 import com.bbn.vishnu.scheduling.Scheduler;
-import com.bbn.vishnu.objects.SchedulingData;
-import com.bbn.vishnu.objects.TimeOps;
+import com.bbn.vishnu.scheduling.SchedulingData;
+import com.bbn.vishnu.scheduling.TimeOps;
 import org.cougaar.util.StringKey;
 import org.cougaar.util.MutableTimeSpan;
 import org.cougaar.util.TimeSpan;
@@ -77,6 +77,14 @@ public class DirectResultHandler extends PluginHelper implements ResultHandler {
     try {debugParseAnswer = 
 	   getMyParams().getBooleanParam("debugParseAnswer");}    
     catch(Exception e) {debugParseAnswer = false;}
+
+    try {
+      if (getMyParams().hasParam("writeXMLToFile"))    
+	writeXMLToFile = 
+	  getMyParams().getBooleanParam("writeXMLToFile");    
+      else 
+	writeXMLToFile = false;
+    } catch (Exception e) {}
   }
   
   /** 
@@ -94,6 +102,13 @@ public class DirectResultHandler extends PluginHelper implements ResultHandler {
    * Asks the scheduler data for the list of tasks and resources.
    * Uses the time ops object to convert Vishnu time into ALP time.
    *
+   * WARNING WARNING WARNING WARNING WARNING WARNING 
+   *
+   * The multitask flag must be set to grouped if using a VishnuAggregator.
+   * If not, things won't work properly here.
+   *
+   * WARNING WARNING WARNING WARNING WARNING WARNING 
+   *
    * </pre>
    * @see com.bbn.vishnu.scheduling.Scheduler#assignmentsMultitask
    * @see com.bbn.vishnu.scheduling.SchedulingData#getTasks
@@ -110,21 +125,35 @@ public class DirectResultHandler extends PluginHelper implements ResultHandler {
     // This shows how to extract the assignments after scheduling.
     // When sched.assignmentsMultitask() is true, the assignments
     // will actually be MultitaskAssignment objects instead.
+    StringBuffer buffer = new StringBuffer();
     if (! sched.assignmentsMultitask()) {
-      com.bbn.vishnu.objects.Task[] tasks = data.getTasks();
+      com.bbn.vishnu.scheduling.Task[] tasks = data.getTasks();
 
       for (int i = 0; i < tasks.length; i++) {
 	Assignment assign = tasks[i].getAssignment();
+
+	if (logger.isDebugEnabled())
+	  logger.debug ("Assign was " + assign);
+
 	if (assign != null) {
-	  com.bbn.vishnu.objects.Task task = assign.getTask();
+	  com.bbn.vishnu.scheduling.Task task = assign.getTask();
 	  Resource resource = assign.getResource();
 		 
+	  if (writeXMLToFile) {
+	    String assignXML = assign.toString(); // must repair since doesn't include task text
+	    assignXML = assignXML.replaceFirst ("text=\"\"", 
+						"text=\"" + sched.getSpecs().taskText(task) + "\"");
+	    buffer.append (assignXML);
+	  }
+
 	  parseAssignment (task.getKey(), 
 			   resource.getKey(),
 			   timeOps.timeToDate (assign.getTaskStartTime()),
 			   timeOps.timeToDate (assign.getTaskEndTime()),
 			   timeOps.timeToDate (assign.getStartTime()), // setup
-			   timeOps.timeToDate (assign.getEndTime()));  // wrapup
+			   timeOps.timeToDate (assign.getEndTime()), // wrapup
+			   assign.getContribString(),
+			   sched.getSpecs().taskText(task));  
 
 	  /*
 	  TimeSpanSet timeSpanSet;
@@ -200,8 +229,16 @@ public class DirectResultHandler extends PluginHelper implements ResultHandler {
       }
     } else {
       Resource[] resources = data.getResources();
+
+      if (logger.isDebugEnabled()) 
+	logger.debug (getName () + " scanning " + resources.length + " resources.");
+
       for (int i = 0; i < resources.length; i++) {
         MultitaskAssignment[] multi = resources[i].getMultitaskAssignments();
+	if (multi.length == 0) {
+	  if (logger.isDebugEnabled()) 
+	    logger.debug (getName () + " huh? " + resources[i] + " had no assignments?");
+	}
 	if (multi.length > 0) {
 	  if (logger.isDebugEnabled()) 
 	    logger.debug (getName () + " for resource " + resources[i].getKey() +
@@ -217,7 +254,7 @@ public class DirectResultHandler extends PluginHelper implements ResultHandler {
 			    " multi assign #" + j + " had " +multi[j].getTasks().size() + " tasks");
 			
 	    for (Iterator iter = multi[j].getTasks().iterator(); iter.hasNext(); ) {
-	      com.bbn.vishnu.objects.Task vishnuTask = (com.bbn.vishnu.objects.Task) iter.next();
+	      com.bbn.vishnu.scheduling.Task vishnuTask = (com.bbn.vishnu.scheduling.Task) iter.next();
 	      Task task = getTaskFromAssignment(vishnuTask.getKey());
 	      if (task != null) 
 		tasks.add (task);
@@ -330,6 +367,9 @@ public class DirectResultHandler extends PluginHelper implements ResultHandler {
       }
     } 
 
+    if (writeXMLToFile)
+      comm.writeBufferToFile ("assignment", buffer.toString());
+
     if (showTiming)
       domUtil.reportTime (".directlyHandleAssignments - parsed assignments in ", start);
   }
@@ -348,7 +388,7 @@ public class DirectResultHandler extends PluginHelper implements ResultHandler {
    * @see VishnuAllocatorPlugin#handleAssignment
    */
   protected void parseAssignment (String task, String resource, Date assignedStart, Date assignedEnd, 
-				  Date assignedSetup, Date assignedWrapup) {
+				  Date assignedSetup, Date assignedWrapup, String contribs, String taskText) {
     if (debugParseAnswer)
       logger.debug ("Assignment: "+
 			  "\ntask     = " + task +
@@ -356,13 +396,18 @@ public class DirectResultHandler extends PluginHelper implements ResultHandler {
 			  "\nsetup    = " + assignedSetup +
 			  "\nstart    = " + assignedStart +
 			  "\nend      = " + assignedEnd +
-			  "\nwrapup   = " + assignedWrapup);
+			  "\nwrapup   = " + assignedWrapup +
+                          "\ncontribs = " + contribs +
+                          "\ntask-text = " + taskText);
 
     Task handledTask    = getTaskFromAssignment (task);
     Asset assignedAsset = getAssignedAsset (resource);
 
-    if (handledTask != null)
-      resultListener.handleAssignment (handledTask, assignedAsset, assignedStart, assignedEnd, assignedSetup, assignedWrapup);
+    if (handledTask != null) {
+      resultListener.handleAssignment (handledTask, assignedAsset, assignedStart, assignedEnd, assignedSetup, assignedWrapup, contribs, taskText);
+    }
+    else 
+      logger.warn (getName() + ".parseAssignment - handledTask was null?");
   }
   
   /** 
@@ -398,7 +443,7 @@ public class DirectResultHandler extends PluginHelper implements ResultHandler {
   protected Asset getAssignedAsset (String resource) {
     Asset assignedAsset = resultListener.getAssetForKey (new StringKey (resource));
     if (assignedAsset == null) 
-      logger.debug (getName() + ".parseMultiAssignment - ERROR - no asset found with " + resource);
+      logger.warn (getName() + ".parseMultiAssignment - ERROR - no asset found with " + resource);
     return assignedAsset;
   }
 
@@ -406,4 +451,6 @@ public class DirectResultHandler extends PluginHelper implements ResultHandler {
 
   protected boolean debugParseAnswer = false;
   ResultListener resultListener;
+  /** parameter -- write xml to a file */
+  protected boolean writeXMLToFile = false;
 }
