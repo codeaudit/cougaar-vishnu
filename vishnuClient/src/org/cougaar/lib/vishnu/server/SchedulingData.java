@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.32 2001-08-15 21:41:44 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.33 2001-08-15 22:36:55 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -51,7 +51,6 @@ public class SchedulingData {
   private int startTime;
   private int endTime = Integer.MAX_VALUE;
   private TimeOps timeOps;
-  private GroupingInfo groupingInfo = new GroupingInfo ();
 
   public static boolean debug = 
     ("true".equals (System.getProperty ("vishnu.debug")));
@@ -64,10 +63,6 @@ public class SchedulingData {
 
   public TimeOps getTimeOps () {
 	return timeOps;
-  }
-
-  public GroupingInfo getGroupingInfo () {
-	return groupingInfo;
   }
   
   public int getStartTime() {
@@ -579,7 +574,7 @@ public class SchedulingData {
         }
         objects.push (object);
         if (objectType.equals (taskObject))
-          object = new Task (timeOps, groupingInfo);
+          object = new Task (timeOps);
         else if (objectType.equals (resourceObject))
           object = new Resource (timeOps);
         else if (object == null) {

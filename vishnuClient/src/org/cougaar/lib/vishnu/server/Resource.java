@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Resource.java,v 1.13 2001-08-10 22:37:31 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Resource.java,v 1.14 2001-08-15 22:36:55 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -285,7 +285,7 @@ public class Resource extends SchObject {
         MultitaskAssignment ma = (MultitaskAssignment) o;
         if ((start >= ma.getTaskStartTime()) &&
             (end <= ma.getTaskEndTime()) &&
-            task.groupableWith (ma.getTasks(), specs)) {
+            specs.areGroupable (task, ma.getTasks()[0])) {
           block.groupedAssignment = ma;
           return block;
         }
@@ -706,7 +706,7 @@ public class Resource extends SchObject {
         break;
       return false;
     }
-    return task.groupableWith (ma.getTasks(), specs);
+    return specs.areGroupable (task, ma.getTasks()[0]);
   }
 
   private Block makeGroupedBlock (Task task, int duration, TimeBlock tb) {
@@ -739,7 +739,7 @@ public class Resource extends SchObject {
   }
 
   public String toString () {
-    return "Resource : " + super.toString ();
+    return "Resource " + getKey() + " : " + super.toString ();
   }
 
 }
