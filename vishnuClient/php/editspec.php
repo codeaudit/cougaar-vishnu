@@ -100,11 +100,7 @@
 
   function mainContent () { 
     global $problem, $name, $specname, $spec, $value;
-echo "<a href=\"functionhelp.php?problem=" . $problem . 
-	"&simplename=" . urlencode($name) . 
-	"&specname=" . urlencode($specname) . 
-	"\"/>\n" . 
-     "What functions can I use?</a>";
+echo "<a href=\"fulldoc.php#a\"/>What functions can I use?</a>";
 echo "<FORM METHOD=post ACTION=\"updatespec.php\">\n";
 
   /** show constraint description table */
