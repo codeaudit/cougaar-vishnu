@@ -46,8 +46,9 @@ public class DataXMLize extends FormatXMLize {
   protected Class roleScheduleImplClass;
   protected Class uniqueObjectClass;
   protected Map nameToDescrip;
-  protected Map globalToNode = new HashMap ();
-  protected Map globalToName = new HashMap ();
+  protected Map globalToNode = new HashMap ();  // global object -> DOM node mapping
+  protected Set globalsToSend = new HashSet (); // globals to send with this batch of objects
+  protected Map globalToName = new HashMap ();  // global object -> global name mapping
   protected Map classToInstances = new HashMap ();
 
   public DataXMLize (boolean debug) {
@@ -401,14 +402,16 @@ public class DataXMLize extends FormatXMLize {
 	  }
 	 
 	  if (isGlobal) {
-		if (!removedObjectNode && !seenGlobalBefore)
+		if (!removedObjectNode && !seenGlobalBefore) {
 		  fieldNode.removeChild (objectNode);
 
-		if (debug) 
-		  System.out.println ("DataXMLize.nonLeaf - mapping " + propertyValue.getClass () + " to " + objectNode);
-		if (!seenGlobalBefore) {
+		  if (debug) 
+			System.out.println ("DataXMLize.nonLeaf - mapping " + propertyValue.getClass () + " to " + objectNode);
+
 		  // store the node for later
 		  globalToNode.put (propertyValue, objectNode);
+		  globalsToSend.add (propertyValue);
+		  
 		  // get the type
 		  String typeName = getTypeName (propertyValue, true);
 		  List instances = (List) classToInstances.get (typeName);
@@ -484,7 +487,8 @@ public class DataXMLize extends FormatXMLize {
 	  }
 	}
 
-	for (Iterator iter = globalToNode.keySet().iterator(); iter.hasNext (); ){
+	// only send those globals not sent since last set
+	for (Iterator iter = globalsToSend.iterator(); iter.hasNext (); ){
 	  Object global = iter.next();
 	  Element globalElem = doc.createElement("GLOBAL");
 	  String globalName = (String) globalToName.get (global);
@@ -500,6 +504,8 @@ public class DataXMLize extends FormatXMLize {
 	  newobjects.appendChild (globalElem);
 	}
 
+	globalsToSend.clear ();
+	
 	return doc;
   }
 

@@ -1,4 +1,4 @@
-/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/Attic/VishnuPlugIn.java,v 1.11 2001-02-21 22:35:19 gvidaver Exp $ */
+/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/Attic/VishnuPlugIn.java,v 1.12 2001-02-23 20:18:55 gvidaver Exp $ */
 
 package org.cougaar.lib.vishnu.client;
 
@@ -177,6 +177,9 @@ public abstract class VishnuPlugIn
 	// OBJECT FORMAT for tasks
     try {firstTemplateTasks = getMyParams().getIntParam("firstTemplateTasks");}    
     catch(Exception e) {firstTemplateTasks = 2;}
+
+    try {sendDataChunkSize = getMyParams().getIntParam("sendDataChunkSize");}    
+    catch(Exception e) {sendDataChunkSize = 100;}
 	
 	domUtil = new VishnuDomUtil (getMyParams(), getName(), getCluster());
 	comm    = new VishnuComm    (getMyParams(), getName(), getClusterName(), domUtil);
@@ -342,12 +345,11 @@ public abstract class VishnuPlugIn
 						  ".sendUpdatedRoleSchedule - sending updated asset " +
 						  changedAsset.getUID ());
 
-	Set changed = new HashSet ();
+	List changed = new ArrayList ();
 	changed.add (changedAsset);
-    sendDataToVishnu (changed, myNameToDescrip, myTypesToNodes, 
+    sendDataToVishnu (changed, myNameToDescrip, 
 					  false /* don't clear database */, 
-					  true /* send assets as CHANGEDOBJECTS */,
-					  pe);
+					  true /* send assets as CHANGEDOBJECTS */);
 
 	myFrozenTasks.removeAll (frozenTasks);
   }
@@ -443,9 +445,9 @@ public abstract class VishnuPlugIn
 		  mySentAssetDataAlready = true;
 	  }
       
-	  sendDataToVishnu (tasks, myNameToDescrip, myTypesToNodes, 
+	  sendDataToVishnu (tasks, myNameToDescrip, 
 						alwaysClearDatabase, 
-						false /* send assets as NEWOBJECTS */, null);
+						false /* send assets as NEWOBJECTS */);
 	  if (showTiming) {
 		domUtil.reportTime (" - Vishnu completed data XML processing in ", dataStart);
 		domUtil.reportTime (" - Vishnu completed XML processing in ", start);
@@ -753,10 +755,8 @@ public abstract class VishnuPlugIn
    * @param taskAndAssets what to send
    * @param nameToDescrip mapping of object type to object description (field names, etc.)
    */
-  protected Document getDataDoc (Collection taskAndAssets, Map nameToDescrip) {
-	  DataXMLize dataXMLizer = new DataXMLize  (debugDataXMLizer);
-	  dataXMLizer.setNameToDescrip (nameToDescrip);
-	  return dataXMLizer.createDoc (taskAndAssets);
+  protected Document getDataDoc (Collection taskAndAssets, DataXMLize dataXMLizer) {
+	return dataXMLizer.createDoc (taskAndAssets);
   }
 
   /**
@@ -1203,71 +1203,109 @@ public abstract class VishnuPlugIn
     }
 
   /**
-   * send the data section of the problem to the postdata URL.
+   * <pre>
+   * Send the data section of the problem to the postdata URL.
+   *
+   * Chunks data into <code>sendDataChunkSize</code> chunks of tasks.
    *
    * Handles sending changed objects.
    *
+   * </pre>
    * @param tasks -- a collection of all the tasks and resources 
+   * @param nameToDescrip - Maping of names to newnames on fields, objects
+   * @param clearDatabase - send clear database command to Vishnu
    * @param sendingChangedObjects -- controls whether assets will be sent
    *                                 inside of <CHANGEDOBJECT> tags
    */
-  protected void sendDataToVishnu (Collection tasks, 
+  protected void sendDataToVishnu (List tasks, 
 								   Map nameToDescrip, 
-								   Map typesToNodes,
 								   boolean clearDatabase, 
-								   boolean sendingChangedObjects,
-								   PlanElement givenPE) {
-    try {
-      Document dataDoc = getDataDoc (tasks, nameToDescrip);
+								   boolean sendingChangedObjects) {
+	int totalTasks = tasks.size ();
+	int totalSent  = 0;
+
+	DataXMLize dataXMLizer = new DataXMLize (debugDataXMLizer);
+	dataXMLizer.setNameToDescrip (nameToDescrip);
+
+	while (totalSent < totalTasks) {
+	  int toIndex = totalSent+sendDataChunkSize;
+	  if (toIndex > totalTasks)
+		toIndex = totalTasks;
 	  
-	  if (showDataXML)
-		System.out.println (domUtil.getDocAsString(dataDoc));
+	  Collection chunk = new ArrayList (tasks.subList (totalSent, toIndex));
 
-      Node root = dataDoc.getDocumentElement ();
-      ((Element)root).setAttribute ("NAME", comm.getProblem ());
-
-      Node dataNode = root.getFirstChild ();
-      Node windowNode = dataNode.getFirstChild ();
-
-      ((Element)windowNode).setAttribute ("starttime", vishnuEpochStartTime);
-      ((Element)windowNode).setAttribute ("endtime",   vishnuEpochEndTime);
-
-      NodeList nlist = dataNode.getChildNodes ();
-
-	  if (clearDatabase)
-		root.getFirstChild().insertBefore (dataDoc.createElement("CLEARDATABASE"),
-										   root.getFirstChild ().getFirstChild ());
-
-      for (int i = 0; i < nlist.getLength(); i++) {
-		if (nlist.item (i).getNodeName ().equals ("NEWOBJECTS")) {
-		  Node newobject = nlist.item (i);
-		  NodeList objects = newobject.getChildNodes ();
-
-		  if (!mySentOtherDataAlready) {
-			appendOtherData (dataDoc, (Element) newobject);
-			//			mySentOtherDataAlready = true;
-		  }
-
-		  if (sendingChangedObjects) {
-			String was = newobject.getNodeName ();
-			Node changedObjects = dataDoc.createElement("CHANGEDOBJECTS");
-			dataNode.insertBefore(changedObjects, newobject);
-			dataNode.removeChild (newobject);
-			for (int j =  0; j < objects.getLength (); j++)
-			  changedObjects.appendChild (objects.item (j));
-		  }
-
-		  break; // we're only interested in the NEWOBJECTS tag
-		}
-      }
-
-      serializeAndPostData (dataDoc);
-    } catch (Exception ioe) {
-      System.out.println ("Exception " + ioe.getMessage());
-      ioe.printStackTrace ();
-    }
+	  if (myExtraOutput)
+		System.out.println (getName () + ".sendDataToVishnu, from " + totalSent + " to " + toIndex);
+	  
+	  sendDocument (chunk, dataXMLizer, clearDatabase, sendingChangedObjects);
+	  if (clearDatabase) clearDatabase = false; // flip bit after first one
+	  totalSent += sendDataChunkSize;
+	}
   }
 
+  protected void sendDocument (Collection tasks, 
+							   DataXMLize dataXMLizer,
+							   boolean clearDatabase, 
+							   boolean sendingChangedObjects) {
+	Document dataDoc = getDataDoc (tasks, dataXMLizer);
+	  
+	if (showDataXML)
+	  System.out.println (domUtil.getDocAsString(dataDoc));
+
+	Node dataNode = setDocHeader (dataDoc, clearDatabase);
+
+	postProcessData (dataDoc, dataNode, sendingChangedObjects);
+	  
+	serializeAndPostData (dataDoc);
+  }
+  
+  protected Node setDocHeader (Document dataDoc, boolean clearDatabase) {
+	Node root = dataDoc.getDocumentElement ();
+	((Element)root).setAttribute ("NAME", comm.getProblem ());
+	
+	Node dataNode   = root.getFirstChild ();
+	Node windowNode = dataNode.getFirstChild ();
+
+	((Element)windowNode).setAttribute ("starttime", vishnuEpochStartTime);
+	((Element)windowNode).setAttribute ("endtime",   vishnuEpochEndTime);
+
+	NodeList nlist = dataNode.getChildNodes ();
+
+	if (clearDatabase)
+	  root.getFirstChild().insertBefore (dataDoc.createElement("CLEARDATABASE"),
+										 root.getFirstChild ().getFirstChild ());
+
+	return dataNode;
+  }
+
+  protected void postProcessData (Document dataDoc,
+								  Node dataNode, boolean sendingChangedObjects) {
+	NodeList nlist = dataNode.getChildNodes ();
+
+	for (int i = 0; i < nlist.getLength(); i++) {
+	  if (nlist.item (i).getNodeName ().equals ("NEWOBJECTS")) {
+		Node newobject = nlist.item (i);
+		NodeList objects = newobject.getChildNodes ();
+
+		if (!mySentOtherDataAlready) {
+		  appendOtherData (dataDoc, (Element) newobject);
+		  //			mySentOtherDataAlready = true;
+		}
+
+		if (sendingChangedObjects) {
+		  String was = newobject.getNodeName ();
+		  Node changedObjects = dataDoc.createElement("CHANGEDOBJECTS");
+		  dataNode.insertBefore(changedObjects, newobject);
+		  dataNode.removeChild (newobject);
+		  for (int j =  0; j < objects.getLength (); j++)
+			changedObjects.appendChild (objects.item (j));
+		}
+
+		break; // we're only interested in the NEWOBJECTS tag
+	  }
+	}
+  }
+  
   /**
    * <pre>
    * Append any global other data
@@ -1834,6 +1872,7 @@ public abstract class VishnuPlugIn
 
   protected UTILAssetCallback         myAssetCallback;
   protected int firstTemplateTasks;
+  protected int sendDataChunkSize;
   protected boolean sentFormatAlready = false;
   protected boolean mySentOtherDataAlready = false;
   protected boolean mySentAssetDataAlready = false;
