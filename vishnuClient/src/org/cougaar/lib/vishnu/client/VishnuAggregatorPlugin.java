@@ -119,8 +119,12 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
   public void localSetup() {     
     super.localSetup();
 
-    try {propagateRescindPastAggregation = getMyParams().getBooleanParam("propagateRescindPastAggregation");}    
-    catch(Exception e) {propagateRescindPastAggregation = true;}
+    try {
+      if (getMyParams().hasParam("propagateRescindPastAggregation"))    
+	propagateRescindPastAggregation = getMyParams().getBooleanParam("propagateRescindPastAggregation");
+      else
+	propagateRescindPastAggregation = true;
+    } catch(Exception e) {}
   }
 
   /** adds the aggregation filter */

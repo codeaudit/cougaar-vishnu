@@ -81,6 +81,7 @@ public class VishnuComm {
 		     VishnuDomUtil domUtil,
 		     boolean runInternal,
 		     Logger logger) {
+    this.logger = logger;
     this.myParamTable = myParamTable;
 	
     localSetup ();
@@ -99,8 +100,6 @@ public class VishnuComm {
       postCancel ();
       postClear  ();
     }
-
-    this.logger = logger;
   }
 
   protected ParamMap   getMyParams    () { return myParamTable; }
@@ -109,63 +108,96 @@ public class VishnuComm {
   public    String     getProblem     () { return myProblem;    }
   
   /** sets a variety of parameters */
-  protected void localSetup () 
-  {
-    try {hostName = getMyParams().getStringParam("hostName");}    
-    catch(Exception e) {hostName = "dante.bbn.com";}
+  protected void localSetup () {
+    try {    
+      if (getMyParams().hasParam("hostName"))    
+	hostName = getMyParams().getStringParam("hostName");    
+      else 
+	hostName = "dante.bbn.com";
 
-    try {phpPath = getMyParams().getStringParam("phpPath");}    
-    catch(Exception e) {phpPath = "/~dmontana/vishnu/";}
+      if (getMyParams().hasParam("phpPath"))
+	phpPath = getMyParams().getStringParam("phpPath");    
+      else 
+	phpPath = "/~dmontana/vishnu/";
 
-    try {myUser = getMyParams().getStringParam("user");}    
-    catch(Exception e) {myUser = "vishnu";}
+      if (getMyParams().hasParam("user"))
+	myUser = getMyParams().getStringParam("user");    
+      else 
+	myUser = "vishnu";
 
-    try { myPassword = getMyParams().getStringParam("password");} 
-    catch(Exception e) {myPassword = "vishnu";}
+      if (getMyParams().hasParam("password"))
+	myPassword = getMyParams().getStringParam("password"); 
+      else 
+	myPassword = "vishnu";
 
-    try { myLegalHosts = getMyParams().getStringParam("legalHosts").trim();} 
-    catch(Exception e) {myLegalHosts = "";} // empty = all schedulers are OK
+      if (getMyParams().hasParam("legalHosts")) 
+	myLegalHosts = getMyParams().getStringParam("legalHosts").trim(); 
+      else 
+	myLegalHosts = ""; // empty = all schedulers are OK
 
-    try {postProblemFile = getMyParams().getStringParam("postProblemFile");}    
-    catch(Exception e) {postProblemFile = "postproblem" + PHP_SUFFIX;}
+      if (getMyParams().hasParam("postProblemFile"))
+	postProblemFile = getMyParams().getStringParam("postProblemFile");    
+      else 
+	postProblemFile = "postproblem" + PHP_SUFFIX;
 
-    try {postDataFile = getMyParams().getStringParam("postDataFile");}    
-    catch(Exception e) {postDataFile = "postdata" + PHP_SUFFIX;}
+      if (getMyParams().hasParam("postDataFile"))
+	postDataFile = getMyParams().getStringParam("postDataFile");    
+      else 
+	postDataFile = "postdata" + PHP_SUFFIX;
 
-    try {kickoffFile = getMyParams().getStringParam("kickoffFile");}    
-    catch(Exception e) {kickoffFile = "postkickoff" + PHP_SUFFIX;}
+      if (getMyParams().hasParam("kickoffFile"))
+	kickoffFile = getMyParams().getStringParam("kickoffFile");    
+      else 
+	kickoffFile = "postkickoff" + PHP_SUFFIX;
 
-    try {readStatusFile = getMyParams().getStringParam("readStatusFile");}    
-    catch(Exception e) {readStatusFile = "readstatus" + PHP_SUFFIX;}
+      if (getMyParams().hasParam("readStatusFile"))
+	readStatusFile = getMyParams().getStringParam("readStatusFile");    
+      else 
+	readStatusFile = "readstatus" + PHP_SUFFIX;
 
-    try {assignmentsFile = getMyParams().getStringParam("assignmentsFile");}    
-    catch(Exception e) {assignmentsFile = "assignments" + PHP_SUFFIX;}
+      if (getMyParams().hasParam("assignmentsFile"))    
+	assignmentsFile = getMyParams().getStringParam("assignmentsFile");    
+      else 
+	assignmentsFile = "assignments" + PHP_SUFFIX;
 
-    try {showTiming = 
-	   getMyParams().getBooleanParam("showTiming");}    
-    catch(Exception e) {showTiming = true;}
+      if (getMyParams().hasParam("showTiming"))
+	showTiming = getMyParams().getBooleanParam("showTiming");    
+      else 
+	showTiming = true;
 
-    try {testing = getMyParams().getBooleanParam("testing");}    
-    catch(Exception e) {testing = false;}
+      if (getMyParams().hasParam("testing"))
+	testing = getMyParams().getBooleanParam("testing");    
+      else 
+	testing = false;
 
-    // writes the XML sent to Vishnu web server to a file (human readable)
-    try {writeXMLToFile = 
-	   getMyParams().getBooleanParam("writeXMLToFile");}    
-    catch(Exception e) {writeXMLToFile = false;}
+      // writes the XML sent to Vishnu web server to a file (human readable)
+      if (getMyParams().hasParam("writeXMLToFile"))    
+	writeXMLToFile = 
+	  getMyParams().getBooleanParam("writeXMLToFile");    
+      else 
+	writeXMLToFile = false;
 
-    // writes the XML sent to Vishnu web server to a file (machine readable)
-    try {writeEncodedXMLToFile = 
-	   getMyParams().getBooleanParam("writeEncodedXMLToFile");}    
-    catch(Exception e) {writeEncodedXMLToFile = false;}
+      // writes the XML sent to Vishnu web server to a file (machine readable)
+      if (getMyParams().hasParam("writeEncodedXMLToFile"))
+	writeEncodedXMLToFile = 
+	  getMyParams().getBooleanParam("writeEncodedXMLToFile");    
+      else 
+	writeEncodedXMLToFile = false;
 
-    // seconds - total wait time is maxWaitCycles * waitTime
-    try {waitTime = getMyParams().getLongParam("waitTime")*1000L;}    
-    catch(Exception e) {waitTime = 5000L;}
+      // seconds - total wait time is maxWaitCycles * waitTime
+      if (getMyParams().hasParam("waitTime"))
+	waitTime = getMyParams().getLongParam("waitTime")*1000L;    
+      else 
+	waitTime = 5000L;
 
-    // how many times to poll Vishnu before giving up 
-    // total wait time is maxWaitCycles * waitTime
-    try {maxWaitCycles = getMyParams().getIntParam("maxWaitCycles");}    
-    catch(Exception e) {maxWaitCycles = 10;}
+      // how many times to poll Vishnu before giving up 
+      // total wait time is maxWaitCycles * waitTime
+      if (getMyParams().hasParam("maxWaitCycles"))    
+	maxWaitCycles = getMyParams().getIntParam("maxWaitCycles");    
+      else 
+	maxWaitCycles = 10;
+
+    } catch (Exception e) {}
   }
 
   /** 
@@ -337,8 +369,10 @@ public class VishnuComm {
       instances.add (this);
     }
 
-    try {myProblem = getMyParams().getStringParam("problemName");}    
-    catch(Exception e) {
+    try {
+      if (getMyParams().hasParam("problemName"))
+	myProblem = getMyParams().getStringParam("problemName");
+    } catch(Exception e) {
       myProblem = getClusterName();
 
       synchronized (clusterToInstance) {

@@ -132,45 +132,64 @@ public abstract class VishnuPlugin
   public void localSetup() {     
     super.localSetup();
 
-    String hostName;
+    String hostName ="";
 
-    try {hostName = getMyParams().getStringParam("hostName");}    
-    catch(Exception e) {hostName = "dante.bbn.com";}
+    try {
+      if (getMyParams().hasParam ("hostName"))
+	hostName = getMyParams().getStringParam("hostName");    
+      else 
+	hostName = "dante.bbn.com";
 
-    try {runInternal = 
-	   getMyParams().getBooleanParam("runInternal");}    
-    catch(Exception e) {runInternal = false;}
+      if (getMyParams().hasParam ("runInternal"))
+	runInternal = getMyParams().getBooleanParam("runInternal");    
+      else 
+	runInternal = false;
 
-    try {runDirectly = 
-	   getMyParams().getBooleanParam("runDirectly");}    
-    catch(Exception e) {runDirectly = false;}
+      if (getMyParams().hasParam ("runDirectly"))
+	runDirectly = 
+	  getMyParams().getBooleanParam("runDirectly");    
+      else 
+	runDirectly = false;
 
-    if (!runInternal) 
-      runDirectly = false; // can't run directly if not running internally
+      if (!runInternal) 
+	runDirectly = false; // can't run directly if not running internally
 
-    try {incrementalScheduling = 
-	   getMyParams().getBooleanParam("incrementalScheduling");}    
-    catch(Exception e) {incrementalScheduling = false;}
+      if (getMyParams().hasParam ("incrementalScheduling"))
+	incrementalScheduling = 
+	  getMyParams().getBooleanParam("incrementalScheduling");    
+      else 
+	incrementalScheduling = false;
 
-    try {showTiming = 
-	   getMyParams().getBooleanParam("showTiming");}    
-    catch(Exception e) {  showTiming = true; }
+      if (getMyParams().hasParam ("showTiming"))
+	showTiming = 
+	  getMyParams().getBooleanParam("showTiming");    
+      else 
+	showTiming = true; 
 	
-    try {makeSetupAndWrapupTasks = 
-	   getMyParams().getBooleanParam("makeSetupAndWrapupTasks");}    
-    catch(Exception e) {makeSetupAndWrapupTasks = true;}
+      if (getMyParams().hasParam ("makeSetupAndWrapupTasks"))
+	makeSetupAndWrapupTasks = 
+	  getMyParams().getBooleanParam("makeSetupAndWrapupTasks");    
+      else 
+	makeSetupAndWrapupTasks = true;
 
-    try {useStoredFormat = getMyParams().getBooleanParam("useStoredFormat");}    
-    catch(Exception e) {  useStoredFormat = false;	}
+      if (getMyParams().hasParam ("useStoredFormat"))
+	useStoredFormat = getMyParams().getBooleanParam("useStoredFormat");    
+      else 
+	useStoredFormat = false;	
 
-    try {stopOnFailure = 
-	   getMyParams().getBooleanParam("stopOnFailure");}    
-    catch(Exception e) {stopOnFailure = false;}
+      if (getMyParams().hasParam ("stopOnFailure"))
+	stopOnFailure = 
+	  getMyParams().getBooleanParam("stopOnFailure");    
+      else 
+	stopOnFailure = false;
 
-    // how many of the input tasks to use as templates when producing the 
-    // OBJECT FORMAT for tasks
-    try {firstTemplateTasks = getMyParams().getIntParam("firstTemplateTasks");}    
-    catch(Exception e) {firstTemplateTasks = 2;}
+      // how many of the input tasks to use as templates when producing the 
+      // OBJECT FORMAT for tasks
+      if (getMyParams().hasParam ("firstTemplateTasks"))
+	firstTemplateTasks = getMyParams().getIntParam("firstTemplateTasks");    
+      else 
+	firstTemplateTasks = 2;
+    } catch (Exception e) {}
 
     domUtil = createVishnuDomUtil ();
     comm    = createVishnuComm ();
@@ -439,8 +458,9 @@ public abstract class VishnuPlugin
    */
   public void processTasks (List tasks) {
     total += tasks.size();
-    debug (getName () + ".processTasks - received " + 
-			tasks.size () + " tasks, " + total + " total so far.");
+    if (isDebugEnabled())
+      debug (getName () + ".processTasks - received " + 
+	     tasks.size () + " tasks, " + total + " total so far.");
 
     Date start = new Date();
 
