@@ -296,13 +296,18 @@ public class VishnuDomUtil {
     long sec  = (diff - (min*60000l))/1000l;
     long millis = diff - (min*60000l) - (sec*1000l);
     //	if (min < 1l && sec < 1l && millis < 10l) return;
-    logger.info  (name + prefix +
-		  min + 
-		  ":" + ((sec < 10) ? "0":"") + sec + 
-		  ":" + ((millis < 10) ? "0":"") + millis + 
-		  " (Wall clock)" + 
-		  " free "  + (rt.freeMemory  ()/(1024*1024)) + "M" +
-		  " total " + (rt.totalMemory ()/(1024*1024)) + "M");
+    String msg = 
+      name + prefix +
+      min + 
+      ":" + ((sec < 10) ? "0":"") + sec + 
+      ":" + ((millis < 10) ? "00" : ((millis < 100) ? "0":"")) + millis + 
+      " (Wall clock)" + 
+      " free "  + (rt.freeMemory  ()/(1024*1024)) + "M" +
+      " total " + (rt.totalMemory ()/(1024*1024)) + "M";
+
+    logger.info (msg);
+
+    System.out.println (msg);
   }
 
   protected ParamMap myParamTable;

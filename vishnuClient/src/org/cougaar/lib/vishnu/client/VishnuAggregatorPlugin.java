@@ -300,7 +300,7 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
    */
   public void handleMultiAssignment (Vector tasks, Asset asset, 
 				     Date start, Date end, Date setupStart, Date wrapupEnd, boolean assetWasUsedBefore) {
-    if (isDebugEnabled()) {
+    if (isWarnEnabled()) {
       debug (getName() + ".handleMultiAssignment : ");
       debug ("\nAssigned tasks : ");
       for (int i = 0; i < tasks.size (); i++) {

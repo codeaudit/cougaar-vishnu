@@ -26,7 +26,7 @@ import org.apache.xerces.parsers.SAXParser;
 import org.cougaar.planning.ldm.asset.Asset;
 import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.lib.param.ParamMap;
-import org.cougaar.lib.vishnu.server.Scheduler;
+import com.bbn.vishnu.scheduling.Scheduler;
 import org.cougaar.util.StringKey;
 import org.cougaar.util.log.Logger;
 
@@ -56,10 +56,11 @@ public class InternalMode extends ExternalMode {
   /** Create a new scheduler if in batch mode or if called the first time */
   public void setupScheduler () {
     if (!incrementalScheduling || sched == null) {
-      if (logger.isInfoEnabled())
-	logger.info (getName () + ".setupScheduler - creating scheduler.");
-
       sched = new Scheduler ();
+
+      if (logger.isInfoEnabled())
+	logger.info (getName () + ".setupScheduler - created scheduler " + sched);
+
       sched.setupInternalObjects ();
     }
   }
@@ -69,13 +70,17 @@ public class InternalMode extends ExternalMode {
    *
    * Sends XML to unfreeze the task assignment and delete it.
    * @param newAssets changed assets found in the container
-   * @see org.cougaar.lib.vishnu.server.Scheduler#setupInternal
+   * @see com.bbn.vishnu.scheduling.Scheduler#setupInternal
    */
   public void handleRemovedTasks(Enumeration removedTasks) {
     if (incrementalScheduling) {
       Document docToSend = xmlProcessor.prepareRescind(removedTasks);
 
       comm.serializeAndPostData (docToSend);
+
+      if (logger.isDebugEnabled())
+	logger.debug ("InternalMode.handleRemovedTasks - telling scheduler " + sched + " to remove tasks");
+
       sched.setupInternal (comm.getBuffer(), false);
       comm.clearBuffer ();
     }
@@ -137,16 +142,19 @@ public class InternalMode extends ExternalMode {
    * Implemented for SchedulerLifecycle
    * <p>
    * Call SAXParser in scheduler to set it up with the specs, object format, etc.
-   * @see org.cougaar.lib.vishnu.server.Scheduler#setupInternal
+   * @see com.bbn.vishnu.scheduling.Scheduler#setupInternal
    */
   public void initializeWithFormat () {
+    if (logger.isDebugEnabled())
+      logger.debug ("InternalMode - initializing scheduler " + sched + " with format.");
+
     sched.setupInternal (comm.getBuffer (), false);
     comm.clearBuffer ();
   }
   
   /** 
    * Call setupInternal to initialize scheduler with task and asset data 
-   * @see org.cougaar.lib.vishnu.server.Scheduler#setupInternal
+   * @see com.bbn.vishnu.scheduling.Scheduler#setupInternal
    */  
   protected int prepareScheduler () {
     // sched is the scheduler...
@@ -160,7 +168,7 @@ public class InternalMode extends ExternalMode {
 
   /** 
    * send other data, if it hasn't already been sent 
-   * @see org.cougaar.lib.vishnu.server.Scheduler#setupInternal
+   * @see com.bbn.vishnu.scheduling.Scheduler#setupInternal
    */
   protected void sendOtherData () {
     if (comm.getBuffer ().length () != 0) {
@@ -201,7 +209,7 @@ public class InternalMode extends ExternalMode {
   /** 
    * Serialize and post telling scheduler to setupInternal 
    *
-   * @see org.cougaar.lib.vishnu.server.Scheduler#setupInternal
+   * @see com.bbn.vishnu.scheduling.Scheduler#setupInternal
    */
   protected void serializeAndPostDoc (Document doc) {
     comm.serializeAndPostData (doc);

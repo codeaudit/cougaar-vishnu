@@ -1,11 +1,11 @@
 package org.cougaar.lib.vishnu.client;
 
+import com.bbn.vishnu.objects.SchedulingData;
+
 import java.util.Collection;
-
 import java.util.List;
-import org.w3c.dom.Document;
 
-import org.cougaar.lib.vishnu.server.TimeOps;
+import org.w3c.dom.Document;
 
 /** 
  * Listener to be paired with a DirectResultHandler 
@@ -24,6 +24,5 @@ public interface DirectResultListener extends ResultListener {
    */
   public void prepareVishnuObjects (List tasksAndResources, Collection changedAsssets,
 				    List vishnuTasks, List vishnuResources, List changedVishnuResources,
-				    Document objectFormat, TimeOps timeOps);
-
+				    Document objectFormat, SchedulingData data);
 }

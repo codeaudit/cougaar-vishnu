@@ -898,6 +898,10 @@ public class XMLProcessor {
 
       Element unfreeze = doc.createElement("UNFREEZE");
       unfreeze.setAttribute ("task", t.getUID ().toString());
+
+      if (logger.isDebugEnabled())
+	logger.debug ("XMLProcessor.prepareRescind - telling scheduler to forget " + t.getUID ());
+
       newRoot.appendChild (unfreeze);
 
       Element obj = doc.createElement("OBJECT");

@@ -5,11 +5,11 @@ import java.util.Collection;
 import java.util.List;
 import org.w3c.dom.Document;
 
-import org.cougaar.lib.vishnu.server.TimeOps;
+import com.bbn.vishnu.objects.SchedulingData;
 
 /** defines what a plugin has to do to deal with Scheduler results when running in direct mode */
 public interface DirectModeListener extends ModeListener {
   public void prepareVishnuObjects (List tasksAndResources, Collection changedAsssets,
-									List vishnuTasks, List vishnuResources, List changedVishnuResources,
-									Document objectFormat, TimeOps timeOps);
+				    List vishnuTasks, List vishnuResources, List changedVishnuResources,
+				    Document objectFormat, SchedulingData schedData);
 }

@@ -22,9 +22,9 @@ package org.cougaar.lib.vishnu.client.custom;
 
 import org.cougaar.planning.ldm.asset.Asset;
 
-import org.cougaar.lib.vishnu.server.Resource;
-import org.cougaar.lib.vishnu.server.SchObject;
-import org.cougaar.lib.vishnu.server.TimeOps;
+import com.bbn.vishnu.objects.Resource;
+import com.bbn.vishnu.objects.SchObject;
+import com.bbn.vishnu.objects.SchedulingData;
 
 import org.cougaar.glm.ldm.plan.GeolocLocation;
 
@@ -72,12 +72,12 @@ public class DirectDataHelper implements DataHelper {
    * @param formatDoc - the object format document
    * @param timeOps - the Time Operation object used whenever dates are created
    */
-  public DirectDataHelper (Document formatDoc, TimeOps timeOps, Logger logger) {
+  public DirectDataHelper (Document formatDoc, SchedulingData schedData, Logger logger) {
     Calendar calendar = Calendar.getInstance();
     calendar.set(2100,1,1);
     endOfWorld = calendar.getTime();
 
-    this.timeOps = timeOps;
+    this.schedData = schedData;
 
     this.logger = logger;
     scanFormatDoc (formatDoc);
@@ -167,7 +167,7 @@ public class DirectDataHelper implements DataHelper {
   protected void createScheduleFields (Collection schedule, SchObject resource, String name) {
     for (Iterator iter = schedule.iterator (); iter.hasNext();) {
       TimeSpan span = (TimeSpan) iter.next ();
-      SchObject interval = new SchObject (timeOps);
+      SchObject interval = new SchObject (SchedulingData.INTERVAL_TYPE, schedData);
 
       interval.addDateMillis ("start",  span.getStartTime());
       interval.addDateMillis ("end",    span.getEndTime());
@@ -207,14 +207,14 @@ public class DirectDataHelper implements DataHelper {
       
     SchObject objectParent = (SchObject) parent;
 
-    objectParent.addObject (geolocData.geoLocCode, loc.getGeolocCode());
+    objectParent.addField (geolocData.geoLocCode, "string", loc.getGeolocCode(), false, false);
 
     float latDegrees = (float) loc.getLatitude  ().getDegrees();
     float lonDegrees = (float) loc.getLongitude ().getDegrees();
 
     SchObject latLonObject;
     if ((latLonObject = (SchObject) latLonCache.get (loc.getGeolocCode())) == null) {
-      latLonObject = new SchObject (timeOps);
+      latLonObject = new SchObject ("latlong", schedData);
       // fill in the fields on the predefined type
       latLonObject.addFloat ("latitude",  latDegrees);
       latLonObject.addFloat ("longitude", lonDegrees);
@@ -222,7 +222,7 @@ public class DirectDataHelper implements DataHelper {
     }
 
     // fill in the fields on the root task/resource
-    objectParent.addObject (geolocData.baseName, latLonObject);
+    objectParent.addField (geolocData.baseName, "latlong", latLonObject, false, false);
 
     // e.g. base name = from.latlong.latitude
     objectParent.addFloat (geolocData.latName, latDegrees);
@@ -271,7 +271,7 @@ public class DirectDataHelper implements DataHelper {
    * @param type - ignored here
    */
   public Object createObject (Object parent, String type) {
-    return new SchObject (timeOps);
+    return new SchObject (type, schedData);
   }
 
   /** 
@@ -423,8 +423,8 @@ public class DirectDataHelper implements DataHelper {
     public Set lists = new HashSet ();
   }
 
-  /** reference to TimeOps object, used whenever a date is created */
-  protected TimeOps timeOps;
+  /** reference to SchedulingData object, used whenever a date is created */
+  protected SchedulingData schedData;
 
   /** holds Vishnu object attributes per type */
   protected Map objects = new HashMap ();

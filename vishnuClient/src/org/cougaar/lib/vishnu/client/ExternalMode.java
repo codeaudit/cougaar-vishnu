@@ -26,7 +26,7 @@ import org.apache.xerces.parsers.SAXParser;
 import org.cougaar.planning.ldm.asset.Asset;
 import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.lib.param.ParamMap;
-import org.cougaar.lib.vishnu.server.Scheduler;
+import com.bbn.vishnu.scheduling.Scheduler;
 import org.cougaar.util.StringKey;
 import org.cougaar.util.log.Logger;
 

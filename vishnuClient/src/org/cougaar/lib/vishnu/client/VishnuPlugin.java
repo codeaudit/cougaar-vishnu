@@ -54,8 +54,8 @@ import org.cougaar.lib.callback.UTILAssetCallback;
 import org.cougaar.lib.callback.UTILAssetListener;
 import org.cougaar.lib.filter.UTILBufferingPluginAdapter;
 import org.cougaar.lib.util.*;
-import org.cougaar.lib.vishnu.server.Scheduler;
-import org.cougaar.lib.vishnu.server.TimeOps;
+import com.bbn.vishnu.scheduling.Scheduler;
+import com.bbn.vishnu.objects.SchedulingData;
 
 import org.cougaar.util.StringKey;
 import org.cougaar.util.UnaryPredicate;
@@ -429,14 +429,14 @@ public abstract class VishnuPlugin
    * @see org.cougaar.lib.vishnu.client.SchedulerLifecycle#handleRemovedTasks
    */
   protected void handleRemovedTasks(Enumeration removedTasks) {
-    //    if (incrementalScheduling) {
-      //  mode.setupScheduler ();
+    if (incrementalScheduling) {
+      //      mode.setupScheduler (); // doesn't do anything for internal
 
       //      if (useStoredFormat)
-      //	initializeWithStoredFormat ();
-	 
+      //	initializeWithStoredFormat ();// why doesn't it know the format already???
+      
       mode.handleRemovedTasks (removedTasks);
-      //    }
+    }
   }
 
   /**
@@ -830,7 +830,7 @@ public abstract class VishnuPlugin
    */
   public void prepareVishnuObjects (List tasksAndResources, Collection changedAssets,
 				    List vishnuTasks, List vishnuResources, List changedVishnuResources,
-				    Document objectFormat, TimeOps timeOps) { 
+				    Document objectFormat, SchedulingData schedData) { 
     error (getName ()+ ".prepareVishnuObjects - ERROR - don't run directly if you haven't defined this method.");
   }
 

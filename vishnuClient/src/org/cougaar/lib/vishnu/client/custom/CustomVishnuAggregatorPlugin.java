@@ -20,6 +20,8 @@
  */
 package org.cougaar.lib.vishnu.client.custom;
 
+import com.bbn.vishnu.objects.SchedulingData;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +32,6 @@ import org.cougaar.planning.ldm.asset.Asset;
 import org.cougaar.lib.vishnu.client.VishnuAggregatorPlugin;
 import org.cougaar.lib.vishnu.client.XMLizer;
 import org.cougaar.lib.vishnu.client.XMLProcessor;
-import org.cougaar.lib.vishnu.server.TimeOps;
 
 import org.w3c.dom.Document;
 
@@ -80,9 +81,9 @@ public class CustomVishnuAggregatorPlugin extends VishnuAggregatorPlugin {
   public void prepareVishnuObjects (List alpObjects, Collection changed, 
 				    List vishnuTasks, List vishnuResources, 
 				    List changedVishnuResources,
-				    Document formatDoc, TimeOps timeOps) { 
+				    Document formatDoc, SchedulingData schedData) { 
     DirectTranslator dt = (DirectTranslator) getDataXMLizer ();
-    ((CustomDataXMLize) dt).setFormatDoc (formatDoc, timeOps);
+    ((CustomDataXMLize) dt).setFormatDoc (formatDoc, schedData);
     dt.createVishnuObjects (alpObjects, changed, vishnuTasks, vishnuResources, changedVishnuResources);
   }
 }

@@ -1,12 +1,12 @@
 package org.cougaar.lib.vishnu.client;
 
 import org.cougaar.lib.param.ParamMap;
-import org.cougaar.lib.vishnu.server.Assignment;
-import org.cougaar.lib.vishnu.server.MultitaskAssignment;
-import org.cougaar.lib.vishnu.server.Resource;
-import org.cougaar.lib.vishnu.server.Scheduler;
-import org.cougaar.lib.vishnu.server.SchedulingData;
-import org.cougaar.lib.vishnu.server.TimeOps;
+import com.bbn.vishnu.objects.Assignment;
+import com.bbn.vishnu.objects.MultitaskAssignment;
+import com.bbn.vishnu.objects.Resource;
+import com.bbn.vishnu.scheduling.Scheduler;
+import com.bbn.vishnu.objects.SchedulingData;
+import com.bbn.vishnu.objects.TimeOps;
 import org.cougaar.util.StringKey;
 import org.cougaar.util.log.Logger;
 
@@ -67,7 +67,7 @@ public class DirectMode extends InternalMode {
 	   
     ((DirectModeListener)parent).prepareVishnuObjects (stuffToSend, parent.getChangedAssets(), 
 						       vishnuTasks, vishnuResources, changedVishnuResources,
-						       objectFormatDoc, sched.getTimeOps());
+						       objectFormatDoc, sched.getSchedulingData());
     parent.clearChangedAssets ();
 
     if (logger.isDebugEnabled())
@@ -97,7 +97,7 @@ public class DirectMode extends InternalMode {
    * @see #addTasksDirectly
    * @see #prepareData
    * @see org.cougaar.lib.vishnu.client.VishnuPlugin#prepareVishnuObjects
-   * @see org.cougaar.lib.vishnu.server.Scheduler#scheduleInternal
+   * @see com.bbn.vishnu.scheduling.Scheduler#scheduleInternal
    */
   public void run () {
     Date start = new Date ();
@@ -108,7 +108,7 @@ public class DirectMode extends InternalMode {
     // are needed for direct object writing.
     TimeOps timeOps = sched.getTimeOps();
     SchedulingData data = sched.getSchedulingData();
-    sched.clearCaches ();
+    //    sched.clearCaches ();
 
     // add tasks and resources to data
     // vishnuTasks & Resources created in prepareData and set in prepareVishnuObjects
@@ -146,7 +146,7 @@ public class DirectMode extends InternalMode {
 
     for (int i = 0; i < vishnuTasks.size (); i++) {
       Object vishnuObject = vishnuTasks.get(i);
-      data.addTask ((org.cougaar.lib.vishnu.server.Task) vishnuObject);
+      data.addTask ((com.bbn.vishnu.objects.Task) vishnuObject);
     }
     for (int i = 0; i < vishnuResources.size (); i++) {
       Object vishnuObject = vishnuResources.get(i);

@@ -30,7 +30,7 @@ import org.cougaar.planning.ldm.asset.Asset;
 import org.cougaar.lib.vishnu.client.VishnuAllocatorPlugin;
 import org.cougaar.lib.vishnu.client.XMLizer;
 import org.cougaar.lib.vishnu.client.XMLProcessor;
-import org.cougaar.lib.vishnu.server.TimeOps;
+import com.bbn.vishnu.objects.SchedulingData;
 
 import org.w3c.dom.Document;
 
@@ -75,14 +75,14 @@ public class CustomVishnuAllocatorPlugin extends VishnuAllocatorPlugin {
    * @param vishnuTasks - list to add Vishnu tasks to 
    * @param vishnuResources - list to add Vishnu resources to 
    * @param objectFormat - contains field type info necessary to create fields on Vishnu objects
-   * @param timeOps - time object used when making Vishnu dates
+   * @param schedData - scheduling data object used when making Vishnu dates
    */
   public void prepareVishnuObjects (List alpObjects, Collection changed, 
 				    List vishnuTasks, List vishnuResources, 
 				    List changedVishnuResources,
-				    Document formatDoc, TimeOps timeOps) { 
+				    Document formatDoc, SchedulingData schedData) { 
     DirectTranslator dt = (DirectTranslator) getDataXMLizer ();
-    ((CustomDataXMLize) dt).setFormatDoc (formatDoc, timeOps);
+    ((CustomDataXMLize) dt).setFormatDoc (formatDoc, schedData);
     dt.createVishnuObjects (alpObjects, changed, vishnuTasks, vishnuResources, changedVishnuResources);
   }
 

@@ -38,6 +38,7 @@ import org.cougaar.glm.util.GLMPrepPhrase;
 import org.cougaar.planning.ldm.asset.AggregateAsset;
 import org.cougaar.planning.ldm.asset.Asset;
 import org.cougaar.planning.ldm.plan.Task;
+import org.cougaar.planning.ldm.plan.Verb;
 import org.cougaar.util.log.Logger;
 
 import org.cougaar.lib.vishnu.client.XMLizer;
@@ -50,9 +51,9 @@ import org.w3c.dom.NodeList;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 
-import org.cougaar.lib.vishnu.server.Resource;
-import org.cougaar.lib.vishnu.server.SchObject;
-import org.cougaar.lib.vishnu.server.TimeOps;
+import com.bbn.vishnu.objects.Resource;
+import com.bbn.vishnu.objects.SchObject;
+import com.bbn.vishnu.objects.SchedulingData;
 
 /**
  * Create either an XML document in the Vishnu Data format or Vishnu objects from ALP objects. <p>
@@ -79,11 +80,11 @@ public class CustomDataXMLize implements XMLizer, DirectTranslator {
    *
    * @see CustomVishnuAllocatorPlugin#prepareVishnuObjects
    * @param formatDoc - given to DirectDataHelper, so that it can figure out field attributes
-   * @param timeOps - allows creation of Vishnu date fields
+   * @param schedData - allows creation of Vishnu date fields
    */
-  public void setFormatDoc (Document formatDoc, TimeOps timeOps) {
-    this.timeOps = timeOps;
-    dataHelper = new DirectDataHelper (formatDoc, timeOps, logger);
+  public void setFormatDoc (Document formatDoc, SchedulingData schedData) {
+    this.schedData = schedData;
+    dataHelper = new DirectDataHelper (formatDoc, schedData, logger);
   }
   
   /** 
@@ -191,7 +192,7 @@ public class CustomDataXMLize implements XMLizer, DirectTranslator {
       Object taskOrAsset = iter.next ();
 	  
       if (taskOrAsset instanceof Asset) {
-	Object vishnuObject = new Resource(timeOps);
+	Object vishnuObject = new Resource("Asset", schedData);
 	if (processAsset (vishnuObject, taskOrAsset)) {
 	  if (changed.contains (taskOrAsset))
 	    changedVishnuResources.add (vishnuObject);
@@ -202,7 +203,9 @@ public class CustomDataXMLize implements XMLizer, DirectTranslator {
 	  logger.debug ("CustomDataXMLize.createVishnuObjects - ignoring asset " + taskOrAsset);
       }
       else { // it's a task
-	Object vishnuObject = new org.cougaar.lib.vishnu.server.Task(timeOps);
+	Verb verb = ((Task) taskOrAsset).getVerb();
+	//	Object vishnuObject = new com.bbn.vishnu.scheduling.Task(verb.toString(), schedData);
+	Object vishnuObject = schedData.newTask(verb.toString());
 	if (processTask (vishnuObject, taskOrAsset)) {
 	  vishnuTasks.add (vishnuObject);
 	} 
@@ -364,7 +367,7 @@ public class CustomDataXMLize implements XMLizer, DirectTranslator {
   /** document that is created, if producing XML = not direct mode */
   protected Document doc;
 
-  protected TimeOps timeOps;
+  protected SchedulingData schedData;
   protected boolean direct = false;
   /** the data helper -- comes in two flavors : XML and direct translation */
   protected DataHelper dataHelper;
