@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/GeneticAlgorithm.java,v 1.10 2001-08-03 12:34:22 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/GeneticAlgorithm.java,v 1.11 2001-08-09 16:14:13 gvidaver Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -76,6 +76,8 @@ public class GeneticAlgorithm {
     resetCounts();
     Date start = new Date ();
     boolean printed = false;
+	boolean allTasksAssigned = false;
+	
     while (! checkForTermination()) {
       Chromosome c;
       if (numEvals < popSize)
@@ -89,11 +91,15 @@ public class GeneticAlgorithm {
         continue;
       }
       data.clearAssignments();
-      decoder.generateAssignments (c, data, specs, false);
+	  boolean allAssigned = decoder.generateAssignments (c, data, specs, false);
       float val = specs.evaluate ();
       numEvals++;
       boolean isBest = insertNewIndividual (c, val);
       topDogAge = isBest ? 0 : (topDogAge + 1);
+
+	  if (isBest) 
+		allTasksAssigned = allAssigned;
+	  
       if (reportIfNecessary())
         return true;
       if (debug && !printed && (numEvals >= popSize)) {
@@ -110,8 +116,11 @@ public class GeneticAlgorithm {
       ((OrderedDecoder)decoder).reportTiming ();
     }
 
-    if (explain || (topDogAge != 0)) {
+    if (explain || (topDogAge != 0) || !allTasksAssigned) {
       data.clearAssignments();
+	  if (!allTasksAssigned)
+		System.out.println ("GeneticAlgorithm.execute - explaining because not all tasks assigned.");
+	  
       decoder.generateAssignments (((Member) population.get(0)).chromosome,
                                    data, specs, explain);
     }
