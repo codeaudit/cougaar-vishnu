@@ -189,6 +189,11 @@ public abstract class VishnuPlugin
 	firstTemplateTasks = getMyParams().getIntParam("firstTemplateTasks");    
       else 
 	firstTemplateTasks = 2;
+
+      if (getMyParams().hasParam ("wantMediumConfidenceOnExpansion"))
+	wantMediumConfidenceOnExpansion = getMyParams().getBooleanParam ("wantMediumConfidenceOnExpansion");
+      else
+	wantMediumConfidenceOnExpansion = false;
     } catch (Exception e) {}
 
     domUtil = createVishnuDomUtil ();
@@ -424,12 +429,14 @@ public abstract class VishnuPlugin
    * @see org.cougaar.lib.vishnu.client.SchedulerLifecycle#handleRemovedTasks
    */
   protected void handleRemovedTasks(Enumeration removedTasks) {
-    mode.setupScheduler ();
+    //    if (incrementalScheduling) {
+      //  mode.setupScheduler ();
 
-    if (useStoredFormat)
-      initializeWithStoredFormat ();
+      //      if (useStoredFormat)
+      //	initializeWithStoredFormat ();
 	 
-    mode.handleRemovedTasks (removedTasks);
+      mode.handleRemovedTasks (removedTasks);
+      //    }
   }
 
   /**
@@ -1002,12 +1009,6 @@ public abstract class VishnuPlugin
       error (getName () + ".makeSetupWrapupExpansion : ERROR, assigned end - " + end + " after wrapupEnd " + wrapupEnd + 
 			  " for task " + task);
 	  
-    boolean wantConfidence = false;
-    
-    // if true, the estimated alloc result has a medium confidence 
-    try { wantConfidence = getMyParams().getBooleanParam ("wantMediumConfidenceOnExpansion"); }
-    catch (Exception e) {}
-
     Vector subtasks = new Vector ();
 	
     subtasks.add (createMainTask (task, asset, start, end, setupStart, wrapupEnd));
@@ -1026,7 +1027,7 @@ public abstract class VishnuPlugin
       }
     }
 
-    publishSubtasks (wantConfidence, task, subtasks);
+    publishSubtasks (wantMediumConfidenceOnExpansion, task, subtasks);
 	
     return subtasks;
   }
@@ -1223,8 +1224,9 @@ public abstract class VishnuPlugin
   protected Document objectFormatDoc;
 
   protected boolean localDidRehydrate = false;
-  
-  /** total tasks received */
+
+  protected boolean wantMediumConfidenceOnExpansion;
+
   protected int total = 0;
 
   // ------------- HELPER OBJECTS ------------------------
