@@ -175,16 +175,13 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
    * @see org.cougaar.lib.vishnu.client.VishnuPlugIn#readXML
    * @see org.cougaar.lib.vishnu.client.VishnuPlugIn#parseAnswer
    */
-  protected void parseAnswer(String postVars) {
+  protected void parseAnswer() {
     if (myExtraOutput)
       System.out.println ("VishnuPlugIn.waitTillFinished - Vishnu scheduler result returned!");
     try {
-      String url = "http://" + hostName + phpPath + assignmentsFile + postVars;
-      URL aURL = new URL (url);
-	  AssignmentHandler xmlhandler = new AssignmentHandler();
-
 	  int unhandledTasks = myTaskUIDtoObject.size ();
-      comm.readXML (aURL, xmlhandler);
+
+	  comm.getAnswer (new AssignmentHandler ());
 
 	  if (myExtraOutput || true)
 		System.out.println (getName () + ".parseAnswer - created successful plan elements for " +
