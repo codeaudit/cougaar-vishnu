@@ -28,11 +28,20 @@ public class JobshopInternal {
       RandomAccessFile f = new RandomAccessFile ("testjs.vsh", "r");
       byte[] b = new byte [(int) f.length()];
       f.read (b, 0, b.length);
-      String sched = (new Scheduler()).runInternalToProcess (new String(b));
+      Scheduler sched = new Scheduler();
+      String str = sched.runInternalToProcess (new String (b), true);
       SAXParser parser = new SAXParser();
       parser.setContentHandler (new AssignmentHandler());
-      parser.parse (new InputSource (new StringReader (sched)));
+      parser.parse (new InputSource (new StringReader (str)));
       System.out.println ("finished initial");
+
+      // updated data
+      f = new RandomAccessFile ("testjs.update.vsh", "r");
+      b = new byte [(int) f.length()];
+      f.read (b, 0, b.length);
+      str = sched.runInternalToProcess (new String (b), false);
+      parser.parse (new InputSource (new StringReader (str)));
+      System.out.println ("finished updated");
     }
     catch(Exception e) {
       System.err.println (e.getMessage());
