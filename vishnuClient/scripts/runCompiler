@@ -1,2 +1,29 @@
-java -Dorg.cougaar.lib.vishnu.server.host=alp-107.alp.isotic.org -Dorg.cougaar.lib.vishnu.server.path="/~demo/TOPS/vishnu/php/" -Dorg.cougaar.lib.vishnu.server.user=root -Dorg.cougaar.lib.vishnu.server.password="" -Dorg.cougaar.lib.vishnu.server.debugXML=false org.cougaar.lib.vishnu.server.ExpressionCompiler
+# This script starts the Vishnu Spec Compiler
+# 
+# The Vishnu Spec Compiler polls the Vishnu web server looking for specs to compile.
+# When it finds a request has been posted, it gets the spec that's written in the 
+# spec language and compiles it into an xml format that is convenient for the web server
+# to handle.  This compiled spec is then posted back to the web server.
+
+# For values of properties 1-4, see vishnu_server.env.xml in this directory
+
+# CLASSPATH - the compiler needs the vishnu jar and the xerces jar in the CLASSPATH
+
+# PROPERTIES -
+#  1) host - Vishnu web server
+#  2) path - path on host to php files
+#  3) user - user on the web server (mysql user)
+#  4) password - password on the web server (mysql password)
+#
+#  Debugging params (safe to ignore):
+#
+#  5) debugXML - show XML sent and received over URLs 
+#      (scheduler will not actually process requests)
+
+java \
+-Dorg.cougaar.lib.vishnu.server.host=alp-107.alp.isotic.org \
+-Dorg.cougaar.lib.vishnu.server.path="/~demo/TOPS/vishnu/php/" \
+-Dorg.cougaar.lib.vishnu.server.user=root \
+-Dorg.cougaar.lib.vishnu.server.password="" \
+-Dorg.cougaar.lib.vishnu.server.debugXML=false org.cougaar.lib.vishnu.server.ExpressionCompiler
 
