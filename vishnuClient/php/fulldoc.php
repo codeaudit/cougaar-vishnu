@@ -1832,6 +1832,67 @@ testdata/problem.dtd.)<br>
           value CDATA #IMPLIED &gt;
 </pre>
 
+<p>The following is a DTD showing the XML reported out from
+the web server to an external client or the scheduler to
+the web server or the scheduler to a calling routine (for
+internal mode).  When the scheduler reports to the web server,
+there is more data than in the other cases, because the web
+server needs to store data internally that it cannot deduce.
+The rules for which data will only be in the data reported from
+the scheduler to the web server (and hence that a user will
+never see) are:
+<ul>
+<li> An ACTIVITY tag/object is only sent to the web server.
+<li> All IMPLIED attributes are only sent to the web server.
+<li> For either grouped or ungrouped multitasking, both ASSIGNMENT
+objects and MULTITASK objects are sent to the web server.  For
+ungrouped multitasking, only ASSIGNMENT objects are sent to a client,
+while for grouped multitasing, only MULTITASK objects are sent to
+a client.
+</ul>
+This DTD is available as a text file in testdata/assignments.dtd.<br>
+<br><pre>
+&lt;?xml version='1.0' encoding='UTF-8'?&gt;
+&lt;!-- Vishnu Assignments Specification --&gt;
+
+&lt;!ELEMENT ASSIGNMENTS (ASSIGNMENT|MULTITASK|ACTIVITY)*&gt;
+
+&lt;!ELEMENT ASSIGNMENT EMPTY&gt;
+&lt;!ATTLIST ASSIGNMENT
+          task CDATA #REQUIRED
+          resource CDATA #REQUIRED
+          setup CDATA #REQUIRED
+          start CDATA #REQUIRED
+          end CDATA #REQUIRED
+          wrapup CDATA #REQUIRED
+          frozen CDATA #IMPLIED
+          color CDATA #IMPLIED
+          text CDATA #IMPLIED &gt;
+
+&lt;!ELEMENT MULTITASK (TASK)*&gt;
+&lt;!ATTLIST MULTITASK
+          resource CDATA #REQUIRED
+          setup CDATA #REQUIRED
+          start CDATA #REQUIRED
+          end CDATA #REQUIRED
+          wrapup CDATA #REQUIRED
+          color CDATA #IMPLIED
+          text CDATA #IMPLIED
+          capacities CDATA #IMPLIED
+          capacities_used CDATA #IMPLIED &gt;
+&lt;!ELEMENT TASK EMPTY&gt;
+&lt;!ATTLIST TASK
+          task CDATA #REQUIRED &gt;
+
+&lt;!ELEMENT ACTIVITY EMPTY&gt;
+&lt;!ATTLIST ACTIVITY
+          resource CDATA #REQUIRED
+          start CDATA #REQUIRED
+          end CDATA #REQUIRED
+          color CDATA #IMPLIED
+          text CDATA #IMPLIED &gt;
+</pre>
+
 <? makeSection ("Test Problem Descriptions", "c", "C"); ?>
 
 <p>We have applied Vishnu to a variety of classic scheduling/assignment problems.  Loadable files containing the specifications and data for these
