@@ -77,6 +77,8 @@ public class DirectMode extends InternalMode {
 	   
 	// think it's OK to send this more than once
 	comm.serializeAndPostData (xmlProcessor.getVanillaHeader ());
+	sched.setupInternal (comm.getBuffer (), false);
+	comm.clearBuffer ();
 
 	sendOtherData ();
   }

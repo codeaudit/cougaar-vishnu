@@ -145,12 +145,23 @@ public class InternalMode extends ExternalMode {
   /** Call setupInternal to initialize scheduler with task and asset data */  
   protected int prepareScheduler () {
 	// sched is the scheduler...
-	sched.setupInternal (comm.getBuffer (), false);
-	comm.clearBuffer ();
+	if (comm.getBuffer ().length () != 0) {
+	  sched.setupInternal (comm.getBuffer (), false);
+	  comm.clearBuffer ();
+	}
 	
 	return parent.getNumTasks();
   }
 
+  /** send other data, if it hasn't already been sent */
+  protected void sendOtherData () {
+	if (comm.getBuffer ().length () != 0) {
+	  sched.setupInternal (comm.getBuffer (), false);
+	  comm.clearBuffer ();
+	}
+	super.sendOtherData ();
+  }
+  
   /** 
    * Inform of # of unhandled tasks <br>
    * Freeze all assignments if incremental mode 
@@ -175,7 +186,7 @@ public class InternalMode extends ExternalMode {
 						  (unhandledTasks-parent.getNumTasks ()) + " tasks in ", start);
 	} else {
 	  if (myExtraOutput || true)
-		System.out.println (getName () + ".cleanUpAfterScheduling" + 
+		System.out.println (getName () + 
 							" - created successful plan elements for " +
 							(unhandledTasks-parent.getNumTasks ()) + " tasks.");
 	}
