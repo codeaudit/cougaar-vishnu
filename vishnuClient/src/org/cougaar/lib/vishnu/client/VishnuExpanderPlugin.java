@@ -29,8 +29,8 @@ import org.cougaar.lib.callback.UTILExpansionCallback;
 import org.cougaar.lib.callback.UTILFilterCallback;
 import org.cougaar.lib.callback.UTILGenericListener;
 
-import org.cougaar.lib.filter.UTILExpanderPlugIn;
-import org.cougaar.lib.filter.UTILBufferingPlugInAdapter;
+import org.cougaar.lib.filter.UTILExpanderPlugin;
+import org.cougaar.lib.filter.UTILBufferingPluginAdapter;
 
 import org.cougaar.lib.param.ParamException;
 
@@ -68,7 +68,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
-public class VishnuExpanderPlugIn extends VishnuPlugIn implements UTILExpanderPlugIn {
+public class VishnuExpanderPlugin extends VishnuPlugin implements UTILExpanderPlugin {
   /**
    * Provide the callback that is paired with the buffering thread, which is a
    * listener.  The buffering thread is the listener to the callback
@@ -170,11 +170,11 @@ public class VishnuExpanderPlugIn extends VishnuPlugIn implements UTILExpanderPl
 
   /**
    * Report to superior that the expansion has changed.  Includes a pass
-   * through to the UTILPlugInAdapter's updateAllocationResult.
+   * through to the UTILPluginAdapter's updateAllocationResult.
    * Updates and publishes allocation result of expansion.
    *
    * @param exp Expansion that has changed.
-   * @see UTILPlugInAdapter#updateAllocationResult
+   * @see UTILPluginAdapter#updateAllocationResult
    */
   public void reportChangedExpansion(Expansion exp) { 
       if (myExtraExtraOutput)
@@ -249,7 +249,7 @@ public class VishnuExpanderPlugIn extends VishnuPlugIn implements UTILExpanderPl
   public void handleRemovedTask(Task t) {}
 
   /**
-   * Implemented for UTILExpanderPlugIn interface
+   * Implemented for UTILExpanderPlugin interface
    *
    * The guts of the expansion.
    *

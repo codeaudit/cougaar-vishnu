@@ -29,7 +29,7 @@ import org.w3c.dom.Document;
  * the prepareVishnuObjects method.
  * @see DirectResultListener
  */
-public class DirectResultHandler extends PlugInHelper implements ResultHandler {
+public class DirectResultHandler extends PluginHelper implements ResultHandler {
   public DirectResultHandler (ModeListener parent, VishnuComm comm, XMLProcessor xmlProcessor, 
 			      VishnuDomUtil domUtil, VishnuConfig config, 
 			      ParamMap myParamTable) {
@@ -138,7 +138,7 @@ public class DirectResultHandler extends PlugInHelper implements ResultHandler {
   /** 
    * Removes the task from the the list of known tasks kept in the plugin 
    * 
-   * @see VishnuPlugIn#removeTask
+   * @see VishnuPlugin#removeTask
    */
   protected Task getTaskFromAssignment (String task) {
     StringKey taskKey = new StringKey (task);

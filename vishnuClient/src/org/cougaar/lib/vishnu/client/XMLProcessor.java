@@ -416,7 +416,7 @@ public class XMLProcessor {
       if (allFound) {
 		if (myExtraExtraOutput) {
 		  String name  = first.getAttributes().getNamedItem ("name").getNodeValue();
-		  System.out.println ("VishnuPlugIn.duplicateNode - Found a duplicate " + first.getNodeName () + " " + name);
+		  System.out.println ("VishnuPlugin.duplicateNode - Found a duplicate " + first.getNodeName () + " " + name);
 		}
 		setResourceAttributes (first, other);
 		

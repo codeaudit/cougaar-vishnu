@@ -76,7 +76,7 @@ public class CustomDataXMLize implements XMLizer, DirectTranslator {
   /** 
    * Called from prepareVishnuObjects, creates DirectDataHelper 
    *
-   * @see CustomVishnuAllocatorPlugIn#prepareVishnuObjects
+   * @see CustomVishnuAllocatorPlugin#prepareVishnuObjects
    * @param formatDoc - given to DirectDataHelper, so that it can figure out field attributes
    * @param timeOps - allows creation of Vishnu date fields
    */

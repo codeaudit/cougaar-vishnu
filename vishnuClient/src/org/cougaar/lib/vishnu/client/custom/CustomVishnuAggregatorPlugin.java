@@ -29,7 +29,7 @@ import org.cougaar.planning.ldm.asset.Asset;
 
 import org.cougaar.lib.util.UTILAllocate;
 
-import org.cougaar.lib.vishnu.client.VishnuAggregatorPlugIn;
+import org.cougaar.lib.vishnu.client.VishnuAggregatorPlugin;
 import org.cougaar.lib.vishnu.client.XMLizer;
 import org.cougaar.lib.vishnu.client.XMLProcessor;
 import org.cougaar.lib.vishnu.server.TimeOps;
@@ -42,10 +42,10 @@ import org.w3c.dom.Document;
  * Data translation process left to the writer of XMLizer created in <tt>createXMLizer</tt>.
  *
  */
-public class CustomVishnuAggregatorPlugIn extends VishnuAggregatorPlugIn {
+public class CustomVishnuAggregatorPlugin extends VishnuAggregatorPlugin {
 
   /** 
-   * Overrides VishnuPlugIn.createXMLProcessor                           <p>
+   * Overrides VishnuPlugin.createXMLProcessor                           <p>
    *
    * Use a different data xmlizer to create the data xml stream to send to vishnu,<br>
    * specifically, TranscomDataXMLize.

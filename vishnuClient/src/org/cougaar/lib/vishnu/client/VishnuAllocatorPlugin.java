@@ -37,7 +37,7 @@ import org.cougaar.lib.callback.UTILFilterCallback;
 import org.cougaar.lib.callback.UTILGenericListener;
 import org.cougaar.lib.callback.UTILWorkflowCallback;
 
-import org.cougaar.lib.filter.UTILAllocatorPlugIn;
+import org.cougaar.lib.filter.UTILAllocatorPlugin;
 
 import org.cougaar.lib.util.UTILAllocate;
 import org.cougaar.lib.util.UTILPreference;
@@ -47,7 +47,7 @@ import org.cougaar.lib.util.UTILPreference;
  * 
  */
 
-public class VishnuAllocatorPlugIn extends VishnuPlugIn implements UTILAllocatorPlugIn {
+public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocatorPlugin {
   /**
    * The idea is to add subscriptions (via the filterCallback), and when 
    * they change, to have the callback react to the change, and tell 
@@ -194,7 +194,7 @@ public class VishnuAllocatorPlugIn extends VishnuPlugIn implements UTILAllocator
    * </pre>
    * @param alloc the allocation that should be rescinded
    * @return false since doesn't rescind the allocation
-   * @see UTILPlugInAdapter#updateAllocationResult
+   * @see UTILPluginAdapter#updateAllocationResult
    * @see UTILAllocationListener#updateAllocationResult
    * @see org.cougaar.lib.callback.UTILAllocationCallback#reactToChangedAlloc
    * @see #needToRescind
@@ -220,7 +220,7 @@ public class VishnuAllocatorPlugIn extends VishnuPlugIn implements UTILAllocator
    *
    * </pre>
    * @param alloc the allocation that was successful
-   * @see UTILPlugInAdapter#updateAllocationResult
+   * @see UTILPluginAdapter#updateAllocationResult
    * @see UTILAllocationListener#updateAllocationResult
    * @see org.cougaar.lib.callback.UTILAllocationCallback#reactToChangedAlloc
    * @see #needToRescind
@@ -283,7 +283,7 @@ public class VishnuAllocatorPlugIn extends VishnuPlugIn implements UTILAllocator
    **/
   public void handleAssignment (Task task, Asset asset, Date start, Date end, Date setupStart, Date wrapupEnd) {
     if (myExtraOutput)
-      System.out.println ("VishnuAllocatorPlugIn.makePlanElement : " + 
+      System.out.println ("VishnuAllocatorPlugin.makePlanElement : " + 
 			  " assigning " + task.getUID() + 
 			  "\nto " + asset.getUID () +
 			  " from " + start + 

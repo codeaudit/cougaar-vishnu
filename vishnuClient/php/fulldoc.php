@@ -1427,7 +1427,7 @@ project.</p>
  Essentially this means creating an object that implements the XMLizer and
 DirectTranslator interfaces.  An object that does this already is the CustomDataXMLizer.
  To do custom translation, you must :</p>
-<p>1) Override VishnuPlugIn.createXMLizer and make it return your XMLizer.
+<p>1) Override VishnuPlugin.createXMLizer and make it return your XMLizer.
  Typically this is a subclass of CustomDataXMLizer.<br>
 2) Override CustomDataXMLizer.processTask and processAsset to send the fields
 of the tasks and assets you wish to send.  <br>
@@ -1654,7 +1654,7 @@ allocated to the assigned resource. </p>
 <TR><TD WIDTH="26%" VALIGN="TOP">
 <P>wantMediumConfidenceOnExpansion</TD>
 <TD WIDTH="54%" VALIGN="TOP">
-<P>Whether expansions created by VishnuPlugIn will have a medium (0.5) or full (1) confidence.</TD>
+<P>Whether expansions created by VishnuPlugin will have a medium (0.5) or full (1) confidence.</TD>
 <TD WIDTH="19%" VALIGN="TOP">
 <P>false</TD>
 </TR>

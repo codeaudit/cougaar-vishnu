@@ -584,7 +584,7 @@ public class VishnuComm {
 	  }
     }
     catch(Exception e) {
-      System.err.println ("VishnuPlugIn.postToURL -- exception sending data to URL : " + aURL +
+      System.err.println ("VishnuPlugin.postToURL -- exception sending data to URL : " + aURL +
 			  "\n" + e.getMessage());
       e.printStackTrace();
     }

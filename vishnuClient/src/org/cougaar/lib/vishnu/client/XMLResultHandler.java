@@ -25,7 +25,7 @@ import org.xml.sax.SAXException;
  * Takes XML results returned from the scheduler and calls methods on the result listener 
  * to create plan elements 
  */
-public class XMLResultHandler extends PlugInHelper implements ResultHandler {
+public class XMLResultHandler extends PluginHelper implements ResultHandler {
   public XMLResultHandler (ModeListener parent, VishnuComm comm, XMLProcessor xmlProcessor, 
 						   VishnuDomUtil domUtil, VishnuConfig config,
 						   ParamMap myParamTable) {
@@ -132,7 +132,7 @@ public class XMLResultHandler extends PlugInHelper implements ResultHandler {
 		  // Ignore this assignment since it has already been handled previously
 		  return;
 		  
-		  // System.out.println ("VishnuPlugIn - AssignmentHandler.startElement no task found with " + taskUID);
+		  // System.out.println ("VishnuPlugin - AssignmentHandler.startElement no task found with " + taskUID);
 		  // System.out.println ("\tmap was " + myTaskUIDtoObject);
 		}
 		else {
@@ -141,7 +141,7 @@ public class XMLResultHandler extends PlugInHelper implements ResultHandler {
 
 		Asset assignedAsset = resultListener.getAssetForKey (new StringKey (resourceUID));
 		if (assignedAsset == null) 
-		  System.out.println ("VishnuPlugIn - AssignmentHandler.startElement no asset found with " + resourceUID);
+		  System.out.println ("VishnuPlugin - AssignmentHandler.startElement no asset found with " + resourceUID);
 	
 		resultListener.handleAssignment (handledTask, assignedAsset, start, end, setup, wrapup);
 	  }
@@ -185,7 +185,7 @@ public class XMLResultHandler extends PlugInHelper implements ResultHandler {
 		} else
 		  alpTasks.add (handledTask);
 
-		// this is absolutely critical, otherwise VishnuPlugIn will make a failed disposition
+		// this is absolutely critical, otherwise VishnuPlugin will make a failed disposition
 		resultListener.removeTask (taskKey);
 	  }
 	  //	  else if (myExtraExtraOutput) {

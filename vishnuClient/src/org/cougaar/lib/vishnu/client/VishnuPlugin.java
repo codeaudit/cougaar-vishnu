@@ -52,7 +52,7 @@ import org.cougaar.planning.ldm.plan.Workflow;
 
 import org.cougaar.lib.callback.UTILAssetCallback;
 import org.cougaar.lib.callback.UTILAssetListener;
-import org.cougaar.lib.filter.UTILBufferingPlugInAdapter;
+import org.cougaar.lib.filter.UTILBufferingPluginAdapter;
 import org.cougaar.lib.util.UTILAllocate;
 import org.cougaar.lib.util.UTILExpand;
 import org.cougaar.lib.util.UTILPreference;
@@ -81,7 +81,7 @@ import org.xml.sax.InputSource;
  *
  * Supports three main scheduler modes : External, Internal, and Direct.  These
  * are classes which implement the SchedulerLifecycle interface.  They
- * orchestrate the steps to use the Vishnu Scheduler.  The VishnuPlugIn
+ * orchestrate the steps to use the Vishnu Scheduler.  The VishnuPlugin
  * is a ModeListener and its as a mode listener that the modes communicate
  * with the plugin.
  * <p>
@@ -119,8 +119,8 @@ import org.xml.sax.InputSource;
  *       1         2         3         4         5         6         7         8
  * -->
  */
-public abstract class VishnuPlugIn 
-  extends UTILBufferingPlugInAdapter 
+public abstract class VishnuPlugin 
+  extends UTILBufferingPluginAdapter 
   implements UTILAssetListener, DirectModeListener, ResultListener {
 
   /**
@@ -537,7 +537,7 @@ public abstract class VishnuPlugIn
   }
 
    /** 
-	* Like VishnuPlugIn.prepareObjectFormat                           <p>
+	* Like VishnuPlugin.prepareObjectFormat                           <p>
 	*
 	* Send the file called <Cluster>.dff.xml as the default object format 
 	* for the problem.                                                     <br>
@@ -898,7 +898,7 @@ public abstract class VishnuPlugIn
    *
    * implemented for ResultListener interface 
    * </pre>
-   * @see VishnuAllocatorPlugIn#handleAssignment
+   * @see VishnuAllocatorPlugin#handleAssignment
    * @param task  task that was assigned to asset
    * @param asset asset handling task
    * @param start of main task
@@ -917,7 +917,7 @@ public abstract class VishnuPlugIn
    *
    * implemented for ResultListener interface 
    * </pre>
-   * @see VishnuAggregatorPlugIn#handleMultiAssignment
+   * @see VishnuAggregatorPlugin#handleMultiAssignment
    * @param tasks  tasks to be aggregated together and assigned to asset
    * @param asset asset handling task
    * @param start of main task

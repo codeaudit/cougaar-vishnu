@@ -88,7 +88,7 @@ public class InternalMode extends ExternalMode {
 	* <p>
 	* Then, parse the results using an XMLResultHandler, which is just a SAX <br>
 	* Parser and the AssignmentHandler, which just calls parseStartElement and <br>
-	* parseEndElement.  The AssignmentHandler will call methods in the VishnuPlugIn
+	* parseEndElement.  The AssignmentHandler will call methods in the VishnuPlugin
 	* to create plan elements for each assignment.<p>
 	*
 	* @see XMLResultHandler#parseStartElement

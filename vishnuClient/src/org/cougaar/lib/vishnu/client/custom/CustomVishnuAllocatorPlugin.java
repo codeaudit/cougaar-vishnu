@@ -29,7 +29,7 @@ import org.cougaar.planning.ldm.asset.Asset;
 
 import org.cougaar.lib.util.UTILAllocate;
 
-import org.cougaar.lib.vishnu.client.VishnuAllocatorPlugIn;
+import org.cougaar.lib.vishnu.client.VishnuAllocatorPlugin;
 import org.cougaar.lib.vishnu.client.XMLizer;
 import org.cougaar.lib.vishnu.client.XMLProcessor;
 import org.cougaar.lib.vishnu.server.TimeOps;
@@ -39,10 +39,10 @@ import org.w3c.dom.Document;
 /**
  * Uses CustomDataXMLize to create Vishnu objects either directly or through XML.
  */
-public class CustomVishnuAllocatorPlugIn extends VishnuAllocatorPlugIn {
+public class CustomVishnuAllocatorPlugin extends VishnuAllocatorPlugin {
 
   /** 
-   * Overrides VishnuPlugIn.createXMLProcessor                           <p>
+   * Overrides VishnuPlugin.createXMLProcessor                           <p>
    *
    * Use a different data xmlizer to create the data xml stream to send to vishnu,<br>
    * specifically, TranscomDataXMLize.
@@ -90,7 +90,7 @@ public class CustomVishnuAllocatorPlugIn extends VishnuAllocatorPlugIn {
    * 
    * Used by handleAssignment to figure out confidence of allocation. <p>
    *
-   * @see org.cougaar.lib.vishnu.client.VishnuAllocatorPlugIn#handleAssignment
+   * @see org.cougaar.lib.vishnu.client.VishnuAllocatorPlugin#handleAssignment
    * @param asset to test whether physical asset -- its doing the work in the allocation
    */
   protected double getConfidence (Asset asset) {

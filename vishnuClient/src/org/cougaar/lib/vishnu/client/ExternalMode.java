@@ -41,7 +41,7 @@ import org.xml.sax.SAXException;
  * <p>
  * Talks to a web server to orchestrate scheduling.
  */
-public class ExternalMode extends PlugInHelper implements SchedulerLifecycle {
+public class ExternalMode extends PluginHelper implements SchedulerLifecycle {
   public ExternalMode (ModeListener parent, VishnuComm comm, XMLProcessor xmlProcessor, 
 					   VishnuDomUtil domUtil, VishnuConfig config, ResultHandler resultHandler, 
 					   ParamMap myParamTable) {
@@ -69,10 +69,10 @@ public class ExternalMode extends PlugInHelper implements SchedulerLifecycle {
   }
 
   /** 
-   * Implemented for SchedulerLifecycle -- already done in VishnuPlugIn.prepareObjectFormat 
+   * Implemented for SchedulerLifecycle -- already done in VishnuPlugin.prepareObjectFormat 
    * so does nothing.
    * 
-   * @see VishnuPlugIn#prepareObjectFormat
+   * @see VishnuPlugin#prepareObjectFormat
    */
   public void initializeWithFormat () {}
 

@@ -105,7 +105,7 @@ public class AggregateXMLResultHandler extends XMLResultHandler {
 	  alpTasks.add (handledTask);
 	}
 
-	// this is absolutely critical, otherwise VishnuPlugIn will make a failed disposition
+	// this is absolutely critical, otherwise VishnuPlugin will make a failed disposition
 	resultListener.removeTask (taskKey);
 	if (debugParseAnswer)
 	  System.out.println (getName () + ".parseStartElement - removing task key " + taskKey);

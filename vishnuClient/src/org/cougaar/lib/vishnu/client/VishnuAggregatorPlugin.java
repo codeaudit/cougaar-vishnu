@@ -52,12 +52,12 @@ import org.cougaar.lib.callback.UTILWorkflowCallback;
 import org.cougaar.lib.callback.UTILExpansionCallback;
 import org.cougaar.lib.callback.UTILExpansionListener;
 
-import org.cougaar.lib.filter.UTILAggregatorPlugIn;
+import org.cougaar.lib.filter.UTILAggregatorPlugin;
 
 import org.cougaar.lib.util.UTILAllocate;
 import org.cougaar.lib.util.UTILAggregate;
 import org.cougaar.lib.util.UTILExpand;
-import org.cougaar.lib.util.UTILPlugInException;
+import org.cougaar.lib.util.UTILPluginException;
 import org.cougaar.lib.util.UTILPreference;
 import org.cougaar.lib.util.UTILPrepPhrase;
 import org.cougaar.lib.util.UTILRuntimeException;
@@ -107,14 +107,14 @@ import org.cougaar.core.plugin.PluginBindingSite;
  * what goes to the Vishnu scheduler.  If you do, it's good form to call    <br>
  * super.interestingTask().
  *                                                                          <p>
- * @see org.cougaar.lib.vishnu.client.VishnuPlugIn#interestingAsset
+ * @see org.cougaar.lib.vishnu.client.VishnuPlugin#interestingAsset
  * <!--
  * (When printed, any longer line will wrap...)
  *345678901234567890123456789012345678901234567890123456789012345678901234567890
  *       1         2         3         4         5         6         7         8
  * -->
  */
-public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregatorPlugIn, UTILExpansionListener {
+public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregatorPlugin, UTILExpansionListener {
 
   protected XMLResultHandler createXMLResultHandler () {
     return new AggregateXMLResultHandler (this, comm, xmlProcessor, domUtil, config, getMyParams ());
@@ -207,7 +207,7 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
 
   /** implemented for AggregationListener */
   public void handleRemovedAggregation (Aggregation agg) {	
-    // System.out.println("VishnuAggregatorPlugIn.handleRemovedAggregation called");
+    // System.out.println("VishnuAggregatorPlugin.handleRemovedAggregation called");
 
     Vector removedTasks = new Vector();
     removedTasks.add(agg.getTask());
@@ -261,7 +261,7 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
   /**
    * Implemented for ExpansionListener
    * Report to superior that the expansion has changed. Usually just a pass
-   * through to the UTILPlugInAdapter's updateAllocationResult.
+   * through to the UTILPluginAdapter's updateAllocationResult.
    *
    * @param exp Expansion that has changed.
    * @see org.cougaar.lib.callback.UTILExpansionListener
@@ -353,7 +353,7 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
    * @param wrapupEnd wrapup end
    * @see org.cougaar.planning.ldm.plan.Aggregation
    * @see org.cougaar.planning.ldm.plan.MPTask
-   * @see org.cougaar.lib.vishnu.client.VishnuPlugIn#makeSetupWrapupExpansion
+   * @see org.cougaar.lib.vishnu.client.VishnuPlugin#makeSetupWrapupExpansion
    * @see http://www.cougaar.org/projects/vishnu/fulldoc.html#specs
    */
   public void makePlanElement (Vector tasklist, Asset anAsset, Date start, Date end, Date setupStart, Date wrapupEnd,
@@ -503,7 +503,7 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
 
       if (!isSuccess) {
 	showDebugIfFailure ();
-	System.out.println ("VishnuAggregatorPlugIn.makeAggregation - making failed aggregation for " + parentTask);
+	System.out.println ("VishnuAggregatorPlugin.makeAggregation - making failed aggregation for " + parentTask);
 	UTILExpand.showPlanElement (parentTask);
       }
 	  
@@ -517,7 +517,7 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
 					       comp,
 					       estAR);
       if (myExtraOutput)
-	System.out.println ("VishnuAggregatorPlugIn.makeAggregation - Making aggregation for task " + 
+	System.out.println ("VishnuAggregatorPlugin.makeAggregation - Making aggregation for task " + 
 			    parentTask.getUID () + 
 			    " agg " + agg.getUID());
       publishAdd (agg);
@@ -546,7 +546,7 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
       if (next instanceof MPTask)
 	return ((MPTask)next);
     }
-    throw new UTILPlugInException(myClusterName + " couldn't find MPTask in list of Aggregation products");
+    throw new UTILPluginException(myClusterName + " couldn't find MPTask in list of Aggregation products");
   }
 
   /** 

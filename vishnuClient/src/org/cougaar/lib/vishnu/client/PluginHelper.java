@@ -10,13 +10,13 @@ import org.cougaar.planning.ldm.asset.Asset;
 import org.cougaar.lib.param.ParamMap;
 
 /** 
- * Base class for Modes and ResultHandlers that help the VishnuPlugIn to do its work.
+ * Base class for Modes and ResultHandlers that help the VishnuPlugin to do its work.
  * <p>
- * Holds references to the ModeListener(VishnuPlugIn) and utility objects like the 
+ * Holds references to the ModeListener(VishnuPlugin) and utility objects like the 
  * xmlProcessor, VishnuComm, DomUtil, Config, and the parameter map.
  */
-public class PlugInHelper {
-  public PlugInHelper (ModeListener parent, VishnuComm comm, XMLProcessor xmlProcessor, 
+public class PluginHelper {
+  public PluginHelper (ModeListener parent, VishnuComm comm, XMLProcessor xmlProcessor, 
 					   VishnuDomUtil domUtil, VishnuConfig config,
 					   ParamMap myParamTable) {
 	this.parent = parent;

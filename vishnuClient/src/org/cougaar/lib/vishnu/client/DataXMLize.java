@@ -200,7 +200,7 @@ public class DataXMLize extends FormatXMLize {
   protected void printWarning (String parentType) {
 	System.out.println ("\n-----------------------------------------------\n" + 
 						"DataXMLize.addNodes - descrip was null for " + parentType.toLowerCase() + "." +
-						"\nThis means that the default code in VishnuPlugIn.getTemplateTasks, which only\n" +
+						"\nThis means that the default code in VishnuPlugin.getTemplateTasks, which only\n" +
 						"looks at the first few tasks to define the problem format should be subclassed, or the\n" +
 						"firstTemplateTasks parameter increased to close to the number of tasks expected.\n" +
 						"(It's OK if it's larger than the number of tasks.)\n" +
@@ -570,10 +570,10 @@ public class DataXMLize extends FormatXMLize {
    *
    * Renames the field with the <code>od</code> ObjectDescrip.  This           <br>
    * object holds the mapping of oldname to newname.  It is created in the     <br>
-   * VishnuPlugIn.  The general problem that some fields can have multiple <br>
+   * VishnuPlugin.  The general problem that some fields can have multiple <br>
    * types of objects, and each needs a distinct name.
    *
-   * @see org.cougaar.lib.vishnu.client.VishnuPlugIn#removeDuplicates
+   * @see org.cougaar.lib.vishnu.client.VishnuPlugin#removeDuplicates
    * @param doc needed to create new elements
    * @param name the name of the field
    * @param theObj the value for the field
