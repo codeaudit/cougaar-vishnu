@@ -37,6 +37,11 @@ click from any page related to this problem.
 <p>
 The basic actions you can perform are:
 <ul>
+<li> <b>View the schedule -</b>
+Click on "Full Schedule" to see
+the Gantt charts for all the resources aligned
+to the same time axis.  This option is also available in the
+navigation bar.
 <li> <b>Edit/view the problem description -</b>
 At the bottom of this page is a description of the problem.
 Any changes you make to the description do not get written
@@ -48,8 +53,11 @@ There are three types of data: tasks, resources, and other data
 Each type of data has its own pick list.
 To view or edit a particular data object, first select its name from
 the appropriate pick list.
-Then click on the corresponding "View" button to just view the
-data in all the fields of this object or "Edit" to view this data
+Clicking on the corresponding "View" button allows you to view the
+data in all the fields of this object along with the assignment
+data for that object (the assigned resource and time interval for
+a task or a Gantt chart for a resource).
+Clincking on "Edit" allows you to view the data in the fields of the object
 and potentially change the values in these fields.
 When editing a data object, you will also have the option of deleting it.
 The "View All" button bring you to a page with links to all the task
@@ -60,14 +68,39 @@ To create a new data object, click on the appropriate "Create" button,
 and you will create a new object and be brought to the editing page
 in order to fill in the values for its fields.
 <li> <b>Edit/view the data formats -</b>
-<li> <b>View the schedule -</b>
+The pick list under "Objects" contains the list of all object types
+defined so far.  Selecting an object type and clicking the
+corresponding "View" button will allow you to see all the data
+fields in that object type along with their corresponding data types.
+Selecting an object type and clicking the "Edit" button will allow
+you not only to view the current definition of that object type
+but also to add new fields, change the data types of existing
+fields, rename fields, and delete fields.  Note that
+changing the data type on a field or deleting a field causes
+all existing instances of that object type to lose the data
+in that field.
+If you are creating a problem from scratch, the first thing
+you need to do is create task and resource objects and define
+their formats.  Until you have defined these formats, you cannot
+create tasks and resources, nor can you start defining the
+problem-specific scheduling logic.
 <li> <b>Edit/view the problem-specific scheduling logic-</b>
-<li> <b>Edit/view the parameter -</b>
+?????
+<li> <b>Edit/view the parameters -</b>
+Clicking on "Parameters" will allow you to view and modify the start and end
+times of the scheduling window (i.e., the times before and after
+which no task can be scheduled) as well as the genetic algorithm
+parameters that control the behavior of the automated scheduler.
 <li> <b>Start the automated scheduler -</b>
+?????
 <li> <b>Check the status of the automated scheduler -</b>
+?????
 <li> <b>Load more data into the problem -</b>
+?????
 <li> <b>Save the problem to a file -</b>
+?????
 <li> <b>Make a copy of the problem -</b>
+?????
 </ul>
 <?
   }
