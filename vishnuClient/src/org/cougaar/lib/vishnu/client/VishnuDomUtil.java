@@ -1,4 +1,4 @@
-/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/VishnuDomUtil.java,v 1.4 2001-07-18 15:41:29 gvidaver Exp $ */
+/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/VishnuDomUtil.java,v 1.5 2001-08-07 23:32:56 gvidaver Exp $ */
 
 package org.cougaar.lib.vishnu.client;
 
@@ -263,7 +263,7 @@ public class VishnuDomUtil {
     long min  = diff/60000l;
     long sec  = (diff - (min*60000l))/1000l;
     long millis = diff - (min*60000l) - (sec*1000l);
-	if (min < 1l && sec < 1l && millis < 500l) return;
+	//	if (min < 1l && sec < 1l && millis < 10l) return;
     System.out.println  (name + prefix +
 			 min + 
 			 ":" + ((sec < 10) ? "0":"") + sec + 
