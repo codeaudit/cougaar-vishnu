@@ -53,10 +53,7 @@ import org.cougaar.planning.ldm.plan.Workflow;
 import org.cougaar.lib.callback.UTILAssetCallback;
 import org.cougaar.lib.callback.UTILAssetListener;
 import org.cougaar.lib.filter.UTILBufferingPluginAdapter;
-import org.cougaar.lib.util.UTILAllocate;
-import org.cougaar.lib.util.UTILExpand;
-import org.cougaar.lib.util.UTILPreference;
-import org.cougaar.lib.util.UTILPrepPhrase;
+import org.cougaar.lib.util.*;
 import org.cougaar.lib.vishnu.server.Scheduler;
 import org.cougaar.lib.vishnu.server.TimeOps;
 
@@ -306,7 +303,7 @@ public abstract class VishnuPlugin
    * @see org.cougaar.lib.callback.UTILGenericListener#interestingTask
    */
   public boolean interestingTask (Task t) { 
-    PrepositionalPhrase pp = UTILPrepPhrase.getPrepNamed (t, "VISHNU"); 
+    PrepositionalPhrase pp = prepHelper.getPrepNamed (t, "VISHNU"); 
     if (pp != null && ((String) pp.getIndirectObject()).equals (getClassName(this)))
       return false;
     return true;
@@ -898,8 +895,8 @@ public abstract class VishnuPlugin
 			  " tasks.");
 
     for (Iterator iter = impossibleTasks.iterator (); iter.hasNext ();) {
-      publishAdd (UTILAllocate.makeFailedDisposition (this, ldmf, 
-						      (Task) iter.next ()));
+      publishAdd (allocHelper.makeFailedDisposition (this, ldmf, 
+						     (Task) iter.next ()));
     }
 
     if (stopOnFailure && !impossibleTasks.isEmpty()) {
@@ -1026,7 +1023,7 @@ public abstract class VishnuPlugin
    * </pre>
    **/
   protected Task createMainTask (Task task, Asset asset, Date start, Date end, Date setupStart, Date wrapupEnd) {
-    NewTask mainTask = (NewTask) UTILExpand.makeSubTask (ldmf, task, task.getDirectObject(), task.getSource());
+    NewTask mainTask = (NewTask) expandHelper.makeSubTask (ldmf, task, task.getDirectObject(), task.getSource());
     mainTask.setPrepositionalPhrases (getPrepPhrases (task, asset).elements());
     mainTask.setPreferences (getPreferences (task, start, start, end, end).elements());
     if (isDebugEnabled()) debug (getName () + ".createMainTask : made main task : " + mainTask.getUID());
@@ -1046,7 +1043,7 @@ public abstract class VishnuPlugin
    * </pre>
    **/
   protected Task createSetupTask (Task task, Asset asset, Date start, Date end, Date setupStart, Date wrapupEnd) {
-    NewTask setupTask = (NewTask) UTILExpand.makeSubTask (ldmf, task, task.getDirectObject(), task.getSource());
+    NewTask setupTask = (NewTask) expandHelper.makeSubTask (ldmf, task, task.getDirectObject(), task.getSource());
     setupTask.setVerb (Constants.Verb.Transit);
     setupTask.setPrepositionalPhrases (getPrepPhrases (task, asset).elements());
     setupTask.setPreferences (getPreferences (task, setupStart, setupStart, start, start).elements());
@@ -1067,7 +1064,7 @@ public abstract class VishnuPlugin
    * </pre>
    **/
   protected Task createWrapupTask (Task task, Asset asset, Date start, Date end, Date setupStart, Date wrapupEnd) {
-    NewTask wrapupTask = (NewTask) UTILExpand.makeSubTask (ldmf, task, task.getDirectObject(), task.getSource());
+    NewTask wrapupTask = (NewTask) expandHelper.makeSubTask (ldmf, task, task.getDirectObject(), task.getSource());
     wrapupTask.setVerb (Constants.Verb.Transit);
     wrapupTask.setPrepositionalPhrases (getPrepPhrases (task, asset).elements());
     wrapupTask.setPreferences (getPreferences(task, end, end, wrapupEnd, wrapupEnd).elements());
@@ -1091,13 +1088,13 @@ public abstract class VishnuPlugin
    * @return Vector - list of preferences for the MPTask
    */
   protected Vector getPreferences (Task parentTask, Date readyAt, Date earliest, Date best, Date latest) { 
-    Vector prefs = UTILAllocate.enumToVector(parentTask.getPreferences());
-    prefs = UTILPreference.replacePreference (prefs, UTILPreference.makeStartDatePreference (ldmf, readyAt));
-    prefs = UTILPreference.replacePreference (prefs, 
-					      UTILPreference.makeEndDatePreference (ldmf, 
-										    earliest,
-										    best,
-										    latest));
+    Vector prefs = allocHelper.enumToVector(parentTask.getPreferences());
+    prefs = prefHelper.replacePreference (prefs, prefHelper.makeStartDatePreference (ldmf, readyAt));
+    prefs = prefHelper.replacePreference (prefs, 
+					  prefHelper.makeEndDatePreference (ldmf, 
+									    earliest,
+									    best,
+									    latest));
     return prefs;
   }
 
@@ -1114,14 +1111,14 @@ public abstract class VishnuPlugin
 			 t.getUID());
     }
 
-    Workflow wf = UTILExpand.makeWorkflow (ldmf, subtasks, skipTransitARA, t);
+    Workflow wf = expandHelper.makeWorkflow (ldmf, subtasks, skipTransitARA, t);
 
     Expansion exp = null;
     if(wantConfidence){
-      exp = UTILExpand.makeExpansionWithConfidence (ldmf, wf);
+      exp = expandHelper.makeExpansionWithConfidence (ldmf, wf);
     }
     else{
-      exp = UTILExpand.makeExpansion (ldmf, wf);
+      exp = expandHelper.makeExpansion (ldmf, wf);
     }
 
     if (isDebugEnabled()){
@@ -1136,7 +1133,7 @@ public abstract class VishnuPlugin
 
     if (isDebugEnabled()){
       debug(getName() + ".handleTask: Expansion published. Workflow has " + 
-			 UTILAllocate.enumToList(exp.getWorkflow ().getTasks()).size () + " subtasks." );
+			 allocHelper.enumToList(exp.getWorkflow ().getTasks()).size () + " subtasks." );
     }
 
   }
@@ -1153,14 +1150,14 @@ public abstract class VishnuPlugin
    *         prep with the asset
    */
   protected Vector getPrepPhrases(Task parentTask, Asset a) {
-    Vector preps = new Vector (UTILAllocate.enumToVector(parentTask.getPrepositionalPhrases()));
-    if (!UTILPrepPhrase.hasPrepNamed (parentTask, Constants.Preposition.WITH))
-      preps.addElement(UTILPrepPhrase.makePrepositionalPhrase(ldmf, 
-							      Constants.Preposition.WITH, 
-							      a));
+    Vector preps = new Vector (allocHelper.enumToVector(parentTask.getPrepositionalPhrases()));
+    if (!prepHelper.hasPrepNamed (parentTask, Constants.Preposition.WITH))
+      preps.addElement(prepHelper.makePrepositionalPhrase(ldmf, 
+							  Constants.Preposition.WITH, 
+							  a));
 
-    preps.addElement(UTILPrepPhrase.makePrepositionalPhrase(ldmf, 
-							    "VISHNU", getClassName(this)));
+    preps.addElement(prepHelper.makePrepositionalPhrase(ldmf, 
+							"VISHNU", getClassName(this)));
     return preps;
   }
 
@@ -1224,6 +1221,7 @@ public abstract class VishnuPlugin
   protected XMLProcessor xmlProcessor;
   /** config files, gets representative tasks and assets for automatic translation */
   protected VishnuConfig config;
+
 }
 
 

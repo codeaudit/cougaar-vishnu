@@ -27,8 +27,6 @@ import java.util.Map;
 import org.cougaar.glm.ldm.asset.GLMAsset;
 import org.cougaar.planning.ldm.asset.Asset;
 
-import org.cougaar.lib.util.UTILAllocate;
-
 import org.cougaar.lib.vishnu.client.VishnuAggregatorPlugin;
 import org.cougaar.lib.vishnu.client.XMLizer;
 import org.cougaar.lib.vishnu.client.XMLProcessor;

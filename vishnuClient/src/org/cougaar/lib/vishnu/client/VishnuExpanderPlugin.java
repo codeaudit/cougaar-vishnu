@@ -34,10 +34,6 @@ import org.cougaar.lib.filter.UTILBufferingPluginAdapter;
 
 import org.cougaar.lib.param.ParamException;
 
-import org.cougaar.lib.util.UTILAllocate;
-import org.cougaar.lib.util.UTILExpand;
-import org.cougaar.lib.util.UTILPrepPhrase;
-import org.cougaar.lib.util.UTILPreference;
 import org.cougaar.lib.util.UTILRuntimeException;
 
 import org.cougaar.planning.ldm.asset.Asset;
@@ -69,6 +65,7 @@ import java.util.Set;
 import java.util.Vector;
 
 /**
+ * <pre>
  * A simple expander base class.  
  *
  * Must subclass to get full behavior.  
@@ -76,16 +73,19 @@ import java.util.Vector;
  * Especially consider overriding handleAssignment to make the subtasks 
  * appropriate for your application.
  *
+ * </pre>
  * @see #handleAssignment
  */
 public class VishnuExpanderPlugin extends VishnuPlugin implements UTILExpanderPlugin {
   /**
+   * <pre>
    * Provide the callback that is paired with the buffering thread, which is a
    * listener.  The buffering thread is the listener to the callback
    *
    * Creates an instance of the ExpandableTaskCallback, which means the plugin
    * is looking for tasks that are naked, and not yet expanded or part of workflows.
    *
+   * </pre>
    * @param bufferingThread -- the thread the callback informs when there are new input tasks
    * @return an ExpandableTaskCallback with the buffering thread as its listener
    * @see org.cougaar.lib.callback.UTILWorkflowCallback
@@ -107,7 +107,7 @@ public class VishnuExpanderPlugin extends VishnuPlugin implements UTILExpanderPl
    */
   public void handleIllFormedTask (Task t) {
     reportIllFormedTask(t);
-    publishAdd (UTILExpand.makeFailedExpansion (null, ldmf, t));
+    publishAdd (expandHelper.makeFailedExpansion (null, ldmf, t));
   }
 
   /**
@@ -276,7 +276,7 @@ public class VishnuExpanderPlugin extends VishnuPlugin implements UTILExpanderPl
   public void handleRemovedTask(Task t) {}
 
   /**
-   * Implemented for UTILExpanderPlugin interface
+   * Implemented for expand.rPlugin interface
    *
    * The guts of the expansion.
    *
@@ -284,8 +284,8 @@ public class VishnuExpanderPlugin extends VishnuPlugin implements UTILExpanderPl
    */
   public Vector getSubtasks(Task t) { 
     debug (getName () + 
-			" : WARNING - getSubtasks should be overriden." +
-			" Default does nothing.");
+	   " : WARNING - getSubtasks should be overriden." +
+	   " Default does nothing.");
     return new Vector (); 
   }
 

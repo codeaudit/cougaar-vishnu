@@ -39,9 +39,6 @@ import org.cougaar.lib.callback.UTILWorkflowCallback;
 
 import org.cougaar.lib.filter.UTILAllocatorPlugin;
 
-import org.cougaar.lib.util.UTILAllocate;
-import org.cougaar.lib.util.UTILPreference;
-
 /**
  * Vishnu plugin that takes Vishnu assignments and creates allocations out of them
  * 
@@ -116,7 +113,7 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
    */
   public void handleIllFormedTask (Task t) {
     reportIllFormedTask(t);
-    publishAdd (UTILAllocate.makeFailedDisposition (null, ldmf, t));
+    publishAdd (allocHelper.makeFailedDisposition (null, ldmf, t));
   }
 
   /**
@@ -140,13 +137,13 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
    * Defines conditions for rescinding tasks.
    *
    * Only return true if the plugin can do something different 
-   * with the task that failed.  See UTILAllocate.isFailedPE.
+   * with the task that failed.  See allocHelper.isFailedPE.
    *
    * When returns TRUE, handleRescindedAlloc is called. 
    *
    * If in making an allocation, a preference
    * threshold is exceeded, the returned plan element will be
-   * a Disposition (see UTILAllocate.makeAllocation ()).
+   * a Disposition (see alloc.makeAllocation ()).
    *
    * Called by UTILAllocationCallback.reactToChangedAlloc.
    *
@@ -156,8 +153,8 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
    *         attached to allocation
    * @see #handleRescindedAlloc
    * @see org.cougaar.lib.callback.UTILAllocationCallback#reactToChangedAlloc
-   * @see org.cougaar.lib.util.UTILAllocate#makeAllocation
-   * @see org.cougaar.lib.util.UTILAllocate#isFailedPE
+   * @see org.cougaar.lib.util.alloc.makeAllocation
+   * @see org.cougaar.lib.util.alloc.isFailedPE
    */
   public boolean needToRescind(Allocation alloc){
     return false;
@@ -282,15 +279,13 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
    * @param wrapupEnd  end   of a wrapup task, equal to end if there is no wrapup task
    **/
   public void handleAssignment (Task task, Asset asset, Date start, Date end, Date setupStart, Date wrapupEnd) {
-    if (isInfoEnabled())
+    if (isDebugEnabled())
       debug ("VishnuAllocatorPlugin.makePlanElement : " + 
-			  " assigning " + task.getUID() + 
-			  "\nto " + asset.getUID () +
-			  " from " + start + 
-			  " to " + end);
+	     " assigning " + task.getUID() + 
+	     "\nto " + asset.getUID () +
+	     " from " + start + 
+	     " to " + end);
 
-    if (isInfoEnabled()) UTILAllocate.setDebug (true);
-	
     if (makeSetupAndWrapupTasks && 
 	((setupStart.getTime() < start.getTime()) ||
 	 (wrapupEnd.getTime () > end.getTime  ()))) {
@@ -299,8 +294,8 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
       for (Iterator iter = subtasks.iterator(); iter.hasNext(); ) {
 	Task subtask = (Task) iter.next();
 	createAllocation (subtask, asset, 
-			  UTILPreference.getReadyAt (subtask), 
-			  UTILPreference.getBestDate (subtask), 
+			  prefHelper.getReadyAt (subtask), 
+			  prefHelper.getBestDate (subtask), 
 			  getConfidence (asset),
 			  getRole());
       }
@@ -311,21 +306,22 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
 			getConfidence (asset),
 			getRole());
     }
-    if (isInfoEnabled()) UTILAllocate.setDebug (false);
   }
 
   /**
+   * <pre>
    * By default, sets highest confidence on allocation. <br>
    * This is usually only appropriate for allocation to Physical Assets.  <br>
    * If your allocator allocates to organizations, you probably want to override <br>
-   * this function and set the confidence to UTILAllocate.MEDIUM_CONFIDENCE. <p>
+   * this function and set the confidence to alloc.MEDIUM_CONFIDENCE. <p>
    * 
    * Or you could do : <code>
    * double confidence = ((GLMAsset) asset).hasPhysicalPG () ? 
-   * UTILAllocate.HIGHEST_CONFIDENCE : UTILAllocate.MEDIUM_CONFIDENCE; </code>
+   * alloc.HIGHEST_CONFIDENCE : alloc.MEDIUM_CONFIDENCE; </code>
+   * </pre>
    **/
   protected double getConfidence (Asset asset) {
-    return UTILAllocate.HIGHEST_CONFIDENCE;
+    return allocHelper.HIGHEST_CONFIDENCE;
   }
 
   /** transporter by default, override to use a different role */
@@ -351,13 +347,13 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
 					  Date end,
 					  double confidence,
 					  Role role) {
-    PlanElement allocation = UTILAllocate.makeAllocation(this,
-							 ldmf, realityPlan, 
-							 task, asset,
-							 start, 
-							 end, 
-							 confidence,
-							 role);
+    PlanElement allocation = allocHelper.makeAllocation(this,
+							ldmf, realityPlan, 
+							task, asset,
+							start, 
+							end, 
+							confidence,
+							role);
 		
     publishAdd(allocation);
     return allocation;

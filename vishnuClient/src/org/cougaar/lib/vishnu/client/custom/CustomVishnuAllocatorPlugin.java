@@ -27,8 +27,6 @@ import java.util.Map;
 import org.cougaar.glm.ldm.asset.GLMAsset;
 import org.cougaar.planning.ldm.asset.Asset;
 
-import org.cougaar.lib.util.UTILAllocate;
-
 import org.cougaar.lib.vishnu.client.VishnuAllocatorPlugin;
 import org.cougaar.lib.vishnu.client.XMLizer;
 import org.cougaar.lib.vishnu.client.XMLProcessor;
@@ -98,6 +96,6 @@ public class CustomVishnuAllocatorPlugin extends VishnuAllocatorPlugin {
    */
   protected double getConfidence (Asset asset) {
     return ((GLMAsset) asset).hasPhysicalPG () ? 
-      UTILAllocate.HIGHEST_CONFIDENCE : UTILAllocate.MEDIUM_CONFIDENCE;
+      allocHelper.HIGHEST_CONFIDENCE : allocHelper.MEDIUM_CONFIDENCE;
   }
 }

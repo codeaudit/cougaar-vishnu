@@ -54,12 +54,7 @@ import org.cougaar.lib.callback.UTILExpansionListener;
 
 import org.cougaar.lib.filter.UTILAggregatorPlugin;
 
-import org.cougaar.lib.util.UTILAllocate;
-import org.cougaar.lib.util.UTILAggregate;
-import org.cougaar.lib.util.UTILExpand;
 import org.cougaar.lib.util.UTILPluginException;
-import org.cougaar.lib.util.UTILPreference;
-import org.cougaar.lib.util.UTILPrepPhrase;
 import org.cougaar.lib.util.UTILRuntimeException;
 
 import java.net.URL;
@@ -133,12 +128,12 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
     super.setupFilters ();
 
     if (isInfoEnabled())
-      debug (getName () + " : Filtering for Aggregations...");
+      info (getName () + " : Filtering for Aggregations...");
 
     addFilter (myAggCallback    = createAggCallback    ());
 
     if (isInfoEnabled())
-      debug (getName () + " : Filtering for Expansions...");
+      info (getName () + " : Filtering for Expansions...");
 
     addFilter (new UTILExpansionCallback (this, logger));
   }
@@ -157,7 +152,7 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
    **/
   protected UTILFilterCallback createThreadCallback (UTILGenericListener bufferingThread) { 
     if (isInfoEnabled())
-      debug (getName () + " Filtering for tasks with Workflows...");
+      info (getName () + " Filtering for tasks with Workflows...");
 
     myWorkflowCallback = new UTILWorkflowCallback  (bufferingThread, logger); 
 
@@ -202,9 +197,9 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
   public void reportChangedAggregation(Aggregation agg) { updateAllocationResult (agg); }
   /** implemented for AggregationListener */
   public void handleSuccessfulAggregation(Aggregation agg) {
-    if (agg.getEstimatedResult().getConfidenceRating() > UTILAllocate.MEDIUM_CONFIDENCE) {
+    if (agg.getEstimatedResult().getConfidenceRating() > allocHelper.MEDIUM_CONFIDENCE) {
       // handleRemovedAggregation (agg);
-    } else if (isInfoEnabled()) {
+    } else if (isDebugEnabled()) {
       debug (getName () + 
 			  ".handleSuccessfulAggregation : got changed agg (" + 
 			  agg.getUID () + 
@@ -252,7 +247,7 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
     if (enum.hasMoreElements ())
       firstTask = enum.nextElement();
     if (firstTask != null)
-      return UTILPrepPhrase.hasPrepNamed ((Task)firstTask, "VISHNU"); 
+      return prepHelper.hasPrepNamed ((Task)firstTask, "VISHNU"); 
     else
       return false;
   }
@@ -301,20 +296,20 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
    */
   public void handleMultiAssignment (Vector tasks, Asset asset, 
 				     Date start, Date end, Date setupStart, Date wrapupEnd, boolean assetWasUsedBefore) {
-    if (isInfoEnabled()) {
+    if (isDebugEnabled()) {
       debug (getName() + ".handleMultiAssignment : ");
       debug ("\nAssigned tasks : ");
       for (int i = 0; i < tasks.size (); i++) {
 	Task task = (Task) tasks.get(i);
 
-	Date ready = UTILPreference.getReadyAt   (task);
-	Date early = UTILPreference.getEarlyDate (task);
-	Date late  = UTILPreference.getLateDate  (task);
+	Date ready = prefHelper.getReadyAt   (task);
+	Date early = prefHelper.getEarlyDate (task);
+	Date late  = prefHelper.getLateDate  (task);
 
 	debug ("" + task.getUID() +
 			    " - ready " + ready + (start.before(ready) ? (" AFTER start " + start) : "") +
 			    " early " + early   + (end.before(early) ? (" AFTER end " + end) : "") +
-			    " best " + UTILPreference.getBestDate (task) + 
+			    " best " + prefHelper.getBestDate (task) + 
 			    " late " + late     + (end.after(late) ? (" BEFORE end " + end) : ""));
       }
       debug ("\nresource = " + asset +
@@ -366,26 +361,22 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
    */
   public void makePlanElement (Vector tasklist, Asset anAsset, Date start, Date end, Date setupStart, Date wrapupEnd,
 			       boolean assetWasUsedBefore) {
-    if (isInfoEnabled()) UTILAggregate.setDebug (true);
-
     if (assetWasUsedBefore) {
       if (addToPrevious (tasklist, anAsset, start, end, setupStart, wrapupEnd))
 	return;
     }
 
-    List aggResults = UTILAggregate.makeAggregation(this,
-						    ldmf,
-						    realityPlan,
-						    tasklist,
-						    getVerbForAgg(tasklist),
-						    getPrepPhrasesForAgg(anAsset, tasklist),
-						    getDirectObjectsForAgg(tasklist),
-						    getPreferencesForAgg(anAsset, tasklist, start, end),
-						    ((PluginBindingSite) getBindingSite()).getAgentIdentifier(),
-						    getAspectValuesMap(tasklist, start, end),
-						    UTILAllocate.MEDIUM_CONFIDENCE);
-    if (isInfoEnabled()) UTILAggregate.setDebug (false);
-
+    List aggResults = aggregateHelper.makeAggregation(this,
+						      ldmf,
+						realityPlan,
+						tasklist,
+						getVerbForAgg(tasklist),
+						getPrepPhrasesForAgg(anAsset, tasklist),
+						getDirectObjectsForAgg(tasklist),
+						getPreferencesForAgg(anAsset, tasklist, start, end),
+						((PluginBindingSite) getBindingSite()).getAgentIdentifier(),
+						getAspectValuesMap(tasklist, start, end),
+						allocHelper.MEDIUM_CONFIDENCE);
     publishList(aggResults);
       
     cleanupAggregation(anAsset, tasklist, aggResults);
@@ -399,7 +390,7 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
     Task previousTask = getEncapsulatedTask (anAsset, start, end);
 
     if (previousTask != null) { // found transport task
-      if (isInfoEnabled()) 
+      if (isDebugEnabled()) 
 	debug (getName () + ".addToPrevious - found previous task for asset " + 
 			    anAsset.getUID());
 
@@ -442,7 +433,8 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 
   /** look for a plan element that covers exactly the same span of time */
   protected Task getEncapsulatedTask (Asset asset, Date start, Date end) {
-    Collection tasks = asset.getRoleSchedule().getEncapsulatedRoleSchedule (start, end);
+    Collection tasks = asset.getRoleSchedule().getEncapsulatedRoleSchedule (start.getTime(), 
+									    end.getTime());
     if (tasks.isEmpty ())
       return null;
     for (Iterator iter=tasks.iterator (); iter.hasNext (); ) {
@@ -505,29 +497,24 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
       Task parentTask = (Task)i.next();
       AspectValue [] aspectValues = (AspectValue []) avMap.get (parentTask);
 
-      if (isInfoEnabled()) UTILAllocate.setDebug (true); // will show comparison of prefs to aspect value
-
-      boolean isSuccess = !UTILAllocate.exceedsPreferences (parentTask, aspectValues);
+      boolean isSuccess = !allocHelper.exceedsPreferences (parentTask, aspectValues);
 
       if (!isSuccess) {
-	// showDebugIfFailure ();
 	debug ("VishnuAggregatorPlugin.makeAggregation - making failed aggregation for " + parentTask);
-	UTILExpand.showPlanElement (parentTask);
+	expandHelper.showPlanElement (parentTask);
       }
 	  
-      if (isInfoEnabled()) UTILAllocate.setDebug (false);
-	
-      AllocationResult estAR = ldmf.newAVAllocationResult(UTILAllocate.HIGHEST_CONFIDENCE,
+      AllocationResult estAR = ldmf.newAVAllocationResult(allocHelper.HIGHEST_CONFIDENCE,
 							  isSuccess,
 							  aspectValues);
       Aggregation agg = ldmf.createAggregation(parentTask.getPlan(),
 					       parentTask,
 					       comp,
 					       estAR);
-      if (isInfoEnabled())
+      if (isDebugEnabled())
 	debug ("VishnuAggregatorPlugin.makeAggregation - Making aggregation for task " + 
-			    parentTask.getUID () + 
-			    " agg " + agg.getUID());
+	       parentTask.getUID () + 
+	       " agg " + agg.getUID());
       publishAdd (agg);
       comp.addAggregation (agg);
     }
@@ -603,28 +590,28 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
   protected Vector getPreferencesForAgg(Asset a, List g, Date start, Date end) { 
     Task firstParentTask = (Task)g.get(0);
 
-    Date earlyDate = start.after (UTILPreference.getEarlyDate(firstParentTask)) ?
-      start : UTILPreference.getEarlyDate(firstParentTask);
+    Date earlyDate = start.after (prefHelper.getEarlyDate(firstParentTask)) ?
+      start : prefHelper.getEarlyDate(firstParentTask);
 	
-    Vector prefs = UTILAllocate.enumToVector(firstParentTask.getPreferences());
-    prefs = UTILPreference.replacePreference (prefs, UTILPreference.makeStartDatePreference (ldmf, start));
-    prefs = UTILPreference.replacePreference (prefs, 
-					      UTILPreference.makeEndDatePreference (ldmf, 
+    Vector prefs = allocHelper.enumToVector(firstParentTask.getPreferences());
+    prefs = prefHelper.replacePreference (prefs, prefHelper.makeStartDatePreference (ldmf, start));
+    prefs = prefHelper.replacePreference (prefs, 
+					      prefHelper.makeEndDatePreference (ldmf, 
 										    earlyDate,
 										    end,
-										    UTILPreference.getLateDate(firstParentTask)));
+										    prefHelper.getLateDate(firstParentTask)));
     long totalQuantity = 0l;
-    if (UTILPreference.hasPrefWithAspectType(firstParentTask, AspectType.QUANTITY)) {
+    if (prefHelper.hasPrefWithAspectType(firstParentTask, AspectType.QUANTITY)) {
       for (Iterator iter = g.iterator (); iter.hasNext (); ) {
 	try {
-	  totalQuantity += UTILPreference.getQuantity ((Task) iter.next());
+	  totalQuantity += prefHelper.getQuantity ((Task) iter.next());
 	} catch (UTILRuntimeException re) {
 	  totalQuantity += 1; // the task didn't have a quantity preference
 	}
       }
 
       prefs = 
-	UTILPreference.replacePreference (prefs, UTILPreference.makeQuantityPreference (ldmf, totalQuantity));
+	prefHelper.replacePreference (prefs, prefHelper.makeQuantityPreference (ldmf, totalQuantity));
     }
 
     return prefs;
@@ -639,10 +626,11 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
    * @return the asset on the task
    */
   protected Asset getAssetFromMPTask (MPTask combinedTask) {
-    return (Asset) UTILPrepPhrase.getIndirectObject(combinedTask, Constants.Preposition.WITH);
+    return (Asset) prepHelper.getIndirectObject(combinedTask, Constants.Preposition.WITH);
   }
 
   /**
+   * <pre>
    * Defines how the MPTask holds the asset for the task->asset association.
    *
    * Should be in sync with getAssetFromMPTask, which accesses the prep.
@@ -650,6 +638,7 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
    * Critical, because the allocator downstream will look for this prep and
    * pluck the asset off to make the allocation.
    *
+   * </pre>
    * @see #getAssetFromMPTask
    * @param a - asset to attach to task
    * @param g - parent tasks
@@ -657,12 +646,12 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
    *         prep with the asset
    */
   protected Vector getPrepPhrasesForAgg(Asset a, List g) {
-    Vector firstTaskPreps = UTILAllocate.enumToVector(((Task)g.get(0)).getPrepositionalPhrases());
+    Vector firstTaskPreps = allocHelper.enumToVector(((Task)g.get(0)).getPrepositionalPhrases());
     Vector preps = new Vector (firstTaskPreps);
 	
-    preps.addElement(UTILPrepPhrase.makePrepositionalPhrase(ldmf, 
-							    Constants.Preposition.WITH, 
-							    a));
+    preps.addElement(prepHelper.makePrepositionalPhrase(ldmf, 
+							Constants.Preposition.WITH, 
+							a));
     return preps;
   }
 
@@ -706,7 +695,7 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
     int i = 0;
     for (Iterator iter = g.iterator (); iter.hasNext (); ) {
       Task task = (Task) iter.next ();
-      Vector preferences = UTILAllocate.enumToVector(task.getPreferences ());
+      Vector preferences = allocHelper.enumToVector(task.getPreferences ());
       // all the time-only preference items will share the same aspects
       if (preferences.size () == 2) {
 	if (timeOnlyAspects == null)
@@ -816,11 +805,11 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
       if (next_o instanceof Task) {
 	Task taskToPublish = (Task) next_o;
 	PlanElement pe = taskToPublish.getPlanElement ();
-	if (pe != null && !pe.getEstimatedResult().isSuccess () && isInfoEnabled()) {
+	if (pe != null && !pe.getEstimatedResult().isSuccess () && isDebugEnabled()) {
 	  debug (getName () + 
-			      ".publishList - Task " + taskToPublish.getUID () +
-			      " failed : ");
-	  UTILExpand.showPlanElement (taskToPublish);
+		 ".publishList - Task " + taskToPublish.getUID () +
+		 " failed : ");
+	  expandHelper.showPlanElement (taskToPublish);
 	}
       }
       else if (next_o instanceof Composition) {

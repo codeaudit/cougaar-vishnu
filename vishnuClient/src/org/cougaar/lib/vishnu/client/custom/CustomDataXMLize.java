@@ -40,7 +40,6 @@ import org.cougaar.planning.ldm.asset.Asset;
 import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.util.log.Logger;
 
-import org.cougaar.lib.util.UTILPreference;
 import org.cougaar.lib.vishnu.client.XMLizer;
 
 import org.w3c.dom.Document;
