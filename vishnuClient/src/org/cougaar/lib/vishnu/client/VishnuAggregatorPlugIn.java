@@ -404,6 +404,18 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
 	}
   }
 
+  protected void handleMultiAssignment (Vector tasks, Asset asset, Date start, Date end, Date setupStart, Date wrapupEnd) {
+	if (myExtraOutput)
+	  System.out.println (getName() + ".handleMultiAssignment : "+
+						  "\ntasks     = " + tasks +
+						  "\nresource = " + asset +
+						  "\nsetup    = " + setupStart +
+						  "\nstart    = " + start +
+						  "\nend      = " + end +
+						  "\nwrapup   = " + wrapupEnd);
+	makePlanElement (tasks, asset, start, end, setupStart, wrapupEnd);
+  }
+  
   /**
    * <pre>
    * Makes an aggregation given a list of assignments.
