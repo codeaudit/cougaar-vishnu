@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Scheduler.java,v 1.15 2001-04-12 17:50:31 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Scheduler.java,v 1.16 2001-05-22 17:39:19 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -254,10 +254,10 @@ public class Scheduler {
 
 
   private boolean updateActivity (TimeBlock act, int maxTime) {
-    if (act.getStartTime() >= maxTime)
-      return false;
-    if (act.getEndTime() > maxTime)
-      act.setEndTime (maxTime);
+//    if (act.getStartTime() >= maxTime)
+//      return false;
+//    if (act.getEndTime() > maxTime)
+//      act.setEndTime (maxTime);
     return true;
   }
 
