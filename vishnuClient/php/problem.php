@@ -26,8 +26,33 @@
   }
 
   function hintsForPage() {
+    global $problem;
 ?>
-Working on it.
+<H2>Working on it.</H2>
+This is the main page for the problem <? echo $problem; ?>.
+All the basic actions you can perform for this problem
+are essentially one or two clicks away from this page, and the
+navigation bar will allow you to return to this page with one
+click from any page related to this problem.
+<p>
+The basic actions you can perform are:
+<ul>
+<li> <b>Edit/view the problem description -</b>
+At the bottom of this page is a description of the problem.
+Any changes you make to the description do not get written
+back to the server (and hence become permanent) until you
+click on "Update Description".
+<li> <b>Edit/view the data -</b>
+<li> <b>Edit/view the data formats -</b>
+<li> <b>View the schedule -</b>
+<li> <b>Edit/view the problem-specific scheduling logic-</b>
+<li> <b>Edit/view the parameter -</b>
+<li> <b>Start the automated scheduler -</b>
+<li> <b>Check the status of the automated scheduler -</b>
+<li> <b>Load more data into the problem -</b>
+<li> <b>Save the problem to a file -</b>
+<li> <b>Make a copy of the problem -</b>
+</ul>
 <?
   }
 
