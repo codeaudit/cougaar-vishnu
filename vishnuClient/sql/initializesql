@@ -178,7 +178,8 @@ insert into constraint_descrip values (	"multitasking",
 				       	"multiple choice", 
 					"N/A", 
 					"none", 
-	 				"Ability of resources to perform more than one task at a time (must be one of <b>none</b>, <b>ungrouped</b> or <b>grouped</b>)");
+	 				"Ability of resources to perform more than one task at a time (must be one
+of <a href='fulldoc.php#multitasking_none'><b>none</b></a>, <b><a href='fulldoc.php#multitasking_ungrouped'>ungrouped</a></b>, <b><a href='fulldoc.php#multitasking_grouped'>grouped</a></b>, or <a href='fulldoc.php#multitasking_ignoring_time'><b>ignoring_time</b></a>) ");
 insert into constraint_descrip values (	"groupable",
 					"Groupable", 
 				       	"boolean", 
