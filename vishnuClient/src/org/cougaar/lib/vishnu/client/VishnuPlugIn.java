@@ -1,4 +1,4 @@
-/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/Attic/VishnuPlugIn.java,v 1.3 2001-02-13 03:50:57 gvidaver Exp $ */
+/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/Attic/VishnuPlugIn.java,v 1.4 2001-02-13 05:08:23 gvidaver Exp $ */
 
 package org.cougaar.lib.vishnu.client;
 
@@ -2027,7 +2027,7 @@ public abstract class VishnuPlugIn
 	boolean madeInputStream = false;
     InputStream is = null;
 	
-	while (numTries > 0 || madeInputStream) {
+	while (numTries > 0 && !madeInputStream) {
 	  try {
 		is = connection.getInputStream();
 		madeInputStream = true;
