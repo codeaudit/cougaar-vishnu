@@ -1,0 +1,1 @@
+java -Dorg.cougaar.lib.vishnu.server.host=hammett -Dorg.cougaar.lib.vishnu.server.path="/~dmontana/vishnu/" -Dorg.cougaar.lib.vishnu.server.user=root -Dorg.cougaar.lib.vishnu.server.password=abc123 -Xms60m -Xmx100m LoadProblem asmara.vsh
