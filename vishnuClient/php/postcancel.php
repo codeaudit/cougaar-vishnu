@@ -15,7 +15,10 @@
               "problem = '" . $problem . "'");
   $value = mysql_fetch_row ($result);
 
-  echo "<message>OK, for " . $problem . " now percent complete is " . $value[0] . "</message>";
+  if ($value)
+    echo "<message>OK, for " . $problem . " now percent complete is " . $value[0] . "</message>";
+  else
+    echo "<message>OK, there was no request for " . $problem . "</message>";
 
   mysql_close();
 ?>
