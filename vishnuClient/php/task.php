@@ -188,7 +188,9 @@
   <INPUT TYPE=hidden NAME="resourcekey" VALUE="<? echo $resourcekey ?>">
   <INPUT TYPE=submit VALUE="<? echo $act ?>" NAME="freezeaction"><p>
 <?
-      if ((! constReferencesResource ("task_duration")) &&
+      if ((! ismultitask ($problem)) &&
+          (! isgrouped ($problem)) &&
+          (! constReferencesResource ("task_duration")) &&
           (! constReferencesResource ("setup_duration")) &&
           (! constReferencesResource ("wrapup_duration"))) {
         echo "<SELECT name=\"reassignment\">\n";
