@@ -952,7 +952,8 @@ the genetic algorithm performance:
         to be selected as a parent; this should always be less than
         1; making this closer to 1 decreases the pressure and allows the
         genetic algorithm to search longer before converging on a single
-        solution
+        solution; a good choice for this parameter is given by the
+        formula <nobr>1 - (10 / population_size)</nobr>
   </td>
  </tr>
  <tr>
@@ -986,7 +987,7 @@ the genetic algorithm performance:
   <td width=460 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
         Probability of choosing crossover as the genetic operator used
         to generate the next child (should sum to 1 with the mutation
-        probability)
+        probability); a good value for this is 0.5
   </td>
  </tr>
  <tr>
@@ -995,7 +996,7 @@ the genetic algorithm performance:
   <td width=460 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
         Probability of choosing mutation as the genetic operator used
         to generate the next child (should sum to 1 with the crossover
-        probability)
+        probability); a good value for this is 0.5
   </td>
  </tr>
  <tr>
@@ -1004,7 +1005,7 @@ the genetic algorithm performance:
   <td width=460 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
         The mutation operator will randomly choose some fraction of
         the chromosome to mutate, and this paramater sets the upper
-        limit on this fraction
+        limit on this fraction; a good value for this is 1.0
   </td>
  </tr>
  <tr>
@@ -1686,9 +1687,10 @@ Returns the sum of all delta evaluations for all the tasks already assigned to a
 <? makeSection ("XML Data Formats", "b", "B"); ?>
 
 <p>The following is a DTD showing the expected XML data formats
-for specifying a problem.<br>
+for specifying a problem.  (It is available as a text file in
+testdata/problem.dtd.)<br>
 <br><pre>
-&lt;?xml version='1.0' standalone='yes' ?&gt;
+&lt;?xml version='1.0' encoding='UTF-8' ?&gt;
 &lt;!-- Vishnu Problem Specification --&gt;
 
 &lt;!ELEMENT PROBLEM (DATAFORMAT, SPECS, GAPARMS, (DATA)?)&gt;
@@ -1762,6 +1764,7 @@ for specifying a problem.<br>
           max_time CDATA #REQUIRED
           max_duplicates CDATA #REQUIRED
           max_top_dog_age CDATA #REQUIRED
+          report_interval CDATA #IMPLIED
           initializer CDATA #REQUIRED
           decoder CDATA #REQUIRED &gt;
 &lt;!ELEMENT GAOPERATORS (GAOPERATOR)+ &gt;
