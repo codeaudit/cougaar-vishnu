@@ -18,7 +18,7 @@
  *  PERFORMANCE OF THE COUGAAR SOFTWARE.
  * </copyright>
  */
-/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/VishnuDomUtil.java,v 1.8 2001-09-26 18:24:32 gvidaver Exp $ */
+/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/VishnuDomUtil.java,v 1.9 2002-03-11 19:50:39 gvidaver Exp $ */
 
 package org.cougaar.lib.vishnu.client;
 
@@ -173,7 +173,6 @@ public class VishnuDomUtil {
   }
 
   /**
-   * <pre>
    * Takes two nodes of xml documents and makes the rootToAdd
    * node as a child of the placeToAdd node.  
    *
@@ -193,7 +192,6 @@ public class VishnuDomUtil {
    * createElement method and add those.
    *
    * BOZO : probably better way to do this!
-   * </pre>
    * @param placeToAdd - the root of the destination document
    * @param rootToAdd  - the root of the document to merge into the first
    *                     doc

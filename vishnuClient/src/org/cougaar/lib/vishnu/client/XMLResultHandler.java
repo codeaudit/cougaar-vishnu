@@ -27,18 +27,18 @@ import org.xml.sax.SAXException;
  */
 public class XMLResultHandler extends PluginHelper implements ResultHandler {
   public XMLResultHandler (ModeListener parent, VishnuComm comm, XMLProcessor xmlProcessor, 
-						   VishnuDomUtil domUtil, VishnuConfig config,
-						   ParamMap myParamTable) {
-	super (parent, comm, xmlProcessor, domUtil, config, myParamTable);
-	resultListener = (ResultListener) parent;
+			   VishnuDomUtil domUtil, VishnuConfig config,
+			   ParamMap myParamTable) {
+    super (parent, comm, xmlProcessor, domUtil, config, myParamTable);
+    resultListener = (ResultListener) parent;
   }
 
   protected void localSetup () {
-	super.localSetup ();
+    super.localSetup ();
 	
-	try {debugParseAnswer = 
-		   getMyParams().getBooleanParam("debugParseAnswer");}    
-	catch(Exception e) {debugParseAnswer = false;}
+    try {debugParseAnswer = 
+	   getMyParams().getBooleanParam("debugParseAnswer");}    
+    catch(Exception e) {debugParseAnswer = false;}
   }
 
   /**
@@ -54,36 +54,36 @@ public class XMLResultHandler extends PluginHelper implements ResultHandler {
    * </pre>
    */
   protected void parseAnswer() {
-	if (myExtraOutput)
-	  System.out.println (parent.getName() + ".waitTillFinished - Vishnu scheduler result returned!");
-	int unhandledTasks = parent.getNumTasks ();
+    if (myExtraOutput)
+      System.out.println (parent.getName() + ".waitTillFinished - Vishnu scheduler result returned!");
+    int unhandledTasks = parent.getNumTasks ();
 
-	comm.getAnswer (new AssignmentHandler ());
+    comm.getAnswer (new AssignmentHandler ());
 
-	if (myExtraOutput)
-	  System.out.println (parent.getName () + ".parseAnswer - created successful plan elements for " +
-						  (unhandledTasks-parent.getNumTasks()) + " tasks.");
+    if (myExtraOutput)
+      System.out.println (parent.getName () + ".parseAnswer - created successful plan elements for " +
+			  (unhandledTasks-parent.getNumTasks()) + " tasks.");
   }
 
   public DefaultHandler getAssignmentHandler () {
-	return new AssignmentHandler ();
+    return new AssignmentHandler ();
   }
   
   /**
    * this is where we look up unique ids
    */
   public class AssignmentHandler extends DefaultHandler {
-	/**
-	 * just calls parseStartElement in plugin
-	 */
-	public void startElement (String uri, String local, String name, Attributes atts) throws SAXException {
-	  parseStartElement (name, atts);
+    /**
+     * just calls parseStartElement in plugin
+     */
+    public void startElement (String uri, String local, String name, Attributes atts) throws SAXException {
+      parseStartElement (name, atts);
     }
-	/**
-	 * just calls parseEndElement in plugin
-	 */
-	public void endElement (String uri, String local, String name) throws SAXException {
-	  parseEndElement (name);
+    /**
+     * just calls parseEndElement in plugin
+     */
+    public void endElement (String uri, String local, String name) throws SAXException {
+      parseEndElement (name);
     }
   }
 
@@ -92,143 +92,143 @@ public class XMLResultHandler extends PluginHelper implements ResultHandler {
   protected Vector alpTasks = new Vector ();
 
   /**
-   * Given the XML that indicates assignments, parse it <p>
+   * Given the XML that indicates assignments, parse it
    *
-   * Uses the <code>myTaskUIDtoObject</code> and <code>myAssetUIDtoObject</code> maps <br>
-   * to lookup the keys returned in the xml to figure out which task was assigned to  <br>
+   * Uses the <code>myTaskUIDtoObject</code> and <code>myAssetUIDtoObject</code> maps
+   * to lookup the keys returned in the xml to figure out which task was assigned to
    * which asset.  These were set in processTasks using setUIDToObjectMap.
    * 
    * @param name the tag name
    * @param atts the tag's attributes
-   * @see #processTasks
-   * @see #setUIDToObjectMap
+   * @see org.cougaar.lib.vishnu.client.VishnuPlugin#processTasks
+   * @see org.cougaar.lib.vishnu.client.VishnuPlugin#setUIDToObjectMap
    */
   protected void parseStartElement (String name, Attributes atts) {
-	try {
-	  if (myExtraExtraOutput)
-	  	System.out.println (parent.getName() + ".parseStartElement got " + name);
+    try {
+      if (myExtraExtraOutput)
+	System.out.println (parent.getName() + ".parseStartElement got " + name);
 	  
-	  if (name.equals ("ASSIGNMENT")) {
-		if (myExtraOutput) {
-		  System.out.println (parent.getName () + ".parseStartElement -\nAssignment: task = " + atts.getValue ("task") +
-							  " resource = " + atts.getValue ("resource") +
-							  " start = " + atts.getValue ("start") +
-							  " end = " + atts.getValue ("end"));
-		}
-		String taskUID     = atts.getValue ("task");
-		String resourceUID = atts.getValue ("resource");
-		String startTime   = atts.getValue ("start");
-		String endTime     = atts.getValue ("end");
-		String setupTime   = atts.getValue ("setup");
-		String wrapupTime  = atts.getValue ("wrapup");
-		Date start         = format.parse (startTime);
-		Date end           = format.parse (endTime);
-		Date setup         = format.parse (setupTime);
-		Date wrapup        = format.parse (wrapupTime);
-
-		StringKey taskKey = new StringKey (taskUID);
-		Task handledTask  = resultListener.getTaskForKey (taskKey);
-		if (handledTask == null) {
-		  // Ignore this assignment since it has already been handled previously
-		  return;
-		  
-		  // System.out.println ("VishnuPlugin - AssignmentHandler.startElement no task found with " + taskUID);
-		  // System.out.println ("\tmap was " + myTaskUIDtoObject);
-		}
-		else {
-		  resultListener.removeTask (taskKey);
-		}
-
-		Asset assignedAsset = resultListener.getAssetForKey (new StringKey (resourceUID));
-		if (assignedAsset == null) 
-		  System.out.println ("VishnuPlugin - AssignmentHandler.startElement no asset found with " + resourceUID);
-	
-		resultListener.handleAssignment (handledTask, assignedAsset, start, end, setup, wrapup);
-	  }
-	  else if (name.equals ("MULTITASK")) {
-		if (myExtraOutput || debugParseAnswer) {
-		  System.out.println (getName () + ".parseStartElement -\nAssignment: " + 
-							  " resource = " + atts.getValue ("resource") +
-							  " start = " + atts.getValue ("start") +
-							  " end = " + atts.getValue ("end") +
-							  " setup = " + atts.getValue ("setup") +
-							  " wrapup = " + atts.getValue ("wrapup"));
-		}
-		String resourceUID = atts.getValue ("resource");
-		String startTime   = atts.getValue ("start");
-		String endTime     = atts.getValue ("end");
-		String setupTime   = atts.getValue ("setup");
-		String wrapupTime  = atts.getValue ("wrapup");
-		start     = format.parse (startTime);
-		end       = format.parse (endTime);
-		setup     = format.parse (setupTime);
-		wrapup    = format.parse (wrapupTime);
-
-		assignedAsset = resultListener.getAssetForKey (new StringKey (resourceUID));
-		if (assignedAsset == null) 
-		  System.out.println (getName () + ".parseStartElement - no asset found with " + resourceUID);
-	  }
-	  else if (name.equals ("TASK")) {
-		if (myExtraOutput || debugParseAnswer) {
-		  System.out.println (getName () + ".parseStartElement -\nTask: " + 
-							  " task = " + atts.getValue ("task"));
-		}
-		String taskUID = atts.getValue ("task");
-
-		StringKey taskKey = new StringKey (taskUID);
-		Task handledTask = resultListener.getTaskForKey (taskKey);
-		if (handledTask == null) {
-		  // Ignore since task has already been handled
-		  return;
-
-		  // System.out.println (getName () + ".parseStartElement - no task found with " + taskUID + " uid.");
-		} else
-		  alpTasks.add (handledTask);
-
-		// this is absolutely critical, otherwise VishnuPlugin will make a failed disposition
-		resultListener.removeTask (taskKey);
-	  }
-	  //	  else if (myExtraExtraOutput) {
-	  //		System.out.println (getName () + ".parseStartElement - ignoring tag " + name);
-	  //	  }
-	} catch (NullPointerException npe) {
-	  System.out.println (getName () + ".parseStartElement - got bogus assignment");
-	  npe.printStackTrace ();
-	} catch (ParseException pe) {
-	  System.out.println (getName () + ".parseStartElement - start or end time is in bad format " + 
-						  pe + "\ndates were : " +
-						  " start = " + atts.getValue ("start") +
-						  " end = " + atts.getValue ("end") +
-						  " setup = " + atts.getValue ("setup") +
-						  " wrapup = " + atts.getValue ("wrapup"));
+      if (name.equals ("ASSIGNMENT")) {
+	if (myExtraOutput) {
+	  System.out.println (parent.getName () + ".parseStartElement -\nAssignment: task = " + atts.getValue ("task") +
+			      " resource = " + atts.getValue ("resource") +
+			      " start = " + atts.getValue ("start") +
+			      " end = " + atts.getValue ("end"));
 	}
+	String taskUID     = atts.getValue ("task");
+	String resourceUID = atts.getValue ("resource");
+	String startTime   = atts.getValue ("start");
+	String endTime     = atts.getValue ("end");
+	String setupTime   = atts.getValue ("setup");
+	String wrapupTime  = atts.getValue ("wrapup");
+	Date start         = format.parse (startTime);
+	Date end           = format.parse (endTime);
+	Date setup         = format.parse (setupTime);
+	Date wrapup        = format.parse (wrapupTime);
+
+	StringKey taskKey = new StringKey (taskUID);
+	Task handledTask  = resultListener.getTaskForKey (taskKey);
+	if (handledTask == null) {
+	  // Ignore this assignment since it has already been handled previously
+	  return;
+		  
+	  // System.out.println ("VishnuPlugin - AssignmentHandler.startElement no task found with " + taskUID);
+	  // System.out.println ("\tmap was " + myTaskUIDtoObject);
+	}
+	else {
+	  resultListener.removeTask (taskKey);
+	}
+
+	Asset assignedAsset = resultListener.getAssetForKey (new StringKey (resourceUID));
+	if (assignedAsset == null) 
+	  System.out.println ("VishnuPlugin - AssignmentHandler.startElement no asset found with " + resourceUID);
+	
+	resultListener.handleAssignment (handledTask, assignedAsset, start, end, setup, wrapup);
+      }
+      else if (name.equals ("MULTITASK")) {
+	if (myExtraOutput || debugParseAnswer) {
+	  System.out.println (getName () + ".parseStartElement -\nAssignment: " + 
+			      " resource = " + atts.getValue ("resource") +
+			      " start = " + atts.getValue ("start") +
+			      " end = " + atts.getValue ("end") +
+			      " setup = " + atts.getValue ("setup") +
+			      " wrapup = " + atts.getValue ("wrapup"));
+	}
+	String resourceUID = atts.getValue ("resource");
+	String startTime   = atts.getValue ("start");
+	String endTime     = atts.getValue ("end");
+	String setupTime   = atts.getValue ("setup");
+	String wrapupTime  = atts.getValue ("wrapup");
+	start     = format.parse (startTime);
+	end       = format.parse (endTime);
+	setup     = format.parse (setupTime);
+	wrapup    = format.parse (wrapupTime);
+
+	assignedAsset = resultListener.getAssetForKey (new StringKey (resourceUID));
+	if (assignedAsset == null) 
+	  System.out.println (getName () + ".parseStartElement - no asset found with " + resourceUID);
+      }
+      else if (name.equals ("TASK")) {
+	if (myExtraOutput || debugParseAnswer) {
+	  System.out.println (getName () + ".parseStartElement -\nTask: " + 
+			      " task = " + atts.getValue ("task"));
+	}
+	String taskUID = atts.getValue ("task");
+
+	StringKey taskKey = new StringKey (taskUID);
+	Task handledTask = resultListener.getTaskForKey (taskKey);
+	if (handledTask == null) {
+	  // Ignore since task has already been handled
+	  return;
+
+	  // System.out.println (getName () + ".parseStartElement - no task found with " + taskUID + " uid.");
+	} else
+	  alpTasks.add (handledTask);
+
+	// this is absolutely critical, otherwise VishnuPlugin will make a failed disposition
+	resultListener.removeTask (taskKey);
+      }
+      //	  else if (myExtraExtraOutput) {
+      //		System.out.println (getName () + ".parseStartElement - ignoring tag " + name);
+      //	  }
+    } catch (NullPointerException npe) {
+      System.out.println (getName () + ".parseStartElement - got bogus assignment");
+      npe.printStackTrace ();
+    } catch (ParseException pe) {
+      System.out.println (getName () + ".parseStartElement - start or end time is in bad format " + 
+			  pe + "\ndates were : " +
+			  " start = " + atts.getValue ("start") +
+			  " end = " + atts.getValue ("end") +
+			  " setup = " + atts.getValue ("setup") +
+			  " wrapup = " + atts.getValue ("wrapup"));
+    }
   }
 
   protected void parseEndElement (String name) {
-	if (name.equals ("MULTITASK")) {
-	  if (debugParseAnswer) {
-		System.out.println (getName () + ".parseEndElement - got ending MULTITASK.");
-	  }
-	  for (int i = 0; i < alpTasks.size (); i++)
-		resultListener.handleAssignment ((Task) alpTasks.get(i), assignedAsset, start, end, setup, wrapup);
-	  alpTasks.clear ();
-	}
-	else if (name.equals ("TASK")) {}
-	else if (debugParseAnswer) {
-	  System.out.println (getName () + ".parseEndElement - ignoring tag " + name);
-	}
+    if (name.equals ("MULTITASK")) {
+      if (debugParseAnswer) {
+	System.out.println (getName () + ".parseEndElement - got ending MULTITASK.");
+      }
+      for (int i = 0; i < alpTasks.size (); i++)
+	resultListener.handleAssignment ((Task) alpTasks.get(i), assignedAsset, start, end, setup, wrapup);
+      alpTasks.clear ();
+    }
+    else if (name.equals ("TASK")) {}
+    else if (debugParseAnswer) {
+      System.out.println (getName () + ".parseEndElement - ignoring tag " + name);
+    }
   }
 
   public void setNameToDescrip (Map map) {
-	myNameToDescrip = map;
+    myNameToDescrip = map;
   }
 
   public void setSingleAssetClassName (String name) {
-	singleAssetClassName = name;
+    singleAssetClassName = name;
   }
 
   protected String getName () {
-	return "XMLResultHandler";
+    return "XMLResultHandler";
   }
   
   Map myNameToDescrip;

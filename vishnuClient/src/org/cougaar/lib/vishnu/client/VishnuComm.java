@@ -254,7 +254,6 @@ public class VishnuComm {
   }
   
   /**
-   * <pre>
    * sets Problem name used by Vishnu
    *
    * Uses a shared, static Map of cluster names to plugin instances so
@@ -272,7 +271,6 @@ public class VishnuComm {
    *
    * (There is nothing to tell which is which in the name.)
    *
-   * </pre>
    */
   protected void setProblemName () {
 	synchronized (clusterToInstance) {
@@ -387,7 +385,6 @@ public class VishnuComm {
   }
 
   /**
-   * <pre>
    * Cancels any pending jobs.
    * 
    * Should only be done once, when the plugin loads.
@@ -398,10 +395,8 @@ public class VishnuComm {
    * Once in the "processing" state, the scheduler will not accept new 
    * jobs for this problem, effectively blocking it for all time.
    *
-   * </pre>
    * bogus is sent first because <code>user</code> would not arrive 
    * at php with value if it was sent first.  No idea why.
-   *
    */
   public void postCancel () {
     StringBuffer sb = new StringBuffer ();
@@ -629,12 +624,10 @@ public class VishnuComm {
   }
 
   /**
-   * <pre>
    * Returns response as string.
    *
    * If there is an IOException on the input stream, will try two more times.
    *
-   * </pre>
    * @param  connection the url connection to get data from
    * @return String reponse from URL
    */

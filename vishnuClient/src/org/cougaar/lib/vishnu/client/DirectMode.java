@@ -95,7 +95,7 @@ public class DirectMode extends InternalMode {
    *
    * @see #addTasksDirectly
    * @see #prepareData
-   * @see #prepareVishnuObjects
+   * @see org.cougaar.lib.vishnu.client.VishnuPlugin#prepareVishnuObjects
    * @see org.cougaar.lib.vishnu.server.Scheduler#scheduleInternal
    */
   public void run () {

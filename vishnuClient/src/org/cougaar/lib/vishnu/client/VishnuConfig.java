@@ -58,7 +58,6 @@ public class VishnuConfig {
   protected String     getName        () { return name;         }
   
   /**
-   * <pre>
    * Sets the set of template tasks.  Template tasks are examined
    * to create the ObjectFormat for the tasks used in the problem.
    *
@@ -76,7 +75,6 @@ public class VishnuConfig {
    *
    * By default looks at the parameter <code>firstTemplateTasks</code> 
    * to determine how many of the tasks should be sent as templates.
-   * </pre>
    */
   protected List getTemplateTasks (List tasks, int firstTemplateTasks) {
 	List templateTasks = new ArrayList ();
@@ -103,7 +101,6 @@ public class VishnuConfig {
    * instead do :
    *  new HashSet( getAssetCallback().getSubscription ().getCollection());
    *
-   * </pre>
    * @param list of tasks to use to filter out relevant assets
    * @return Collection of assets to send to Vishnu
    */
@@ -112,7 +109,6 @@ public class VishnuConfig {
   }
   
   /**
-   * <pre>
    * Looks through all assets and finds prototypical instances
    * of distinct classes.
    *
@@ -122,7 +118,6 @@ public class VishnuConfig {
    *
    * Uses type identification PG to find distinct types.
    *
-   * </pre>
    * @return Collection of the asset instances
    */
   protected Collection getDistinctAssetTypes (List assetClassName, Collection assetCollection) {
@@ -198,7 +193,7 @@ public class VishnuConfig {
   }
 
   /**
-   * <pre>
+
    * get the file containing the other data object format
    *
    * If the parameter "otherDataFormatFile" is set, it will look
@@ -206,7 +201,6 @@ public class VishnuConfig {
    * value of the parameter.  
    * Otherwise, looks for a file called <ClusterName>.odf.xml.
    *
-   * </pre>
    * @see #getNeededFile
    * @return filename of other data object format file
    */
@@ -215,7 +209,6 @@ public class VishnuConfig {
   }
 
   /**
-   * <pre>
    * get the file containing the other data
    *
    * If the parameter "otherDataFile" is set, it will look
@@ -223,7 +216,6 @@ public class VishnuConfig {
    * value of the parameter.
    * Otherwise, looks for a file called <ClusterName>.odd.xml.
    *
-   * </pre>
    * @see #getNeededFile
    * @return filename of other data object(s)
    */
@@ -232,7 +224,6 @@ public class VishnuConfig {
   }
 
   /**
-   * <pre>
    * get the file containing the vishnu scheduling specs
    *
    * If the parameter "specsFile" is set, it will look
@@ -240,7 +231,6 @@ public class VishnuConfig {
    * value of the parameter.
    * Otherwise, looks for a file called <ClusterName>.vsh.xml.
    *
-   * </pre>
    * @see #getNeededFile
    * @return filename of specs file
    */
@@ -249,7 +239,6 @@ public class VishnuConfig {
   }
 
   /**
-   * <pre>
    * get the file containing the ga parameters for VISHNU
    *
    * If the parameter "gaFile" is set, it will look
@@ -259,7 +248,6 @@ public class VishnuConfig {
    *
    * return relative path of env file with which to start the
    * Vishnu Scheduler.
-   * </pre>
    * @see #getNeededFile
    * @return relative path to specs parameters
    */
@@ -272,13 +260,11 @@ public class VishnuConfig {
   }
 
   /**
-   * <pre>
    * Get file name for input file.  If the parameter exists, use it,
    * otherwise append the defaultSuffix to the cluster name and use that.
    *
    * If there are more than one vishnu plugins in a cluster, one should
    * set the parameter to the name of the file.
-   * </pre>
    */
   public String getNeededFile (String paramName, String defaultSuffix) {
     String envFile  = null;

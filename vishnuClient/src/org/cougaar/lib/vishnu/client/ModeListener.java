@@ -3,13 +3,11 @@ package org.cougaar.lib.vishnu.client;
 import java.util.Collection;
 
 /** 
- * <pre>
  * What a plugin must do for a SchedulerLifecycle mode. 
  * 
- * Mainly, the lifecycle must know what tasks are required to schedule,
+ * The lifecycle must know what tasks are required to schedule,
  * which assets are available to use to handle those tasks, 
  * and if the assets change.
- * </pre>
  */
 public interface ModeListener {
   // task stuff

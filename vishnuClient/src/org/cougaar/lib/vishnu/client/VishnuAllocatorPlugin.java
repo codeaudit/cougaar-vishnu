@@ -125,7 +125,6 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
   }
 
   /**
-   * <pre>
    * Implemented for UTILAllocationListener
    *
    * Defines conditions for rescinding tasks.
@@ -141,7 +140,6 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
    *
    * Called by UTILAllocationCallback.reactToChangedAlloc.
    *
-   * </pre>
    * @param alloc the allocation to check
    * @return boolean true if the allocation needs to be rescinded
    *         Also returns false if there is no reported alloc result
@@ -156,14 +154,12 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
   }
 
   /**
-   * <pre>
    * Implemented for UTILAllocationListener
    *
    * Public version of publishRemove
    *
    * Called by UTILAllocationCallback.reactToChangedAlloc.
    *
-   * </pre>
    * @param alloc Allocation to remove from cluster's logPlan
    * @see org.cougaar.lib.callback.UTILAllocationCallback#reactToChangedAlloc
    */
@@ -172,7 +168,6 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
   }
 
   /**
-   * <pre>
    * Implemented for UTILAllocationListener
    *
    * Defines re-allocation of a rescinded task.  
@@ -191,18 +186,16 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
    *
    * Does nothing by default.
    *
-   * </pre>
    * @param alloc the allocation that should be rescinded
    * @return false since doesn't rescind the allocation
-   * @see UTILPluginAdapter#updateAllocationResult
-   * @see UTILAllocationListener#updateAllocationResult
+   * @see org.cougaar.lib.filter.UTILPluginAdapter#updateAllocationResult
+   * @see org.cougaar.lib.callback.UTILAllocationListener#updateAllocationResult
    * @see org.cougaar.lib.callback.UTILAllocationCallback#reactToChangedAlloc
    * @see #needToRescind
    */
   public boolean handleRescindedAlloc (Allocation alloc) { return false; }
 
   /**
-   * <pre>
    * Implemented for UTILAllocationListener
    *
    * Called automatically by the UTILAllocationCallback 
@@ -218,17 +211,15 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
    *
    * Does nothing by default.
    *
-   * </pre>
    * @param alloc the allocation that was successful
-   * @see UTILPluginAdapter#updateAllocationResult
-   * @see UTILAllocationListener#updateAllocationResult
+   * @see org.cougaar.lib.filter.UTILPluginAdapter#updateAllocationResult
+   * @see org.cougaar.lib.callback.UTILAllocationListener#updateAllocationResult
    * @see org.cougaar.lib.callback.UTILAllocationCallback#reactToChangedAlloc
    * @see #needToRescind
    */
   public void handleSuccessfulAlloc (Allocation alloc) {}
 
   /** 
-   * <pre>
    * Called when an allocation is removed from the cluster.
    * I.e. an upstream cluster removed an allocation, and that 
    * rescind has resulted in this allocation being removed.
@@ -242,18 +233,17 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
    * cluster will see handleRemovedAlloc get called.
    *
    * Does nothing by default.
-   * </pre>
    */
   public void handleRemovedAlloc (Allocation alloc) {
-	if (myExtraOutput) {
-	  String owner = "?";
-	  try {
-		owner =  alloc.getTask().getDirectObject().getUID().getOwner();
-	  } catch (Exception e) {}
+    if (myExtraOutput) {
+      String owner = "?";
+      try {
+	owner =  alloc.getTask().getDirectObject().getUID().getOwner();
+      } catch (Exception e) {}
 	
-	  System.out.println(getName() + ".handleRemovedAlloc called for task " + alloc.getTask().getUID() + 
-						 " from unit " + owner);
-	}
+      System.out.println(getName() + ".handleRemovedAlloc called for task " + alloc.getTask().getUID() + 
+			 " from unit " + owner);
+    }
 
     Vector removedTasks = new Vector();
     removedTasks.add(alloc.getTask());
@@ -291,26 +281,26 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
 
     if (myExtraOutput) UTILAllocate.setDebug (true);
 	
-	if (makeSetupAndWrapupTasks && 
-		((setupStart.getTime() < start.getTime()) ||
-		 (wrapupEnd.getTime () > end.getTime  ()))) {
-	  List subtasks = makeSetupWrapupExpansion (task, asset, start, end, setupStart, wrapupEnd);
+    if (makeSetupAndWrapupTasks && 
+	((setupStart.getTime() < start.getTime()) ||
+	 (wrapupEnd.getTime () > end.getTime  ()))) {
+      List subtasks = makeSetupWrapupExpansion (task, asset, start, end, setupStart, wrapupEnd);
 	  
-	  for (Iterator iter = subtasks.iterator(); iter.hasNext(); ) {
-		Task subtask = (Task) iter.next();
-		createAllocation (subtask, asset, 
-						  UTILPreference.getReadyAt (subtask), 
-						  UTILPreference.getBestDate (subtask), 
-						  getConfidence (asset),
-						  getRole());
-	  }
-	} else {
-		createAllocation (task, asset, 
-						  start,
-						  end,
-						  getConfidence (asset),
-						  getRole());
-	}
+      for (Iterator iter = subtasks.iterator(); iter.hasNext(); ) {
+	Task subtask = (Task) iter.next();
+	createAllocation (subtask, asset, 
+			  UTILPreference.getReadyAt (subtask), 
+			  UTILPreference.getBestDate (subtask), 
+			  getConfidence (asset),
+			  getRole());
+      }
+    } else {
+      createAllocation (task, asset, 
+			start,
+			end,
+			getConfidence (asset),
+			getRole());
+    }
     if (myExtraOutput) UTILAllocate.setDebug (false);
   }
 
@@ -325,12 +315,12 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
    * UTILAllocate.HIGHEST_CONFIDENCE : UTILAllocate.MEDIUM_CONFIDENCE; </code>
    **/
   protected double getConfidence (Asset asset) {
-	return UTILAllocate.HIGHEST_CONFIDENCE;
+    return UTILAllocate.HIGHEST_CONFIDENCE;
   }
 
   /** transporter by default, override to use a different role */
   protected Role getRole () {
-	return Role.getRole("Transporter");
+    return Role.getRole("Transporter");
   }
   
   /**
@@ -346,21 +336,21 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
    * @return Allocation or Disposition
    */
   protected PlanElement createAllocation (Task task,
-										  Asset asset,
-										  Date start,
-										  Date end,
-										  double confidence,
-										  Role role) {
-	PlanElement allocation = UTILAllocate.makeAllocation(this,
-														 ldmf, realityPlan, 
-														 task, asset,
-														 start, 
-														 end, 
-														 confidence,
-														 role);
+					  Asset asset,
+					  Date start,
+					  Date end,
+					  double confidence,
+					  Role role) {
+    PlanElement allocation = UTILAllocate.makeAllocation(this,
+							 ldmf, realityPlan, 
+							 task, asset,
+							 start, 
+							 end, 
+							 confidence,
+							 role);
 		
-	publishAdd(allocation);
-	return allocation;
+    publishAdd(allocation);
+    return allocation;
   }
 
   protected UTILWorkflowCallback   myWorkflowCallback;

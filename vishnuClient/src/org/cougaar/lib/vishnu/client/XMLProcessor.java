@@ -55,7 +55,6 @@ import org.cougaar.util.ConfigFinder;
 import org.cougaar.planning.ldm.plan.Task;
 
 /**
- * <pre>
  * ALP-Vishnu bridge.
  *
  * Base class for interacting with the Vishnu scheduler.
@@ -65,7 +64,6 @@ import org.cougaar.planning.ldm.plan.Task;
  * each of which is defined in the allocator, aggregator, and expander 
  * subclasses.
  *
- * </pre>
  * <!--
  * (When printed, any longer line will wrap...)
  *345678901234567890123456789012345678901234567890123456789012345678901234567890
@@ -79,19 +77,19 @@ public class XMLProcessor {
   private static String SEPARATOR = "_";
 
   public XMLProcessor (ParamMap myParamTable,
-					   String name, 
-					   String clusterName,
-					   VishnuDomUtil domUtil,
-					   VishnuComm comm,
-					   ConfigFinder configFinder) {
-	this.myParamTable = myParamTable;
+		       String name, 
+		       String clusterName,
+		       VishnuDomUtil domUtil,
+		       VishnuComm comm,
+		       ConfigFinder configFinder) {
+    this.myParamTable = myParamTable;
 	
-	localSetup ();
-	this.name = name;
-	this.clusterName = clusterName;
-	this.configFinder = configFinder;
-	this.domUtil = domUtil;
-	this.comm = comm;
+    localSetup ();
+    this.name = name;
+    this.clusterName = clusterName;
+    this.configFinder = configFinder;
+    this.domUtil = domUtil;
+    this.comm = comm;
   }
   
   protected ParamMap   getMyParams    () { return myParamTable; }
@@ -112,46 +110,46 @@ public class XMLProcessor {
     catch(Exception e) {showDataXML = false;}
 
     try {debugFormatXMLizer = 
-		   getMyParams().getBooleanParam("debugFormatXMLizer");}
+	   getMyParams().getBooleanParam("debugFormatXMLizer");}
     catch(Exception e) {debugFormatXMLizer = false;}
 
     try {debugDataXMLizer = 
-		   getMyParams().getBooleanParam("debugDataXMLizer");}    
+	   getMyParams().getBooleanParam("debugDataXMLizer");}    
     catch(Exception e) {debugDataXMLizer = false;}
 
-	// controls the time period that Vishnu uses - assumes world starts at this time
-	// has large effect on scaling of gantt chart displays
+    // controls the time period that Vishnu uses - assumes world starts at this time
+    // has large effect on scaling of gantt chart displays
     try {vishnuEpochStartTime = 
-		   getMyParams().getStringParam("vishnuEpochStartTime");}    
+	   getMyParams().getStringParam("vishnuEpochStartTime");}    
     catch(Exception e) {vishnuEpochStartTime = "2000-01-01 00:00:00";}
 
-	// controls the time period that Vishnu uses - assumes world ends at this time
-	// has large effect on scaling of gantt chart displays
+    // controls the time period that Vishnu uses - assumes world ends at this time
+    // has large effect on scaling of gantt chart displays
     try {vishnuEpochEndTime = 
-		   getMyParams().getStringParam("vishnuEpochEndTime");}    
+	   getMyParams().getStringParam("vishnuEpochEndTime");}    
     catch(Exception e) {vishnuEpochEndTime = "2002-01-01 00:00:00";}
   }
 
   public void createDataXMLizer (Map nameToDescrip, String assetClassName) {
-	setDataXMLizer (new DataXMLize (debugDataXMLizer));
-	((DataXMLize)dataXMLizer).setNameToDescrip (nameToDescrip);
-	((DataXMLize)dataXMLizer).setResourceName  (assetClassName);
+    setDataXMLizer (new DataXMLize (debugDataXMLizer));
+    ((DataXMLize)dataXMLizer).setNameToDescrip (nameToDescrip);
+    ((DataXMLize)dataXMLizer).setResourceName  (assetClassName);
   }
 
   protected void setDataXMLizer (XMLizer xmlizer) {
-	dataXMLizer = xmlizer;
+    dataXMLizer = xmlizer;
   }
   
   public XMLizer getDataXMLizer () {
-	if (dataXMLizer == null)
-	  System.err.println ("XMLProcessor.getDataXMLizer - ERROR - dataxmlizer not set!");
+    if (dataXMLizer == null)
+      System.err.println ("XMLProcessor.getDataXMLizer - ERROR - dataxmlizer not set!");
 	
-	return dataXMLizer;
+    return dataXMLizer;
   }
   
   /** uses formatXMLizer to generate XML for Vishnu */
   protected Document getFormatDoc (Collection taskAndAssets, String assetClassName) {
-	FormatXMLize formatXMLizer = new FormatXMLize (debugFormatXMLizer);
+    FormatXMLize formatXMLizer = new FormatXMLize (debugFormatXMLizer);
     return formatXMLizer.createDoc (taskAndAssets, null, assetClassName);
   }
 
@@ -164,44 +162,43 @@ public class XMLProcessor {
    * @param nameToDescrip mapping of object type to object description (field names, etc.)
    */
   protected Document getDataDoc (Collection taskAndAssets, Collection changedAssets, XMLizer dataXMLizer, String assetClassName) {
-	return dataXMLizer.createDoc (taskAndAssets, changedAssets, assetClassName);
+    return dataXMLizer.createDoc (taskAndAssets, changedAssets, assetClassName);
   }
 
   public Document getFormatDocWithoutDuplicates (Collection templates, String assetClassName, List returnedMap) {
-	Document problemFormatDoc = getFormatDoc (templates, assetClassName);
+    Document problemFormatDoc = getFormatDoc (templates, assetClassName);
 
-	if (showFormatXML)
-	  System.out.println (domUtil.getDocAsString(problemFormatDoc));
+    if (showFormatXML)
+      System.out.println (domUtil.getDocAsString(problemFormatDoc));
 	  
-	// must remove duplicate OBJECTFORMATS
+    // must remove duplicate OBJECTFORMATS
       
-	Node root = problemFormatDoc.getDocumentElement ();
-	if (myExtraOutput)
-	  System.out.println (getName () + "- root " + ((Element)root).getTagName () + 
-						  " has " + root.getChildNodes().getLength()+ " children");
+    Node root = problemFormatDoc.getDocumentElement ();
+    if (myExtraOutput)
+      System.out.println (getName () + "- root " + ((Element)root).getTagName () + 
+			  " has " + root.getChildNodes().getLength()+ " children");
 	  
-	NodeList nlist = root.getChildNodes();
-	Node dataformat = nlist.item(0);  // assumes first child is dataformat
+    NodeList nlist = root.getChildNodes();
+    Node dataformat = nlist.item(0);  // assumes first child is dataformat
 
-	if (myExtraOutput)
-	  System.out.println (getName () + "- dataformat " + ((Element)dataformat).getTagName () + 
-						  " has " + dataformat.getChildNodes().getLength()+ " children");
+    if (myExtraOutput)
+      System.out.println (getName () + "- dataformat " + ((Element)dataformat).getTagName () + 
+			  " has " + dataformat.getChildNodes().getLength()+ " children");
 
-	Map nameInfo = removeDuplicates (dataformat, problemFormatDoc);
+    Map nameInfo = removeDuplicates (dataformat, problemFormatDoc);
 
-	// label the problem with the name of the problem
-	((Element)root).setAttribute ("NAME", comm.getProblem());
+    // label the problem with the name of the problem
+    ((Element)root).setAttribute ("NAME", comm.getProblem());
 
-	if (myExtraOutput)
-	  System.out.println (getName () + ".sendFormat - problem is " + comm.getProblem());
+    if (myExtraOutput)
+      System.out.println (getName () + ".sendFormat - problem is " + comm.getProblem());
 
-	returnedMap.add (nameInfo);
+    returnedMap.add (nameInfo);
 	
-	return problemFormatDoc;
+    return problemFormatDoc;
   }
   
   /**
-   * <pre>
    * Looks at all the object format nodes in the document
    * and removes duplicates (two object formats with the same name and 
    * same fields).
@@ -216,7 +213,6 @@ public class XMLProcessor {
    * can figure out what the unique type should be for a data object
    * with an ambiguous type.
    *
-   * </pre>
    * @param root - where to start in document
    * @param doc - doc to remove the duplicates from
    * @return Map [] containing two maps - name to object description
@@ -230,123 +226,120 @@ public class XMLProcessor {
     Map nameToNodes   = new HashMap ();
     Map nameToDescrip = new HashMap ();
 
-	Set potentialDuplicates = new HashSet ();
+    Set potentialDuplicates = new HashSet ();
 	
     for (int i = 0; i < nlist.getLength(); i++) {
       Node child = nlist.item (i);
       String attr = 
-		child.getAttributes().getNamedItem ("name").getNodeValue().toLowerCase();
+	child.getAttributes().getNamedItem ("name").getNodeValue().toLowerCase();
       
       boolean duplicate = false;
       List nodes = (List) nameToNodes.get (attr);
       if (nodes == null)
-		nameToNodes.put (attr, (nodes = new ArrayList()));
+	nameToNodes.put (attr, (nodes = new ArrayList()));
       nodes.add (child);
 
-	  if (nodes.size () > 1)
-		potentialDuplicates.add (attr);
+      if (nodes.size () > 1)
+	potentialDuplicates.add (attr);
 	  
       ObjectDescrip descrip = (ObjectDescrip) nameToDescrip.get (attr);
       if (descrip == null) {
-		if (myExtraExtraOutput)
-		  System.out.println ("creating object descrip for - " + attr);
+	if (myExtraExtraOutput)
+	  System.out.println ("creating object descrip for - " + attr);
 
-		descrip = new ObjectDescrip ();
-		nameToDescrip.put (attr, descrip);
+	descrip = new ObjectDescrip ();
+	nameToDescrip.put (attr, descrip);
       }
       descrip.addFields (child);
     }
 
-	processObjectFormats (root, nameToNodes, potentialDuplicates, new DuplicateProcessor ());
-	processObjectFormats (root, nameToNodes, potentialDuplicates, new MergeProcessor ());
+    processObjectFormats (root, nameToNodes, potentialDuplicates, new DuplicateProcessor ());
+    processObjectFormats (root, nameToNodes, potentialDuplicates, new MergeProcessor ());
 	
     addFieldsForDifferentTypes (root, doc, nameToNodes, nameToDescrip);
 
-	// possibly unnecessary
-	processObjectFormats (root, nameToNodes, potentialDuplicates, new MergeProcessor ());
-	processObjectFormats (root, nameToNodes, potentialDuplicates, new DuplicateProcessor ());
+    // possibly unnecessary
+    processObjectFormats (root, nameToNodes, potentialDuplicates, new MergeProcessor ());
+    processObjectFormats (root, nameToNodes, potentialDuplicates, new DuplicateProcessor ());
 
     return nameToDescrip;
   }
 
   /**
-   * <pre>
    * Given a set of potential duplicate types, removes those that are duplicates
    * from the set of DOM Node OBJECTFORMATs sent to Vishnu.
-   * </pre>
+   *
    * Removes duplicate OBJECTFORMATs from <code>root</code>.
-   * <pre>
    * 
    * If there is only one remaining Node for a type in potentialDuplicates, the type
    * is removed from the list of potential duplicates.
    *
    * First finds those nodes that should be removed and then removes them in a separate 
    * step.
-   * </pre>
+   *
    * @param potentialDuplicates set of type names of potential duplicates
    * @param nameToNodes list of DOM Nodes for type 
    * @param root DATAFORMAT tag which is the parent of all OBJECTFORMATs
    */
   protected void processObjectFormats (Node root, Map nameToNodes, Set potentialDuplicates, 
-									   FormatProcessor formatProcessor) {
+				       FormatProcessor formatProcessor) {
     Set toRemove = new HashSet ();
-	Set dupsToRemove = new HashSet ();
+    Set dupsToRemove = new HashSet ();
     for (Iterator iter = potentialDuplicates.iterator (); iter.hasNext(); ){
       String type = (String) iter.next();
 	  
-	  if (myExtraExtraOutput)
-		System.out.println (getName() + ".pruneObjectFormat - type " + type);
+      if (myExtraExtraOutput)
+	System.out.println (getName() + ".pruneObjectFormat - type " + type);
 	  
-	  List nodesForType = (List) nameToNodes.get (type);
-	  List copyOfNodesForType = new ArrayList (nodesForType);
-	  if (myExtraExtraOutput)
-		System.out.println ("nodes for type " + nodesForType);
+      List nodesForType = (List) nameToNodes.get (type);
+      List copyOfNodesForType = new ArrayList (nodesForType);
+      if (myExtraExtraOutput)
+	System.out.println ("nodes for type " + nodesForType);
 
-	  Set nameToNodeToRemove = new HashSet ();
-	  for (Iterator iter2 = copyOfNodesForType.iterator (); iter2.hasNext(); ){
-		Node objectFormat = (Node) iter2.next();
-		formatProcessor.examineObjectFormat (objectFormat, nodesForType, iter2, toRemove);
-	  }
-	  if (nodesForType.size () == 1) {
-		if (myExtraExtraOutput)
-		  System.out.println ("\tremoving " + type);
-		dupsToRemove.add (type);
-	  }
+      Set nameToNodeToRemove = new HashSet ();
+      for (Iterator iter2 = copyOfNodesForType.iterator (); iter2.hasNext(); ){
+	Node objectFormat = (Node) iter2.next();
+	formatProcessor.examineObjectFormat (objectFormat, nodesForType, iter2, toRemove);
+      }
+      if (nodesForType.size () == 1) {
+	if (myExtraExtraOutput)
+	  System.out.println ("\tremoving " + type);
+	dupsToRemove.add (type);
+      }
     }
-	if (myExtraExtraOutput)
-	  System.out.println (getName() + ".pruneObjectFormat - removing " + 
-						  dupsToRemove + " from " + potentialDuplicates);
-	potentialDuplicates.removeAll (dupsToRemove);
-	if (myExtraExtraOutput)
-	  System.out.println (getName () + ".pruneObjectFormat - " + 
-						  potentialDuplicates.size () + " potential dups remain.");
+    if (myExtraExtraOutput)
+      System.out.println (getName() + ".pruneObjectFormat - removing " + 
+			  dupsToRemove + " from " + potentialDuplicates);
+    potentialDuplicates.removeAll (dupsToRemove);
+    if (myExtraExtraOutput)
+      System.out.println (getName () + ".pruneObjectFormat - " + 
+			  potentialDuplicates.size () + " potential dups remain.");
 
     for (Iterator iter = toRemove.iterator (); iter.hasNext (); )
       root.removeChild ((Node) iter.next ());
   }
   
   class FormatProcessor {
-	protected void examineObjectFormat (Node objectFormat, List nodesForType, Iterator iter, Set toRemove) {};
+    protected void examineObjectFormat (Node objectFormat, List nodesForType, Iterator iter, Set toRemove) {};
   }
   
   class MergeProcessor extends FormatProcessor {
-	protected void examineObjectFormat (Node objectFormat, List nodesForType, Iterator iter, Set toRemove) {
-	  mergeNode (objectFormat, nodesForType, iter);
-	}
+    protected void examineObjectFormat (Node objectFormat, List nodesForType, Iterator iter, Set toRemove) {
+      mergeNode (objectFormat, nodesForType, iter);
+    }
   }
   
   class DuplicateProcessor extends FormatProcessor {
-	protected void examineObjectFormat (Node objectFormat, List nodesForType, Iterator iter, Set toRemove) {
-	  if (duplicateNode (objectFormat, nodesForType)) {
-		if (myExtraExtraOutput)
-		  System.out.println ("\tfound dup");
-		toRemove.add (objectFormat);
-	  }
-	}
+    protected void examineObjectFormat (Node objectFormat, List nodesForType, Iterator iter, Set toRemove) {
+      if (duplicateNode (objectFormat, nodesForType)) {
+	if (myExtraExtraOutput)
+	  System.out.println ("\tfound dup");
+	toRemove.add (objectFormat);
+      }
+    }
   }
 
   /**
-   * <pre>
    * Checks to see if first is an object format that has already been
    * seen when iterating over the document.
    * 
@@ -359,7 +352,6 @@ public class XMLProcessor {
    * If something is a resource, it should not be seen as a duplicate of
    * another object that is not a resource!
    *
-   * </pre>
    * @param first - the node itself
    * @param nameToNodes - hash that records name -> object format node mappings
    * @return true if it's a duplicate of one already seen
@@ -373,166 +365,165 @@ public class XMLProcessor {
     for (int i = 0; i < nodes.size (); i++) {
       Node other = (Node) nodes.get (i);
       if (first == other)
-		continue;  // ignore self to tell if duplicate
+	continue;  // ignore self to tell if duplicate
 
       NodeList otherChildNodes = other.getChildNodes ();
 
-	  if (firstChildNodes.getLength () > otherChildNodes.getLength ())
-	  	continue; // can't be a subset if more fields
+      if (firstChildNodes.getLength () > otherChildNodes.getLength ())
+	continue; // can't be a subset if more fields
 
-	  // create name->type mapping for other node
+      // create name->type mapping for other node
       Map otherFieldToType = new HashMap ();
 
       for (int k = 0; k < otherChildNodes.getLength (); k++) {
-		String field = otherChildNodes.item (k).getAttributes().getNamedItem ("name").getNodeValue();
-		String type  = otherChildNodes.item (k).getAttributes().getNamedItem ("datatype").getNodeValue();
-		otherFieldToType.put (field, type);
+	String field = otherChildNodes.item (k).getAttributes().getNamedItem ("name").getNodeValue();
+	String type  = otherChildNodes.item (k).getAttributes().getNamedItem ("datatype").getNodeValue();
+	otherFieldToType.put (field, type);
       }
 
       boolean allFound = true;
       // go through fields of node we're checking
       for (int k = 0; k < firstChildNodes.getLength (); k++) {
-		String firstChildName = 
-		  firstChildNodes.item (k).getAttributes().getNamedItem ("name").getNodeValue();
-		String otherType = (String) otherFieldToType.get (firstChildName);
+	String firstChildName = 
+	  firstChildNodes.item (k).getAttributes().getNamedItem ("name").getNodeValue();
+	String otherType = (String) otherFieldToType.get (firstChildName);
 
-		if (otherType == null) {
-		  allFound = false;
-		  break;
-		}
-		else {
-		  String firstChildType = 
-			firstChildNodes.item (k).getAttributes().getNamedItem ("datatype").getNodeValue();
+	if (otherType == null) {
+	  allFound = false;
+	  break;
+	}
+	else {
+	  String firstChildType = 
+	    firstChildNodes.item (k).getAttributes().getNamedItem ("datatype").getNodeValue();
 
-		  if (!firstChildType.equals (otherType)) {
-			allFound = false;
-			break;
-		  }
-		}
+	  if (!firstChildType.equals (otherType)) {
+	    allFound = false;
+	    break;
+	  }
+	}
       }
 	  
       // we found all the fields of the first node in the fields of another ->
       // it's a subset node...
       if (allFound) {
-		if (myExtraExtraOutput) {
-		  String name  = first.getAttributes().getNamedItem ("name").getNodeValue();
-		  System.out.println ("VishnuPlugin.duplicateNode - Found a duplicate " + first.getNodeName () + " " + name);
-		}
-		setResourceAttributes (first, other);
+	if (myExtraExtraOutput) {
+	  String name  = first.getAttributes().getNamedItem ("name").getNodeValue();
+	  System.out.println ("VishnuPlugin.duplicateNode - Found a duplicate " + first.getNodeName () + " " + name);
+	}
+	setResourceAttributes (first, other);
 		
-		nodes.remove (first);
-		return true;
+	nodes.remove (first);
+	return true;
       }
     }
     return false;
   }
 
   protected void mergeNode (Node first, List nodes, Iterator nodeListIter) {
-	if (myExtraOutput) {
-	  String name  = first.getAttributes().getNamedItem ("name").getNodeValue();
-	  System.out.println (getName() + ".mergeNode - examining " + first.getNodeName () + " " + name);
-	}
+    if (myExtraOutput) {
+      String name  = first.getAttributes().getNamedItem ("name").getNodeValue();
+      System.out.println (getName() + ".mergeNode - examining " + first.getNodeName () + " " + name);
+    }
 
     if (nodes.size () == 1)
       return; // if no others to compare against, it's not a duplicate
 
     NodeList firstChildNodes  = first.getChildNodes ();
 
-	Map firstFieldToType = new HashMap ();
+    Map firstFieldToType = new HashMap ();
 
-	for (int k = 0; k < firstChildNodes.getLength (); k++) {
-	  String firstChildName = 
-		firstChildNodes.item (k).getAttributes().getNamedItem ("name").getNodeValue();
-	  String type  = 
-		firstChildNodes.item (k).getAttributes().getNamedItem ("datatype").getNodeValue();
-	  firstFieldToType.put (firstChildName, type);
-	}
+    for (int k = 0; k < firstChildNodes.getLength (); k++) {
+      String firstChildName = 
+	firstChildNodes.item (k).getAttributes().getNamedItem ("name").getNodeValue();
+      String type  = 
+	firstChildNodes.item (k).getAttributes().getNamedItem ("datatype").getNodeValue();
+      firstFieldToType.put (firstChildName, type);
+    }
 	
     for (int i = 0; i < nodes.size (); i++) {
       Node other = (Node) nodes.get (i);
       if (first == other)
-		continue;  // ignore self to tell if duplicate
+	continue;  // ignore self to tell if duplicate
 
       NodeList otherChildNodes = other.getChildNodes ();
 
-	  //	  if (firstChildNodes.getLength () > otherChildNodes.getLength ())
-	  //	  	continue; // can't be a subset if more fields
+      //	  if (firstChildNodes.getLength () > otherChildNodes.getLength ())
+      //	  	continue; // can't be a subset if more fields
 
-	  // create name->type mapping for other node
+      // create name->type mapping for other node
       Map otherFieldToType = new HashMap ();
-	  Map otherNameToNode  = new HashMap ();
+      Map otherNameToNode  = new HashMap ();
 
-	  boolean hasTypeCollision = false;
+      boolean hasTypeCollision = false;
       for (int k = 0; k < otherChildNodes.getLength (); k++) {
-		String field = otherChildNodes.item (k).getAttributes().getNamedItem ("name").getNodeValue();
-		String type  = otherChildNodes.item (k).getAttributes().getNamedItem ("datatype").getNodeValue();
-		if (myExtraOutput)
-		  System.out.println (getName() + ".mergeNodes - other field " + field + " - type " + type);
+	String field = otherChildNodes.item (k).getAttributes().getNamedItem ("name").getNodeValue();
+	String type  = otherChildNodes.item (k).getAttributes().getNamedItem ("datatype").getNodeValue();
+	if (myExtraOutput)
+	  System.out.println (getName() + ".mergeNodes - other field " + field + " - type " + type);
 		
-		if (firstFieldToType.containsKey(field) &&
-			!firstFieldToType.get(field).equals (type)) {
-		  if (myExtraOutput)
-			System.out.println (getName() + ".mergeNodes - found type collision at " + field + " - " + 
-								firstFieldToType.get(field) + " vs " + type);
-		  hasTypeCollision=true;
-		  break;
-		}
+	if (firstFieldToType.containsKey(field) &&
+	    !firstFieldToType.get(field).equals (type)) {
+	  if (myExtraOutput)
+	    System.out.println (getName() + ".mergeNodes - found type collision at " + field + " - " + 
+				firstFieldToType.get(field) + " vs " + type);
+	  hasTypeCollision=true;
+	  break;
+	}
 		
-		otherFieldToType.put (field, type);
-		otherNameToNode.put  (field, otherChildNodes.item (k));
+	otherFieldToType.put (field, type);
+	otherNameToNode.put  (field, otherChildNodes.item (k));
       }
 
-	  if (hasTypeCollision) continue; // can't merge
+      if (hasTypeCollision) continue; // can't merge
 
-	  Map namesInOther = new HashMap (otherFieldToType);
-	  namesInOther.entrySet().removeAll (firstFieldToType.entrySet());
+      Map namesInOther = new HashMap (otherFieldToType);
+      namesInOther.entrySet().removeAll (firstFieldToType.entrySet());
 	  
-	  for (Iterator iter = namesInOther.keySet ().iterator(); iter.hasNext();) {
-		Object fieldName = iter.next();
-		Node otherNode = (Node) otherNameToNode.get (fieldName);
-		// add new fields
-		first.appendChild (otherNode);
-		firstFieldToType.put (fieldName, namesInOther.get(fieldName));
-	  }
+      for (Iterator iter = namesInOther.keySet ().iterator(); iter.hasNext();) {
+	Object fieldName = iter.next();
+	Node otherNode = (Node) otherNameToNode.get (fieldName);
+	// add new fields
+	first.appendChild (otherNode);
+	firstFieldToType.put (fieldName, namesInOther.get(fieldName));
+      }
 
-	  if (myExtraOutput) {
-		String name  = first.getAttributes().getNamedItem ("name").getNodeValue();
-		System.out.println (getName() + ".mergeNode - Found a mergable node " + first.getNodeName () + " " + name);
-	  }
-	  setResourceAttributes (first, other);
+      if (myExtraOutput) {
+	String name  = first.getAttributes().getNamedItem ("name").getNodeValue();
+	System.out.println (getName() + ".mergeNode - Found a mergable node " + first.getNodeName () + " " + name);
+      }
+      setResourceAttributes (first, other);
 		
-	  nodeListIter.remove ();
-	  nodeListIter.next ();
-	}
+      nodeListIter.remove ();
+      nodeListIter.next ();
+    }
   }
 
   protected void setResourceAttributes (Node first, Node other) {
-	boolean thisIsResource = 
-	  first.getAttributes().getNamedItem ("is_resource").getNodeValue().equals("true");
-	boolean otherIsNotResource = 
-	  other.getAttributes().getNamedItem ("is_resource").getNodeValue().equals("false");
-	if (thisIsResource && otherIsNotResource) {
-	  if (myExtraExtraOutput) {
-		String name  = first.getAttributes().getNamedItem ("name").getNodeValue();
-		System.out.println (getName() + ".mergeNode - Found a mergable node - setting resource attribute for duplicate " + name);
-	  }
+    boolean thisIsResource = 
+      first.getAttributes().getNamedItem ("is_resource").getNodeValue().equals("true");
+    boolean otherIsNotResource = 
+      other.getAttributes().getNamedItem ("is_resource").getNodeValue().equals("false");
+    if (thisIsResource && otherIsNotResource) {
+      if (myExtraExtraOutput) {
+	String name  = first.getAttributes().getNamedItem ("name").getNodeValue();
+	System.out.println (getName() + ".mergeNode - Found a mergable node - setting resource attribute for duplicate " + name);
+      }
 		  
-	  other.getAttributes().getNamedItem ("is_resource").setNodeValue("true");
+      other.getAttributes().getNamedItem ("is_resource").setNodeValue("true");
 
-	  // set is_key attribute on other object format
+      // set is_key attribute on other object format
       NodeList otherChildNodes = other.getChildNodes ();
-	  for (int k = 0; k < otherChildNodes.getLength (); k++) {
-		String field = otherChildNodes.item (k).getAttributes().getNamedItem ("name").getNodeValue();
-		if (field.equals("UID")) {
-		  otherChildNodes.item (k).getAttributes().getNamedItem ("is_key").setNodeValue("true");
-		  break;
-		}
-	  }
+      for (int k = 0; k < otherChildNodes.getLength (); k++) {
+	String field = otherChildNodes.item (k).getAttributes().getNamedItem ("name").getNodeValue();
+	if (field.equals("UID")) {
+	  otherChildNodes.item (k).getAttributes().getNamedItem ("is_key").setNodeValue("true");
+	  break;
 	}
+      }
+    }
   }
   
   /**
-   * <pre>
    * Add new fields
    *
    * Where there was :
@@ -552,7 +543,6 @@ public class XMLProcessor {
    *
    * nameToDescrip is created in removeDuplicates
    *
-   * </pre>
    * @see #removeDuplicates
    * @param root - of the document
    * @param doc - needed so can manufacture new nodes (fields), gets altered through addition of
@@ -570,73 +560,73 @@ public class XMLProcessor {
       Node objectFormat = nlist.item (i);
       NodeList objectFormatNodeList = objectFormat.getChildNodes ();
       Set fieldsToAdd = new TreeSet (new Comparator () {
-		  public int compare (Object o1, Object o2) {
-			String n1 = ((Node) o1).getAttributes().getNamedItem("name").getNodeValue();
-			String n2 = ((Node) o2).getAttributes().getNamedItem("name").getNodeValue();
-			return n1.compareTo (n2);
-		  }
-		});
-	  Set fieldsToRemove = new HashSet ();
+	  public int compare (Object o1, Object o2) {
+	    String n1 = ((Node) o1).getAttributes().getNamedItem("name").getNodeValue();
+	    String n2 = ((Node) o2).getAttributes().getNamedItem("name").getNodeValue();
+	    return n1.compareTo (n2);
+	  }
+	});
+      Set fieldsToRemove = new HashSet ();
       nodeToNewFields.put    (objectFormat, fieldsToAdd);
       nodeToRemoveFields.put (objectFormat, fieldsToRemove);
 
       String name = objectFormat.getAttributes().getNamedItem ("name").getNodeValue().toLowerCase();
       ObjectDescrip descrip = (ObjectDescrip) nameToDescrip.get (name);
 
-	  if (myExtraOutput)
-		System.out.println (getName () + ".addFieldsForDifferentTypes - " + 
-							name + " has " + 
-							objectFormatNodeList.getLength() + " children");
+      if (myExtraOutput)
+	System.out.println (getName () + ".addFieldsForDifferentTypes - " + 
+			    name + " has " + 
+			    objectFormatNodeList.getLength() + " children");
 	  
       for (int j = 0; j < objectFormatNodeList.getLength(); j++) {
-		Node fieldFormat = objectFormatNodeList.item (j);
-		String fieldName = fieldFormat.getAttributes().getNamedItem("name").getNodeValue();
-		String datatype  = fieldFormat.getAttributes().getNamedItem("datatype").getNodeValue();
-		if (myExtraOutput)
-		  System.out.println (getName () + ".addFieldsForDifferentTypes - " + datatype + "-" + fieldName);
+	Node fieldFormat = objectFormatNodeList.item (j);
+	String fieldName = fieldFormat.getAttributes().getNamedItem("name").getNodeValue();
+	String datatype  = fieldFormat.getAttributes().getNamedItem("datatype").getNodeValue();
+	if (myExtraOutput)
+	  System.out.println (getName () + ".addFieldsForDifferentTypes - " + datatype + "-" + fieldName);
 
-		if (descrip == null) {
-		  System.out.println (getName () + ".addFieldsForDifferentTypes - huh? no " + name);
-		  continue;
-		}
+	if (descrip == null) {
+	  System.out.println (getName () + ".addFieldsForDifferentTypes - huh? no " + name);
+	  continue;
+	}
 
-		Set knownTypes = descrip.typesForField (fieldName);
+	Set knownTypes = descrip.typesForField (fieldName);
 
-		int distinctNames=0;
+	int distinctNames=0;
 		
-		if (knownTypes.size () > 1) {
-		  fieldsToRemove.add (fieldFormat);
-		  if (myExtraOutput)
-			System.out.println (getName () + ".addFieldsForDifferentTypes - will remove " + 
-								fieldName + "-" + 
-								datatype);
-		  for (Iterator iter = knownTypes.iterator (); iter.hasNext();) {
-			String newtype = (String) iter.next();
-			/*			if (newtype.equals (datatype) ||
+	if (knownTypes.size () > 1) {
+	  fieldsToRemove.add (fieldFormat);
+	  if (myExtraOutput)
+	    System.out.println (getName () + ".addFieldsForDifferentTypes - will remove " + 
+				fieldName + "-" + 
+				datatype);
+	  for (Iterator iter = knownTypes.iterator (); iter.hasNext();) {
+	    String newtype = (String) iter.next();
+	    /*			if (newtype.equals (datatype) ||
 				(newtype.startsWith ("string(") && (datatype.startsWith ("string(")))) {
-			  if (myExtraOutput)
+				if (myExtraOutput)
 				System.out.println (getName () + ".addFieldsForDifferentTypes - skipping field " + 
-									newtype + "-" + 
-									name);
-			  continue;
-			}
-			*/
+				newtype + "-" + 
+				name);
+				continue;
+				}
+	    */
 
-			Node clone = domUtil.createClone(fieldFormat, doc);
-			String newname = fieldName + SEPARATOR + distinctNames++;
+	    Node clone = domUtil.createClone(fieldFormat, doc);
+	    String newname = fieldName + SEPARATOR + distinctNames++;
 		  
-			descrip.addNewNameType (fieldName, newname, newtype);
+	    descrip.addNewNameType (fieldName, newname, newtype);
 
-			clone.getAttributes().getNamedItem("name").setNodeValue(newname);
-			clone.getAttributes().getNamedItem("datatype").setNodeValue(newtype);
-			clone.getAttributes().getNamedItem("is_subobject").setNodeValue(isObject(newtype) ? "true" : "false");
-			boolean result = fieldsToAdd.add (clone);
-			if (myExtraOutput && result)
-			  System.out.println (getName () + ".addFieldsForDifferentTypes - storing new field " + 
-								  newtype + "-" + 
-								  newname);
-		  }
-		}
+	    clone.getAttributes().getNamedItem("name").setNodeValue(newname);
+	    clone.getAttributes().getNamedItem("datatype").setNodeValue(newtype);
+	    clone.getAttributes().getNamedItem("is_subobject").setNodeValue(isObject(newtype) ? "true" : "false");
+	    boolean result = fieldsToAdd.add (clone);
+	    if (myExtraOutput && result)
+	      System.out.println (getName () + ".addFieldsForDifferentTypes - storing new field " + 
+				  newtype + "-" + 
+				  newname);
+	  }
+	}
       }
     }
 
@@ -644,82 +634,82 @@ public class XMLProcessor {
     for (Iterator iter = nodeToNewFields.keySet().iterator (); iter.hasNext ();) {
       Node objectFormatNode = (Node) iter.next ();
       Set removeFields = (Set) nodeToRemoveFields.get (objectFormatNode);
-	  for (Iterator iter2 = removeFields.iterator (); iter2.hasNext ();)
-		objectFormatNode.removeChild ((Node)iter2.next());
+      for (Iterator iter2 = removeFields.iterator (); iter2.hasNext ();)
+	objectFormatNode.removeChild ((Node)iter2.next());
 
       Set newFields = (Set) nodeToNewFields.get (objectFormatNode);
       
       if (!newFields.isEmpty ()) {
-		for (Iterator iter2 = newFields.iterator (); iter2.hasNext ();) {
-		  Node newNode = (Node) iter2.next ();
-		  if (myExtraOutput) {
-			String type = newNode.getAttributes().getNamedItem("datatype").getNodeValue();
-			String name = newNode.getAttributes().getNamedItem("name").getNodeValue();
+	for (Iterator iter2 = newFields.iterator (); iter2.hasNext ();) {
+	  Node newNode = (Node) iter2.next ();
+	  if (myExtraOutput) {
+	    String type = newNode.getAttributes().getNamedItem("datatype").getNodeValue();
+	    String name = newNode.getAttributes().getNamedItem("name").getNodeValue();
 
-			String ofName = 
-			  objectFormatNode.getAttributes().getNamedItem("name").getNodeValue();
-			System.out.println (getName () + ".addFieldsForDifferentTypes - to node " + 
-								objectFormatNode.getNodeName () + "/" + 
-								ofName + " adding new field " +
-								newNode.getNodeName () + " - " +
-								type + " : " + 
-								name);
-		  }
+	    String ofName = 
+	      objectFormatNode.getAttributes().getNamedItem("name").getNodeValue();
+	    System.out.println (getName () + ".addFieldsForDifferentTypes - to node " + 
+				objectFormatNode.getNodeName () + "/" + 
+				ofName + " adding new field " +
+				newNode.getNodeName () + " - " +
+				type + " : " + 
+				name);
+	  }
 
-		  objectFormatNode.appendChild (newNode);
-		}
+	  objectFormatNode.appendChild (newNode);
+	}
       }
     }
   }
 
   /** check type and see if it is not a primitive = object */
-    protected boolean isObject (String type) {
-      return (!type.equals ("number") &&
-	      !type.equals ("datetime") &&
-	      !type.equals ("latlong") &&
-	      !type.equals ("boolean") &&
-	      !type.startsWith ("string") &&
-	      !type.equals ("list") &&
-	      !type.equals ("interval") &&
-	      !type.equals ("matrix"));
-    }
+  protected boolean isObject (String type) {
+    return (!type.equals ("number") &&
+	    !type.equals ("datetime") &&
+	    !type.equals ("latlong") &&
+	    !type.equals ("boolean") &&
+	    !type.startsWith ("string") &&
+	    !type.equals ("list") &&
+	    !type.equals ("interval") &&
+	    !type.equals ("matrix"));
+  }
 
   /** 
    * get the document from the data xmlizer, set some attributes on the header, 
    * and then do any post-processing 
    **/
   public Document prepareDocument (Collection tasks, 
-								   Collection changed,
-								   XMLizer dataXMLizer,
-								   boolean clearDatabase, 
-								   boolean sendingChangedObjects,
-								   String assetClassName) {
-	Document dataDoc = getDataDoc (tasks, changed, dataXMLizer, assetClassName);
+				   Collection changed,
+				   XMLizer dataXMLizer,
+				   boolean clearDatabase, 
+				   boolean sendingChangedObjects,
+				   String assetClassName) {
+    Document dataDoc = getDataDoc (tasks, changed, dataXMLizer, assetClassName);
 	  
-	if (showDataXML)
-	  System.out.println (domUtil.getDocAsString(dataDoc));
+    if (showDataXML)
+      System.out.println (domUtil.getDocAsString(dataDoc));
 
-	Node dataNode = setDocHeader (dataDoc, clearDatabase);
+    Node dataNode = setDocHeader (dataDoc, clearDatabase);
 
-	// really just change newobjects tag to changedobjects tag if sendingChangedObjects is true
-	postProcessData (dataDoc, dataNode, sendingChangedObjects);
+    // really just change newobjects tag to changedobjects tag if sendingChangedObjects is true
+    postProcessData (dataDoc, dataNode, sendingChangedObjects);
 	  
-	return dataDoc;
+    return dataDoc;
   }
 
   protected Document getVanillaHeader () {
-	Document doc = new DocumentImpl(); 
-	Element root = doc.createElement("PROBLEM");
-	root.setAttribute ("NAME", comm.getProblem ());
-	doc.appendChild (root);
-	Element df   = doc.createElement("DATA");
-	root.appendChild(df);
+    Document doc = new DocumentImpl(); 
+    Element root = doc.createElement("PROBLEM");
+    root.setAttribute ("NAME", comm.getProblem ());
+    doc.appendChild (root);
+    Element df   = doc.createElement("DATA");
+    root.appendChild(df);
     Element window = doc.createElement("WINDOW");
     df.appendChild (window);
 
-	setDocHeader (doc, false);
+    setDocHeader (doc, false);
 	
-	return doc;
+    return doc;
   }
   
   /** 
@@ -727,46 +717,46 @@ public class XMLProcessor {
    * If clearDatabase is true, appends CLEARDATABASE tag. 
    **/
   protected Node setDocHeader (Document dataDoc, boolean clearDatabase) {
-	Node root = dataDoc.getDocumentElement ();
-	((Element)root).setAttribute ("NAME", comm.getProblem ());
+    Node root = dataDoc.getDocumentElement ();
+    ((Element)root).setAttribute ("NAME", comm.getProblem ());
 	
-	Node dataNode   = root.getFirstChild ();
-	Node windowNode = dataNode.getFirstChild ();
+    Node dataNode   = root.getFirstChild ();
+    Node windowNode = dataNode.getFirstChild ();
 
-	((Element)windowNode).setAttribute ("starttime", vishnuEpochStartTime);
-	((Element)windowNode).setAttribute ("endtime",   vishnuEpochEndTime);
+    ((Element)windowNode).setAttribute ("starttime", vishnuEpochStartTime);
+    ((Element)windowNode).setAttribute ("endtime",   vishnuEpochEndTime);
 
-	NodeList nlist = dataNode.getChildNodes ();
+    NodeList nlist = dataNode.getChildNodes ();
 
-	if (clearDatabase)
-	  root.getFirstChild().insertBefore (dataDoc.createElement("CLEARDATABASE"),
-										 root.getFirstChild ().getFirstChild ());
+    if (clearDatabase)
+      root.getFirstChild().insertBefore (dataDoc.createElement("CLEARDATABASE"),
+					 root.getFirstChild ().getFirstChild ());
 
-	return dataNode;
+    return dataNode;
   }
 
   /** changes newobjects tag to changedobjects tag if sendingChangedObjects is true; */
   protected void postProcessData (Document dataDoc, Node dataNode, boolean sendingChangedObjects) {
-	if (!sendingChangedObjects)
-	  return;
+    if (!sendingChangedObjects)
+      return;
 	
-	NodeList nlist = dataNode.getChildNodes ();
+    NodeList nlist = dataNode.getChildNodes ();
 	
-	for (int i = 0; i < nlist.getLength(); i++) {
-	  if (nlist.item (i).getNodeName ().equals ("NEWOBJECTS")) {
+    for (int i = 0; i < nlist.getLength(); i++) {
+      if (nlist.item (i).getNodeName ().equals ("NEWOBJECTS")) {
 
-		Node newobject = nlist.item (i);
-		NodeList objects = newobject.getChildNodes ();
-		String was = newobject.getNodeName ();
-		Node changedObjects = dataDoc.createElement("CHANGEDOBJECTS");
-		dataNode.insertBefore(changedObjects, newobject);
-		dataNode.removeChild (newobject);
-		for (int j =  0; j < objects.getLength (); j++)
-		  changedObjects.appendChild (objects.item (j));
+	Node newobject = nlist.item (i);
+	NodeList objects = newobject.getChildNodes ();
+	String was = newobject.getNodeName ();
+	Node changedObjects = dataDoc.createElement("CHANGEDOBJECTS");
+	dataNode.insertBefore(changedObjects, newobject);
+	dataNode.removeChild (newobject);
+	for (int j =  0; j < objects.getLength (); j++)
+	  changedObjects.appendChild (objects.item (j));
 
-		break; // we're only interested in the NEWOBJECTS tag
-	  }
-	}
+	break; // we're only interested in the NEWOBJECTS tag
+      }
+    }
   }
 
   /** 
@@ -774,20 +764,20 @@ public class XMLProcessor {
    * @param otherDataFile - other data file to read, process, and send
    **/
   protected Document getOtherDataDoc (String otherDataFile) {
-	Document doc = new DocumentImpl(); 
-	Element root = doc.createElement("PROBLEM");
-	root.setAttribute ("NAME", comm.getProblem ());
-	doc.appendChild (root);
-	Element df   = doc.createElement("DATA");
-	root.appendChild(df);
+    Document doc = new DocumentImpl(); 
+    Element root = doc.createElement("PROBLEM");
+    root.setAttribute ("NAME", comm.getProblem ());
+    doc.appendChild (root);
+    Element df   = doc.createElement("DATA");
+    root.appendChild(df);
 	
-	Element newobjects = doc.createElement("NEWOBJECTS");
-	df.appendChild (newobjects);
+    Element newobjects = doc.createElement("NEWOBJECTS");
+    df.appendChild (newobjects);
 
-	// attach other data
-	appendOtherData (doc, newobjects, otherDataFile);
+    // attach other data
+    appendOtherData (doc, newobjects, otherDataFile);
 
-	return doc;
+    return doc;
   }
 
   /**
@@ -799,28 +789,28 @@ public class XMLProcessor {
    * </pre>
    */
   protected void appendOtherData (Document dataDoc, Element placeToAdd, String otherData) {
-	if (otherDataFileExists(otherData)) {
-	  if (myExtraOutput)
-		System.out.println (getName () + " appending " + 
-							otherData + " other data file");
+    if (otherDataFileExists(otherData)) {
+      if (myExtraOutput)
+	System.out.println (getName () + " appending " + 
+			    otherData + " other data file");
 
-	  domUtil.appendChildrenToDoc (dataDoc, 
-								   placeToAdd, // NEWOBJECTS tag
-								   otherData);
-	}
+      domUtil.appendChildrenToDoc (dataDoc, 
+				   placeToAdd, // NEWOBJECTS tag
+				   otherData);
+    }
   }
   
   public boolean otherDataFileExists (String otherDataFile) {
-	try {
-	  return (configFinder.open (otherDataFile) != null);
-	} catch (FileNotFoundException fnf) {
-	  if (myExtraOutput)
-		System.out.println (getName () + ".otherDataFileExists could not find optional file : " + otherDataFile);
-	} catch (IOException ioe) {
-	  System.out.println (getName () + ".otherDataFileExists - got io exception " +
-						  ioe);
-	}
-	return false;
+    try {
+      return (configFinder.open (otherDataFile) != null);
+    } catch (FileNotFoundException fnf) {
+      if (myExtraOutput)
+	System.out.println (getName () + ".otherDataFileExists could not find optional file : " + otherDataFile);
+    } catch (IOException ioe) {
+      System.out.println (getName () + ".otherDataFileExists - got io exception " +
+			  ioe);
+    }
+    return false;
   }
   
   /**
@@ -828,70 +818,70 @@ public class XMLProcessor {
    * query won't work within same transaction cycle.
    */
   /*
-  protected void handleRoleSchedule (Node field, PlanElement givenPE) {
-	if (myExtraOutput)
-	  System.out.println (getName () + ".handleRoleSchedule - found role schedule.");
+    protected void handleRoleSchedule (Node field, PlanElement givenPE) {
+    if (myExtraOutput)
+    System.out.println (getName () + ".handleRoleSchedule - found role schedule.");
 	
-	Node list = field.getFirstChild ();
-	NodeList values = list.getChildNodes ();
+    Node list = field.getFirstChild ();
+    NodeList values = list.getChildNodes ();
 	
-	for (int i = 0; i < values.getLength(); i++) {
-	  Node value = (Node) values.item (i);
-	  Node object = value.getFirstChild ();
-	  Node startField = object.getFirstChild ();
-	  Node endField = object.getLastChild ();
+    for (int i = 0; i < values.getLength(); i++) {
+    Node value = (Node) values.item (i);
+    Node object = value.getFirstChild ();
+    Node startField = object.getFirstChild ();
+    Node endField = object.getLastChild ();
 	  
-	  final String uid = 
-		startField.getAttributes().getNamedItem ("value").getNodeValue();
-	  if (myExtraOutput) 
-		System.out.println ("Looking for UID " + uid);
+    final String uid = 
+    startField.getAttributes().getNamedItem ("value").getNodeValue();
+    if (myExtraOutput) 
+    System.out.println ("Looking for UID " + uid);
 
-	  Collection results;
+    Collection results;
 	  
-	  if (givenPE != null) {
-		results = new HashSet ();
-		results.add (givenPE);
-	  }
-	  else
-		results = query (new UnaryPredicate () {
-			public boolean execute (Object obj) {
-			  if (obj instanceof PlanElement) {
+    if (givenPE != null) {
+    results = new HashSet ();
+    results.add (givenPE);
+    }
+    else
+    results = query (new UnaryPredicate () {
+    public boolean execute (Object obj) {
+    if (obj instanceof PlanElement) {
 				//System.out.println ("\t found PE with uid <" + ((PlanElement) obj).getUID () + ">");
 				return ((PlanElement) obj).getUID ().equals (uid);
-			  }
+				}
 			
-			  return false;
-			}
-		  });
+				return false;
+				}
+				});
 
-	  if (results.iterator ().hasNext ()) {
-		TimeSpan ts = (TimeSpan) results.iterator ().next ();
+				if (results.iterator ().hasNext ()) {
+				TimeSpan ts = (TimeSpan) results.iterator ().next ();
 	  
-		String startString = format.format (new Date (ts.getStartTime ()));
-		String endString   = format.format (new Date (ts.getEndTime ()));
+				String startString = format.format (new Date (ts.getStartTime ()));
+				String endString   = format.format (new Date (ts.getEndTime ()));
 	  
-		startField.getAttributes().getNamedItem ("value").setNodeValue(startString);
-		endField.getAttributes().getNamedItem ("value").setNodeValue(endString);
-	  }
-	  else
-		System.out.println (getName () + ".handleRoleSchedule : ERROR - could not find plan element UID " + 
-							uid);
+				startField.getAttributes().getNamedItem ("value").setNodeValue(startString);
+				endField.getAttributes().getNamedItem ("value").setNodeValue(endString);
+				}
+				else
+				System.out.println (getName () + ".handleRoleSchedule : ERROR - could not find plan element UID " + 
+				uid);
 		
-	}
-  }
+				}
+				}
   */
 
   /** make a document that tells Vishnu to freeze all assignments */
   public Document prepareFreezeAll () {
-	Document doc = new DocumentImpl ();
+    Document doc = new DocumentImpl ();
     Element newRoot = doc.createElement("PROBLEM");
-	newRoot.setAttribute ("NAME", comm.getProblem ());
+    newRoot.setAttribute ("NAME", comm.getProblem ());
     doc.appendChild(newRoot);
 	
-	Element freeze = doc.createElement("FREEZEALL");
-	newRoot.appendChild (freeze);
+    Element freeze = doc.createElement("FREEZEALL");
+    newRoot.appendChild (freeze);
 
-	return doc;
+    return doc;
   }
 
   public Document prepareRescind(Enumeration removedTasks) {
@@ -935,18 +925,18 @@ public class XMLProcessor {
     Map fields = new HashMap ();
     Map newNames = new HashMap ();
 
-	boolean debug = false;
+    boolean debug = false;
 	
     public void addFields (Node node) {
       NodeList nlist = node.getChildNodes();
 
       for (int i = 0; i < nlist.getLength(); i++) {
-		Node field = nlist.item (i);
+	Node field = nlist.item (i);
 
-		String name = field.getAttributes().getNamedItem ("name").getNodeValue();
-		String type = field.getAttributes().getNamedItem ("datatype").getNodeValue();
+	String name = field.getAttributes().getNamedItem ("name").getNodeValue();
+	String type = field.getAttributes().getNamedItem ("datatype").getNodeValue();
 	
-		addField (name, type);
+	addField (name, type);
       }
     }
 
@@ -954,15 +944,15 @@ public class XMLProcessor {
       Set namedFields = (Set) fields.get (name);
 
       if (namedFields == null) {
-		namedFields = new TreeSet ();
-		fields.put (name, namedFields);
+	namedFields = new TreeSet ();
+	fields.put (name, namedFields);
       }
 
       if (!namedFields.contains (type)) {
-		namedFields.add (type);
-		if (debug && namedFields.size () > 1)
-		  System.out.println ("\tfield " + name + 
-							  " now " + namedFields);
+	namedFields.add (type);
+	if (debug && namedFields.size () > 1)
+	  System.out.println ("\tfield " + name + 
+			      " now " + namedFields);
       }
     }
 
@@ -970,13 +960,13 @@ public class XMLProcessor {
       Set nameTypePairs = (Set) newNames.get (oldname);
 
       if (nameTypePairs == null) {
-		nameTypePairs = new HashSet ();
-		newNames.put (oldname, nameTypePairs);
+	nameTypePairs = new HashSet ();
+	newNames.put (oldname, nameTypePairs);
       }
-	  if (debug)
-		System.out.println ("OD.addNewNameType - for oldname " + oldname + 
-							" adding newname " + newname + 
-							" newtype " + newtype);
+      if (debug)
+	System.out.println ("OD.addNewNameType - for oldname " + oldname + 
+			    " adding newname " + newname + 
+			    " newtype " + newtype);
 	  
       nameTypePairs.add (new String [] { newname, newtype });
     }

@@ -325,7 +325,6 @@ public class DataXMLize extends FormatXMLize {
   }
   
   /**
-   * <pre>
    * Create a <FIELD> with an <OBJECT> underneath it.
    *
    * The object that is the OBJECT is propertyValue.
@@ -346,7 +345,7 @@ public class DataXMLize extends FormatXMLize {
    * name.
    *
    * Recurses on propertyValue using addNodes.
-   * </pre>
+   *
    * @see #addNodes
    * @param doc the document to add nodes to
    * @param parentElement append new nodes here
@@ -573,7 +572,6 @@ public class DataXMLize extends FormatXMLize {
    * VishnuPlugin.  The general problem that some fields can have multiple <br>
    * types of objects, and each needs a distinct name.
    *
-   * @see org.cougaar.lib.vishnu.client.VishnuPlugin#removeDuplicates
    * @param doc needed to create new elements
    * @param name the name of the field
    * @param theObj the value for the field

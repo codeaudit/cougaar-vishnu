@@ -49,8 +49,8 @@ public class AggregateXMLResultHandler extends XMLResultHandler {
    * 
    * @param name the tag name
    * @param atts the tag's attributes
-   * @see #processTasks
-   * @see #setUIDToObjectMap
+   * @see org.cougaar.lib.vishnu.client.VishnuPlugin#processTasks
+   * @see org.cougaar.lib.vishnu.client.VishnuPlugin#setUIDToObjectMap
    */
   protected void parseStartElement (String name, Attributes atts) {
     try {

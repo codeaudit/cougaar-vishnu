@@ -149,11 +149,11 @@ public class VishnuExpanderPlugin extends VishnuPlugin implements UTILExpanderPl
   }
 
   /**
-   * The plugin changes the expansion.
+   * The plugin changes the expansion.  Only called if wantToChangeExpansion returns true.
    *
    * Default does nothing.
    *
-   * @see wantToChangeExpansion
+   * @see #wantToChangeExpansion
    * @param expansion to change
    */
   public void changeExpansion(Expansion exp) {}
@@ -161,7 +161,7 @@ public class VishnuExpanderPlugin extends VishnuPlugin implements UTILExpanderPl
   /**
    * publish the change
    *
-   * @see wantToChangeExpansion
+   * @see #wantToChangeExpansion
    * @param expansion to change
    */
   public void publishChangedExpansion(Expansion exp) {
@@ -174,7 +174,7 @@ public class VishnuExpanderPlugin extends VishnuPlugin implements UTILExpanderPl
    * Updates and publishes allocation result of expansion.
    *
    * @param exp Expansion that has changed.
-   * @see UTILPluginAdapter#updateAllocationResult
+   * @see org.cougaar.lib.filter.UTILPluginAdapter#updateAllocationResult
    */
   public void reportChangedExpansion(Expansion exp) { 
       if (myExtraExtraOutput)
