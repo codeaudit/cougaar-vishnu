@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.31 2001-08-15 18:21:49 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.32 2001-08-15 21:41:44 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -259,7 +259,7 @@ public class SchedulingData {
       if (a != null) {
         if (! a.getFrozen())
           tasks[i].setAssignment (null);
-        a.getResource().removeAssignment (a.getTask().getKey(), true);
+        a.getResource().removeAssignment (a.getTask().getKey(), false);
       }
     }
     Resource[] resources = getResources();
