@@ -47,6 +47,7 @@ public class DataXMLize extends FormatXMLize {
   protected Class roleScheduleImplClass;
   protected Class uniqueObjectClass;
   protected Map nameToDescrip;
+  protected String resourceName;
   protected Map globalToNode = new HashMap ();  // global object -> DOM node mapping
   protected Set globalsToSend = new HashSet (); // globals to send with this batch of objects
   protected Map globalToName = new HashMap ();  // global object -> global name mapping
@@ -63,6 +64,10 @@ public class DataXMLize extends FormatXMLize {
 
   public void setNameToDescrip (Map nameToDescrip) {
 	this.nameToDescrip = nameToDescrip;
+  }
+
+  public void setResourceName (String resourceName) {
+	this.resourceName = resourceName;
   }
   
   int numAddNodes = 0;
@@ -244,8 +249,9 @@ public class DataXMLize extends FormatXMLize {
 									String tag,
 									boolean isTask,
 									boolean isResource,
-									Object obj) {
-	return createObject(doc, tag, obj, isTask);
+									Object obj,
+									String resourceClassName) {
+	return createObject(doc, tag, obj, isTask, isResource);
   }
 
   /**
@@ -375,7 +381,7 @@ public class DataXMLize extends FormatXMLize {
 	  }
 	  Element objectNode = null;
 	  if (!isGlobal || !seenGlobalBefore) {
-		objectNode = createObject(doc, propertyName, propertyValue, false);
+		objectNode = createObject(doc, propertyName, propertyValue, false, false);
 		fieldNode.appendChild (objectNode);
 		if (debug) 
 		  System.out.println ("DataXMLize.nonLeaf - adding object to field.");
@@ -457,7 +463,7 @@ public class DataXMLize extends FormatXMLize {
    * @param items collection of items to translate
    * @return result document
    */
-  protected synchronized Document createDoc (Collection items) {
+  protected synchronized Document createDoc (Collection items, String assetClassName) {
       Document doc = new DocumentImpl(); 
       Element root = doc.createElement("PROBLEM");
 	doc.appendChild (root);
@@ -474,7 +480,7 @@ public class DataXMLize extends FormatXMLize {
     Element element   = null;
 	Date start = new Date();
     for (Iterator iter = items.iterator(); iter.hasNext ();) {
-      Collection nodes = getPlanObjectXMLNodes (iter.next(), doc, RECURSION_DEPTH);
+      Collection nodes = getPlanObjectXMLNodes (iter.next(), doc, RECURSION_DEPTH, assetClassName);
 	  for (Iterator iter2 = nodes.iterator(); iter2.hasNext ();)
 		newobjects.appendChild ((Element) iter2.next());
     }
@@ -512,11 +518,22 @@ public class DataXMLize extends FormatXMLize {
 	return doc;
   }
 
-  protected Element createObject (Document doc, String name, Object theObj, boolean isTask) {
+  protected Element createObject (Document doc, String name, Object theObj, boolean isTask, boolean isResource) {
     Element elem = doc.createElement("OBJECT");
-	String cn = theObj.getClass ().toString();
-	cn = cn.substring (cn.lastIndexOf ('.') + 1);
-	cn = cn.substring (cn.lastIndexOf ('$') + 1);
+	String cn;
+	
+	if (isResource) {
+	  cn = resourceName;
+
+	  if (debug)
+		System.out.println ("DataXMLize.createObject - Using resource name " + resourceName);
+	}
+	else {
+	  cn = theObj.getClass ().toString();
+	  cn = cn.substring (cn.lastIndexOf ('.') + 1);
+	  cn = cn.substring (cn.lastIndexOf ('$') + 1);
+	}
+
 	elem.setAttribute ("type", (isTask) ? name : cn);
 
 	return elem;

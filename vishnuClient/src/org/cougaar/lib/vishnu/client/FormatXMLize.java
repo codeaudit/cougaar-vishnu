@@ -56,8 +56,6 @@ public class FormatXMLize extends BaseXMLize {
 
   // controls how deep down the object hierarchy to go
   protected final int RECURSION_DEPTH=9;
-  // the first instance of a string field found will have it's length multiplied by this
-  protected final int MULTIPLIER = 4;
   
   public FormatXMLize (boolean debug) {
 	try {
@@ -89,7 +87,7 @@ public class FormatXMLize extends BaseXMLize {
   protected void addNodes(
       Document doc, Object obj, 
       Element parentElement, 
-      int searchDepth,
+      int searchDepth, 
 	  Collection createdNodes) {
     if (obj == null) {
       return;
@@ -132,19 +130,20 @@ public class FormatXMLize extends BaseXMLize {
 	  boolean isFirst = false;
 	  Integer numListElems = (Integer) listProps.get (pnv.name);
 	  boolean isList = (numListElems != null);
+
 	  if (isList) {
 		isFirst = true;
 		for (int j = 0; j < numListElems.intValue(); j++) {
 		  pnv = (PropertyNameValue) propertyNameValues.get(i++);
 		  generateElem (doc, parentElement, pnv.name, pnv.value, 
-						searchDepth, isList, isFirst,
+						searchDepth, isList, isFirst, 
 						createdNodes);
 		  isFirst = false;
 		}
 	  }
 	  else {
 		  generateElem (doc, parentElement, pnv.name, pnv.value, 
-						searchDepth, isList, isFirst,
+						searchDepth, isList, isFirst, 
 						createdNodes);
 		  i++;
 	  }
@@ -178,8 +177,9 @@ public class FormatXMLize extends BaseXMLize {
 									String tag,
 									boolean isTask,
 									boolean isResource,
-									Object obj) {
-	return createObjectFormat(doc, tag, isTask, isResource, obj);
+									Object obj,
+									String resourceClassName) {
+	return createObjectFormat(doc, tag, isTask, isResource, obj, resourceClassName);
   }
 
   /**
@@ -250,7 +250,8 @@ public class FormatXMLize extends BaseXMLize {
 		}
 	  }
 	  
-	  Element item = createObjectFormat(doc, propertyName, false, false, propertyValue);
+	  Element item = createObjectFormat(doc, propertyName, false, false, propertyValue, 
+										null);
 	  createdNodes.add (item);
 	  // recurse!
 
@@ -335,7 +336,7 @@ public class FormatXMLize extends BaseXMLize {
 	item.appendChild(elem);
   }
   
-  protected Document createDoc (Collection items) {
+  protected Document createDoc (Collection items, String assetClassName) {
     Document doc = new DocumentImpl(); 
     Element root = doc.createElement("PROBLEM");
 	doc.appendChild (root);
@@ -344,7 +345,7 @@ public class FormatXMLize extends BaseXMLize {
 
     Element element   = null;
     for (Iterator iter = items.iterator(); iter.hasNext ();) {
-      Collection nodes = getPlanObjectXMLNodes (iter.next(), doc, RECURSION_DEPTH);
+      Collection nodes = getPlanObjectXMLNodes (iter.next(), doc, RECURSION_DEPTH, assetClassName);
 	  for (Iterator iter2 = nodes.iterator(); iter2.hasNext ();)
 		df.appendChild ((Element) iter2.next());
     }
@@ -363,13 +364,21 @@ public class FormatXMLize extends BaseXMLize {
 										String name,
 										boolean isTask,
 										boolean isResource,
-										Object theObj) {
+										Object theObj,
+										String resourceClassName) {
     Element elem = doc.createElement("OBJECTFORMAT");
 	elem.setAttribute ("is_task",     (isTask) ? "true" : "false");
 	elem.setAttribute ("is_resource", (isResource) ? "true" : "false");
-	String cn = "" + theObj.getClass ();
-	cn = cn.substring (cn.lastIndexOf ('.') + 1);
-	cn = cn.substring (cn.lastIndexOf ('$') + 1);
+	String cn;
+
+	if (isResource)
+	  cn = resourceClassName;
+	else {
+	  cn = "" + theObj.getClass ();
+	  cn = cn.substring (cn.lastIndexOf ('.') + 1);
+	  cn = cn.substring (cn.lastIndexOf ('$') + 1);
+	}
+	
 	elem.setAttribute ("name", (isTask) ? name : cn);
   
 	return elem;
