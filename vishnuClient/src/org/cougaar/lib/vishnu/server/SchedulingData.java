@@ -1,9 +1,8 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.38 2001-09-26 17:43:20 dmontana Exp $
-
 package org.cougaar.lib.vishnu.server;
 
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.Attributes;
+import java.util.Map;
 import java.util.HashMap;
 import java.util.TreeSet;
 import java.util.ArrayList;
@@ -527,64 +526,69 @@ public class SchedulingData {
                               String name, Attributes atts) {
       if (name.equals ("FIELD")) {
         fieldname = atts.getValue ("name");
-        FieldFormat ff = (FieldFormat)
-          ((HashMap) formats.get (objectType)).get (fieldname);
-        if (ff == null) {
-          if (throwExceptionOnMissingField) {
-            throw new RuntimeException ("Undefined field named " +
-                                        fieldname + " for object type " +
-                                        objectType);
-          }
-          else {
-            if (debug)
-              System.out.println ("SchedulingData.startElement - NOTE : " +
-                                  "found undefined field " + fieldname +
-                                  " for object type " + objectType +
-                                  ". Ignoring.");
-            prefixes.push (prefix);
-            return;
-          }
-        }
+		Map fieldsForObject = (Map) formats.get (objectType);
+		try {
+		  FieldFormat ff = (FieldFormat) fieldsForObject.get (fieldname);
+		  if (ff == null) {
+			if (throwExceptionOnMissingField) {
+			  throw new RuntimeException ("Undefined field named " +
+										  fieldname + " for object type " +
+										  objectType);
+			}
+			else {
+			  if (debug)
+				System.out.println ("SchedulingData.startElement - NOTE : " +
+									"found undefined field " + fieldname +
+									" for object type " + objectType +
+									". Ignoring.");
+			  prefixes.push (prefix);
+			  return;
+			}
+		  }
 
-        prefixes.push (prefix);
-        if (ff.is_list) {
-          listFormats.push (listFormat);
-          listFormat = new ListFormat();
-          listFormat.name = prefix + fieldname;
-          listFormat.type = ff.datatype;
-          listFormat.hasObjects = ff.is_subobject;
-          listFormat.object = object;
-          object.addListField (listFormat.name);
-          objects.push (object);
-          object = null;
-          prefix = "";
-        }
-        else if (ff.is_subobject) {
-          prefix = prefix + fieldname + ".";
-        }
-        else {
-          object.addField (prefix + fieldname, ff.datatype,
-                           atts.getValue ("value"), ff.is_key, false);
-          if (ff.is_key && (object instanceof Task)) {
-            if (doingDeleted)
-              removeTask (((Task) object).getKey());
-            else if (doingChanged)
-              replaceTask ((Task) object);
-            else if (doingNew)
-              addTask ((Task) object);
-          }
-          if (ff.is_key && (object instanceof Resource)) {
-            if (doingDeleted)
-              removeResource (((Resource) object).getKey());
-            else if (doingChanged)
-              replaceResource ((Resource) object);
-            else if (doingNew)
-              addResource ((Resource) object);
-          }
-          if (predefined != null)
-            predefined.addField (fieldname, ff.datatype,
-                                 atts.getValue ("value"), false, false);
-        }
+		  prefixes.push (prefix);
+		  if (ff.is_list) {
+			listFormats.push (listFormat);
+			listFormat = new ListFormat();
+			listFormat.name = prefix + fieldname;
+			listFormat.type = ff.datatype;
+			listFormat.hasObjects = ff.is_subobject;
+			listFormat.object = object;
+			object.addListField (listFormat.name);
+			objects.push (object);
+			object = null;
+			prefix = "";
+		  }
+		  else if (ff.is_subobject) {
+			prefix = prefix + fieldname + ".";
+		  }
+		  else {
+			object.addField (prefix + fieldname, ff.datatype,
+							 atts.getValue ("value"), ff.is_key, false);
+			if (ff.is_key && (object instanceof Task)) {
+			  if (doingDeleted)
+				removeTask (((Task) object).getKey());
+			  else if (doingChanged)
+				replaceTask ((Task) object);
+			  else if (doingNew)
+				addTask ((Task) object);
+			}
+			if (ff.is_key && (object instanceof Resource)) {
+			  if (doingDeleted)
+				removeResource (((Resource) object).getKey());
+			  else if (doingChanged)
+				replaceResource ((Resource) object);
+			  else if (doingNew)
+				addResource ((Resource) object);
+			}
+			if (predefined != null)
+			  predefined.addField (fieldname, ff.datatype,
+								   atts.getValue ("value"), false, false);
+		  }
+		} catch (NullPointerException npe) {
+		  throw new RuntimeException ("ERROR : SchedulingData.startElement - No object format for type " +
+									  objectType);
+		}
       }
       else if (name.equals ("OBJECT")) {
         objectTypes.push (objectType);
