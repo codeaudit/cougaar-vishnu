@@ -3,7 +3,9 @@
     <OBJECT type="job">
       <FIELD name="id" value="welding 3" />
       <FIELD name="duration_in_seconds" value="180" />
-      <FIELD name="preceeding_tasks" list="t" >
+      <FIELD name="preceeding_tasks" >
+        <LIST>
+        </LIST>
       </FIELD>
       <FIELD name="quals_required">
         <OBJECT type="quals">
