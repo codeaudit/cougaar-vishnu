@@ -116,13 +116,13 @@ public class GeneticAlgorithm {
 
     if (explain || (topDogAge != 0) || !allTasksAssigned) {
       data.clearAssignments();
-	  if (!population.isEmpty()) {
-		if (!allTasksAssigned)
-		  System.out.println ("GeneticAlgorithm.execute - explaining because not all tasks assigned.");
-	  
-		decoder.generateAssignments (((Member) population.get(0)).chromosome,
-									 data, specs, explain);
-	  }
+      if (!population.isEmpty()) {
+        if (explain && !allTasksAssigned)
+          System.out.println ("GeneticAlgorithm.execute - explaining " +
+                              "because not all tasks assigned.");
+        decoder.generateAssignments
+          (((Member) population.get(0)).chromosome, data, specs, explain);
+      }
     }
     return false;
   }
