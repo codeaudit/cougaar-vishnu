@@ -301,6 +301,11 @@
   addq ("How do I use a bridge plugin within a Cougaar society?",
         "This is described in <a href=\"fulldoc.php#bridge\">Section
         7</a> of the full documentation.");
+  addq ("Who do I contact if I have any questions about Vishnu?",
+        "Email any questions about Vishnu proper to
+        <A HREF=\"mailto:dmontana@bbn.com\">David Montana</A>.  Email
+        any questions about the Cougaar-Vishnu bridge to
+        <A HREF=\"mailto:gvidaver@bbn.com\">Gordon Vidaver</A>.");
 
   require ("navigation.php");
 
