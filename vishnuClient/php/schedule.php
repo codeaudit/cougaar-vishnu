@@ -216,6 +216,25 @@ the rightmost time is the end time of the latest assignment.
 <li><b>Select New Time Range</b> will set the time range to be whatever
 you enter explicitly into the "Start" and "End" boxes.
 </ul>
+<p>
+The resources/tasks/assignments displayed on this page are
+selectable as links.  Clicking on the one of the resource names
+on the left side of the page will bring you to the page for
+viewing and editing that resource.  Clicking on one of the
+colored assignment regions in a Gantt chart will display the
+information associated with this assignment.  If the assignment
+is a single task, it will show the page for that task, and if
+the assignment has multiple tasks, it will display a list of
+these tasks along with the times.
+<p>
+A list of all the tasks that failed to be assigned is available as
+a pick list at the bottom of the page.  Clicking on "View" will
+bring you to the page for that task.
+<p>
+<b>Note:</b> If this problem is an assignment problem rather than
+a scheduling problem (i.e., it has no concept of time), instead
+of the Gantt chart display will be just a list of all the tasks
+assigned to each resource.
 <?
   }
 ?>
