@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.11 2001-04-06 18:50:32 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.12 2001-04-06 21:00:08 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -321,9 +321,9 @@ public class SchedulingData {
   private class DataHandler extends DefaultHandler {
     private String keyValue;
 
-    private FastStack names = new StackImpl();
-    private FastStack types = new StackImpl();
-    private FastStack stack = new StackImpl();
+    private FastStack names = new FastStack();
+    private FastStack types = new FastStack();
+    private FastStack stack = new FastStack();
     
     public void startElement (String uri, String local,
                               String name, Attributes atts) {
@@ -441,13 +441,13 @@ public class SchedulingData {
 
     private String globalName = null;
     private String prefix = "";
-    private FastStack prefixes = new StackImpl();
+    private FastStack prefixes = new FastStack();
     private SchObject predefined = null;
     private ArrayList predefinedTypes = new ArrayList();
     private SchObject object = null;
-    private FastStack objects = new StackImpl();
+    private FastStack objects = new FastStack();
     private String objectType = null;
-    private FastStack objectTypes = new StackImpl();
+    private FastStack objectTypes = new FastStack();
     private HashMap formats = new HashMap();
     private HashMap currentFormat = new HashMap();
     private String taskObject = null;
@@ -456,7 +456,7 @@ public class SchedulingData {
     private String resourceKey = null;
     private String fieldname;
     private ListFormat listFormat = null;
-    private FastStack listFormats = new StackImpl();
+    private FastStack listFormats = new FastStack();
 
     private class FieldFormat {
       public String datatype;

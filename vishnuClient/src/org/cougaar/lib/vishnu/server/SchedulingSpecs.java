@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingSpecs.java,v 1.9 2001-04-06 18:50:32 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingSpecs.java,v 1.10 2001-04-06 21:00:08 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -718,7 +718,7 @@ public class SchedulingSpecs {
   /** Parses the XML representation of the specs */
   private class SpecsHandler extends DefaultHandler {
 
-    private FastStack stack = new StackImpl();
+    private FastStack stack = new FastStack();
     private ResultProducer rp;
 
     public void startElement (String uri, String local, String name,
