@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.4 2001-01-25 20:49:38 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.5 2001-01-26 22:02:04 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -27,6 +27,7 @@ public class SchedulingData {
 
   private HashMap tasks = new HashMap();
   private HashMap frozenTasks = new HashMap();
+  private HashMap linkedToFrozenTasks = new HashMap();
   private ArrayList unfrozenTasks = new ArrayList();
   private HashMap resources = new HashMap();
   private HashMap capacities = new HashMap();
@@ -75,6 +76,17 @@ public class SchedulingData {
     return (Task[]) unfrozenTasks.toArray (arr);
   }
 
+  public HashMap getLinkedToFrozenTasks () {
+    return linkedToFrozenTasks;
+  }
+
+  public int cachedLinkTimeDiff (Task task1, Task task2) {
+    HashMap group = (HashMap) linkedGroupMap.get (task1);
+    float f1 = ((Float) group.get (task1)).floatValue();
+    Float f2 = (Float) group.get (task2);
+    return (f2 == null) ? 0 : (int) (f1 - f2.floatValue());
+  }
+
   public Resource getResource (String key) {
     return (Resource) resources.get (key);
   }
@@ -119,6 +131,7 @@ public class SchedulingData {
     computePrerequisites (specs);
     computeGroupings (specs);
     computeLinks (specs);
+    computeLinkedToFrozen();
   }
 
   public void createActivities (SchedulingSpecs specs) {
@@ -206,6 +219,24 @@ public class SchedulingData {
           }
   }
 
+  public void computeLinkedToFrozen() {
+    for (int i = 0; i < unfrozenTasks.size(); i++) {
+      Object task = unfrozenTasks.get (i);
+      HashMap group = (HashMap) linkedGroupMap.get (task);
+      if (group == null)
+        continue;
+      java.util.Iterator iter = group.keySet().iterator();
+      while (iter.hasNext()) {
+        Object task2 = iter.next();
+        if (frozenTasks.get (task2) != null) {
+          linkedToFrozenTasks.put (task, task2);
+          unfrozenTasks.remove (task);
+          break;
+        }
+      }
+    }
+  }
+
   public DefaultHandler getXMLHandler() {
     return new DataHandler();
   }
@@ -289,21 +320,21 @@ public class SchedulingData {
       }
       else if (! name.equals ("DATA"))
         System.out.println ("SchedulingData.startElement - " + 
-							"Unknown tag in scheduling data: " + name);
+                            "Unknown tag in scheduling data: " + name);
     }
 
     public void endElement (String uri, String local, String name) {
       if (name.equals ("FIELD")) {
-		names.pop ();
-		types.pop ();
+        names.pop ();
+        types.pop ();
       }
       else if (name.equals ("OBJECT")) {
-		String nameForInner = (String) names.peek ();
-		String typeForInner = (String) types.peek ();
-		Object innerObject  = stack.pop ();
-		SchObject object    = (SchObject) stack.peek ();
+        String nameForInner = (String) names.peek ();
+        String typeForInner = (String) types.peek ();
+        Object innerObject  = stack.pop ();
+        SchObject object    = (SchObject) stack.peek ();
         object.addField (nameForInner, typeForInner, innerObject,
-						 false, false);
+                         false, false);
       }
       else if (name.equals ("TASK")) {
         tasks.put (keyValue, stack.pop ());

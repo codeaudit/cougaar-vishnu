@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedDecoder.java,v 1.2 2001-01-18 23:03:48 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedDecoder.java,v 1.3 2001-01-26 22:02:04 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 
 /**
  * Generates a schedule from an ordered chromosome using a greedy
@@ -37,23 +38,7 @@ public class OrderedDecoder implements GADecoder {
                   SchedulingSpecs.MULTITASKING_GROUPED));
     for (int i = 0; i < r.length; i++)
       r[i].resetSumOfDeltas();
-    Task[] frozen = data.getFrozenTasks();
-    for (int i = 0; i < frozen.length; i++)
-      frozen[i].setAssignment (data.getFrozenAssignment (frozen[i]));
-    Arrays.sort (frozen, new Comparator()
-                 { public int compare (Object o1, Object o2) {
-                   int t1 = ((Task) o1).getAssignment().getStartTime();
-                   int t2 = ((Task) o2).getAssignment().getStartTime();
-                   return t1 - t2;
-                 }});
-    for (int i = 0; i < frozen.length; i++) {
-      Assignment a = frozen[i].getAssignment();
-      makeAssignment2 (frozen[i], a.getResource(),
-                       a.getResource().getFixedBlock
-                       (frozen[i], a.getStartTime(), a.getEndTime(),
-                        grouped, multitask || ignoringTime, specs),
-                       true, true);
-    }
+    assignFrozen (data, specs);
 
     Task[] tasks2 = data.getUnfrozenTasks();
     ArrayList tasks = new ArrayList (tasks2.length);
@@ -64,11 +49,20 @@ public class OrderedDecoder implements GADecoder {
         Task task = (Task) tasks.get(i);
         Task[] prereqs = task.getPrerequisites ();
         boolean notReady = false;
+        boolean readyButUnable = false;
         for (int j = 0; j < prereqs.length; j++) {
-          if ((prereqs[j] != null) && (prereqs[j].getAssignment() == null)) {
+          if ((prereqs[j] != null) && (tasks.contains (prereqs[j]))) {
             notReady = true;
             break;
           }
+          if ((prereqs[j] != null) && (prereqs[j].getAssignment() == null)) {
+            readyButUnable = true;
+            break;
+          }
+        }
+        if (readyButUnable) {
+          tasks.remove (i);
+          break;
         }
         if (notReady)
           continue;
@@ -209,6 +203,78 @@ public class OrderedDecoder implements GADecoder {
           block.preAssignment.setEndTime (block.preWrapup);
         if (block.postAssignment != null)
           block.postAssignment.setStartTime (block.postSetup);
+      }
+    }
+  }
+
+  private void assignFrozen (SchedulingData data, SchedulingSpecs specs) {
+    Task[] frozen = data.getFrozenTasks();
+    for (int i = 0; i < frozen.length; i++)
+      frozen[i].setAssignment (data.getFrozenAssignment (frozen[i]));
+    Arrays.sort (frozen, new Comparator()
+                 { public int compare (Object o1, Object o2) {
+                   int t1 = ((Task) o1).getAssignment().getStartTime();
+                   int t2 = ((Task) o2).getAssignment().getStartTime();
+                   return t1 - t2;
+                 }});
+    for (int i = 0; i < frozen.length; i++) {
+      Assignment a = frozen[i].getAssignment();
+      makeAssignment2 (frozen[i], a.getResource(),
+                       a.getResource().getFixedBlock
+                       (frozen[i], a.getStartTime(), a.getEndTime(),
+                        grouped, multitask || ignoringTime, specs),
+                       true, true);
+    }
+
+    HashMap linked = data.getLinkedToFrozenTasks();
+    java.util.Iterator iter = linked.keySet().iterator();
+    while (iter.hasNext()) {
+      Task task = (Task) iter.next();
+      Task task2 = (Task) linked.get (task);
+      int start = (task2.getAssignment().getTaskStartTime() + 
+                   data.cachedLinkTimeDiff (task, task2));
+      int start2 = findEarliestTime (task, start, data, specs);
+      if (start == start2)
+        assignAtTime (task, start, data, specs);
+    }
+  }
+
+  private int findEarliestTime (Task task, int notBefore,
+                                SchedulingData data, SchedulingSpecs specs) {
+    Resource[] resources = specs.capableResources (task, data);
+    Task[] prereqs = new Task[0];
+    int bestTime = Integer.MAX_VALUE;
+    for (int i = 0; i < resources.length; i++) {
+      Resource resource = resources[i];
+      int dur = specs.taskDuration (task, resource, i == 0);
+      TimeBlock[] unavail = specs.taskUnavailableTimes
+        (task, prereqs, data.getStartTime(), data.getEndTime(),
+         resource, i == 0);
+      Resource.Block block = resource.earliestAvailableBlock
+        (task, dur, unavail, specs, multitask, grouped,
+         notBefore, data.getStartTime());
+      if (block.start < bestTime)
+        bestTime = block.start;
+    }
+    return bestTime;
+  }
+
+  private void assignAtTime (Task task, int time,
+                             SchedulingData data, SchedulingSpecs specs) {
+    Resource[] resources = specs.capableResources (task, data);
+    Task[] prereqs = new Task[0];
+    for (int i = 0; i < resources.length; i++) {
+      Resource resource = resources[i];
+      int dur = specs.taskDuration (task, resource, i == 0);
+      TimeBlock[] unavail = specs.taskUnavailableTimes
+        (task, prereqs, data.getStartTime(), data.getEndTime(),
+         resource, i == 0);
+      Resource.Block block = resource.earliestAvailableBlock
+        (task, dur, unavail, specs, multitask, grouped,
+         time, data.getStartTime());
+      if (block.start == time) {
+        makeAssignment2 (task, resource, block, true, false);
+        return;
       }
     }
   }
