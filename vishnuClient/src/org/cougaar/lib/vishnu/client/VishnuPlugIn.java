@@ -588,8 +588,7 @@ public abstract class VishnuPlugIn
 
 	   Date start = new Date ();
 	   
-	   prepareVishnuObjects (stuffToSend, vishnuTasks, vishnuResources, objectFormatDoc, sched.getTimeOps(), 
-							 sched.getSchedulingData().getGroupingInfo());
+	   prepareVishnuObjects (stuffToSend, vishnuTasks, vishnuResources, objectFormatDoc, sched.getTimeOps(), null);
 
 	   if (showTiming)
 		 domUtil.reportTime (".prepareData - prepared vishnu objects in ", start);
