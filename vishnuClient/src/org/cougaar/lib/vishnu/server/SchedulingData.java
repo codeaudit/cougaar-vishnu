@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.23 2001-07-20 14:24:46 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.24 2001-07-26 18:09:47 gvidaver Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -82,6 +82,10 @@ public class SchedulingData {
     return (Task[]) frozenTasks.keySet().toArray (arr);
   }
 
+  public boolean isFrozen (Task task) {
+	return (frozenTasks.get (task) != null);
+  }
+  
   public Assignment getFrozenAssignment (Task task) {
     return (Assignment) frozenTasks.get (task);
   }
