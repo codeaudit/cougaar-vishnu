@@ -63,7 +63,10 @@
         external clients), as well as the data for the web browsers that
         provide the graphical interface.  The automated scheduler does
         the optimized scheduling.  The formula compiler translates from
-        easily readable formulas to a form usable by the scheduler.");
+        easily readable formulas to a form usable by the scheduler.
+        A more in-depth description and an architecture diagram are
+        provided in <a href=\"fulldoc.php#arch\">Section 2</a> of the
+        full documentation.");
   addq ("How do I get set up to use Vishnu?",
         "First, try to locate a properly configured web server that you
         can use.  If none exists, you will have to install one (see the
