@@ -1,4 +1,4 @@
-/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/Attic/VishnuPlugIn.java,v 1.4 2001-02-13 05:08:23 gvidaver Exp $ */
+/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/Attic/VishnuPlugIn.java,v 1.5 2001-02-14 00:15:46 gvidaver Exp $ */
 
 package org.cougaar.lib.vishnu.client;
 
@@ -123,6 +123,9 @@ public abstract class VishnuPlugIn
 
   private static Map clusterToInstance = new HashMap ();
 
+  /**
+   * Here all the various runtime parameters get set.  See documentation for details.
+   */
   public void localSetup() {     
     super.localSetup();
 
@@ -192,16 +195,15 @@ public abstract class VishnuPlugIn
 		   getMyParams().getBooleanParam("runInternal");}    
     catch(Exception e) {runInternal = false;}
 
-	// writes the XML sent to Vishnu to a file
+	// writes the XML sent to Vishnu web server to a file (human readable)
     try {writeXMLToFile = 
 		   getMyParams().getBooleanParam("writeXMLToFile");}    
     catch(Exception e) {writeXMLToFile = false;}
 
-	// indents the XML sent to Vishnu (makes readable, but adds bloat to data)
-	// not used?
-    try {indentXMLSentToVishnu = 
-		   getMyParams().getBooleanParam("indentXMLSentToVishnu");}    
-    catch(Exception e) {indentXMLSentToVishnu = false;}
+	// writes the XML sent to Vishnu web server to a file (machine readable)
+    try {writeEncodedXMLToFile = 
+		   getMyParams().getBooleanParam("writeEncodedXMLToFile");}    
+    catch(Exception e) {writeEncodedXMLToFile = false;}
 
     try {debugFormatXMLizer = 
 		   getMyParams().getBooleanParam("debugFormatXMLizer");}
@@ -1662,15 +1664,42 @@ public abstract class VishnuPlugIn
       serializeAndPost (doc, false);
   }
 
+  /**
+   * post the Document <code>doc</code> to a URL.                            <p>
+   *                                                                        <br>
+   * If <code>writeXMLToFile</code> is set, will write a copy of what is     <p>
+   * sent to the URL to a file named ClusterName_type_number, where type is  <p>
+   * problem (the problem definition) or data (the tasks and resources), and <p>
+   * number is a counter that keeps the file names unique                    <p>
+   *                                                                        <br>
+   * What's written to the file is human readable, whereas if                <p>
+   * <code>writeEncodedXMLToFile</code> is set, a different file is written, <p>
+   * named ClusterName_encoded_number.  This file contains exactly what is   <p>
+   * sent to the web server, after URL encoding has been performed.
+   *
+   * @param doc - DOM doc to send to URL
+   * @param postData - true if posting data 
+   */
   protected void serializeAndPost (Document doc, boolean postData) {
 	if (runInternal)
 	  appendToInternalBuffer( getDocAsArray (doc).toString());
 	else {
 	  if (postData) {
-		postData (getDocAsArray (doc).toString());
 		//	  postData (doc);
-	  } else
-		postProblem (getDocAsString (doc));
+		postData (getDocAsArray (doc).toString());
+	  } else {
+		//		postProblem (getDocAsString (doc));
+		postProblem (getDocAsArray (doc).toString());
+	  }
+	  if (writeXMLToFile) {
+		String suffix = (postData) ? "data" : "problem";
+		String fileName = getClusterName () + "_" + suffix + "_" + numFilesWritten++;
+		System.out.println (getName () + ".serializeAndPost - Writing XML to file " + fileName);
+		try {
+		  FileOutputStream temp = new FileOutputStream (fileName);
+		  writeDocToStream (doc, temp);
+		} catch (FileNotFoundException fnfe) { /* never happen */ }
+	  }
 	}
   }
 
@@ -1988,10 +2017,22 @@ public abstract class VishnuPlugIn
     os.write(bytes);
 	if (doc != null) {
 	  writeDocToStream (doc, os);
+	  /*
 	  if (writeXMLToFile) {
-		FileOutputStream temp = new FileOutputStream ("temp");
+		String fileName = getClusterName () + "_" + numFilesWritten++;
+		System.out.println ("Writing XML to file " + fileName);
+		FileOutputStream temp = new FileOutputStream (fileName);
 		writeDocToStream (doc, temp);
 	  }
+	  */
+	} else if (writeEncodedXMLToFile) {
+	  String fileName = getClusterName () + "_encoded_" + numFilesWritten++;
+	  System.out.println (getName () + ".sendData : Writing XML to file " + fileName);
+	  FileOutputStream temp = new FileOutputStream (fileName);
+	  bytes = data.getBytes ();
+	  temp.write(bytes);
+	  temp.flush ();
+	  temp.close ();
 	}
 	
     os.flush ();
@@ -1999,9 +2040,8 @@ public abstract class VishnuPlugIn
   }
 
   protected void writeDocToStream (Document doc, OutputStream os) {
-    OutputFormat of = new OutputFormat (doc);
-	of.setPreserveSpace (indentXMLSentToVishnu);
-	of.setIndenting     (indentXMLSentToVishnu);
+    OutputFormat of = new OutputFormat (doc, "UTF-8", true);
+	of.setLineWidth (150);
 	
 	XMLSerializer serializer = new XMLSerializer (os, of);
 
@@ -2502,7 +2542,8 @@ public abstract class VishnuPlugIn
   protected boolean alwaysClearDatabase = false;
   protected boolean showTiming = true;
   protected boolean writeXMLToFile = false;
-  protected boolean indentXMLSentToVishnu = false;
+  protected boolean writeEncodedXMLToFile = false;
+  protected int numFilesWritten = 0; // how many files have been written out via the writeXMLToFile flag
   protected boolean sendRoleScheduleUpdates = false;
   protected boolean makeSetupAndWrapupTasks = true;
   protected boolean runInternal = true;
