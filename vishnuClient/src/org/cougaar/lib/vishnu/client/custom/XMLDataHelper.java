@@ -67,11 +67,14 @@ public class XMLDataHelper implements DataHelper {
   /** 
    * Translates Asset role schedule into equivalent Vishnu XML. <p>
    *
-   * TimeSpans(PlanElements) in the role schedule get translated into Vishnu intervals.
+   * TimeSpans(PlanElements) in the role schedule get translated into Vishnu intervals.<p>
    *
+   * Calls getScheduleFields to do real work.
    * @param object - the DOM Element to add the <code>name</code> list field to 
    * @param name   - the name of the list field
    * @param asset  - the asset with the role schedule
+   * @see #createScheduleFields
+   * @see org.cougaar.planning.ldm.plan.RoleSchedule
    */
   public void createRoleScheduleListField (Object object, String name, Asset asset) {
     RoleSchedule unavail = asset.getRoleSchedule ();
@@ -87,6 +90,16 @@ public class XMLDataHelper implements DataHelper {
 			  true);
   }
 
+  /** 
+   * Translates Asset available schedule into equivalent Vishnu XML. <p>
+   *
+   * TimeSpans(PlanElements) in the available schedule get translated into Vishnu intervals.<p>
+   * Calls getScheduleFields to do real work.
+   * @param object - the DOM Element to add the <code>name</code> list field to 
+   * @param name   - the name of the list field
+   * @param asset  - the asset with the role schedule
+   * @see #createScheduleFields
+   */
   public void createAvailableScheduleListField (Object object, String name, Asset asset) {
     Element field = doc.createElement("FIELD");
     field.setAttribute ("name",  name);
@@ -104,6 +117,17 @@ public class XMLDataHelper implements DataHelper {
 			  false);
   }
 
+  /** 
+   * Walk the schedule and append interval elements to the list element for 
+   * each TimeSpan in the schedule.
+   *
+   * @param schedule TimeSpan Collection from the role schedule or available schedule
+   * @param list elem to add interval elements to
+   * @param isRole if true, sets the interval label1 to the Verb of the Task of the 
+   *        TimeSpan/PlanElement
+   * @see org.cougaar.util.TimeSpan
+   * @see org.cougaar.planning.ldm.plan.PlanElement
+   */
   protected void createScheduleFields (Collection schedule, Element list, boolean isRole) {
     for (Iterator iter = schedule.iterator (); iter.hasNext();) {
       TimeSpan span = (TimeSpan) iter.next ();
@@ -123,7 +147,7 @@ public class XMLDataHelper implements DataHelper {
   }
 
   /** 
-   * Translate a Cougaar GeolocLocation into the equivalent DOM structure.
+   * Translate a Cougaar GeolocLocation into the equivalent DOM structure. <p>
    *
    * Adds a latlong object to the parent object, and adds the geoloc
    * to the parent.

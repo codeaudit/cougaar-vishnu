@@ -184,6 +184,9 @@ public class DirectDataHelper implements DataHelper {
    * Adds a latlong SchObject to the parent object, and adds the geoloc
    * to the parent.
    *
+   * Uses a geolocCode and latLon Cache to drastically reduce the number
+   * of Geoloc and latLon objects that are created.
+   *
    * @param parent - the SchObject to add the <code>parentFieldName</code> geoloc field to 
    * @param parentFieldName - the base name of the geoloc field
    * @param loc - the Cougaar GeolocLocation to translate into a Vishnu structure
@@ -423,7 +426,7 @@ public class DirectDataHelper implements DataHelper {
   /** used in createRoleScheduleListField */
   protected Date endOfWorld;
 
-  Logger logger;
+  protected Logger logger;
 }
 
 
