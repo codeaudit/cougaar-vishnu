@@ -72,8 +72,6 @@ import org.xml.sax.helpers.DefaultHandler;
  * the same bytes as are sent to the web server when running externally.
  **/
 public class VishnuComm {
-  private static Map clusterToInstance = new HashMap ();
-
   /** 
    * Sets the problem name <p>
    * calls postCancel and postClear if running externally 
@@ -430,49 +428,23 @@ public class VishnuComm {
    * <pre>
    * sets Problem name used by Vishnu
    *
-   * Uses a shared, static Map of cluster names to plugin instances so
-   * that if there is more than one Vishnu plugin per cluster, can
-   * number them in ascending order.
-   *
    * Appends the machine name to divide the name space of problems 
    * automatically.
    *
-   * For example, if there were an expander and aggregator in the
+   * For example, if there were an expander in the
    * AsmaraTFSP cluster, run on a machine named pumpernickle, 
-   * the names would be 
-   *   AsmaraTFSP_0_pumpernickle and
-   *   AsmaraTFSP_1_pumpernickle
-   *
-   * (There is nothing to tell which is which in the name.)
+   * the problem name would be 
+   *   AsmaraTFSP_pumpernickle
    *
    * </pre>
    */
   protected void setProblemName () {
-    synchronized (clusterToInstance) {
-      List instances = (List) clusterToInstance.get (getClusterName ());
-      if (instances == null) {
-	clusterToInstance.put (getClusterName (), instances = new ArrayList ());
-      }
-      instances.add (this);
-    }
-
     try {
       if (getMyParams().hasParam("problemName"))
 	myProblem = getMyParams().getStringParam("problemName");
       else { 
 	myProblem = getClusterName();
 
-	synchronized (clusterToInstance) {
-	  if (((List) clusterToInstance.get (getClusterName ())).size () > 1) {
-	    myProblem = myProblem + "_" + 
-	      ((List) clusterToInstance.get (getClusterName ())).indexOf (this);
-	    if (logger.isDebugEnabled())
-	      logger.debug (getName ()+ ".localSetup - this " + this + " is " + 
-			    ((List) clusterToInstance.get (getClusterName ())).indexOf (this) +
-			    " of " + 
-			    ((List) clusterToInstance.get (getClusterName ())).size ());
-	  }
-	}
 	// mysql doesn't like -'s
 	myProblem = myProblem.replace('-', '_');
       }
