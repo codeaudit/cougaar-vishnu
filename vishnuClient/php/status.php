@@ -91,9 +91,9 @@
 	echo "<font size=-1>";
 	echo "* To run a scheduler, use the runScheduler script in "; 
 	echo "vishnu/scripts in the vishnu distribution.<br>";
-	echo "See setup instructions at the top of the <b>runScheduler</b> script.<br><br>"; 
+	echo "See setup instructions at the top of the <i>runScheduler</i> script.<br><br>"; 
 	echo "Also, for more information, see "; 
-	echo "<a href=\"vishnu/php/fulldoc.php#d3\"/>Installing and Executing Vishnu</a> or<br>";
+	echo "<a href=\"fulldoc.php#d3\"/>Installing and Executing Vishnu</a> or<br>";
 	echo "email <a href=\"mailto:gvidaver@bbn.com\"\>Gordon Vidaver</a> or";
 	echo " <a href=\"mailto:dmontana@bbn.com\"\>Dave Montana</a>."; 
 	echo "</font size=-1>";
