@@ -136,7 +136,8 @@
                "\" USEMAP=\"#" . $resourcename . "\">";
         else
           echo "<IMG SRC=\"image.php?" . $text1 . "&" . $text2 .
-               "&setupdisplay=" . getsetupdisplay ($problem) .
+               "&setupdisplay=" . getdisplay ($problem, "setup") .
+               "&wrapupdisplay=" . getdisplay ($problem, "wrapup") .
                "&isgrouped=" . $isgrouped .
                "\" USEMAP=\"#" . $resourcename . "\">";
       }

@@ -36,7 +36,7 @@
   function displayblock ($value, $inner) {
     global $width, $height, $font, $fontwidth, $secs_per_pixel;
     global $im, $black, $colors, $colorsused, $start_time, $end_time;
-    global $setupdisplay;
+    global $setupdisplay, $wrapupdisplay;
 
     $tleft = (int) ((maketime ($value["start_time"]) - $start_time) /
                     $secs_per_pixel);
@@ -69,13 +69,21 @@
     imagefilledrectangle ($im, $left, 0, $right, $height - 1, $black);
     imagefilledrectangle ($im, $left + 2, 2, $right - 2, $height - 3, $cnum);
     if ($tleft > $left) {
-      if (($setupdisplay == "striped") && (($tleft - 1) > $left))
-        stripedrectangle ($im, $left, 0, $tleft - 1, $height - 1, $black, 0);
+      if (($setupdisplay == "left") && (($tleft - 1) > $left))
+        stripedrectangle ($im, $left, 0, $tleft - 1, $height - 1,
+                          $black, 0, 1);
+      if (($setupdisplay == "right") && (($tleft - 1) > $left))
+        stripedrectangle ($im, $left, 0, $tleft - 1, $height - 1,
+                          $black, 0, 0);
       imagedashedline ($im, $tleft, 0, $tleft, $height - 1, $black);
     }
     if ($tright < $right) {
-      if (($setupdisplay == "striped") && (($right - 1) > $tright))
-        stripedrectangle ($im, $tright, 0, $right - 1, $height - 1, $black, 0);
+      if (($wrapupdisplay == "left") && (($right - 1) > $tright))
+        stripedrectangle ($im, $tright, 0, $right - 1, $height - 1,
+                          $black, 0, 1);
+      if (($wrapupdisplay == "right") && (($right - 1) > $tright))
+        stripedrectangle ($im, $tright, 0, $right - 1, $height - 1,
+                          $black, 0, 0);
       imagedashedline ($im, $tright, 0, $tright, $height - 1, $black);
     }
     $text = $value["text"];

@@ -273,7 +273,8 @@
     tableentry ("Task Text", "task_text");
     tableentry ("Grouped Tasks Text", "grouped_text");
     tableentry ("Activity Text", "activity_text");
-    tableentry2 ("Setup/Wrapup Display", "setup_wrapup_display");
+    tableentry2 ("Setup Display", "setup_display");
+    tableentry2 ("Wrapup Display", "wrapup_display");
     echo "</TABLE>\n";
 ?>
 

@@ -6,9 +6,10 @@
 // Copyright 2001 BBNT Solutions LLC
 //
 //
-// This file provides functions for writing of metadata and data.
-// It is in the form fed into the web server, not the format fed
-// into the scheduler.
+// This file provides functions for writing of metadata and data
+// to either the web server or the scheduler.
+
+  require_once ("utilities.php");
 
   function writedataformat ($problem) {
     echo "<DATAFORMAT>\n";
@@ -114,16 +115,11 @@
     echo "<CLEARDATABASE />\n";
 
     // do window
-    $result = mysql_db_query ("vishnu_prob_" . $problem,
-                              "select * from window;");
-    $value = mysql_fetch_array ($result);
-    echo "<WINDOW ";
-    if ($value["start_time"])
-      echo "starttime=\"" . $value["start_time"] . "\" ";
+    $value = getwindow ($problem);
+    echo "<WINDOW starttime=\"" . $value["start_time"] . "\" ";
     if ($value["end_time"])
       echo "endtime=\"" . $value["end_time"] . "\" ";
     echo "/>\n";
-    mysql_free_result ($result);
 
     // do objects
     echo "<NEWOBJECTS>\n";

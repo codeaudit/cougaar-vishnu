@@ -731,7 +731,7 @@ displayed on the schedule graphic.
   <td width=66 style='padding:0in 5.4pt 0in 5.4pt' align=center
         valign=top>true</td>
   <td width=241 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Whether task1 and task2 can be done as part of the same group
+        Whether task1 and task2 can be done as part of the same group (should be reflexive and transitive)
   </td>
  </tr>
  <tr>
@@ -857,15 +857,28 @@ displayed on the schedule graphic.
  </tr>
  <tr>
   <td width=109 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Setup/Wrapup Display</td>
+        Setup Display</td>
   <td width=72 style='padding:0in 5.4pt 0in 5.4pt' align=center
         valign=top>multiple choice</td>
   <td width=102 style='padding:0in 5.4pt 0in 5.4pt' align=center
         valign=top>N/A</td>
   <td width=66 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>striped</td>
+        valign=top>left</td>
   <td width=241 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Must be striped (indicating diagonal striping) or line (indicating single dotted line)
+        Must be left (left diagonal striping), right (right diagonal striping), line (single dotted line), or color (use color specs)
+  </td>
+ </tr>
+ <tr>
+  <td width=109 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
+        Wrapup Display</td>
+  <td width=72 style='padding:0in 5.4pt 0in 5.4pt' align=center
+        valign=top>multiple choice</td>
+  <td width=102 style='padding:0in 5.4pt 0in 5.4pt' align=center
+        valign=top>N/A</td>
+  <td width=66 style='padding:0in 5.4pt 0in 5.4pt' align=center
+        valign=top>right</td>
+  <td width=241 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
+        Must be left (left diagonal striping), right (right diagonal striping), line (single dotted line), or color (use color specs)
   </td>
  </tr>
 </table>
@@ -900,7 +913,8 @@ multitasking constraint determines how resources handle multiple tasks at once. 
 time.  A value of grouped implies that a resource can handle multiple tasks at once only if they start and end at the same times.  A value of ungrouped
 implies that a resource can handle multiple tasks without the need to coordinate the start and end times.   The groupable constraint applies only for
 grouped multitasking and determines when two tasks can be performed by a single resource at the same time.
-Always define groupability to be both reflexive (if task1 is groupable
+Groupability is assumed to be defined
+to be both reflexive (if task1 is groupable
 with task2 then task2 is groupable with task1) and transitive (it task1
 is groupable with task2 and task2 is groupable with task3, then task1
 is groupable with task3); any non-transitive aspects of groupability
@@ -1743,7 +1757,8 @@ testdata/problem.dtd.)<br>
 &lt;!ATTLIST SPECS
           direction (minimize|maximize) "minimize"
           multitasking (none|grouped|ungrouped|ignoring_time) "none"
-          setupdisplay (striped|line) "striped"
+          setupdisplay (left|right|line|color) "left"
+          wrapupdisplay (left|right|line|color) "right"
           taskobject CDATA #IMPLIED
           resourceobject CDATA #IMPLIED >
 &lt;!ELEMENT OPTCRITERION (OPERATOR|LITERAL) &gt;

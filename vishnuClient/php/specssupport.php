@@ -54,7 +54,9 @@
     mysql_free_result ($result);
   
     echo "<SPECS direction=\"" . $value["opt_direction"] .
-           "\" multitasking=\"" . $value["multitasking"] . "\" >\n";
+//         "\" setupdisplay=\"" . $value["setup_display"] .
+//         "\" wrapupdisplay=\"" . $value["wrapup_display"] .
+         "\" multitasking=\"" . $value["multitasking"] . "\" >\n";
     printobj2 ("OPTCRITERION", "opt_criterion", $value);
     printobj2 ("DELTACRITERION", "delta_criterion", $value);
     printobj2 ("BESTTIME", "best_time", $value);

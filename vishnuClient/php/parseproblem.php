@@ -186,7 +186,10 @@
                 "opt_direction enum (\"minimize\", \"maximize\"), " .
                 "multitasking enum (\"none\", \"grouped\", " .
                                     "\"ungrouped\", \"ignoring_time\"), " .
-                "setup_wrapup_display enum (\"striped\", \"line\"), " .
+                "setup_display enum (\"right\", \"left\", " .
+                                     "\"line\", \"color\"), " .
+                "wrapup_display enum (\"right\", \"left\", " .
+                                      "\"line\", \"color\"), " .
                 "task_object varchar(255), " .
                 "resource_object varchar(255), " .
                 "opt_criterion_type enum (\"operator\", \"literal\"), " .
@@ -390,7 +393,9 @@
                 ($attribs["MULTITASKING"] ? $attribs["MULTITASKING"] :
                                             "none") . "\", \"" . 
                 ($attribs["SETUPDISPLAY"] ? $attribs["SETUPDISPLAY"] :
-                                            "striped") . "\", " .
+                                            "left") . "\", \"" .
+                ($attribs["WRAPUPDISPLAY"] ? $attribs["WRAPUPDISPLAY"] :
+                                             "right") . "\", " .
                 ($attribs["TASKOBJECT"] ?
                   ("\"" . $attribs["TASKOBJECT"] . "\", ") :
                   "NULL, ") .
@@ -571,7 +576,7 @@
 
     if (mysql_num_rows ($result) == 0) {
       setupSchedulingSpecs ($problem);
-    }			
+    }
 
     do_query ("prob_" . $problem, "updating specs", "constraint", $name,
               "update constraints set " . $name . "_type=\"" .
@@ -586,7 +591,8 @@
                 "insert into constraints values (\"" .
                                                  "minimize" . "\", \"" . 
                                                  "none" . "\", \"" . 
-                                                 "striped" . "\", " .
+                                                 "left" . "\", \"" .
+                                                 "right" . "\", " .
                                                  "NULL, " .
                 "NULL, " .
                 "NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, " .

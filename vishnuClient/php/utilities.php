@@ -304,8 +304,8 @@
 
 
   // draw a rectangle with stripes
-  function stripedrectangle ($im, $left, $top, $right, $bottom, $color,
-                             $drawboundary) {
+  function stripedrectangle ($im, $left, $top, $right, $bottom,
+                             $color, $drawboundary, $goleft) {
     $width = $right - $left;
     $height = $bottom - $top;
     $sum = $width + $height;
@@ -314,21 +314,25 @@
       imagerectangle ($im, $left, $top, $right, $bottom, $color);
     $mindim = ($width < $height) ? $width : $height;
     for ($i = $spacing; $i < $mindim; $i += $spacing)
-      imageline ($im, $left, $height - $i, $left + $i, $height, $color);
+      imageline ($im, $left, $goleft ? ($height - $i) : $i,
+                 $left + $i, $goleft ? $height : 0, $color);
     for ( ; $i < $height; $i += $spacing)
-      imageline ($im, $left, $height - $i, $left + $width, $sum - $i, $color);
+      imageline ($im, $left, $goleft ? ($height - $i) : $i, $left + $width,
+                 $goleft ? ($sum - $i) : ($i - $width), $color);
     for ( ; $i < $width; $i += $spacing)
-      imageline ($im, $left + $i - $height, 0, $left + $i, $height, $color);
+      imageline ($im, $left + $i - $height, $goleft ? 0 : $height,
+                 $left + $i, $goleft ? $height : 0, $color);
     for ( ; $i < $sum; $i += $spacing)
-      imageline ($im, $left + $i - $height, 0, $left + $width,
-                 $sum - $i, $color);
+      imageline ($im, $left + $i - $height, $goleft ? 0 : $height,
+                 $left + $width, $goleft ? ($sum - $i) : ($i - $width),
+                 $color);
   }
 
 
   // find how to draw setup and wrapup times
-  function getsetupdisplay ($problem) {
+  function getdisplay ($problem, $type) {
     $result = mysql_db_query ("vishnu_prob_" . $problem,
-                  "select setup_wrapup_display from constraints;");
+                  "select " . $type . "_display from constraints;");
     $value = mysql_fetch_row ($result);
     mysql_free_result ($result);
     return $value[0];

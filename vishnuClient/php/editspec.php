@@ -143,8 +143,10 @@
     else if ($spec == "multitasking")
       multiplechoice (array ("none", "grouped", "ungrouped",
                              "ignoring_time"), $value);
-    else if ($spec == "setup_wrapup_display")
-      multiplechoice (array ("striped", "line"), $value);
+    else if ($spec == "setup_display")
+      multiplechoice (array ("left", "right", "line", "color"), $value);
+    else if ($spec == "wrapup_display")
+      multiplechoice (array ("left", "right", "line", "color"), $value);
     else
       echo "<TEXTAREA NAME=\"text\" ROWS=10 COLS=80>\n" . $value .
            "\n</TEXTAREA>\n";

@@ -53,7 +53,7 @@
 
   // write scheduling window
   $window = getwindow ($problem);
-  echo "<WINDOW start=\"" . $window["start_time"] . "\" end=\"" .
+  echo "<WINDOW starttime=\"" . $window["start_time"] . "\" endtime=\"" .
        $window["end_time"] . "\" />\n";
   $predefined = getpredefinedobjects ($problem);
 
