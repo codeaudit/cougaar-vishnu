@@ -428,7 +428,7 @@ public class XMLProcessor {
   }
 
   protected void mergeNode (Node first, List nodes, Iterator nodeListIter) {
-	if (myExtraOutput || true) {
+	if (myExtraOutput) {
 	  String name  = first.getAttributes().getNamedItem ("name").getNodeValue();
 	  System.out.println (getName() + ".mergeNode - examining " + first.getNodeName () + " " + name);
 	}
@@ -466,12 +466,12 @@ public class XMLProcessor {
       for (int k = 0; k < otherChildNodes.getLength (); k++) {
 		String field = otherChildNodes.item (k).getAttributes().getNamedItem ("name").getNodeValue();
 		String type  = otherChildNodes.item (k).getAttributes().getNamedItem ("datatype").getNodeValue();
-		if (myExtraOutput || true)
+		if (myExtraOutput)
 		  System.out.println (getName() + ".mergeNodes - other field " + field + " - type " + type);
 		
 		if (firstFieldToType.containsKey(field) &&
 			!firstFieldToType.get(field).equals (type)) {
-		  if (myExtraOutput || true)
+		  if (myExtraOutput)
 			System.out.println (getName() + ".mergeNodes - found type collision at " + field + " - " + 
 								firstFieldToType.get(field) + " vs " + type);
 		  hasTypeCollision=true;
@@ -495,7 +495,7 @@ public class XMLProcessor {
 		firstFieldToType.put (fieldName, namesInOther.get(fieldName));
 	  }
 
-	  if (myExtraOutput || true) {
+	  if (myExtraOutput) {
 		String name  = first.getAttributes().getNamedItem ("name").getNodeValue();
 		System.out.println (getName() + ".mergeNode - Found a mergable node " + first.getNodeName () + " " + name);
 	  }
