@@ -20,25 +20,25 @@
  */
 package org.cougaar.lib.vishnu.client;
 
-import org.cougaar.domain.planning.ldm.asset.Asset;
+import org.cougaar.planning.ldm.asset.Asset;
 
-import org.cougaar.domain.planning.ldm.plan.Aggregation;
-import org.cougaar.domain.planning.ldm.plan.AspectScorePoint;
-import org.cougaar.domain.planning.ldm.plan.AspectType;
-import org.cougaar.domain.planning.ldm.plan.AspectValue;
-import org.cougaar.domain.planning.ldm.plan.Composition;
-import org.cougaar.domain.planning.ldm.plan.Expansion;
-import org.cougaar.domain.planning.ldm.plan.MPTask;
-import org.cougaar.domain.planning.ldm.plan.NewComposition;
-import org.cougaar.domain.planning.ldm.plan.PlanElement;
-import org.cougaar.domain.planning.ldm.plan.PrepositionalPhrase;
-import org.cougaar.domain.planning.ldm.plan.Preference;
-import org.cougaar.domain.planning.ldm.plan.ScoringFunction;
-import org.cougaar.domain.planning.ldm.plan.Task;
-import org.cougaar.domain.planning.ldm.plan.Verb;
-import org.cougaar.domain.planning.ldm.plan.Workflow;
+import org.cougaar.planning.ldm.plan.Aggregation;
+import org.cougaar.planning.ldm.plan.AspectScorePoint;
+import org.cougaar.planning.ldm.plan.AspectType;
+import org.cougaar.planning.ldm.plan.AspectValue;
+import org.cougaar.planning.ldm.plan.Composition;
+import org.cougaar.planning.ldm.plan.Expansion;
+import org.cougaar.planning.ldm.plan.MPTask;
+import org.cougaar.planning.ldm.plan.NewComposition;
+import org.cougaar.planning.ldm.plan.PlanElement;
+import org.cougaar.planning.ldm.plan.PrepositionalPhrase;
+import org.cougaar.planning.ldm.plan.Preference;
+import org.cougaar.planning.ldm.plan.ScoringFunction;
+import org.cougaar.planning.ldm.plan.Task;
+import org.cougaar.planning.ldm.plan.Verb;
+import org.cougaar.planning.ldm.plan.Workflow;
 
-import org.cougaar.domain.glm.ldm.Constants;
+import org.cougaar.glm.ldm.Constants;
 
 import org.cougaar.lib.callback.UTILAggregationCallback;
 import org.cougaar.lib.callback.UTILFilterCallback;
@@ -515,8 +515,8 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
    * @param end time end
    * @param setupStart setup start
    * @param wrapupEnd wrapup end
-   * @see org.cougaar.domain.planning.ldm.plan.Aggregation
-   * @see org.cougaar.domain.planning.ldm.plan.MPTask
+   * @see org.cougaar.planning.ldm.plan.Aggregation
+   * @see org.cougaar.planning.ldm.plan.MPTask
    * @see org.cougaar.lib.vishnu.client.VishnuPlugIn#makeSetupWrapupExpansion
    * @see http://www.cougaar.org/projects/vishnu/fulldoc.html#specs
    */

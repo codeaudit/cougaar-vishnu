@@ -20,17 +20,17 @@
  */
 package org.cougaar.lib.vishnu.client.custom;
 
-import org.cougaar.domain.glm.ldm.plan.GeolocLocation;
+import org.cougaar.glm.ldm.plan.GeolocLocation;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import org.cougaar.domain.planning.ldm.asset.Asset;
-import org.cougaar.domain.planning.ldm.plan.Schedule;
-import org.cougaar.domain.planning.ldm.plan.RoleSchedule;
-import org.cougaar.domain.planning.ldm.plan.PlanElement;
+import org.cougaar.planning.ldm.asset.Asset;
+import org.cougaar.planning.ldm.plan.Schedule;
+import org.cougaar.planning.ldm.plan.RoleSchedule;
+import org.cougaar.planning.ldm.plan.PlanElement;
 import org.cougaar.util.TimeSpan;
 
 import java.text.ParseException;

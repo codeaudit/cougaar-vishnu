@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import org.cougaar.domain.planning.ldm.asset.Asset;
-import org.cougaar.domain.planning.ldm.plan.Task;
+import org.cougaar.planning.ldm.asset.Asset;
+import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.lib.param.ParamMap;
 import org.cougaar.util.StringKey;
 

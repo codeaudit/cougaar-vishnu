@@ -23,14 +23,14 @@
 package org.cougaar.lib.vishnu.client;
 
 import org.cougaar.core.util.PropertyNameValue;
-import org.cougaar.domain.planning.ldm.asset.Asset;
-import org.cougaar.domain.planning.ldm.plan.Task;
-import org.cougaar.domain.planning.ldm.asset.LockedPG;
+import org.cougaar.planning.ldm.asset.Asset;
+import org.cougaar.planning.ldm.plan.Task;
+import org.cougaar.planning.ldm.asset.LockedPG;
 
-import org.cougaar.domain.planning.ldm.measure.AbstractMeasure;
+import org.cougaar.planning.ldm.measure.AbstractMeasure;
 
-import org.cougaar.core.society.UID;
-import org.cougaar.core.society.UniqueObject;
+import org.cougaar.core.util.UID;
+import org.cougaar.core.util.UniqueObject;
 
 import java.beans.BeanInfo;
 import java.beans.Beans;
@@ -74,7 +74,7 @@ public abstract class BaseXMLize {
 	  booleanClass = Class.forName ("java.lang.Boolean");
 	  stringClass  = Class.forName ("java.lang.String");
 	  classClass   = Class.forName ("java.lang.Class");
-	  abstractMeasureClass = Class.forName ("org.cougaar.domain.planning.ldm.measure.AbstractMeasure");
+	  abstractMeasureClass = Class.forName ("org.cougaar.planning.ldm.measure.AbstractMeasure");
 	} catch (ClassNotFoundException cnfe) {}
 	classToBeanInfo = new HashMap();
 	commonUnitToNoUnders = new HashMap ();
@@ -420,13 +420,13 @@ public abstract class BaseXMLize {
    */
   protected boolean ignoreClass (Class aClass) {
 	return (aClass == Class.class) ||
-	  (aClass == org.cougaar.domain.planning.ldm.plan.AspectScoreRange.class) ||
-	  (aClass == org.cougaar.domain.planning.ldm.plan.WorkflowImpl.class) ||
-	  (aClass == org.cougaar.domain.planning.ldm.plan.RelationshipScheduleImpl.class) || 
-	  (aClass == org.cougaar.domain.planning.ldm.plan.AspectValue.class) ||
-	  (aClass == org.cougaar.domain.planning.ldm.plan.AllocationImpl.class) ||
+	  (aClass == org.cougaar.planning.ldm.plan.AspectScoreRange.class) ||
+	  (aClass == org.cougaar.planning.ldm.plan.WorkflowImpl.class) ||
+	  (aClass == org.cougaar.planning.ldm.plan.RelationshipScheduleImpl.class) || 
+	  (aClass == org.cougaar.planning.ldm.plan.AspectValue.class) ||
+	  (aClass == org.cougaar.planning.ldm.plan.AllocationImpl.class) ||
 	  (org.cougaar.core.plugin.PlugInAdapter.class.isAssignableFrom (aClass)) ||
-	  (org.cougaar.domain.planning.ldm.asset.LockedPG.class.isAssignableFrom (aClass));
+	  (org.cougaar.planning.ldm.asset.LockedPG.class.isAssignableFrom (aClass));
   }
   
   private final Comparator lessStringIgnoreCase = 

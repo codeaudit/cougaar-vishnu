@@ -24,15 +24,15 @@ package org.cougaar.lib.vishnu.client;
 import java.util.Vector;
 import java.util.Enumeration;
 import java.io.Serializable;
-import org.cougaar.domain.planning.ldm.plan.AllocationResultAggregator;
-import org.cougaar.domain.planning.ldm.plan.AllocationResult;
-import org.cougaar.domain.planning.ldm.plan.AspectType;
-import org.cougaar.domain.planning.ldm.plan.AuxiliaryQueryType;
-import org.cougaar.domain.planning.ldm.plan.Workflow;
-import org.cougaar.domain.planning.ldm.plan.Task;
-import org.cougaar.domain.planning.ldm.plan.TaskScoreTable;
+import org.cougaar.planning.ldm.plan.AllocationResultAggregator;
+import org.cougaar.planning.ldm.plan.AllocationResult;
+import org.cougaar.planning.ldm.plan.AspectType;
+import org.cougaar.planning.ldm.plan.AuxiliaryQueryType;
+import org.cougaar.planning.ldm.plan.Workflow;
+import org.cougaar.planning.ldm.plan.Task;
+import org.cougaar.planning.ldm.plan.TaskScoreTable;
 
-import org.cougaar.domain.glm.ldm.Constants;
+import org.cougaar.glm.ldm.Constants;
 
 /** 
  * <pre>

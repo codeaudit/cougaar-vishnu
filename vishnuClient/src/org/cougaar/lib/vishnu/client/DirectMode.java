@@ -9,8 +9,8 @@ import org.cougaar.lib.vishnu.server.SchedulingData;
 import org.cougaar.lib.vishnu.server.TimeOps;
 import org.cougaar.util.StringKey;
 
-import org.cougaar.domain.planning.ldm.plan.Task;
-import org.cougaar.domain.planning.ldm.asset.Asset;
+import org.cougaar.planning.ldm.plan.Task;
+import org.cougaar.planning.ldm.asset.Asset;
 
 import java.util.Date;
 import java.util.ArrayList;

@@ -52,7 +52,7 @@ import org.cougaar.lib.vishnu.client.VishnuDomUtil;
 
 import org.cougaar.lib.param.ParamMap;
 import org.cougaar.util.ConfigFinder;
-import org.cougaar.domain.planning.ldm.plan.Task;
+import org.cougaar.planning.ldm.plan.Task;
 
 /**
  * <pre>

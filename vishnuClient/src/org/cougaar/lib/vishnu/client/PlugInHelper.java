@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 import org.w3c.dom.Document;
-import org.cougaar.domain.planning.ldm.asset.Asset;
+import org.cougaar.planning.ldm.asset.Asset;
 import org.cougaar.lib.param.ParamMap;
 
 /** 

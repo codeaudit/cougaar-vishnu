@@ -22,9 +22,9 @@
 
 package org.cougaar.lib.vishnu.client;
 
-import org.cougaar.core.society.UID;
+import org.cougaar.core.util.UID;
 
-import org.cougaar.core.society.UniqueObject;
+import org.cougaar.core.util.UniqueObject;
 import org.cougaar.core.util.PropertyNameValue;
 
 import java.util.Collection;
@@ -72,9 +72,9 @@ public class FormatXMLize extends BaseXMLize implements XMLizer {
 	try {
 	  collectionClass = Class.forName ("java.util.Collection");
 	  dateClass = Class.forName ("java.util.Date");
-	  latitudeClass = Class.forName ("org.cougaar.domain.planning.ldm.measure.Latitude");
-	  longitudeClass = Class.forName ("org.cougaar.domain.planning.ldm.measure.Longitude");
-	  UIDClass = Class.forName ("org.cougaar.core.society.UID");
+	  latitudeClass = Class.forName ("org.cougaar.planning.ldm.measure.Latitude");
+	  longitudeClass = Class.forName ("org.cougaar.planning.ldm.measure.Longitude");
+	  UIDClass = Class.forName ("org.cougaar.core.util.UID");
 	  enumerationClass = Class.forName ("java.util.Enumeration");
 	} catch (ClassNotFoundException cnfe) {}
 	this.debug = debug;
@@ -105,7 +105,7 @@ public class FormatXMLize extends BaseXMLize implements XMLizer {
     }
 
 	if (debug) {
-	  if (obj instanceof org.cougaar.domain.planning.ldm.asset.PropertyGroup) {
+	  if (obj instanceof org.cougaar.planning.ldm.asset.PropertyGroup) {
 		if (unique.containsKey (obj))
 		  unique.put (obj, new Integer (((Integer)unique.get(obj)).intValue() +1));
 		else
@@ -255,7 +255,7 @@ public class FormatXMLize extends BaseXMLize implements XMLizer {
 	}
 
 	if (!skip) {
-	  if (propertyValue instanceof org.cougaar.domain.planning.ldm.asset.PropertyGroup) {
+	  if (propertyValue instanceof org.cougaar.planning.ldm.asset.PropertyGroup) {
 		if (globals.contains (propertyValue)) {
 		  return;
 		}
@@ -301,9 +301,9 @@ public class FormatXMLize extends BaseXMLize implements XMLizer {
 
   /** all property groups become globals, except for item id pg */
   protected boolean isGlobal (Object obj) {
-	boolean isPropertyGroup = (obj instanceof org.cougaar.domain.planning.ldm.asset.PropertyGroup);
-	boolean isItemIDPropertyGroup = (obj instanceof org.cougaar.domain.planning.ldm.asset.ItemIdentificationPG);
-	//	boolean isPrepPhrase = (obj instanceof org.cougaar.domain.planning.ldm.plan.PrepositionalPhrase);
+	boolean isPropertyGroup = (obj instanceof org.cougaar.planning.ldm.asset.PropertyGroup);
+	boolean isItemIDPropertyGroup = (obj instanceof org.cougaar.planning.ldm.asset.ItemIdentificationPG);
+	//	boolean isPrepPhrase = (obj instanceof org.cougaar.planning.ldm.plan.PrepositionalPhrase);
 	boolean isGlobal = isPropertyGroup && !isItemIDPropertyGroup; // || isPrepPhrase;
 	return isGlobal;
   }

@@ -22,16 +22,16 @@
 
 package org.cougaar.lib.vishnu.client;
 
-import org.cougaar.domain.planning.ldm.measure.Latitude;
-import org.cougaar.domain.planning.ldm.measure.Longitude;
-import org.cougaar.domain.planning.ldm.plan.Schedule;
-import org.cougaar.domain.planning.ldm.plan.RoleSchedule;
-import org.cougaar.domain.planning.ldm.plan.ScheduleElement;
+import org.cougaar.planning.ldm.measure.Latitude;
+import org.cougaar.planning.ldm.measure.Longitude;
+import org.cougaar.planning.ldm.plan.Schedule;
+import org.cougaar.planning.ldm.plan.RoleSchedule;
+import org.cougaar.planning.ldm.plan.ScheduleElement;
 
 import org.cougaar.core.util.PropertyNameValue;
 import org.cougaar.util.TimeSpan;
-import org.cougaar.core.society.UID;
-import org.cougaar.core.society.UniqueObject;
+import org.cougaar.core.util.UID;
+import org.cougaar.core.util.UniqueObject;
 
 import java.util.*;
 import java.text.SimpleDateFormat;
@@ -67,8 +67,8 @@ public class DataXMLize extends FormatXMLize {
   public DataXMLize (boolean debug) {
 	super (false);
 	try {
-	  roleScheduleImplClass = Class.forName ("org.cougaar.domain.planning.ldm.plan.RoleScheduleImpl");
-	  uniqueObjectClass = Class.forName ("org.cougaar.core.society.UniqueObject");
+	  roleScheduleImplClass = Class.forName ("org.cougaar.planning.ldm.plan.RoleScheduleImpl");
+	  uniqueObjectClass = Class.forName ("org.cougaar.core.util.UniqueObject");
 	} catch (ClassNotFoundException cnfe) {}
 	this.debug = debug;
   }
@@ -509,7 +509,7 @@ public class DataXMLize extends FormatXMLize {
 	  for (Iterator iter = unique.keySet().iterator(); iter.hasNext (); ){
 		Object obj = iter.next();
 		System.out.println ("" + i++ + " - " + obj.getClass () + " - " + unique.get (obj) + " - " + 
-							((obj instanceof org.cougaar.domain.planning.ldm.asset.PropertyGroup) ? " PG " : ""));
+							((obj instanceof org.cougaar.planning.ldm.asset.PropertyGroup) ? " PG " : ""));
 	  }
 	}
 

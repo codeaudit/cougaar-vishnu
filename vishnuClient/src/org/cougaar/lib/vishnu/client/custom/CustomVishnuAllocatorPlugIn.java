@@ -24,8 +24,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.cougaar.domain.glm.ldm.asset.GLMAsset;
-import org.cougaar.domain.planning.ldm.asset.Asset;
+import org.cougaar.glm.ldm.asset.GLMAsset;
+import org.cougaar.planning.ldm.asset.Asset;
 
 import org.cougaar.lib.util.UTILAllocate;
 

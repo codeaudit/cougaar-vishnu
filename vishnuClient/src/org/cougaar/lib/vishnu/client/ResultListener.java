@@ -5,8 +5,8 @@ import java.util.Date;
 import java.util.Vector;
 
 import org.cougaar.util.StringKey;
-import org.cougaar.domain.planning.ldm.plan.Task;
-import org.cougaar.domain.planning.ldm.asset.Asset;
+import org.cougaar.planning.ldm.plan.Task;
+import org.cougaar.planning.ldm.asset.Asset;
 
 /** What the plugin must do to handle scheduler results */
 public interface ResultListener {

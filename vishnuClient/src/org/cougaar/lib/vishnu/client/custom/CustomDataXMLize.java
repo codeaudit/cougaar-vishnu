@@ -32,12 +32,12 @@ import java.util.List;
 
 import org.apache.xerces.dom.DocumentImpl;
 
-import org.cougaar.domain.glm.ldm.asset.GLMAsset;
-import org.cougaar.domain.glm.ldm.plan.GeolocLocation;
-import org.cougaar.domain.glm.util.GLMPrepPhrase;
-import org.cougaar.domain.planning.ldm.asset.AggregateAsset;
-import org.cougaar.domain.planning.ldm.asset.Asset;
-import org.cougaar.domain.planning.ldm.plan.Task;
+import org.cougaar.glm.ldm.asset.GLMAsset;
+import org.cougaar.glm.ldm.plan.GeolocLocation;
+import org.cougaar.glm.util.GLMPrepPhrase;
+import org.cougaar.planning.ldm.asset.AggregateAsset;
+import org.cougaar.planning.ldm.asset.Asset;
+import org.cougaar.planning.ldm.plan.Task;
 
 import org.cougaar.lib.util.UTILPreference;
 import org.cougaar.lib.vishnu.client.XMLizer;

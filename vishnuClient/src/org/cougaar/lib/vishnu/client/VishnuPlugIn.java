@@ -37,18 +37,18 @@ import java.util.Vector;
 
 import org.apache.xerces.parsers.DOMParser;
 
-import org.cougaar.core.society.UniqueObject;
+import org.cougaar.core.util.UniqueObject;
 
-import org.cougaar.domain.glm.ldm.Constants;
+import org.cougaar.glm.ldm.Constants;
 
-import org.cougaar.domain.planning.ldm.asset.Asset;
-import org.cougaar.domain.planning.ldm.plan.AllocationResultAggregator;
-import org.cougaar.domain.planning.ldm.plan.Expansion;
-import org.cougaar.domain.planning.ldm.plan.NewTask;
-import org.cougaar.domain.planning.ldm.plan.PlanElement;
-import org.cougaar.domain.planning.ldm.plan.PrepositionalPhrase;
-import org.cougaar.domain.planning.ldm.plan.Task;
-import org.cougaar.domain.planning.ldm.plan.Workflow;
+import org.cougaar.planning.ldm.asset.Asset;
+import org.cougaar.planning.ldm.plan.AllocationResultAggregator;
+import org.cougaar.planning.ldm.plan.Expansion;
+import org.cougaar.planning.ldm.plan.NewTask;
+import org.cougaar.planning.ldm.plan.PlanElement;
+import org.cougaar.planning.ldm.plan.PrepositionalPhrase;
+import org.cougaar.planning.ldm.plan.Task;
+import org.cougaar.planning.ldm.plan.Workflow;
 
 import org.cougaar.lib.callback.UTILAssetCallback;
 import org.cougaar.lib.callback.UTILAssetListener;

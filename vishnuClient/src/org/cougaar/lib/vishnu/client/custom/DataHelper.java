@@ -20,9 +20,9 @@
  */
 package org.cougaar.lib.vishnu.client.custom;
 
-import org.cougaar.domain.glm.ldm.plan.GeolocLocation;
+import org.cougaar.glm.ldm.plan.GeolocLocation;
 
-import org.cougaar.domain.planning.ldm.asset.Asset;
+import org.cougaar.planning.ldm.asset.Asset;
 import java.util.Date;
 
 /**

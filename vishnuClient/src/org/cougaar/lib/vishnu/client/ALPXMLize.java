@@ -22,7 +22,7 @@
 
 package org.cougaar.lib.vishnu.client;
 
-import org.cougaar.core.society.UniqueObject;
+import org.cougaar.core.util.UniqueObject;
 
 import java.util.Collection;
 import java.util.Set;

@@ -25,12 +25,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
-import org.cougaar.domain.planning.ldm.asset.Asset;
+import org.cougaar.planning.ldm.asset.Asset;
 
-import org.cougaar.domain.planning.ldm.plan.Allocation;
-import org.cougaar.domain.planning.ldm.plan.PlanElement;
-import org.cougaar.domain.planning.ldm.plan.Role;
-import org.cougaar.domain.planning.ldm.plan.Task;
+import org.cougaar.planning.ldm.plan.Allocation;
+import org.cougaar.planning.ldm.plan.PlanElement;
+import org.cougaar.planning.ldm.plan.Role;
+import org.cougaar.planning.ldm.plan.Task;
 
 import org.cougaar.lib.callback.UTILAllocationCallback;
 import org.cougaar.lib.callback.UTILFilterCallback;

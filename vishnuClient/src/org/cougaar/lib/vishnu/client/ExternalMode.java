@@ -23,8 +23,8 @@ import org.apache.xerces.dom.DocumentImpl;
 import org.apache.xerces.parsers.DOMParser;
 import org.apache.xerces.parsers.SAXParser;
 
-import org.cougaar.domain.planning.ldm.asset.Asset;
-import org.cougaar.domain.planning.ldm.plan.Task;
+import org.cougaar.planning.ldm.asset.Asset;
+import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.lib.param.ParamMap;
 import org.cougaar.lib.vishnu.server.Scheduler;
 import org.cougaar.util.StringKey;

@@ -22,7 +22,7 @@ package org.cougaar.lib.vishnu.client;
 
 import org.cougaar.lib.param.ParamMap;
 
-import org.cougaar.domain.planning.ldm.asset.Asset;
+import org.cougaar.planning.ldm.asset.Asset;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -179,7 +179,7 @@ public class VishnuConfig {
 		
 	}
 
-	// return final name in complete class name, e.g. from org.cougaar.domain.glm.ldm.asset.Truck, Truck
+	// return final name in complete class name, e.g. from org.cougaar.glm.ldm.asset.Truck, Truck
 	String classname = "" + currentClasses.get(0);
     int index = classname.lastIndexOf (".");
     classname = classname.substring (index+1, classname.length ());
