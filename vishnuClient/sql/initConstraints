@@ -1,5 +1,5 @@
 use vishnu_central;
-drop table constraint_descrip;
+drop table if exists constraint_descrip;
 create table constraint_descrip (name varchar(30) not null, 
 				 readable_name varchar(30) not null, 
 				 return_type varchar(30) not null, 
