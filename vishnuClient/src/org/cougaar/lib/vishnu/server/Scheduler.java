@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Scheduler.java,v 1.7 2001-02-16 22:04:21 gvidaver Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Scheduler.java,v 1.8 2001-03-27 18:19:20 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -34,55 +34,56 @@ public class Scheduler {
   private TimeOps timeOps;
 
   private static boolean debug = 
-    ("true".equals (System.getProperty ("org.cougaar.lib.vishnu.server.Scheduler.debug")));
+    ("true".equals (System.getProperty ("vishnu.Scheduler.debug")));
   private static String onlyTheseProblems = 
-    System.getProperty ("org.cougaar.lib.vishnu.server.Scheduler.problems");
+    System.getProperty ("vishnu.Scheduler.problems");
   private static String onlyTheseMachines = 
-    System.getProperty ("org.cougaar.lib.vishnu.server.Scheduler.machines");
+    System.getProperty ("vishnu.Scheduler.machines");
   private static boolean showAssignments = 
-    ("true".equals (System.getProperty ("org.cougaar.lib.vishnu.server.Scheduler.showAssignments")));
+    ("true".equals (System.getProperty ("vishnu.Scheduler.showAssignments")));
   private static boolean reportTiming = 
-    ("true".equals (System.getProperty ("org.cougaar.lib.vishnu.server.Scheduler.reportTiming")));
-  private static String PHP_SUFFIX = ".php";
+    ("true".equals (System.getProperty ("vishnu.Scheduler.reportTiming")));
 
   private Set allowedProblems = new HashSet ();
   private Set allowedMachines = new HashSet ();
   private List ignoredProblems = null;
   
   public Scheduler () {
-    if (onlyTheseProblems != null && onlyTheseProblems.length () > 1) {
-	  getNames (allowedProblems, onlyTheseProblems);
-      System.out.println ("Scheduler will only process these problems:" + allowedProblems);
+    if (onlyTheseProblems != null && onlyTheseProblems.length() > 1) {
+      getNames (allowedProblems, onlyTheseProblems);
+      System.out.println ("Scheduler will only process these problems: " +
+                          allowedProblems);
     }
-    else if (onlyTheseMachines != null && onlyTheseMachines.length () > 1) {
-	  getNames (allowedMachines, onlyTheseMachines);
-      System.out.println ("Scheduler will only process problems from these machines : " + 
-						  allowedMachines);
+    else if (onlyTheseMachines != null && onlyTheseMachines.length() > 1) {
+      getNames (allowedMachines, onlyTheseMachines);
+      System.out.println ("Scheduler will only process problems from " +
+                          "these machines: " + allowedMachines);
     }
-	
-	String waitIntervalProp = null;
-	try {
-	  waitIntervalProp = 
-		System.getProperty ("org.cougaar.lib.vishnu.server.Scheduler.waitInterval");
-	  if (waitIntervalProp != null)
-		waitInterval = Long.parseLong(waitIntervalProp);
-	} catch (NumberFormatException nfe) {
-	  System.out.println ("Scheduler.Scheduler - expecting a long for "+ 
-						  "waitInterval, but got " + waitIntervalProp);	  
-	}
+
+    String waitIntervalProp = null;
+    try {
+      waitIntervalProp = 
+        System.getProperty ("vishnu.Scheduler.waitInterval");
+      if (waitIntervalProp != null)
+        waitInterval = Long.parseLong (waitIntervalProp);
+    } catch (NumberFormatException nfe) {
+      System.out.println ("Scheduler.Scheduler - expecting a long for "+ 
+                          "waitInterval, but got " + waitIntervalProp);	  
+    }
   }
 
   protected void getNames (Set nameSet, String names) {
-	StringTokenizer st = new StringTokenizer(names, ",");
-	while (st.hasMoreTokens()) {
-	  String name = st.nextToken();
-	  nameSet.add (name.trim());
-	}
+    StringTokenizer st = new StringTokenizer(names, ",");
+    while (st.hasMoreTokens()) {
+      String name = st.nextToken();
+      nameSet.add (name.trim());
+    }
   }
 
   private void run() {
     ClientComms.initialize();
-	System.out.println ("Scheduler ready to schedule problems posted to " + ClientComms.getHost());
+    System.out.println ("Scheduler ready to schedule problems posted to " +
+                        ClientComms.getHost());
     while (true) {
       Exception error = getProblem();
       if ((error != null) || (problem == null))
@@ -157,9 +158,7 @@ public class Scheduler {
     long diff = end.getTime () - start.getTime ();
     long min  = diff/60000l;
     long sec  = (diff - (min*60000l))/1000l;
-    System.out.println  (prefix +
-			 min + 
-			 ":" + ((sec < 10) ? "0":"") + sec + 
+    System.out.println  (prefix + min + ":" + ((sec < 10) ? "0":"") + sec + 
 			 " free "  + (rt.freeMemory  ()/(1024*1024)) + "M" +
 			 " total " + (rt.totalMemory ()/(1024*1024)) + "M");
   }
@@ -171,7 +170,7 @@ public class Scheduler {
       System.out.println ("Scheduler.writeSchedule - " + str);
 
     args.put ("data", str);
-    ClientComms.postToURL (args, "postassignments" + PHP_SUFFIX);
+    ClientComms.postToURL (args, "postassignments.php");
   }
 
   private String textForSchedule () {
@@ -229,7 +228,7 @@ public class Scheduler {
       System.out.println ("Scheduler.writeCapacities - " + text);
 
     args.put ("data", text.toString());
-    ClientComms.postToURL (args, "postcapacities" + PHP_SUFFIX);
+    ClientComms.postToURL (args, "postcapacities.php");
   }
 
 
@@ -244,7 +243,7 @@ public class Scheduler {
   private Exception getProblem() {
     ignoredProblems = new ArrayList ();
     Exception excep = ClientComms.readXML (ClientComms.defaultArgs(),
-                                           "currentrequest" + PHP_SUFFIX,
+                                           "currentrequest.php",
                                            new CurrentRequestHandler());
     if (debug && !ignoredProblems.isEmpty())
       System.out.println ("Scheduler - CurrentRequestHandler : " + 
@@ -260,7 +259,7 @@ public class Scheduler {
     args.put ("number", probNumber);
     if (message != null)
       args.put ("message", message);
-    String str = ClientComms.postToURL (args, "ackrequest" + PHP_SUFFIX);
+    String str = ClientComms.postToURL (args, "ackrequest.php");
     return str.indexOf ("canceled") != -1;
   }
 
@@ -281,20 +280,17 @@ public class Scheduler {
     args.put ("fields", text.toString());
 
     data = new SchedulingData (timeOps);
-    return ClientComms.readXML (args, "data" + PHP_SUFFIX,
-                                data.getXMLHandler());
+    return ClientComms.readXML (args, "data.php", data.getXMLHandler());
   }
 
   private Exception readSpecs() {
     specs = new SchedulingSpecs (timeOps);
-    return ClientComms.readXML (getArgs(), "specs" + PHP_SUFFIX,
-                                specs.getXMLHandler());
+    return ClientComms.readXML (getArgs(), "specs.php", specs.getXMLHandler());
   }
 
   private Exception setupGA() {
     ga = new GeneticAlgorithm (this);
-    return ClientComms.readXML (getArgs(), "gaparms" + PHP_SUFFIX,
-                                ga.getXMLHandler());
+    return ClientComms.readXML (getArgs(), "gaparms.php", ga.getXMLHandler());
   }
 
   private Map getArgs() {
@@ -313,42 +309,34 @@ public class Scheduler {
       }
       else if (atts.getValue("name") != null) {
         ignoredProblems.add (atts.getValue("name"));
-        // if (debug)
-        //   System.out.println ("Scheduler - CurrentRequestHandler : " + 
-        //  "ignoring request for " + atts.getValue("name"));
       }
     }
 
-      /**
-       * <pre>
-       * true if the properties are set up so the scheduler will accept the
-       * the problem.  If the properties are not set, the scheduler will
-       * try to do all problems.
-       *
-       * Looks for both allowed machines and specific allowed problem names
-       * 
-       * alp-107 becomes alp_107
-       * </pre>
-       * @return true if <code>problemName</code> is acceptable
-       */
-	protected boolean doableProblem (String problemName) {
-	  boolean match = false;
-	  
-	  for (Iterator iter = allowedMachines.iterator (); iter.hasNext(); ) {
-		String machine = (String) iter.next ();
-		machine = machine.replace('-','_'); 
-		//System.out.println ("Scheduler.doableProblem - comparing machine <" + machine +
-		//				    "> with <" + problemName);
-		if (problemName.endsWith (machine)) {
-		  match = true;
-		  break;
-		}
-	  }
-	  
-	  return ((allowedProblems.isEmpty () && allowedMachines.isEmpty ()) || 
-			  allowedProblems.contains(problemName) || match);
-	}
-	
+    /**
+     * <pre>
+     * true if the properties are set up so the scheduler will accept the
+     * the problem.  If the properties are not set, the scheduler will
+     * try to do all problems.
+     *
+     * Looks for both allowed machines and specific allowed problem names
+     * 
+     * alp-107 becomes alp_107
+     * </pre>
+     * @return true if <code>problemName</code> is acceptable
+     */
+    protected boolean doableProblem (String problemName) {
+      boolean match = false;
+      for (Iterator iter = allowedMachines.iterator (); iter.hasNext(); ) {
+        String machine = (String) iter.next ();
+        machine = machine.replace ('-', '_'); 
+        if (problemName.endsWith (machine)) {
+          match = true;
+          break;
+        }
+      }
+      return ((allowedProblems.isEmpty () && allowedMachines.isEmpty ()) || 
+              allowedProblems.contains(problemName) || match);
+    }
   }
 
 
@@ -366,21 +354,23 @@ public class Scheduler {
       SAXParser parser = new SAXParser();
       parser.setContentHandler (new InternalRequestHandler());
 
-	  Date start = null;
-	  if (reportTiming) start = new Date ();
+      Date start = null;
+      if (reportTiming) start = new Date ();
       parser.parse (new InputSource (new StringReader (problem)));
-	  if (reportTiming)
-		reportTime ("Scheduler.runInternalToProcess - scheduler read data in ", start);
+      if (reportTiming)
+        reportTime ("Scheduler.runInternalToProcess - scheduler " +
+                    "read data in ", start);
 
-	  if (reportTiming) start = new Date ();
+      if (reportTiming) start = new Date ();
       specs.initializeData (data);
       data.initialize (specs);
-	  if (reportTiming)
-		reportTime ("Scheduler.runInternalToProcess - initialized data in ", start);
-	  if (reportTiming) start = new Date ();
+      if (reportTiming)
+        reportTime ("Scheduler.runInternalToProcess - initialized " +
+                    "data in ", start);
+      if (reportTiming) start = new Date ();
       ga.execute (data, specs);
-	  if (reportTiming)
-		reportTime ("Scheduler.runInternalToProcess - ga ran in ", start);
+      if (reportTiming)
+        reportTime ("Scheduler.runInternalToProcess - ga ran in ", start);
       Task[] tasks = data.getTasks();
       StringBuffer text = new StringBuffer (tasks.length * 150);
       text.append ("<?xml version='1.0'?>\n<ASSIGNMENTS>\n");

@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Literal.java,v 1.1 2001-01-10 19:29:55 rwu Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Literal.java,v 1.2 2001-03-27 18:19:19 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -19,7 +19,7 @@ public class Literal implements ResultProducer {
   private String datatype;
   private Object cachedObject = null;
   private static boolean debug = 
-    ("true".equals (System.getProperty ("org.cougaar.lib.vishnu.server.debugLiteral")));
+    ("true".equals (System.getProperty ("vishnu.debugLiteral")));
 
   public Literal (String value, String type,
                   String datatype, TimeOps timeOps) {

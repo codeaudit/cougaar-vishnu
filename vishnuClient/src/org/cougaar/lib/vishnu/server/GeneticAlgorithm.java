@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/GeneticAlgorithm.java,v 1.3 2001-02-05 19:34:13 gvidaver Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/GeneticAlgorithm.java,v 1.4 2001-03-27 18:19:19 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -43,7 +43,7 @@ public class GeneticAlgorithm {
   private static Random random = new Random();
 
   private static boolean debug = 
-    ("true".equals (System.getProperty ("org.cougaar.lib.vishnu.server.Scheduler.debug")));
+    ("true".equals (System.getProperty ("vishnu.Scheduler.debug")));
 
   public static float getRandomFloat() {
     return random.nextFloat();

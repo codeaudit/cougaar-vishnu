@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingSpecs.java,v 1.7 2001-02-02 19:08:22 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingSpecs.java,v 1.8 2001-03-27 18:19:20 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -53,9 +53,9 @@ public class SchedulingSpecs {
   private Reusable reuse = new Reusable();
   private TimeOps timeOps;
   private static boolean debug = 
-    ("true".equals (System.getProperty ("org.cougaar.lib.vishnu.server.debug")));
+    ("true".equals (System.getProperty ("vishnu.debug")));
   private static boolean timing = 
-    ("true".equals (System.getProperty ("org.cougaar.lib.vishnu.server.timing")));
+    ("true".equals (System.getProperty ("vishnu.timing")));
 
   public SchedulingSpecs (TimeOps timeOps) {
     this.timeOps = timeOps;

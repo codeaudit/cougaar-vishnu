@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchObject.java,v 1.1 2001-01-10 19:29:55 rwu Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchObject.java,v 1.2 2001-03-27 18:19:20 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -21,7 +21,7 @@ public class SchObject {
   private String key;
   protected TimeOps timeOps;
   private static boolean debug = 
-    ("true".equals (System.getProperty ("org.cougaar.lib.vishnu.server.debug")));
+    ("true".equals (System.getProperty ("vishnu.debug")));
 
   public SchObject (TimeOps timeOps) {
     this.timeOps = timeOps;

@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.9 2001-02-02 18:44:59 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.10 2001-03-27 18:19:20 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -40,7 +40,7 @@ public class SchedulingData {
   private int endTime = Integer.MAX_VALUE;
   private TimeOps timeOps;
   public static boolean debug = 
-    ("true".equals (System.getProperty ("org.cougaar.lib.vishnu.server.debug")));
+    ("true".equals (System.getProperty ("vishnu.debug")));
 
   public SchedulingData (TimeOps timeOps) {
     this.timeOps = timeOps;

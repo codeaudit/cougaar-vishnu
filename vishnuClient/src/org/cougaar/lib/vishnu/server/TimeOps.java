@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/TimeOps.java,v 1.1 2001-01-10 19:29:55 rwu Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/TimeOps.java,v 1.2 2001-03-27 18:19:20 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -22,7 +22,7 @@ public class TimeOps {
   private long minTime = Long.MIN_VALUE;
   private long maxTime = Long.MAX_VALUE;
   public static boolean debug = 
-    ("true".equals (System.getProperty ("org.cougaar.lib.vishnu.server.TimeBlock.debug")));
+    ("true".equals (System.getProperty ("vishnu.TimeBlock.debug")));
 
   public String timeToString (int time) {
     long ltime = 1000l * (long) time;
@@ -41,7 +41,8 @@ public class TimeOps {
         minTime = t + 1000l * (long) Integer.MIN_VALUE;
         maxTime = t + 1000l * (long) Integer.MAX_VALUE;
 	if (debug)
-	  System.out.println ("Base time set to " + new java.util.Date (baseTime));
+	  System.out.println ("Base time set to " +
+                              new java.util.Date (baseTime));
       }
       return (int) ((t - baseTime) / 1000);
     } catch (java.text.ParseException e) {
@@ -53,7 +54,6 @@ public class TimeOps {
     } catch (NullPointerException npe) {
       System.out.println ("TimeBlock.stringToTime - Bad date string=" + 
 			  str);
-
       return 0;
     }
   }

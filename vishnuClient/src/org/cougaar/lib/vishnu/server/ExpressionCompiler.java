@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/ExpressionCompiler.java,v 1.4 2001-02-23 16:35:35 gvidaver Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/ExpressionCompiler.java,v 1.5 2001-03-27 18:19:19 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -27,16 +27,15 @@ public class ExpressionCompiler {
   private Map objectGlobalPtrs = null;
   private long waitInterval = 5000;
 
-  private static String PHP_SUFFIX = ".php";
-
   // need to receive data structure defs, variable names/types, and
   // expected return type to check validity, plus name of problem
   // and name of field in constraints where to put it when done
 
   private void run() {
     ClientComms.initialize();
-	System.out.println ("ExpressionCompiler ready to compile expressions posted to " + 
-						ClientComms.getHost () + ".");
+    System.out.println ("ExpressionCompiler ready to compile " +
+                        "expressions posted to " +
+                        ClientComms.getHost () + ".");
     while (true) {
       boolean success = getProblem() == null;
       if ((! success) || (problem == null))
@@ -54,8 +53,7 @@ public class ExpressionCompiler {
 
   private Exception getProblem() {
     return ClientComms.readXML (ClientComms.defaultArgs(),
-                                "compilerrequest" + PHP_SUFFIX,
-                                new RequestHandler());
+                                "compilerrequest.php", new RequestHandler());
   }
 
   private void writeResult (String result) {
@@ -64,7 +62,7 @@ public class ExpressionCompiler {
     args.put ("spec", spec);
     args.put ("result", result);
     System.out.println ("res = " + result);
-    ClientComms.postToURL (args, "postcompilerresult"  + PHP_SUFFIX);
+    ClientComms.postToURL (args, "postcompilerresult.php");
   }
 
   private String[] getLegalTypes () {
@@ -312,8 +310,10 @@ public class ExpressionCompiler {
       return arg2;
     oper.addArgument (arg2);
     if (! oper.argTypesLegal())
-      return new ErrorResult ("Illegal argument types for operator <font color='green'>" + op + 
-							  "</font>.<br>Types given were : " + oper.reportArgTypes());
+      return new ErrorResult ("Illegal argument types for operator " +
+                              "<font color='green'>" + op + 
+                              "</font>.<br>Types given were : " +
+                              oper.reportArgTypes());
     ResultProducer check = checkLegalTypes (oper.getResultType(),
                                             legalTypes, str2);
     if (check != null)
@@ -353,8 +353,10 @@ public class ExpressionCompiler {
       oper.addArgument (arg);
     }
     if (! oper.argTypesLegal())
-      return new ErrorResult ("Illegal argument types for function <font color='green'>" + op + 
-							  "</font>.<br>Types given were : " + oper.reportArgTypes());
+      return new ErrorResult ("Illegal argument types for function " +
+                              "<font color='green'>" + op + 
+                              "</font>.<br>Types given were : " +
+                              oper.reportArgTypes());
     ResultProducer check = checkLegalTypes (oper.getResultType(),
                                             legalTypes, str2);
     if (check != null)

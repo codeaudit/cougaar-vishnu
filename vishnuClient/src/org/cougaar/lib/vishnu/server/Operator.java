@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Operator.java,v 1.2 2001-02-02 18:44:59 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Operator.java,v 1.3 2001-03-27 18:19:20 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -82,7 +82,7 @@ public class Operator implements ResultProducer {
   private static boolean[] opsScheduleDependent = null;
 
   private static boolean debug = 
-    ("true".equals (System.getProperty ("org.cougaar.lib.vishnu.server.debug")));
+    ("true".equals (System.getProperty ("vishnu.debug")));
 
   private static void initOpStrings() {
     if (! opStringsInitialized) {

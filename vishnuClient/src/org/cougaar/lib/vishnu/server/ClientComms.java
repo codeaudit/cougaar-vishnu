@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/ClientComms.java,v 1.5 2001-02-12 20:39:38 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/ClientComms.java,v 1.6 2001-03-27 18:19:19 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -30,8 +30,8 @@ public class ClientComms {
   private static String path;
   private static int port;
   private static String localHost = "";
-  private static boolean debugXML = 
-    "true".equals (System.getProperty ("org.cougaar.lib.vishnu.server.debugXML"));
+  private static boolean debugXML =
+    "true".equals (System.getProperty ("vishnu.debugXML"));
 
   public static String getHost () { return host; }
   
@@ -40,13 +40,11 @@ public class ClientComms {
       localHost = InetAddress.getLocalHost().getHostName();
     } catch (Exception e) {
     }
-    host = System.getProperty ("org.cougaar.lib.vishnu.server.host",
-                               localHost);
-    path = System.getProperty ("org.cougaar.lib.vishnu.server.path",
-                               "/~vishnu/");
-    user = System.getProperty("org.cougaar.lib.vishnu.server.user", "vishnu");
-    password = System.getProperty("org.cougaar.lib.vishnu.server.password", "");
-    port = Integer.parseInt (System.getProperty("org.cougaar.lib.vishnu.server.port", "80"));
+    host = System.getProperty ("vishnu.host", localHost);
+    path = System.getProperty ("vishnu.path", "/~vishnu/");
+    user = System.getProperty("vishnu.user", "vishnu");
+    password = System.getProperty("vishnu.password", "");
+    port = Integer.parseInt (System.getProperty("vishnu.port", "80"));
   }
 
   public static Map defaultArgs() {
@@ -98,16 +96,11 @@ public class ClientComms {
         ("ClientComms.readXML - could not connect to :\n" + stringURL);
     System.out.println
       ("The Java command-line variables you can set are:");
-    System.out.println ("-Dorg.cougaar.lib.vishnu.server.host" +
-                        " (default = localhost)");
-    System.out.println ("-Dorg.cougaar.lib.vishnu.server.path" +
-                        " (default = /~vishnu/)");
-    System.out.println ("-Dorg.cougaar.lib.vishnu.server.user" +
-                        " (default = vishnu)");
-    System.out.println ("-Dorg.cougaar.lib.vishnu.server.password" +
-                        " (default = \"\")");
-    System.out.println ("-Dorg.cougaar.lib.vishnu.server.port" +
-                        " (default = 80)");
+    System.out.println ("-Dvishnu.host (default = localhost)");
+    System.out.println ("-Dvishnu.path (default = /~vishnu/)");
+    System.out.println ("-Dvishnu.user (default = vishnu)");
+    System.out.println ("-Dvishnu.password (default = \"\")");
+    System.out.println ("-Dvishnu.port (default = 80)");
     return e;
   }
 
@@ -123,12 +116,12 @@ public class ClientComms {
 	  convertArgs (args, true);
     try {
       if (debugXML) {
-	  URL url = new URL (stringURL);
-	  System.out.println ("ClientComms.readXML - Only testing URL. No scheduling will take place.");
-	  System.out.println ("ClientComms.readXML - url " + url);
-	  
-	  System.out.println ("ClientComms.readXML - " + testURL (url));
-	  return null;
+        URL url = new URL (stringURL);
+        System.out.println ("ClientComms.readXML - Only testing URL. " +
+                            "No scheduling will take place.");
+        System.out.println ("ClientComms.readXML - url " + url);
+        System.out.println ("ClientComms.readXML - " + testURL (url));
+        return null;
       }
       SAXParser parser = new SAXParser();
       parser.setContentHandler (handler);
@@ -168,17 +161,14 @@ public class ClientComms {
    * @param  connection the url connection to get data from
    * @return String reponse from URL
    */
-
-  public static String getResponse(URLConnection connection) throws IOException {
-    InputStream is = connection.getInputStream();
+  public static String getResponse (URLConnection conn) throws IOException {
+    InputStream is = conn.getInputStream();
     StringBuffer sb = new StringBuffer ();
 
     byte b[] = new byte[512];
     int len;
-
     while ((len = is.read(b)) > -1)
       sb.append (new String (b, 0, len));
-
     return sb.toString ();
   }
 
