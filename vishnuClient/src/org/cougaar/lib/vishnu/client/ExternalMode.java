@@ -128,7 +128,7 @@ public class ExternalMode extends PlugInHelper implements SchedulerLifecycle {
 	  Document docToSend = 
 		xmlProcessor.prepareDocument (chunk, parent.getChangedAssets(), dataXMLizer, clearDatabase, sendingChangedObjects, assetClassName);
 
-	  comm.serializeAndPostData (docToSend);
+	  serializeAndPostDoc (docToSend);
 
 	  if (clearDatabase) clearDatabase = false; // flip bit after first one
 	  totalSent += sendDataChunkSize;
@@ -138,6 +138,10 @@ public class ExternalMode extends PlugInHelper implements SchedulerLifecycle {
 	sendOtherData ();
   }
 
+  protected void serializeAndPostDoc (Document doc) {
+	comm.serializeAndPostData (doc);
+  }
+  
   /** send other data, if it hasn't already been sent */
   protected void sendOtherData () {
 	if (!sentOtherDataAlready && xmlProcessor.otherDataFileExists(config.getOtherData()))

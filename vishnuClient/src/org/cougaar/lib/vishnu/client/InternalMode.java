@@ -175,9 +175,7 @@ public class InternalMode extends ExternalMode {
 	  if (myExtraOutput)
 		System.out.println (getName () + ".cleanUpAfterScheduling - sending freeze all.");
 
-	  comm.serializeAndPostData (xmlProcessor.prepareFreezeAll ());
-	  sched.setupInternal (comm.getBuffer(), false);
-	  comm.clearBuffer ();
+	  serializeAndPostDoc (xmlProcessor.prepareFreezeAll ());
 	}
 	  
 	if (showTiming) {
@@ -190,6 +188,12 @@ public class InternalMode extends ExternalMode {
 							" - created successful plan elements for " +
 							(unhandledTasks-parent.getNumTasks ()) + " tasks.");
 	}
+  }
+
+  protected void serializeAndPostDoc (Document doc) {
+	comm.serializeAndPostData (doc);
+	sched.setupInternal (comm.getBuffer(), false);
+	comm.clearBuffer ();
   }
 
   protected String getName () { return parent.getName() + "-InternalMode"; }
