@@ -756,28 +756,29 @@ public abstract class VishnuPlugIn
       for (int i = 0; i < resources.length; i++) {
         MultitaskAssignment[] multi = resources[i].getMultitaskAssignments();
 		if (multi.length > 0) {
-		  Vector tasks = new Vector ();
-		  MultitaskAssignment assign = multi[0];
 		  if (myExtraOutput) 
-			System.out.println (getName () + " for resource " + assign.getResource().getKey() +
-								" got " + multi.length + " tasks assigned.");
+			System.out.println (getName () + " for resource " + resources[i].getKey() +
+								" got " + multi.length + " task groups assigned.");
 		  
 		  for (int j = 0; j < multi.length; j++) {
 			org.cougaar.lib.vishnu.server.Task [] multiTasks = multi[j].getTasks();
+			Vector tasks = new Vector ();
+			MultitaskAssignment assign = multi[j];
 			
 			for (int k = 0; k < multiTasks.length; k++) {
 			  Task task = getTaskFromAssignment(multiTasks[k].getKey());
 			  if (task != null)
 				tasks.add (task);
 			}
+
+			handleMultiAssignment (tasks, 
+								   getAssignedAsset   (assign.getResource().getKey()),
+								   timeOps.timeToDate (assign.getTaskStartTime()),
+								   timeOps.timeToDate (assign.getTaskEndTime()),
+								   timeOps.timeToDate (assign.getStartTime()), // setup
+								   timeOps.timeToDate (assign.getEndTime()));   // wrapup
 		  }
 
-		  handleMultiAssignment (tasks, 
-								 getAssignedAsset   (assign.getResource().getKey()),
-								 timeOps.timeToDate (assign.getTaskStartTime()),
-								 timeOps.timeToDate (assign.getTaskEndTime()),
-								 timeOps.timeToDate (assign.getStartTime()), // setup
-								 timeOps.timeToDate (assign.getEndTime()));   // wrapup
 		}
 	  }
     } 
