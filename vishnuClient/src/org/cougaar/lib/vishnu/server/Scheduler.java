@@ -329,19 +329,19 @@ public class Scheduler {
     ga = new GeneticAlgorithm (this);
 
     Map args = getArgs();
-    StringBuffer text = new StringBuffer (2048);
-    Map accesses = specs.allObjectAccesses();
-    Iterator iter = accesses.keySet().iterator();
-    while (iter.hasNext()) {
-      String type = (String) iter.next();
-      HashSet set = (HashSet) accesses.get (type);
-      text.append (type);
-      Iterator iter2 = set.iterator();
-      while (iter2.hasNext())
-        text.append (":").append (iter2.next());
-      text.append (";");
-    }
-    args.put ("fields", text.toString());
+//    StringBuffer text = new StringBuffer (2048);
+//    Map accesses = specs.allObjectAccesses();
+//    Iterator iter = accesses.keySet().iterator();
+//    while (iter.hasNext()) {
+//      String type = (String) iter.next();
+//      HashSet set = (HashSet) accesses.get (type);
+//      text.append (type);
+//      Iterator iter2 = set.iterator();
+//      while (iter2.hasNext())
+//        text.append (":").append (iter2.next());
+//      text.append (";");
+//    }
+//    args.put ("fields", text.toString());
 
     return ClientComms.readXML (args, "getproblem.php",
                                 new ProblemHandler());
