@@ -1791,14 +1791,18 @@ testdata/problem.dtd.)<br>
           parms CDATA #IMPLIED &gt;
 
 &lt;!-- sets up data --&gt;
-&lt;!ELEMENT DATA ((CLEARDATABASE|FREEZEALL|UNFREEZEALL|(FREEZE|UNFREEZE)*),
-                WINDOW?, NEWOBJECTS?, CHANGEDOBJECTS?, DELETEDOBJECTS?) &gt;
+&lt;!ELEMENT DATA ((CLEARDATABASE|FREEZEALL|UNFREEZEALL)?, WINDOW?,
+                NEWOBJECTS?, CHANGEDOBJECTS?, DELETEDOBJECTS?,
+                (FREEZE|UNFREEZE)*) &gt;
 &lt;!ELEMENT CLEARDATABASE EMPTY &gt;
 &lt;!ELEMENT FREEZEALL EMPTY &gt;
 &lt;!ELEMENT UNFREEZEALL EMPTY &gt;
 &lt;!ELEMENT FREEZE EMPTY &gt;
 &lt;!ATTLIST FREEZE
-          task CDATA #REQUIRED &gt;
+          task CDATA #REQUIRED
+          resource CDATA #IMPLIED
+          starttime CDATA #IMPLIED
+          endtime CDATA #IMPLIED &gt;
 &lt;!ELEMENT UNFREEZE EMPTY &gt;
 &lt;!ATTLIST UNFREEZE
           task CDATA #REQUIRED &gt;
