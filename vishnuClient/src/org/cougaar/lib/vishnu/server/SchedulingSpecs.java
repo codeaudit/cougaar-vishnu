@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingSpecs.java,v 1.15 2001-07-23 14:36:15 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingSpecs.java,v 1.16 2001-07-27 17:50:52 gvidaver Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -419,16 +419,37 @@ public class SchedulingSpecs {
     if (obj == null)
       return blocks;
     ArrayList list = (ArrayList) obj;
-    for (int i = 0; i < list.size(); i++) {
-      SchObject interval = (SchObject) list.get(i);
-      int start = ((Reusable.RInteger) interval.getField ("start")).intValue();
-      int end = ((Reusable.RInteger) interval.getField ("end")).intValue();
-      String color = getColor (interval);
-      String text = activityText (interval);
-      int insert = findInsertPosition (blocks, start);
-      int overlap = findNumOverlapping (blocks, end, insert);
-      blocks = combine2 (start, end, blocks, insert, overlap, color, text);
-    }
+	for (int i = 0; i < list.size(); i++) {
+	  SchObject interval = (SchObject) list.get(i);
+	  int start = ((Reusable.RInteger) interval.getField ("start")).intValue();
+	  int end = ((Reusable.RInteger) interval.getField ("end")).intValue();
+	  String color = getColor (interval);
+	  String text = activityText (interval);
+	  int insert = findInsertPosition (blocks, start);
+	  int overlap = findNumOverlapping (blocks, end, insert);
+	  try {
+		blocks = combine2 (start, end, blocks, insert, overlap, color, text);
+	  } catch (RuntimeException re) {
+		System.err.println ("SchedulingSpecs.resourceUnavailableTimes - ERROR - resource " + resource.getKey () +
+							"\nstart " + start +
+							"\nend " + end +
+							"\nhad time block problem " + re.getMessage());
+
+		System.err.println ("Checking blocks ...");
+		
+		for (int j = 0; j < list.size(); j++) {
+		  SchObject interval2 = (SchObject) list.get(j);
+		  int start2 = ((Reusable.RInteger) interval2.getField ("start")).intValue();
+		  int end2 = ((Reusable.RInteger) interval2.getField ("end")).intValue();
+		  if (start2 > end2)
+			System.err.println ("SchedulingSpecs.resourceUnavailableTimes - ERROR - start after end interval " + 
+								interval2);
+		}
+		
+		break;
+	  }
+	}
+	 
     return blocks;
   }
 
