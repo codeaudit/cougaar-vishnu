@@ -68,7 +68,11 @@
     refSection ("Scheduling Specifications", "specs");
     refSection ("Automated Scheduler Algorithm", "alg");
     refSection ("Using the Browser-Based GUI", "gui");
-    refSection ("ALP-Vishnu Bridge", "bridge");
+    refSection ("Cougaar-Vishnu Bridge", "bridge");
+    refSubsection ("Overview", "br1");
+    refSubsection ("Translation", "br2");
+    refSubsection ("Assignment Freezing", "br3");
+    refSubsection ("Parameters", "br4");
     refSection ("Currently Defined Functions", "a", "A");
     refSection ("XML Data Formats", "b", "B");
     refSection ("Test Problem Descriptions", "c", "C");
@@ -871,7 +875,319 @@ The main page for a problem also includes a link for starting the scheduler on t
 Additionally, there are links for saving the problem data and/or specifications to a file and for loading the problem data from a file.  Editing the
 scheduling specifications requires first going to the page for viewing these specifications.
 
-<? makeSection ("ALP-Vishnu Bridge", "bridge"); ?>
+<? makeSection ("Cougaar-Vishnu Bridge", "bridge"); ?>
+
+<p><a href="www.cougaar.org">Cougaar</a> is an architecture for construction
+of large-scale, distributed multiagent systems.  Vishnu provides a way
+to easily integrate one or more Vishnu schedulers into a multiagent system
+based on <a href="www.cougaar.org">Cougaar</a>.  This section uses 
+<a href="www.cougaar.org">Cougaar</a> terminology and concepts extensively,
+so interested readers should first familiarize themselves with these
+first before attempting to read this section.
+
+<? makeSubsection ("Overview", "br1"); ?>
+
+<P>The Cougaar-Vishnu Bridge is used to connect a <a href="www.cougaar.org">Cougaar</a> plugin to the Vishnu Scheduling System.  The bridge is instantiated in the usual plugin flavors: expander, allocator, and aggregator. Typically an allocator would be used for a one-to-one scheduling problem and an aggregator for a many-to-one problem.  Sometimes a task-to-resource assignment needs to be made in an expander and that assignment recorded in prepositions on the new subtask of the expansion.</P>
+
+<P>The Bridge interfaces between a <a href="www.cougaar.org">Cougaar</a> plugin and Vishnu by mapping <a href="www.cougaar.org">Cougaar</a> tasks and assets to Vishnu tasks and resources.  LDM objects are translated into XML of a form that Vishnu understands, and Vishnu assignments, expressed in XML, are used to create plan elements.</P>
+
+<P>Each instance of a bridge plugin maps to a problem in the Vishnu database. When a bridge plugin receives a task for the first time, it sends its problem definition to Vishnu.  The problem definition is composed of the object format of the tasks and resources, the scheduling specs, the GA parameters, the object format of any other data that is neither task nor resource, and that other data itself.</P>
+
+<P>The object format of the tasks and resources is automatically generated from the plugin's tasks and assets, but the other parts of the problem definition are defined by files associated with the plugin.</P>
+
+<P>The associated files are, by default, the name of the cluster, with a suffix identifying the type of file.  For instance, a cluster named Sample with a bridge plugin might have the following files:</P>
+
+<div align=center>
+<TABLE BORDER CELLSPACING=1 CELLPADDING=7>
+<TR><TD WIDTH=120 VALIGN="TOP">
+<B><P>File</B></TD>
+<TD WIDTH=270 VALIGN="TOP">
+<B><P>Description</B></TD>
+<TD WIDTH=90 VALIGN="TOP">
+<B><P>Required</B></TD>
+</TR>
+<TR><TD WIDTH=120 VALIGN="TOP">
+<P>Sample.vsh.xml</TD>
+<TD WIDTH=270 VALIGN="TOP">
+<P>Scheduling specifications for the problem</TD>
+<TD WIDTH=90 VALIGN="TOP">
+<P>Yes</TD>
+</TR>
+<TR><TD WIDTH=120 VALIGN="TOP">
+<P>Sample.ga.xml</TD>
+<TD WIDTH=270 VALIGN="TOP">
+<P>GA parameters for the problem</TD>
+<TD WIDTH=90 VALIGN="TOP">
+<P>Yes</TD>
+</TR>
+<TR><TD WIDTH=120 VALIGN="TOP">
+<P>Sample.odf.xml</TD>
+<TD WIDTH=270 VALIGN="TOP">
+<P>Object format(s) for the other data</TD>
+<TD WIDTH=90 VALIGN="TOP">
+<P>Optional</TD>
+</TR>
+<TR><TD WIDTH=120 VALIGN="TOP" HEIGHT=14>
+<P>Sample.odd.xml</TD>
+<TD WIDTH=270 VALIGN="TOP" HEIGHT=14>
+<P>Instance of the other data</TD>
+<TD WIDTH=90 VALIGN="TOP" HEIGHT=14>
+<P>Optional</TD>
+</TR>
+</TABLE>
+</div>
+
+
+<P>(The problem name can be changed by setting a plugin parameter.)</P>
+
+<P>Once the problem definition is sent to Vishnu, the assets are translated into XML and sent as resource data for the problem.  This is only done the first time.  Then, the tasks are translated into XML and sent.  Now the problem is completely defined and ready to be solved.  The bridge then submits a request to Vishnu to create a schedule.  The bridge waits until a result is ready, and then parses the assignments that are returned to generate plan elements.</P>
+
+<? makeSubsection ("Translation", "br2"); ?>
+
+<P>The translation from Cougaar objects to Vishnu XML is a two step process. First, using the Cougaar XMLize facility, Cougaar objects are translated into XML.  Then, using XSL transforms, this intermediate XML is translated into XML in the format that Vishnu understands.  Vishnu understands two types of XML input for tasks and resources – the object format, and the data itself.  So the translation process from intermediate XML is done twice, once to generate the object format and once to generate the data. (These two XML formats are described separately.)</P>
+
+<P>(The XSL transform is done using the Xalan package from xml.apache.org.)
+<br>
+
+<div align=center>
+<IMG SRC="Image1.gif" WIDTH=479 HEIGHT=359><br>
+</div>
+<font size=-1><B>Cougaar-Vishnu bridge implementation.</B> The bridge sends as input to Vishnu the object format, scheduling specs, genetic algorithm parameters, and other data (not pictured).  This defines the problem. Then, the data for the specific job is sent. When the scheduler is finished, XML assignments are returned, and used to create plan elements.</font>
+
+<P><B>Post processing - </B>
+The XML generated by the XSL transforms is not immediately ready to send to Vishnu.  Some post processing is required to give unique names to types and fields that have the same name in the corresponding Java object.  For instance, a preposition can have any type of object as an indirect object, so the bridge must figure out what types of indirect objects are present on the tasks and give them type names and refer to them uniquely.  This type information is not present in the XML generated by Cougaar's XMLize.</P>
+
+<? makeSubsection ("Assignment Freezing", "br3"); ?>
+
+<P>There is another facility provided by the bridge for expanders and aggregators.  Since resource availability is represented in the role schedule, and since the role schedule does not reflect an assignment until an allocation is made, there is a gap of time between when an assignment is returned and when the resource's availability reflects the assignment.  During this period, a new task could come in and be scheduled against the asset during the interval of a previous assignment.  To protect against this, expanders and aggregators freeze task assignments until the plugin detects, through the allocation result, that an allocation has been made against the asset.  Once this happens, the assignment is unfrozen and can be cleared from the Vishnu database.  Also, the changed assets are sent again to Vishnu as changed objects to communicate the change in availability. </P>
+
+<? makeSubsection ("Parameters", "br4"); ?>
+
+<P>There are a number of parameters set in the Cluster's env.xml file that affect the behavior of the bridge.
+<div align=center>
+<br><B>Required Parameters</B><BR><BR>
+<TABLE BORDER CELLSPACING=1 CELLPADDING=7 WIDTH=625>
+<TR><TD WIDTH="21%" VALIGN="TOP">
+<B><P>Parameter Name</B></TD>
+<TD WIDTH="50%" VALIGN="TOP">
+<B><P>Use</B></TD>
+<TD WIDTH="29%" VALIGN="TOP">
+<B><P>Default Value</B></TD>
+</TR>
+<TR><TD WIDTH="21%" VALIGN="TOP">
+<P>hostName</TD>
+<TD WIDTH="50%" VALIGN="TOP">
+<P>Host name of the web server</TD>
+<TD WIDTH="29%" VALIGN="TOP">
+<P>dante.bbn.com</TD>
+</TR>
+<TR><TD WIDTH="21%" VALIGN="TOP">
+<P>phpPath</TD>
+<TD WIDTH="50%" VALIGN="TOP">
+<P>Path to the php directory</TD>
+<TD WIDTH="29%" VALIGN="TOP">
+<P>~dmontana/vishnu</TD>
+</TR>
+<TR><TD WIDTH="21%" VALIGN="TOP">
+<P>user</TD>
+<TD WIDTH="50%" VALIGN="TOP">
+<P>User name for the mysql database</TD>
+<TD WIDTH="29%" VALIGN="TOP">
+<P>tops</TD>
+</TR>
+<TR><TD WIDTH="21%" VALIGN="TOP">
+<P>password</TD>
+<TD WIDTH="50%" VALIGN="TOP">
+<P>Password for the mysql database</TD>
+<TD WIDTH="29%" VALIGN="TOP">
+<P>tops</TD>
+</TR>
+</TABLE>
+<br>
+
+<BR><B>File Parameters</B><BR><BR>
+<TABLE BORDER CELLSPACING=1 CELLPADDING=7 WIDTH=625>
+<TR><TD WIDTH="21%" VALIGN="TOP">
+<B><P>Parameter Name</B></TD>
+<TD WIDTH="50%" VALIGN="TOP">
+<B><P>Use</B></TD>
+<TD WIDTH="29%" VALIGN="TOP">
+<B><P>Default Value</B></TD>
+</TR>
+<TR><TD WIDTH="21%" VALIGN="TOP">
+<P>formatTransform</TD>
+<TD WIDTH="50%" VALIGN="TOP">
+<P>The xsl file defining the Cougaar XML-to-Vishnu object format transformation</TD>
+<TD WIDTH="29%" VALIGN="TOP">
+<P>formatTransform.xsl</TD>
+</TR>
+<TR><TD WIDTH="21%" VALIGN="TOP">
+<P>dataTransform</TD>
+<TD WIDTH="50%" VALIGN="TOP">
+<P>The xsl file defining the Cougaar XML-to-Vishnu data transformation</TD>
+<TD WIDTH="29%" VALIGN="TOP">
+<P>dataTransform.xsl</TD>
+</TR>
+<TR><TD WIDTH="21%" VALIGN="TOP">
+<P>postProblemFile</TD>
+<TD WIDTH="50%" VALIGN="TOP">
+<P>Php file that’s part of the URL to post a problem</TD>
+<TD WIDTH="29%" VALIGN="TOP">
+<P>postproblem.php</TD>
+</TR>
+<TR><TD WIDTH="21%" VALIGN="TOP">
+<P>postDataFile</TD>
+<TD WIDTH="50%" VALIGN="TOP">
+<P>Php file that’s part of the URL to post the data for a problem</TD>
+<TD WIDTH="29%" VALIGN="TOP">
+<P>postdata.php</TD>
+</TR>
+<TR><TD WIDTH="21%" VALIGN="TOP">
+<P>kickoffFile</TD>
+<TD WIDTH="50%" VALIGN="TOP">
+<P>Php file that’s part of the URL to post a scheduling request</TD>
+<TD WIDTH="29%" VALIGN="TOP">
+<P>postkickoff.php</TD>
+</TR>
+<TR><TD WIDTH="21%" VALIGN="TOP">
+<P>readStatusFile</TD>
+<TD WIDTH="50%" VALIGN="TOP">
+<P>Php file that’s part of the URL to get the scheduler status</TD>
+<TD WIDTH="29%" VALIGN="TOP">
+<P>readstatus.php</TD>
+</TR>
+<TR><TD WIDTH="21%" VALIGN="TOP">
+<P>assignmentsFile</TD>
+<TD WIDTH="50%" VALIGN="TOP">
+<P>Php file that’s part of the URL to get the generated assignments</TD>
+<TD WIDTH="29%" VALIGN="TOP">
+<P>assignments.php</TD>
+</TR>
+</TABLE>
+<br>
+
+<br><b>Misc Parameters</b><br><BR>
+<TABLE BORDER CELLSPACING=1 CELLPADDING=7 WIDTH=619>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<B><P>Parameter Name</B></TD>
+<TD WIDTH="54%" VALIGN="TOP">
+<B><P>Use</B></TD>
+<TD WIDTH="19%" VALIGN="TOP">
+<B><P>Default Value</B></TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>alwaysClearDatabase</TD>
+<TD WIDTH="54%" VALIGN="TOP">
+<P>Clear the assets and tasks from previous jobs.</TD>
+<TD WIDTH="19%" VALIGN="TOP">
+<P>true</TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>vishnuEpochStartTime</TD>
+<TD WIDTH="54%" VALIGN="TOP">
+<P>The start of the Vishnu epoch.  Effects the width of the gantt chart display.</TD>
+<TD WIDTH="19%" VALIGN="TOP">
+<P>2000 01-01 00:00:00</TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>vishnuEpochEndTime</TD>
+<TD WIDTH="54%" VALIGN="TOP">
+<P>The start of the Vishnu epoch.  Effects the gantt chart display.</TD>
+<TD WIDTH="19%" VALIGN="TOP">
+<P>2002 01-01 00:00:00</TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>alwaysClearDatabase</TD>
+<TD WIDTH="54%" VALIGN="TOP">
+<P>Clear the assets and tasks from previous jobs.</TD>
+<TD WIDTH="19%" VALIGN="TOP">
+<P>false</TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>waitTime</TD>
+<TD WIDTH="54%" VALIGN="TOP">
+<P>How long to wait between polls</TD>
+<TD WIDTH="19%" VALIGN="TOP">
+<P>5 seconds</TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>maxWaitCycles</TD>
+<TD WIDTH="54%" VALIGN="TOP">
+<P>How many times to poll. </TD>
+<TD WIDTH="19%" VALIGN="TOP">
+<P>10</TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>problemName</TD>
+<TD WIDTH="54%" VALIGN="TOP">
+<P>Name of the problem. Defaults to cluster name.</TD>
+<TD WIDTH="19%" VALIGN="TOP">
+<P>cluster name</TD>
+</TR>
+</TABLE>
+<br>
+
+<BR><B>Debugging Parameters</B><br><BR>
+<TABLE BORDER CELLSPACING=1 CELLPADDING=7 WIDTH=619>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<B><P>Parameter Name</B></TD>
+<TD WIDTH="54%" VALIGN="TOP">
+<B><P>Use</B></TD>
+<TD WIDTH="19%" VALIGN="TOP">
+<B><P>Default Value</B></TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>testing</TD>
+<TD WIDTH="54%" VALIGN="TOP">
+<P>Prints out XML that is sent to Vishnu</TD>
+<TD WIDTH="19%" VALIGN="TOP">
+<P>false</TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>debugXSL</TD>
+<TD WIDTH="54%" VALIGN="TOP">
+<P>Logs to events.log details of operation of XSL transform</TD>
+<TD WIDTH="19%" VALIGN="TOP">
+<P>false</TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>showALPXML</TD>
+<TD WIDTH="54%" VALIGN="TOP">
+<P>Prints out output of XMLize</TD>
+<TD WIDTH="19%" VALIGN="TOP">
+<P>false</TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP" HEIGHT=37>
+<P>showFormatXML</TD>
+<TD WIDTH="54%" VALIGN="TOP" HEIGHT=37>
+<P>Prints out result of XSL format transform</TD>
+<TD WIDTH="19%" VALIGN="TOP" HEIGHT=37>
+<P>false</TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>showDataXML</TD>
+<TD WIDTH="54%" VALIGN="TOP">
+<P>Prints out result of XSL data transform</TD>
+<TD WIDTH="19%" VALIGN="TOP">
+<P>false</TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>ignoreSpecsFile</TD>
+<TD WIDTH="54%" VALIGN="TOP">
+<P>Don’t send the Cluster.vsh.xml file.  Useful if you don’t want to step on the specs on the server.</TD>
+<TD WIDTH="19%" VALIGN="TOP">
+<P>false</TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>sendSpecsEveryTime</TD>
+<TD WIDTH="54%" VALIGN="TOP">
+<P>Send problem definition, including scheduling specs, every time.  Useful if you want to alter the specs from job to job.</TD>
+<TD WIDTH="19%" VALIGN="TOP">
+<P>false</TD>
+</TR>
+</TABLE>
+<br><BR>
+</div>
 
 <? makeSection ("Currently Defined Functions", "a", "A"); ?>
 

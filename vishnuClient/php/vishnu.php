@@ -77,20 +77,6 @@
 <TR><TD></TD></TR>
 </TABLE>
 
-<TABLE WIDTH="600" COLS=2>
-<TR><TD BGCOLOR="<? echo getcolor(); ?>" COLSPAN=2>
-<font size=+2>Documentation</font></TD></TR>
-<TR><TD></TD></TR>
-<TR><TD></TD></TR>
-<TR><TD align="center"><font size=+2>
-<a href="vishnu_description.html"/>Full Vishnu Documentation</a>
-</font></TD>
-<TD align="center"><font size=+2>
-<a href="ALP_Vishnu_Bridge.htm"/>Bridge Documentation</a>
-</font></TD>
-</TR>
-</TABLE>
-
 <?
  }
  ?>
