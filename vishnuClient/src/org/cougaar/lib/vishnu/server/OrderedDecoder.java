@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedDecoder.java,v 1.19 2001-08-15 18:21:49 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedDecoder.java,v 1.20 2001-08-23 15:50:02 gvidaver Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -301,7 +301,8 @@ public class OrderedDecoder implements GADecoder {
   }
 
   private void assignFrozen (SchedulingData data, SchedulingSpecs specs) {
-    Task[] frozen = data.getFrozenTasks();
+    Task[] frozen = data.getSortedFrozenTasks();
+
     for (int i = 0; i < frozen.length; i++) {
       Task t = frozen[i];
       Assignment a = t.getAssignment();
