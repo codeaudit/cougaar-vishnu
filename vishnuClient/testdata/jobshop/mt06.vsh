@@ -1,19 +1,19 @@
 <?xml version='1.0'?>
-<PROBLEM name="jobshop_mt06" >
+<PROBLEM name="jobshop_mt06" description="This is the classic Muth-Thompson 6x6 job-shop scheduling problem.\\nThere are six machines and six jobs.\\nEach job has six different steps, with each step being a separate\\ntask and each step capable of being performed by only one machine.\\nFor each job, there is exactly one step matched with each machine.\\nThe steps for each job must be performed in a specific order.\\nEach step requires a specified amount of time.\\nThe optimization criterion is the makespan, i.e. the\\ntime at which the last step/task completes." >
 <DATAFORMAT>
 <OBJECTFORMAT name="machine" is_task="false" is_resource="true" >
-<FIELDFORMAT name="id" datatype="string" is_subobject="false" is_list="false" is_key="true" />
+<FIELDFORMAT name="id" datatype="string" is_subobject="false" is_globalptr="false" is_list="false" is_key="true" />
 </OBJECTFORMAT>
 <OBJECTFORMAT name="step" is_task="true" is_resource="false" >
-<FIELDFORMAT name="id" datatype="string" is_subobject="false" is_list="false" is_key="true" />
-<FIELDFORMAT name="job" datatype="string" is_subobject="false" is_list="false" is_key="false" />
-<FIELDFORMAT name="step" datatype="string" is_subobject="false" is_list="false" is_key="false" />
-<FIELDFORMAT name="duration_in_seconds" datatype="number" is_subobject="false" is_list="false" is_key="false" />
-<FIELDFORMAT name="assigned_machine" datatype="string" is_subobject="false" is_list="false" is_key="false" />
-<FIELDFORMAT name="preceeding_steps" datatype="string" is_subobject="false" is_list="true" is_key="false" />
+<FIELDFORMAT name="id" datatype="string" is_subobject="false" is_globalptr="false" is_list="false" is_key="true" />
+<FIELDFORMAT name="job" datatype="string" is_subobject="false" is_globalptr="false" is_list="false" is_key="false" />
+<FIELDFORMAT name="step" datatype="string" is_subobject="false" is_globalptr="false" is_list="false" is_key="false" />
+<FIELDFORMAT name="duration_in_seconds" datatype="number" is_subobject="false" is_globalptr="false" is_list="false" is_key="false" />
+<FIELDFORMAT name="assigned_machine" datatype="string" is_subobject="false" is_globalptr="false" is_list="false" is_key="false" />
+<FIELDFORMAT name="preceeding_steps" datatype="string" is_subobject="false" is_globalptr="false" is_list="true" is_key="false" />
 </OBJECTFORMAT>
 </DATAFORMAT>
-<SPECS direction="minimize" >
+<SPECS direction="minimize" setupdisplay="left" wrapupdisplay="right" multitasking="none" >
 <OPTCRITERION>
 <OPERATOR operation="-" >
 <OPERATOR operation="maxover" >
@@ -136,10 +136,10 @@
 </COLORTEST>
 </COLORTESTS>
 </SPECS>
-<GAPARMS pop_size="1000" parent_scalar="0.99" max_evals="5000" max_time="300" max_duplicates="5000" max_top_dog_age="5000" report_interval="10" initializer="org.cougaar.lib.vishnu.server.OrderedInitializer" decoder="org.cougaar.lib.vishnu.server.OrderedDecoder" >
+<GAPARMS pop_size="1000" parent_scalar="0.99000" max_evals="5000" max_time="300" max_duplicates="5000" max_top_dog_age="5000" report_interval="10" initializer="org.cougaar.lib.vishnu.server.OrderedInitializer" decoder="org.cougaar.lib.vishnu.server.OrderedDecoder" >
 <GAOPERATORS>
-<GAOPERATOR name="org.cougaar.lib.vishnu.server.OrderedMutation" prob="0.50" parms="1.0" />
-<GAOPERATOR name="org.cougaar.lib.vishnu.server.OrderedCrossover" prob="0.50" />
+<GAOPERATOR name="org.cougaar.lib.vishnu.server.OrderedMutation" prob="0.5" parms="1.0" />
+<GAOPERATOR name="org.cougaar.lib.vishnu.server.OrderedCrossover" prob="0.5" />
 </GAOPERATORS>
 </GAPARMS>
 <DATA>
@@ -150,7 +150,7 @@
 <FIELD name="id" value="job 1 step 1" />
 <FIELD name="job" value="1" />
 <FIELD name="step" value="1" />
-<FIELD name="duration_in_seconds" value="1.00" />
+<FIELD name="duration_in_seconds" value="1" />
 <FIELD name="assigned_machine" value="machine 3" />
 <FIELD name="preceeding_steps" >
 <LIST>
@@ -161,7 +161,7 @@
 <FIELD name="id" value="job 1 step 2" />
 <FIELD name="job" value="1" />
 <FIELD name="step" value="2" />
-<FIELD name="duration_in_seconds" value="3.00" />
+<FIELD name="duration_in_seconds" value="3" />
 <FIELD name="assigned_machine" value="machine 1" />
 <FIELD name="preceeding_steps" >
 <LIST>
@@ -173,7 +173,7 @@
 <FIELD name="id" value="job 1 step 3" />
 <FIELD name="job" value="1" />
 <FIELD name="step" value="3" />
-<FIELD name="duration_in_seconds" value="6.00" />
+<FIELD name="duration_in_seconds" value="6" />
 <FIELD name="assigned_machine" value="machine 2" />
 <FIELD name="preceeding_steps" >
 <LIST>
@@ -185,7 +185,7 @@
 <FIELD name="id" value="job 1 step 4" />
 <FIELD name="job" value="1" />
 <FIELD name="step" value="4" />
-<FIELD name="duration_in_seconds" value="7.00" />
+<FIELD name="duration_in_seconds" value="7" />
 <FIELD name="assigned_machine" value="machine 4" />
 <FIELD name="preceeding_steps" >
 <LIST>
@@ -197,7 +197,7 @@
 <FIELD name="id" value="job 1 step 5" />
 <FIELD name="job" value="1" />
 <FIELD name="step" value="5" />
-<FIELD name="duration_in_seconds" value="3.00" />
+<FIELD name="duration_in_seconds" value="3" />
 <FIELD name="assigned_machine" value="machine 6" />
 <FIELD name="preceeding_steps" >
 <LIST>
@@ -209,7 +209,7 @@
 <FIELD name="id" value="job 1 step 6" />
 <FIELD name="job" value="1" />
 <FIELD name="step" value="6" />
-<FIELD name="duration_in_seconds" value="6.00" />
+<FIELD name="duration_in_seconds" value="6" />
 <FIELD name="assigned_machine" value="machine 5" />
 <FIELD name="preceeding_steps" >
 <LIST>
@@ -221,7 +221,7 @@
 <FIELD name="id" value="job 2 step 1" />
 <FIELD name="job" value="2" />
 <FIELD name="step" value="1" />
-<FIELD name="duration_in_seconds" value="8.00" />
+<FIELD name="duration_in_seconds" value="8" />
 <FIELD name="assigned_machine" value="machine 2" />
 <FIELD name="preceeding_steps" >
 <LIST>
@@ -232,7 +232,7 @@
 <FIELD name="id" value="job 2 step 2" />
 <FIELD name="job" value="2" />
 <FIELD name="step" value="2" />
-<FIELD name="duration_in_seconds" value="5.00" />
+<FIELD name="duration_in_seconds" value="5" />
 <FIELD name="assigned_machine" value="machine 3" />
 <FIELD name="preceeding_steps" >
 <LIST>
@@ -244,7 +244,7 @@
 <FIELD name="id" value="job 2 step 3" />
 <FIELD name="job" value="2" />
 <FIELD name="step" value="3" />
-<FIELD name="duration_in_seconds" value="10.00" />
+<FIELD name="duration_in_seconds" value="10" />
 <FIELD name="assigned_machine" value="machine 5" />
 <FIELD name="preceeding_steps" >
 <LIST>
@@ -256,7 +256,7 @@
 <FIELD name="id" value="job 2 step 4" />
 <FIELD name="job" value="2" />
 <FIELD name="step" value="4" />
-<FIELD name="duration_in_seconds" value="10.00" />
+<FIELD name="duration_in_seconds" value="10" />
 <FIELD name="assigned_machine" value="machine 6" />
 <FIELD name="preceeding_steps" >
 <LIST>
@@ -268,7 +268,7 @@
 <FIELD name="id" value="job 2 step 5" />
 <FIELD name="job" value="2" />
 <FIELD name="step" value="5" />
-<FIELD name="duration_in_seconds" value="10.00" />
+<FIELD name="duration_in_seconds" value="10" />
 <FIELD name="assigned_machine" value="machine 1" />
 <FIELD name="preceeding_steps" >
 <LIST>
@@ -280,7 +280,7 @@
 <FIELD name="id" value="job 2 step 6" />
 <FIELD name="job" value="2" />
 <FIELD name="step" value="6" />
-<FIELD name="duration_in_seconds" value="4.00" />
+<FIELD name="duration_in_seconds" value="4" />
 <FIELD name="assigned_machine" value="machine 4" />
 <FIELD name="preceeding_steps" >
 <LIST>
@@ -292,7 +292,7 @@
 <FIELD name="id" value="job 3 step 1" />
 <FIELD name="job" value="3" />
 <FIELD name="step" value="1" />
-<FIELD name="duration_in_seconds" value="5.00" />
+<FIELD name="duration_in_seconds" value="5" />
 <FIELD name="assigned_machine" value="machine 3" />
 <FIELD name="preceeding_steps" >
 <LIST>
@@ -303,7 +303,7 @@
 <FIELD name="id" value="job 3 step 2" />
 <FIELD name="job" value="3" />
 <FIELD name="step" value="2" />
-<FIELD name="duration_in_seconds" value="4.00" />
+<FIELD name="duration_in_seconds" value="4" />
 <FIELD name="assigned_machine" value="machine 4" />
 <FIELD name="preceeding_steps" >
 <LIST>
@@ -315,7 +315,7 @@
 <FIELD name="id" value="job 3 step 3" />
 <FIELD name="job" value="3" />
 <FIELD name="step" value="3" />
-<FIELD name="duration_in_seconds" value="8.00" />
+<FIELD name="duration_in_seconds" value="8" />
 <FIELD name="assigned_machine" value="machine 6" />
 <FIELD name="preceeding_steps" >
 <LIST>
@@ -327,7 +327,7 @@
 <FIELD name="id" value="job 3 step 4" />
 <FIELD name="job" value="3" />
 <FIELD name="step" value="4" />
-<FIELD name="duration_in_seconds" value="9.00" />
+<FIELD name="duration_in_seconds" value="9" />
 <FIELD name="assigned_machine" value="machine 1" />
 <FIELD name="preceeding_steps" >
 <LIST>
@@ -339,7 +339,7 @@
 <FIELD name="id" value="job 3 step 5" />
 <FIELD name="job" value="3" />
 <FIELD name="step" value="5" />
-<FIELD name="duration_in_seconds" value="1.00" />
+<FIELD name="duration_in_seconds" value="1" />
 <FIELD name="assigned_machine" value="machine 2" />
 <FIELD name="preceeding_steps" >
 <LIST>
@@ -351,7 +351,7 @@
 <FIELD name="id" value="job 3 step 6" />
 <FIELD name="job" value="3" />
 <FIELD name="step" value="6" />
-<FIELD name="duration_in_seconds" value="7.00" />
+<FIELD name="duration_in_seconds" value="7" />
 <FIELD name="assigned_machine" value="machine 5" />
 <FIELD name="preceeding_steps" >
 <LIST>
@@ -363,7 +363,7 @@
 <FIELD name="id" value="job 4 step 1" />
 <FIELD name="job" value="4" />
 <FIELD name="step" value="1" />
-<FIELD name="duration_in_seconds" value="5.00" />
+<FIELD name="duration_in_seconds" value="5" />
 <FIELD name="assigned_machine" value="machine 2" />
 <FIELD name="preceeding_steps" >
 <LIST>
@@ -374,7 +374,7 @@
 <FIELD name="id" value="job 4 step 2" />
 <FIELD name="job" value="4" />
 <FIELD name="step" value="2" />
-<FIELD name="duration_in_seconds" value="5.00" />
+<FIELD name="duration_in_seconds" value="5" />
 <FIELD name="assigned_machine" value="machine 1" />
 <FIELD name="preceeding_steps" >
 <LIST>
@@ -386,7 +386,7 @@
 <FIELD name="id" value="job 4 step 3" />
 <FIELD name="job" value="4" />
 <FIELD name="step" value="3" />
-<FIELD name="duration_in_seconds" value="5.00" />
+<FIELD name="duration_in_seconds" value="5" />
 <FIELD name="assigned_machine" value="machine 3" />
 <FIELD name="preceeding_steps" >
 <LIST>
@@ -398,7 +398,7 @@
 <FIELD name="id" value="job 4 step 4" />
 <FIELD name="job" value="4" />
 <FIELD name="step" value="4" />
-<FIELD name="duration_in_seconds" value="3.00" />
+<FIELD name="duration_in_seconds" value="3" />
 <FIELD name="assigned_machine" value="machine 4" />
 <FIELD name="preceeding_steps" >
 <LIST>
@@ -410,7 +410,7 @@
 <FIELD name="id" value="job 4 step 5" />
 <FIELD name="job" value="4" />
 <FIELD name="step" value="5" />
-<FIELD name="duration_in_seconds" value="8.00" />
+<FIELD name="duration_in_seconds" value="8" />
 <FIELD name="assigned_machine" value="machine 5" />
 <FIELD name="preceeding_steps" >
 <LIST>
@@ -422,7 +422,7 @@
 <FIELD name="id" value="job 4 step 6" />
 <FIELD name="job" value="4" />
 <FIELD name="step" value="6" />
-<FIELD name="duration_in_seconds" value="9.00" />
+<FIELD name="duration_in_seconds" value="9" />
 <FIELD name="assigned_machine" value="machine 6" />
 <FIELD name="preceeding_steps" >
 <LIST>
@@ -434,7 +434,7 @@
 <FIELD name="id" value="job 5 step 1" />
 <FIELD name="job" value="5" />
 <FIELD name="step" value="1" />
-<FIELD name="duration_in_seconds" value="9.00" />
+<FIELD name="duration_in_seconds" value="9" />
 <FIELD name="assigned_machine" value="machine 3" />
 <FIELD name="preceeding_steps" >
 <LIST>
@@ -445,7 +445,7 @@
 <FIELD name="id" value="job 5 step 2" />
 <FIELD name="job" value="5" />
 <FIELD name="step" value="2" />
-<FIELD name="duration_in_seconds" value="3.00" />
+<FIELD name="duration_in_seconds" value="3" />
 <FIELD name="assigned_machine" value="machine 2" />
 <FIELD name="preceeding_steps" >
 <LIST>
@@ -457,7 +457,7 @@
 <FIELD name="id" value="job 5 step 3" />
 <FIELD name="job" value="5" />
 <FIELD name="step" value="3" />
-<FIELD name="duration_in_seconds" value="5.00" />
+<FIELD name="duration_in_seconds" value="5" />
 <FIELD name="assigned_machine" value="machine 5" />
 <FIELD name="preceeding_steps" >
 <LIST>
@@ -469,7 +469,7 @@
 <FIELD name="id" value="job 5 step 4" />
 <FIELD name="job" value="5" />
 <FIELD name="step" value="4" />
-<FIELD name="duration_in_seconds" value="4.00" />
+<FIELD name="duration_in_seconds" value="4" />
 <FIELD name="assigned_machine" value="machine 6" />
 <FIELD name="preceeding_steps" >
 <LIST>
@@ -481,7 +481,7 @@
 <FIELD name="id" value="job 5 step 5" />
 <FIELD name="job" value="5" />
 <FIELD name="step" value="5" />
-<FIELD name="duration_in_seconds" value="3.00" />
+<FIELD name="duration_in_seconds" value="3" />
 <FIELD name="assigned_machine" value="machine 1" />
 <FIELD name="preceeding_steps" >
 <LIST>
@@ -493,7 +493,7 @@
 <FIELD name="id" value="job 5 step 6" />
 <FIELD name="job" value="5" />
 <FIELD name="step" value="6" />
-<FIELD name="duration_in_seconds" value="1.00" />
+<FIELD name="duration_in_seconds" value="1" />
 <FIELD name="assigned_machine" value="machine 4" />
 <FIELD name="preceeding_steps" >
 <LIST>
@@ -505,7 +505,7 @@
 <FIELD name="id" value="job 6 step 1" />
 <FIELD name="job" value="6" />
 <FIELD name="step" value="1" />
-<FIELD name="duration_in_seconds" value="3.00" />
+<FIELD name="duration_in_seconds" value="3" />
 <FIELD name="assigned_machine" value="machine 2" />
 <FIELD name="preceeding_steps" >
 <LIST>
@@ -516,7 +516,7 @@
 <FIELD name="id" value="job 6 step 2" />
 <FIELD name="job" value="6" />
 <FIELD name="step" value="2" />
-<FIELD name="duration_in_seconds" value="3.00" />
+<FIELD name="duration_in_seconds" value="3" />
 <FIELD name="assigned_machine" value="machine 4" />
 <FIELD name="preceeding_steps" >
 <LIST>
@@ -528,7 +528,7 @@
 <FIELD name="id" value="job 6 step 3" />
 <FIELD name="job" value="6" />
 <FIELD name="step" value="3" />
-<FIELD name="duration_in_seconds" value="9.00" />
+<FIELD name="duration_in_seconds" value="9" />
 <FIELD name="assigned_machine" value="machine 6" />
 <FIELD name="preceeding_steps" >
 <LIST>
@@ -540,7 +540,7 @@
 <FIELD name="id" value="job 6 step 4" />
 <FIELD name="job" value="6" />
 <FIELD name="step" value="4" />
-<FIELD name="duration_in_seconds" value="10.00" />
+<FIELD name="duration_in_seconds" value="10" />
 <FIELD name="assigned_machine" value="machine 1" />
 <FIELD name="preceeding_steps" >
 <LIST>
@@ -552,7 +552,7 @@
 <FIELD name="id" value="job 6 step 5" />
 <FIELD name="job" value="6" />
 <FIELD name="step" value="5" />
-<FIELD name="duration_in_seconds" value="4.00" />
+<FIELD name="duration_in_seconds" value="4" />
 <FIELD name="assigned_machine" value="machine 5" />
 <FIELD name="preceeding_steps" >
 <LIST>
@@ -564,7 +564,7 @@
 <FIELD name="id" value="job 6 step 6" />
 <FIELD name="job" value="6" />
 <FIELD name="step" value="6" />
-<FIELD name="duration_in_seconds" value="1.00" />
+<FIELD name="duration_in_seconds" value="1" />
 <FIELD name="assigned_machine" value="machine 3" />
 <FIELD name="preceeding_steps" >
 <LIST>
