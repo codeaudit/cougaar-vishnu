@@ -43,8 +43,6 @@ import org.cougaar.planning.ldm.plan.NewTask;
 import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.planning.ldm.plan.Workflow;
 
-import org.cougaar.core.util.XMLizable;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 

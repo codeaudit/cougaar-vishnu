@@ -269,19 +269,6 @@ public class VishnuDomUtil {
     } catch (IOException ioe) {logger.error ("Exception " + ioe, ioe);}
   }
   
-  /*
-  protected void addObjectsToDocument (Iterator iter, Document doc, Element nodeToAddTo) {
-    Element element   = null;
-    XMLizable xmlable = null;
-
-    while  (iter.hasNext ()) {
-      xmlable = (XMLizable) iter.next ();
-      element = xmlable.getXML (doc);
-      nodeToAddTo.appendChild (element);
-    }
-  }
-  */
-
   /** 
    * Prints out time since <code>start</code> with prefix <code>prefix</code>
    * @param start since when
