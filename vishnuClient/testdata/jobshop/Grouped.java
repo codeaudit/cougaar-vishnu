@@ -33,8 +33,8 @@ public class Grouped {
       if (name.equals ("MULTITASK"))
         System.out.println ("Assignment:" +
                             " resource = " + atts.getValue ("resource") +
-                            " start = " + atts.getValue ("start") +
-                            " end = " + atts.getValue ("end"));
+                            " start = " + atts.getValue ("setup") +
+                            " end = " + atts.getValue ("wrapup"));
       if (name.equals ("TASK"))
         System.out.println ("    Task = " + atts.getValue ("task"));
     }

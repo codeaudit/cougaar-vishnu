@@ -33,8 +33,10 @@ public class Jobshop {
       if (name.equals ("ASSIGNMENT"))
         System.out.println ("Assignment: task = " + atts.getValue ("task") +
                             " resource = " + atts.getValue ("resource") +
+                            " setup = " + atts.getValue ("setup") +
                             " start = " + atts.getValue ("start") +
-                            " end = " + atts.getValue ("end"));
+                            " end = " + atts.getValue ("end") +
+                            " wrapup = " + atts.getValue ("wrapup"));
     }
   }
 

@@ -29,7 +29,7 @@ public class FreezeInternal {
       byte[] b = new byte [(int) f.length()];
       f.read (b, 0, b.length);
       Scheduler sched = new Scheduler();
-      String str = sched.runInternalToProcess (new String (b), true);
+      String str = sched.runInternalToProcess (new String (b), true, true);
       SAXParser parser = new SAXParser();
       parser.setContentHandler (new AssignmentHandler());
       parser.parse (new InputSource (new StringReader (str)));

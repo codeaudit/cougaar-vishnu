@@ -361,6 +361,6 @@
 </OBJECT>
 </GLOBAL>
 </NEWOBJECTS>
-<FREEZE task="welding 2" resource="machine 1" start="2000-05-15 09:22:00" end="2000-05-15 09:26:00" />
+<FREEZE task="welding 2" resource="machine 1" start="2000-05-15 09:23:00" end="2000-05-15 09:27:00" />
 </DATA>
 </PROBLEM>

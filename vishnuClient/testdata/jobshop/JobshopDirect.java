@@ -34,7 +34,7 @@ public class JobshopDirect {
       Scheduler sched = new Scheduler();
 
       // Call setupInternal before adding the data
-      sched.setupInternal (new String(b));
+      sched.setupInternal (new String(b), true);
 
       // These are things created by the scheduler during setup that
       // are needed for direct object writing.
