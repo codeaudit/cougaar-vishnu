@@ -512,6 +512,8 @@ public class Scheduler {
       reportTime ("Scheduler.runInternalToProcess - ga ran in ", start);
   }
 
+  public void clearCaches () { specs.clearCaches (); }
+
   /**
    * Does the whole internal scheduling process
    * @param problem XML representation of the problem/data

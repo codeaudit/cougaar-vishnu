@@ -88,6 +88,15 @@ public class SchedulingSpecs {
       ((Operator) operators.get(i)).setData (sdata, reuse, timeOps);
   }
 
+  public void clearCaches () {
+    if (bestTimeCache != null)
+      bestTimeCache.clear();
+    if (taskDurationCache != null)
+      taskDurationCache.clear();
+    if (taskUnavailableTimesCache != null)
+      taskUnavailableTimesCache.clear();
+  }
+
   public HashMap allObjectAccesses () {
     HashMap list = new HashMap();
     for (int i = 0; i < allExpressions.size(); i++) {
