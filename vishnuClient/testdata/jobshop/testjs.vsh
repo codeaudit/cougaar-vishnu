@@ -1,5 +1,5 @@
 <?xml version='1.0'?>
-<PROBLEM name="jobshop_testjs" >
+<PROBLEM name="jobshop_testjs" description="This is a problem for software testing that is simple yet\\nexercises much of the functionality of Vishnu." >
 <DATAFORMAT>
 <OBJECTFORMAT name="machine" is_task="false" is_resource="true" >
 <FIELDFORMAT name="id" datatype="string" is_subobject="false" is_list="false" is_key="true" />

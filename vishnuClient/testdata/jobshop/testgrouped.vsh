@@ -1,5 +1,5 @@
 <?xml version='1.0'?>
-<PROBLEM name="jobshop_grouped" >
+<PROBLEM name="jobshop_grouped" description="This is a version of testjs.vsh that exercises\\ngrouped multitasking." >
 <DATAFORMAT>
 <OBJECTFORMAT name="machine" is_task="false" is_resource="true" >
 <FIELDFORMAT name="id" datatype="string" is_subobject="false" is_list="false" is_key="true" />
