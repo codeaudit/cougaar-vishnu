@@ -1,2 +1,2 @@
-java -Dvishnu.host=hammett.bbn.com -Dvishnu.path="/vishnu/php/" -Dvishnu.user=root -Dvishnu.password="abc123" -Dvishnu.debugXML=false org.cougaar.lib.vishnu.server.ExpressionCompiler
+java -Dcom.bbn.vishnu.host=hammett.bbn.com -Dcom.bbn.vishnu.path="/~dmontana/vishnu/" -Dcom.bbn.vishnu.user=root -Dcom.bbn.vishnu.password="abc123" -Dcom.bbn.vishnu.debugXML=false com.bbn.vishnu.scheduling.ExpressionCompiler
 

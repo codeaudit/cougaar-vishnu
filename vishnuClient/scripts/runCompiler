@@ -7,7 +7,7 @@
 
 # For values of properties 1-4, see vishnu_server.env.xml in this directory
 
-# CLASSPATH - the compiler needs the vishnu jar and the xerces jar in the CLASSPATH
+# CLASSPATH - the compiler needs the vishnu.jar and the xerces jar in the CLASSPATH
 
 # PROPERTIES -
 #  1) host - Vishnu web server
@@ -21,9 +21,9 @@
 #      (scheduler will not actually process requests)
 
 java \
--Dvishnu.host=alp-107.alp.isotic.org \
--Dvishnu.path="/~demo/TOPS/vishnu/php/" \
--Dvishnu.user=root \
--Dvishnu.password="" \
--Dvishnu.debugXML=false org.cougaar.lib.vishnu.server.ExpressionCompiler
+-Dcom.bbn.vishnu.host=alp-107.alp.isotic.org \
+-Dcom.bbn.vishnu.path="/~demo/TOPS/com.bbn.vishnu.php/" \
+-Dcom.bbn.vishnu.user=root \
+-Dcom.bbn.vishnu.password="" \
+-Dcom.bbn.vishnu.debugXML=false java.scheduling.ExpressionCompiler
 

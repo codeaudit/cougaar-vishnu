@@ -4,10 +4,9 @@
 # When it finds a request has been posted, it gets the problem and its scheduling specs
 # and produces a schedule.  This schedule is then posted back to the web server.
 
-# For values of properties 1-4, see vishnu_server.env.xml in this directory
+# For values of properties 1-4, see com.bbn.vishnu.server.env.xml in this directory
 
-# CLASSPATH - the scheduler needs the vishnu jar and the xerces jar in the CLASSPATH,
-# e.g. d:/vishnu/lib/vishnu.jar;d:/vishnu/lib/xerces.jar 
+# CLASSPATH - the scheduler needs the com.bbn.vishnu.jar and the xerces jar in the CLASSPATH
 
 # PROPERTIES -
 #  1) host - Vishnu web server
@@ -22,7 +21,7 @@
 #     posted to web server.  
 #
 #     Can be a comma separated list,
-#     e.g. -Dvishnu.Scheduler.machines="pumpernickle, hammet"
+#     e.g. -Dcom.bbn.vishnu.Scheduler.machines="pumpernickle, hammet"
 #
 #	  The scheduler will print which problems it's scheduling, so if you see problems 
 #     that aren't yours, you may want to restrict your scheduler.
@@ -31,8 +30,8 @@
 #  instance, if there were two problems running on machine X, and you had schedulers
 #  on machines Y and Z, and you wanted to make sure the scheduler on machine Y was only
 #  doing problem #1 and the scheduler on Z only do problem #2.  In this case, 
-#   on Y, you'd set -Dvishnu.Scheduler.problems="problem_1" and
-#   on Z, you'd set -Dvishnu.Scheduler.problems="problem_2"
+#   on Y, you'd set -Dcom.bbn.vishnu.Scheduler.problems="problem_1" and
+#   on Z, you'd set -Dcom.bbn.vishnu.Scheduler.problems="problem_2"
 #
 #  Debugging params (safe to ignore):
 #
@@ -43,17 +42,17 @@
 #      (scheduler will not actually process requests)
 
 java \
--Dvishnu.host=alp-107.alp.isotic.org \
--Dvishnu.path="/~demo/TOPS/vishnu/php/" \
--Dvishnu.user=root \
--Dvishnu.password="" \
--Dvishnu.Scheduler.showAssignments=false \
--Dvishnu.Scheduler.waitInterval=1000 \
--Dvishnu.Scheduler.machines="" \
--Dvishnu.Scheduler.problems="" \
--Dvishnu.Scheduler.debug=false \
--Dvishnu.TimeBlock.debug=false \
--Dvishnu.debug=false \
--Dvishnu.debugXML=false -Xms60m -Xmx100m \
-org.cougaar.lib.vishnu.server.Scheduler 
+-Dcom.bbn.vishnu.host=alp-107.alp.isotic.org \
+-Dcom.bbn.vishnu.path="/~demo/TOPS/vishnu/php/" \
+-Dcom.bbn.vishnu.user=root \
+-Dcom.bbn.vishnu.password="" \
+-Dcom.bbn.vishnu.Scheduler.showAssignments=false \
+-Dcom.bbn.vishnu.Scheduler.waitInterval=1000 \
+-Dcom.bbn.vishnu.Scheduler.machines="" \
+-Dcom.bbn.vishnu.Scheduler.problems="" \
+-Dcom.bbn.vishnu.Scheduler.debug=false \
+-Dcom.bbn.vishnu.TimeBlock.debug=false \
+-Dcom.bbn.vishnu.debug=false \
+-Dcom.bbn.vishnu.debugXML=false -Xms60m -Xmx100m \
+com.bbn.vishnu.scheduling.Scheduler 
 

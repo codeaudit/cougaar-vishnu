@@ -8,7 +8,7 @@ The names of the run scripts indicate which web server the scheduler or the expr
 so runCompilerHammett means run the expression compiler, using the Hammett web server.
 
 If after that, there is a "onlyXXX" this means the scheduler will only handle the XXX problem.  This is specified
-by the org.cougaar.lib.vishnu.server.Scheduler.problems property set in the script, and users are encouraged to alter this property
+by the org.cougaar.lib.com.bbn.vishnu.server.Scheduler.problems property set in the script, and users are encouraged to alter this property
 so that the schedulers do only their problems.  This property can specify a comma-separated list of problems.
 
 The basic runScheduler script does not define the problems property, and so will do any problem submitted to the

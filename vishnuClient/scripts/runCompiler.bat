@@ -43,10 +43,11 @@ REM
 REM  5) debugXML - show XML sent and received over URLs 
 REM      (scheduler will not actually process requests)
 
-set PROPERTIES=-Dvishnu.host=alp-107.alp.isotic.org
-set PROPERTIES=%PROPERTIES% -Dvishnu.path="/~demo/TOPS/vishnu/php/"
-set PROPERTIES=%PROPERTIES% -Dvishnu.user=root
-set PROPERTIES=%PROPERTIES% -Dvishnu.password=""
+set PROPERTIES=-Dcom.bbn.vishnu.host=localhost
+set PROPERTIES=%PROPERTIES% -Dcom.bbn.vishnu.path="/php/"
+set PROPERTIES=%PROPERTIES% -Dcom.bbn.vishnu.user=root
+set PROPERTIES=%PROPERTIES% -Dcom.bbn.vishnu.password=""
+set LIBPATHS= %VISHNU%\lib\xerces.jar;%VISHNU%\lib\vishnu.jar
 
-java %PROPERTIES% org.cougaar.lib.vishnu.server.ExpressionCompiler
+java -classpath %LIBPATHS% %PROPERTIES% com.bbn.vishnu.scheduling.ExpressionCompiler
 

@@ -1,13 +1,13 @@
 java \
--Dvishnu.host=everest.alpine.bbn.com \
--Dvishnu.port=3000 \
--Dvishnu.path="/TOPS/vishnu/php/" \
--Dvishnu.debug=false \
--Dvishnu.Scheduler.debug=true \
--Dvishnu.Scheduler.showAssignments=true \
--Dvishnu.TimeBlock.debug=false \
--Dvishnu.debugXML=false \
--Dvishnu.user=root \
--Dvishnu.password="" -Xms60m -Xmx100m \
-org.cougaar.lib.vishnu.server.Scheduler 
+-Dcom.bbn.vishnu.host=everest.alpine.bbn.com \
+-Dcom.bbn.vishnu.port=3000 \
+-Dcom.bbn.vishnu.path="/TOPS/com.bbn.vishnu.php/" \
+-Dcom.bbn.vishnu.debug=false \
+-Dcom.bbn.vishnu.Scheduler.debug=true \
+-Dcom.bbn.vishnu.Scheduler.showAssignments=true \
+-Dcom.bbn.vishnu.TimeBlock.debug=false \
+-Dcom.bbn.vishnu.debugXML=false \
+-Dcom.bbn.vishnu.user=root \
+-Dcom.bbn.vishnu.password="" -Xms60m -Xmx100m \
+com.bbn.vishnu.scheduling.Scheduler 
 

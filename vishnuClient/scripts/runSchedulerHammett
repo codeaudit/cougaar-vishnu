@@ -1,2 +1,2 @@
-java -Dvishnu.host=hammett.bbn.com -Dvishnu.path="/vishnu/php/" -Dvishnu.debug=false -Dvishnu.Scheduler.debug=true -Dvishnu.TimeBlock.debug=false -Dvishnu.debugXML=false -Dvishnu.user=root -Dvishnu.password=abc123 -Xms60m -Xmx100m org.cougaar.lib.vishnu.server.Scheduler 
+java -Dcom.bbn.vishnu.host=hammett.bbn.com -Dcom.bbn.vishnu.path="/~dmontana/vishnu/" -Dcom.bbn.vishnu.debug=false -Dcom.bbn.vishnu.Scheduler.debug=true -Dcom.bbn.vishnu.TimeBlock.debug=false -Dcom.bbn.vishnu.debugXML=false -Dcom.bbn.vishnu.user=root -Dcom.bbn.vishnu.password=abc123 -Xms60m -Xmx100m com.bbn.vishnu.scheduling.Scheduler 
 
