@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/GAOperator.java,v 1.3 2001-04-12 17:50:30 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/GAOperator.java,v 1.4 2001-07-29 21:34:43 gvidaver Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -16,7 +16,7 @@ public interface GAOperator {
 
   public int numParents();
 
-  public Chromosome generateChild (Chromosome[] parents);
+  public Chromosome generateChild (Chromosome[] parents, SchedulingData data);
 
   public void setParms (String parms);
 

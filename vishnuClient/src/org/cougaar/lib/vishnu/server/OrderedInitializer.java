@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedInitializer.java,v 1.6 2001-07-20 14:24:46 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedInitializer.java,v 1.7 2001-07-29 21:34:43 gvidaver Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -16,8 +16,7 @@ import java.util.ArrayList;
 
 public class OrderedInitializer implements GAInitializer {
 
-  public Chromosome generateIndividual (int num, SchedulingData d) {
-    data = d;
+  public Chromosome generateIndividual (int num, SchedulingData data) {
     int size = data.getPrimaryTasks().length;
     ArrayList remaining = new ArrayList (size);
     ArrayList initial = new ArrayList (size);
@@ -28,22 +27,20 @@ public class OrderedInitializer implements GAInitializer {
       initial.add (remaining.get (pick));
       remaining.remove (pick);
     }
-    return reorder (initial);
+    return reorder (initial, data);
   }
 
   public void setParms (String parms) {
   }
 
-  private static SchedulingData data;
-
-  public static StringOfIntegers reorder (int[] original) {
+  public StringOfIntegers reorder (int[] original, SchedulingData data) {
     ArrayList al = new ArrayList (original.length);
     for (int i = 0; i < original.length; i++)
     al.add (new Integer (original [i]));
-    return reorder (al);
+    return reorder (al, data);
   }
 
-  public static StringOfIntegers reorder (ArrayList original) {
+  public StringOfIntegers reorder (ArrayList original, SchedulingData data) {
     Task[] tasks = data.getPrimaryTasks();
     int[] ordering = new int [tasks.length];
     java.util.HashSet selected = new java.util.HashSet();

@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/GeneticAlgorithm.java,v 1.7 2001-07-03 20:50:55 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/GeneticAlgorithm.java,v 1.8 2001-07-29 21:34:43 gvidaver Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -82,7 +82,7 @@ public class GeneticAlgorithm {
         c = initializer.generateIndividual (numEvals + numDuplicates, data);
       else {
         GAOperator op = selectOperator();
-        c = op.generateChild (selectParents (op.numParents()));
+        c = op.generateChild (selectParents (op.numParents()), data);
       }
       if (chromosomes.contains (c)) {
         numDuplicates++;

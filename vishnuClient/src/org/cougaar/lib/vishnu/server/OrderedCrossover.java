@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedCrossover.java,v 1.4 2001-06-28 17:57:23 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedCrossover.java,v 1.5 2001-07-29 21:34:43 gvidaver Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -16,7 +16,7 @@ public class OrderedCrossover implements GAOperator {
 
   public int numParents()  { return 2; }
 
-  public Chromosome generateChild (Chromosome[] parents) {
+  public Chromosome generateChild (Chromosome[] parents, SchedulingData data) {
     StringOfIntegers parent1 = (StringOfIntegers) parents[0];
     StringOfIntegers parent2 = (StringOfIntegers) parents[1];
     int[] newValues = new int [parent1.getValues().length];
@@ -39,10 +39,11 @@ public class OrderedCrossover implements GAOperator {
       }
     }
 
-    return OrderedInitializer.reorder (newValues);
+    return initializer.reorder (newValues, data);
   }
 
   public void setParms (String parms) {
   }
 
+  OrderedInitializer initializer = new OrderedInitializer ();
 }

@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedMutation.java,v 1.5 2001-06-28 17:57:23 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedMutation.java,v 1.6 2001-07-29 21:34:43 gvidaver Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -28,7 +28,7 @@ public class OrderedMutation implements GAOperator {
 
   public int numParents()  { return 1; }
 
-  public Chromosome generateChild (Chromosome[] parents) {
+  public Chromosome generateChild (Chromosome[] parents, SchedulingData data) {
     StringOfIntegers parent = (StringOfIntegers) parents[0];
     int size = parent.getValues().length;
 
@@ -66,11 +66,12 @@ public class OrderedMutation implements GAOperator {
     for (int i = 0; i < num; i++)
       newValues [ordered[i]] = parent.getValues() [selected[i]];
 
-    return OrderedInitializer.reorder (newValues);
+    return initializer.reorder (newValues, data);
   }
 
   public void setParms (String parms) {
     maxToSwitch = (Float.valueOf (parms)).floatValue();
   }
 
+  OrderedInitializer initializer = new OrderedInitializer ();
 }
