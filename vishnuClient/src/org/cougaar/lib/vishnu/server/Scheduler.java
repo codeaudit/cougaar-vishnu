@@ -454,7 +454,7 @@ public class Scheduler {
         reportTime ("Scheduler.setupInternal - scheduler " +
                     "read data in ", start);
     } catch (Exception e) {
-      System.err.println ("Scheduler.setupInternal - ERROR, got " + e.getMessage() + " reading\n" + 
+      System.err.println ("Scheduler.setupInternal - ERROR, got <" + e.getMessage() + "> reading this XML :\n" + 
 						  problem);
       e.printStackTrace();
     }
