@@ -207,7 +207,7 @@ public class Scheduler {
       for (int i = 0; i < tasks.length; i++) {
         Assignment assign = tasks[i].getAssignment();
         if ((assign != null) && (reportFrozen || (! assign.getFrozen()))) {
-          assign.setColor (specs.getColor (tasks[i]));
+          assign.setColor (specs.getColor (tasks[i], SchedulingSpecs.TASK));
           assign.setText (specs.taskText (tasks[i]));
           text.append (assign).append ("\n");
           if ((! isEndTime) && (maxTime < assign.getEndTime()))
@@ -228,7 +228,8 @@ public class Scheduler {
         MultitaskAssignment[] multi = resources[i].getMultitaskAssignments();
         for (int j = 0; j < multi.length; j++) {
           if (updateActivity (multi[j], maxTime)) {
-            multi[j].setColor (specs.getColor (multi[j].getTasks()));
+            multi[j].setColor (specs.getColor (multi[j].getTasks(),
+                                               SchedulingSpecs.GROUPED_TASKS));
             multi[j].setText (specs.groupedText (multi[j].getTasks()));
             text.append (multi[j].xmlString (reportFrozen)).append ("\n");
           }

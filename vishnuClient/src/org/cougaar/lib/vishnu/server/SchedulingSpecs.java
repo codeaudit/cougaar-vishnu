@@ -3,11 +3,10 @@ package org.cougaar.lib.vishnu.server;
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.awt.Color;
 
 /**
@@ -162,34 +161,11 @@ public class SchedulingSpecs {
       cachedCapableResources = new HashMap();
       for (int i = 0; i < tasks.length; i++) {
         ArrayList capable = new ArrayList();
-		/*
-		  for (int j = 0; j < resources.length; j++) {
-          if (isCapable (tasks[i], resources[j])) {
+        data.put ("task", tasks[i]);
+        for (int j = 0; j < resources.length; j++)
+          if (isCapable (resources[j]))
             capable.add (resources[j]);
-		*/
-
-		// avoids pushing and popping the same task resource.length times
-		isCapableSetTask (tasks[i]);
-		
-		for (int j = 0; j < resources.length; j++) {
-          if (isCapableConstantTask (resources[j])) {
-            capable.add (resources[j]);
-
-		isCapableClearTask ();
-
-	    if (debug)
-	      System.out.println ("SchedulingSpecs.capableResources - " +
-                                  resources[j].getKey() + "(" + j + " of " +
-                                  resources.length + ")" +
-				  " is capable of doing " + tasks[i].getKey());
-	  } else {
-	    if (debug)
-	      System.out.println ("SchedulingSpecs.capableResources - " +
-                                  resources[j].getKey() + "(" + j + " of " +
-                                  resources.length + ")" +
-				  " is NOT capable of doing " + tasks[i].getKey());
-	  }
-        }
+        data.remove ("task");
         Resource[] arr = new Resource [capable.size()];
         cachedCapableResources.put (tasks[i].getKey(), capable.toArray (arr));
       }
@@ -197,50 +173,8 @@ public class SchedulingSpecs {
     return (Resource[]) cachedCapableResources.get (task.getKey());
   }
 
-  public boolean isCapable (Task task, Resource resource) {
-    if (capabilityConstraint == null)
-      return true;
-    data.put ("task", task);
-    data.put ("resource", resource);
-    Boolean b = (Boolean) capabilityConstraint.getResult (data);
-    data.remove ("task");
-    data.remove ("resource");
-    reuse.resetObjects();
-    if (b == null)
-      return true;
-    return b.booleanValue();
-  }
-
-  /** 
-   * meant to be called in order :
-   * isCapableSetResource, isCapableConstantResource (n times), isCapableClearResource
-   */
-  public void isCapableSetResource (Resource resource) {
-    data.put ("resource", resource);
-  }
-  
-  public boolean isCapableConstantResource (Task task) {
-    if (capabilityConstraint == null)
-      return true;
-    data.put ("task", task);
-    Boolean b = (Boolean) capabilityConstraint.getResult (data);
-    data.remove ("task");
-    reuse.resetObjects();
-    if (b == null)
-      return true;
-    return b.booleanValue();
-  }
-
-  public void isCapableClearResource () {
-    data.remove ("resource");
-  }
-
-
-  public void isCapableSetTask (Task task) {
-    data.put ("task", task);
-  }
-  
-  public boolean isCapableConstantTask (Resource resource) {
+  /** assumes task is already set in data */
+  public boolean isCapable (Resource resource) {
     if (capabilityConstraint == null)
       return true;
     data.put ("resource", resource);
@@ -252,10 +186,6 @@ public class SchedulingSpecs {
     return b.booleanValue();
   }
 
-  public void isCapableClearTask () {
-    data.remove ("task");
-  }
-  
   public boolean ignoringTime() {
     return (((taskDurationCache == null) &&
              (setupDuration == null) &&
@@ -438,7 +368,7 @@ public class SchedulingSpecs {
             (linked == null));
   }
 
-  private List emptyList = new ArrayList ();
+  private ArrayList emptyList = new ArrayList ();
   
   public TimeBlock[] taskUnavailableTimes (Task task, Task[] prereqs,
                                            int startTime, int endTime,
@@ -452,10 +382,10 @@ public class SchedulingSpecs {
     if (taskUnavailableTimesCache == null)
       return blocks;
 
-	if (prereqs.length > 0)
-	  data.put ("prerequisites", new ArrayList (Arrays.asList (prereqs)));
-	else
-	  data.put ("prerequisites", emptyList);
+    if (prereqs.length > 0)
+      data.put ("prerequisites", new ArrayList (Arrays.asList (prereqs)));
+    else
+      data.put ("prerequisites", emptyList);
 
     data.put ("duration", new Reusable.RFloat ((float) duration));
     Object obj = taskUnavailableTimesCache.getResult (task, resource,
@@ -496,7 +426,7 @@ public class SchedulingSpecs {
       SchObject interval = (SchObject) list.get(i);
       int start = ((Reusable.RInteger) interval.getField ("start")).intValue();
       int end = ((Reusable.RInteger) interval.getField ("end")).intValue();
-      String color = getColor (interval);
+      String color = getColor (interval, ACTIVITY);
       String text = activityText (interval);
       int insert = findInsertPosition (blocks, start);
       int overlap = findNumOverlapping (blocks, end, insert);
@@ -643,14 +573,7 @@ public class SchedulingSpecs {
     return stringForObject (o);
   }
 
-  public String getColor (Object obj) {
-    int objType = -1;
-    if (obj instanceof Task)
-      objType = ColorTest.TASK;
-    else if (obj instanceof SchObject)
-      objType = ColorTest.ACTIVITY;
-    else
-      objType = ColorTest.GROUPED;
+  public String getColor (Object obj, int objType) {
     for (int i = 0; i < colorTests.size(); i++) {
       ColorTest test = (ColorTest) colorTests.get(i);
       if (test.passesTest (obj, objType))
@@ -663,11 +586,15 @@ public class SchedulingSpecs {
     return new SpecsHandler();
   }
 
-  private class ColorTest {
+  public static final int TASK = 0;
+  public static final int GROUPED_TASKS = 1;
+  public static final int SETUP = 2;
+  public static final int GROUPED_SETUP = 3;
+  public static final int WRAPUP = 4;
+  public static final int GROUPED_WRAPUP = 5;
+  public static final int ACTIVITY = 6;
 
-    public static final int TASK = 0;
-    public static final int GROUPED = 1;
-    public static final int ACTIVITY = 2;
+  private class ColorTest {
 
     private String color;
     private int objType = -1;
@@ -677,8 +604,16 @@ public class SchedulingSpecs {
       this.color = color;
       if (objType.equals ("task"))
         this.objType = TASK;
-      else if (objType.equals ("grouped"))
-        this.objType = GROUPED;
+      else if (objType.equals ("grouped_tasks"))
+        this.objType = GROUPED_TASKS;
+      else if (objType.equals ("setup"))
+        this.objType = SETUP;
+      else if (objType.equals ("grouped_setup"))
+        this.objType = GROUPED_SETUP;
+      else if (objType.equals ("wrapup"))
+        this.objType = WRAPUP;
+      else if (objType.equals ("grouped_wrapup"))
+        this.objType = GROUPED_WRAPUP;
       else if (objType.equals ("activity"))
         this.objType = ACTIVITY;
     }
@@ -690,19 +625,29 @@ public class SchedulingSpecs {
     boolean passesTest (Object obj, int objType) {
       if (this.objType != objType)
         return false;
-      if (objType == TASK)
+      switch (objType) {
+      case TASK: case SETUP: case WRAPUP:
         data.put ("task", obj);
-      else if (objType == ACTIVITY)
+        break;
+      case ACTIVITY:
         data.put ("interval", obj);
-      else if (objType == GROUPED)
+        break;
+      case GROUPED_TASKS: case GROUPED_SETUP: case GROUPED_WRAPUP:
         data.put ("tasks", new ArrayList (Arrays.asList ((Task[]) obj)));
+        break;
+      }
       Boolean b = (Boolean) test.getResult (data);
-      if (objType == TASK)
+      switch (objType) {
+      case TASK: case SETUP: case WRAPUP:
         data.remove ("task");
-      else if (objType == ACTIVITY)
+        break;
+      case ACTIVITY:
         data.remove ("interval");
-      else if (objType == GROUPED)
+        break;
+      case GROUPED_TASKS: case GROUPED_SETUP: case GROUPED_WRAPUP:
         data.remove ("tasks");
+        break;
+      }
       reuse.resetObjects();
       if (b == null)
         return false;
