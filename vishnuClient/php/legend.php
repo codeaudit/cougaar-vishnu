@@ -11,7 +11,7 @@
 // to create the image.
 
   Header("Content-Type: image/png");
-  require ("utilities.php");
+  require ("gantt.php");
   $width = getimagewidth();
   $keyheight = 14;
   $betweenheight = 3;

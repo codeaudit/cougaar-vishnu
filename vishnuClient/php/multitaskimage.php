@@ -10,6 +10,7 @@
 // Displays the percent of capacity versus time for each resource.
 
   require ("browserlink.php");
+  require ("gantt.php");
   require ("utilities.php");
   Header("Content-Type: image/png");
   $width = getimagewidth();

@@ -9,6 +9,7 @@
 // View the data and assignments for a particular resource
 
   require ("browserlink.php");
+  require ("gantt.php");
   require_once ("utilities.php");
   require ("editobject.php");
   require ("showobjects.php");
@@ -138,5 +139,39 @@
     echo "</TABLE>\n";
     linkToProblem ($problem);
     mysql_close();
+  }
+
+  function hintsForPage () {
+    global $action;
+    if ($action == "View") {
+?>
+This page shows both the Gantt chart for the given resource
+as well as the internal data for this resource.  With the
+"view" option, there are no actions with the internal data.
+(To edit this data, use the "edit" option.)
+However, there are a variety of actions associated with
+the assignment/Gantt data.
+<p>
+<? ganttHints(); ?>
+<p>
+The tasks/assignments displayed in the Gantt chart are
+selectable as links.  Clicking on one of the
+colored assignment regions will display the
+information associated with this assignment.  If the assignment
+is a single task, it will show the page for that task, and if
+the assignment has multiple tasks, it will display a list of
+these tasks along with the times.
+<p>
+<b>Note:</b> If this problem is an assignment problem rather than
+a scheduling problem (i.e., it has no concept of time), instead
+of the Gantt chart display will be just a list of all the tasks
+assigned to the resource.
+<?
+    } else if ($action == "View All")
+      showHints();
+    else if ($action == "Create")
+      hintsForCreate();
+    else if ($action == "Edit")
+      hintsForEdit();
   }
 ?>

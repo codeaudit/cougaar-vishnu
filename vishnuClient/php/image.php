@@ -11,6 +11,7 @@
 // end_time in the arguments of the URL
 
   require ("browserlink.php");
+  require ("gantt.php");
   require ("utilities.php");
   Header("Content-Type: image/png");
   $width = getimagewidth();

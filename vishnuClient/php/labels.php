@@ -10,7 +10,7 @@
 // Set the variables start_time and end_time as arguments in the URL
 
   Header("Content-Type: image/png");
-  require ("utilities.php");
+  require ("gantt.php");
   $tics = getticmarks ($start_time, $end_time);
   $numchars = $tics ? strlen ($tics[0][1]) : 5;
   $font = ($numchars > 5) ? 2 : 4;
