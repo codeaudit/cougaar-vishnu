@@ -11,7 +11,7 @@
 
   require_once ("utilities.php");
 
-  $textsize = 50;
+  $textsize = 40;
 
   function setupform ($str, $objecttype, $objectname, $problem,
                       $action, $key, $global) {
