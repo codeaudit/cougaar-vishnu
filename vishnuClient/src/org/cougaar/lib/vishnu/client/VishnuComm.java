@@ -55,8 +55,10 @@ public class VishnuComm {
 	setProblemName ();
 
 	// clears any pending jobs for this problem
-	if (!runInternal)
+	if (!runInternal) {
 	  postCancel ();
+	  postClear  ();
+	}
   }
 
   protected ParamMap   getMyParams    () { return myParamTable; }
@@ -290,9 +292,27 @@ public class VishnuComm {
 	  System.out.println (getName () + ".postCancel - reply was " + reply);
   }
 
+  public void postClear () {
+    StringBuffer sb = new StringBuffer ();
+    sb.append ("?" + "bogus=ferris&"); 
+    sb.append (getProblemPostVar  () + "&");
+    sb.append ("username=" + myUser + "&");
+    sb.append ("password=" + myPassword);
+
+    if (myExtraOutput)
+	  System.out.println (getName () + ".postClear - clearing data from previous runs " + 
+						  myProblem);
+
+	String clearDataMsg = sb + "&<PROBLEM NAME="+getProblem ()+"/><CLEARDATABASE" + '\\' + ">";
+
+	String reply = postToURL (hostName, postDataFile, clearDataMsg, null, true);
+    if (myExtraOutput)
+	  System.out.println (getName () + ".postClear - reply was " + reply);
+  }
+
   /** 
-   * bogus is sent first because <code>user</code> would not arrive 
-   * at php with it's value if it was sent first.  No idea why. 
+   * bogus is sent first because <code>user</code> would not arrive <br>
+   * at php with it's value if it was sent first.  No idea why.  <p>
    *
    * BOZO - Still a problem???
    */
