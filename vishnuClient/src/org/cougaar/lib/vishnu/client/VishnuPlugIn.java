@@ -720,9 +720,13 @@ public abstract class VishnuPlugIn
 								" got " + multi.length + " tasks assigned.");
 		  
 		  for (int j = 0; j < multi.length; j++) {
-			Task task = getTaskFromAssignment(multi[j].getTask().getKey());
-			if (task != null)
-			  tasks.add (task);
+			org.cougaar.lib.vishnu.server.Task [] multiTasks = multi[j].getTasks();
+			
+			for (int k = 0; k < multiTasks.length; k++) {
+			  Task task = getTaskFromAssignment(multiTasks[k].getKey());
+			  if (task != null)
+				tasks.add (task);
+			}
 		  }
 
 		  handleMultiAssignment (tasks, 
