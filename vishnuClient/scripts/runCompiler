@@ -1,2 +1,2 @@
-java -Dorg.cougaar.lib.vishnu.server.host=alp-107.alp.isotic.org -Dorg.cougaar.lib.vishnu.server.path="/~demo/TOPS/vishnu/php/" -Dorg.cougaar.lib.vishnu.server.Scheduler.php4=true -Dorg.cougaar.lib.vishnu.server.user=root -Dorg.cougaar.lib.vishnu.server.password="" -Dorg.cougaar.lib.vishnu.server.debugXML=false org.cougaar.lib.vishnu.server.ExpressionCompiler
+java -Dorg.cougaar.lib.vishnu.server.host=alp-107.alp.isotic.org -Dorg.cougaar.lib.vishnu.server.path="/~demo/TOPS/vishnu/php/" -Dorg.cougaar.lib.vishnu.server.user=root -Dorg.cougaar.lib.vishnu.server.password="" -Dorg.cougaar.lib.vishnu.server.debugXML=false org.cougaar.lib.vishnu.server.ExpressionCompiler
 
