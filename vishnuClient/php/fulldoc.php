@@ -2388,7 +2388,8 @@ how to get the Vishnu code installed and executing.
 
 By far, the easiest way to install the required web server setup is
 to use the product AbriaSQL Standard from
-<a href="http://www.abriasoft.com">Abriasoft</a>.
+<a href="http://www.abriasoft.com">Abriasoft</a>, or alternatively
+NuSphere MySQL from <a href="http://www.nusphere.com">NuSphere</a>.
 However, if you do not wish to pay for this product, or it does not
 work for your particular configuration, here is the step-by-step
 approach for a UNIX machine.

@@ -79,7 +79,9 @@
         versions of Apache, MySQL, PHP, and GD.
         The easiest way to install the Apache/MySQL/PHP/GD
         combination is to use AbriaSQL Standard from
-        <a href=\"http://www.abriasoft.com\">Abriasoft</a>.
+        <a href=\"http://www.abriasoft.com\">Abriasoft</a>, or
+        alternatively NuSphere MySQL from
+        <a href=\"http://www.nusphere.com\">NuSphere</a>.
         This will do the whole install automatically.
         If you prefer to do it yourself, there are instructions on how
         to install the Apache/MySQL/PHP/GD combination on a UNIX
