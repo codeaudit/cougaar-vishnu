@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Scheduler.java,v 1.16 2001-05-22 17:39:19 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Scheduler.java,v 1.17 2001-05-24 18:45:46 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -153,6 +153,7 @@ public class Scheduler {
           if (! canceled) {
             writeSchedule();
             writeCapacities();
+            writeCapabilities();
           }
           if (debug) reportTime ("Wrote schedule in ", start);
           ackProblem (100, null);
@@ -250,6 +251,27 @@ public class Scheduler {
 
     args.put ("data", text.toString());
     ClientComms.postToURL (args, "postcapacities.php");
+  }
+
+
+  private void writeCapabilities() {
+    Task[] tasks = data.getTasks();
+    StringBuffer text =
+      new StringBuffer (tasks.length * data.getResources().length * 20);
+    text.append ("<?xml version='1.0'?>\n<CAPABILITIES>\n");
+    for (int i = 0; i < tasks.length; i++) {
+      Resource[] resources = specs.capableResources (tasks[i], data);
+      for (int j = 0; j < resources.length; j++)
+        text.append ("<CAPABILITY task=\"" + tasks[i].getKey() +
+                     "\" resource=\"" + resources[j].getKey() + "\" />\n");
+    }
+    text.append ("</CAPABILITIES>\n");
+    if (showAssignments)
+      System.out.println ("Scheduler.writeCapabilities - " + text);
+
+    Map args = getArgs();
+    args.put ("data", text.toString());
+    ClientComms.postToURL (args, "postcapabilities.php");
   }
 
 
