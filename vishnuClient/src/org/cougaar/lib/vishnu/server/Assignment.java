@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Assignment.java,v 1.3 2001-04-12 17:50:30 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Assignment.java,v 1.4 2001-08-03 15:09:40 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -36,6 +36,8 @@ public class Assignment extends TimeBlock {
   public int getTaskStartTime() { return taskStartTime; }
   public int getTaskEndTime() { return taskEndTime; }
   public boolean getFrozen() { return frozen; }
+
+  public void setResource (Resource r) { resource = r; }
 
   public String toString() {
     return ("<ASSIGNMENT " + attributesString() + " />");

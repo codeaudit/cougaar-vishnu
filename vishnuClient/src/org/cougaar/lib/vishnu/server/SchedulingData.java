@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.26 2001-08-03 13:51:07 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.27 2001-08-03 15:09:40 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -77,6 +77,14 @@ public class SchedulingData {
     tasks.remove (key);
     primaryTasks.remove (task);
     frozenTasks.remove (task);
+  }
+
+  public void replaceTask (Task task) {
+    Object a = frozenTasks.get (getTask (task.getKey()));
+    removeTask (task.getKey());
+    addTask (task);
+    if (a != null)
+      frozenTasks.put (task, a);
   }
 
   public void freezeTask (Task task) {
@@ -176,6 +184,17 @@ public class SchedulingData {
       if ((a != null) && (a.getResource().getKey().equals (key)))
         frozenTasks.remove (ft[i]);
     }
+  }
+
+  public void replaceResource (Resource r) {
+    resources.remove (r.getKey());
+    Task[] ft = getFrozenTasks();
+    for (int i = 0; i < ft.length; i++) {
+      Assignment a = (Assignment) frozenTasks.get (ft[i]);
+      if ((a != null) && (a.getResource().getKey().equals (r.getKey())))
+        a.setResource (r);
+    }
+    addResource (r);
   }
 
   public Resource[] getResources() {
@@ -610,15 +629,19 @@ public class SchedulingData {
           object.addField (prefix + fieldname, ff.datatype,
                            atts.getValue ("value"), ff.is_key, false);
           if (ff.is_key && (object instanceof Task)) {
-            if (doingDeleted || doingChanged)
+            if (doingDeleted)
               removeTask (((Task) object).getKey());
-            if (doingNew || doingChanged)
+            else if (doingChanged)
+              replaceTask ((Task) object);
+            else if (doingNew)
               addTask ((Task) object);
           }
           if (ff.is_key && (object instanceof Resource)) {
-            if (doingDeleted || doingChanged)
+            if (doingDeleted)
               removeResource (((Resource) object).getKey());
-            if (doingNew || doingChanged)
+            else if (doingChanged)
+              replaceResource ((Resource) object);
+            else if (doingNew)
               addResource ((Resource) object);
           }
           if (predefined != null)
@@ -703,12 +726,12 @@ public class SchedulingData {
         doingDeleted = true;
       }
       else if (name.equals ("CLEARDATABASE")) {
-        Resource[] resources = getResources();
-        for (int i = 0; i < resources.length; i++)
-          removeResource (resources[i].getKey());
         Task[] tasks = getTasks();
         for (int i = 0; i < tasks.length; i++)
           removeTask (tasks[i].getKey());
+        Resource[] resources = getResources();
+        for (int i = 0; i < resources.length; i++)
+          removeResource (resources[i].getKey());
         globals.clear();
         globalTypes.clear();
       }
