@@ -625,6 +625,21 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 	// do expensive blackboard query
 	mpTask = getMPTask (previousTask.getParentTaskUID ());
       }
+      else {
+	// must do this, unfortunately
+	if (mpTaskCallback.getSubscription().getCollection().contains(mpTask)) {
+	  if (isInfoEnabled ()) {
+	    info (" - mptask " + mpTask.getUID() + " is on blackboard ");
+	  }
+	}
+	else {
+	  if (isInfoEnabled ()) {
+	    info (" - mptask " + mpTask.getUID() + " is NOT on blackboard ");
+	  }
+	  uidToMPTask.remove (mpTask.getUID());
+	  return false;
+	}
+      }
 
       if (mpTask == null) {
 	if (isInfoEnabled ()) {
