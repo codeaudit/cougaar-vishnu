@@ -53,6 +53,12 @@
                                   $colors[$color][1], $colors[$color][2]);
       $colorsused [$color] = $cnum;
     }
+    if (($left >= $width) || ($right < 0))
+      return;
+    if ($left < 0)
+      $left = 0;
+    if ($right >= $width)
+      $right = $width - 1;
     imagefilledrectangle ($im, $left, 0, $right, $height - 1, $black);
     imagefilledrectangle ($im, $left + 2, 2, $right - 2, $height - 3, $cnum);
     if ($tleft > $left) {
