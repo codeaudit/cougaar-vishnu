@@ -216,8 +216,12 @@ public abstract class VishnuPlugIn
 	return xmlProcessor.getDataXMLizer();
   }
 
-  protected VishnuConfig createVishnuConfig () { 
-	return new VishnuConfig  (getMyParams(), getName(), getClusterName()); 
+  protected VishnuConfig createVishnuConfig () {
+	String clusterName = myClusterName; 
+	if (didSpawn ())
+	  clusterName = getOriginalAgentID().getAddress();
+
+	return new VishnuConfig  (getMyParams(), getName(), clusterName); 
   }
 
   protected SchedulerLifecycle createExternalMode () {
@@ -365,7 +369,7 @@ public abstract class VishnuPlugIn
 	   Object asset = changedAssets.nextElement ();
 	   myChangedAssets.add (asset);
 	 }
-	 if (myExtraOutput)
+	 if (myExtraOutput || true)
 	   System.out.println (getName () + ".handleChangedAssets - got " + myChangedAssets.size () + 
 						   " changed assets.");
    }
