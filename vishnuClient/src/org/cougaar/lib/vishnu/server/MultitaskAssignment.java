@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/MultitaskAssignment.java,v 1.4 2001-08-06 15:23:29 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/MultitaskAssignment.java,v 1.5 2001-08-31 16:41:09 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -80,8 +80,15 @@ public class MultitaskAssignment extends Assignment {
   }
 
   public String toString() {
+    return xmlString (true);
+  }
+
+  public String xmlString (boolean reportFrozen) {
     String str = "<MULTITASK " + attributesString() + ">\n";
     for (int i = 0; i < tasks.length; i++)
+      if (reportFrozen ||
+          (tasks[i].getAssignment() == null) ||
+          (! tasks[i].getAssignment().getFrozen()))
       str = str + "<TASK task=\"" + tasks[i].getKey() + "\"/>\n";
     str = str + "</MULTITASK>\n";
     return str;

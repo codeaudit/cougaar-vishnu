@@ -39,7 +39,7 @@ import java.util.StringTokenizer;
 
 public class Scheduler {
 
-  private long waitInterval = 5000;
+  private long waitInterval = 1000;
   private String problem;
   private String probNumber;
   private SchedulingData data = null;
@@ -186,7 +186,7 @@ public class Scheduler {
   /** Write all the XML representation of assignments to a URL */
   private void writeSchedule() {
     Map args = getArgs();
-    String str = getXMLAssignments (false);
+    String str = getXMLAssignments (false, true);
     if (showAssignments)
       System.out.println ("Scheduler.writeSchedule - " + str);
 
@@ -195,7 +195,7 @@ public class Scheduler {
   }
 
   /** Compute the XML representation of assignments */
-  public String getXMLAssignments (boolean internal) {
+  public String getXMLAssignments (boolean internal, boolean reportFrozen) {
     Date start = null;
     if (debug) start = new Date ();
     Task[] tasks = data.getTasks();
@@ -206,7 +206,7 @@ public class Scheduler {
     if ((! internal) || (! assignmentsMultitask())) {
       for (int i = 0; i < tasks.length; i++) {
         Assignment assign = tasks[i].getAssignment();
-        if (assign != null) {
+        if ((assign != null) && (reportFrozen || (! assign.getFrozen()))) {
           assign.setColor (specs.getColor (tasks[i]));
           assign.setText (specs.taskText (tasks[i]));
           text.append (assign).append ("\n");
@@ -230,7 +230,7 @@ public class Scheduler {
           if (updateActivity (multi[j], maxTime)) {
             multi[j].setColor (specs.getColor (multi[j].getTasks()));
             multi[j].setText (specs.groupedText (multi[j].getTasks()));
-            text.append (multi[j]).append ("\n");
+            text.append (multi[j].xmlString (reportFrozen)).append ("\n");
           }
         }
       }
@@ -504,14 +504,15 @@ public class Scheduler {
    * @param initialize true if this problem is new, false if continuing
    *        existing problem
    */
-  public String runInternalToProcess (String problem, boolean initialize) {
+  public String runInternalToProcess (String problem, boolean initialize,
+                                      boolean reportFrozen) {
     setupInternal (problem, initialize);
     scheduleInternal();
-    return getXMLAssignments (true);
+    return getXMLAssignments (true, reportFrozen);
   }
 
   public String runInternalToProcess (String problem) {
-    return runInternalToProcess (problem, true);
+    return runInternalToProcess (problem, true, false);
   }
 
 
