@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchObject.java,v 1.7 2001-08-07 23:31:39 gvidaver Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchObject.java,v 1.8 2002-02-09 03:20:28 gvidaver Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -77,6 +77,9 @@ public class SchObject {
     else
       data.put (name, value);
   }
+
+  /** no checking, just put name-value pair in hashmap */
+  public void addObject(String name, Object value) {   data.put (name, value);  }
 
   public void addFloat (String name, float value) {
 	data.put (name, new Reusable.RFloat (value));
