@@ -436,6 +436,10 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 	}
       }
       MPTask mpTask = getMPTask (previousTask.getParentTaskUID ());
+
+      if (mpTask == null)
+	return false; // the MP task was removed from the blackboard while scheduler was running
+
       // step 4 - add to d.o. of MPTask parent
       ((NewMPTask) mpTask).setDirectObject (directObject);
 
@@ -498,7 +502,10 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 	}
       });
 
-    return (MPTask) stuff.iterator().next ();
+    if (stuff.iterator().hasNext())
+      return (MPTask) stuff.iterator().next ();
+    else
+      return null;
   }
 
   protected Vector enumToVector (Enumeration enum) {
