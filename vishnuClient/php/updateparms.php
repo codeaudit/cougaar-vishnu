@@ -64,10 +64,10 @@
         "\", max_time=\"" . $maxtime .
         "\", max_duplicates=\"" . $dups .
         "\", max_top_dog_age=\"" . $tda .
-        "\", operator1_name=\"com.bbn.sched.OrderedMutation" .
+        "\", operator1_name=\"org.cougaar.lib.vishnu.server.OrderedMutation" .
         "\", operator1_prob=\"" . $mprob .
         "\", operator1_parms=\"" . $mfm .
-        "\", operator2_name=\"com.bbn.sched.OrderedCrossover" .
+        "\", operator2_name=\"org.cougaar.lib.vishnu.server.OrderedCrossover" .
         "\", operator2_prob=\"" . $xprob .
         "\", operator2_parms=\"\";");
     echo "<BR>Update Complete";
