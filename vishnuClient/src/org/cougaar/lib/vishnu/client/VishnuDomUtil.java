@@ -1,4 +1,4 @@
-/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/VishnuDomUtil.java,v 1.1 2001-02-15 22:27:57 gvidaver Exp $ */
+/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/VishnuDomUtil.java,v 1.2 2001-02-16 20:50:59 gvidaver Exp $ */
 
 package org.cougaar.lib.vishnu.client;
 
@@ -39,16 +39,21 @@ import org.xml.sax.helpers.ParserFactory;
 
 import org.cougaar.core.cluster.ClusterServesPlugIn;
 
-public class VishnuDomUtil {
+import org.cougaar.lib.param.ParamTable;
 
-  boolean showTiming;
-  String name;
-  ClusterServesPlugIn cluster;
-  
-  public VishnuDomUtil (boolean showTiming, String name, ClusterServesPlugIn cluster) {
-	this.showTiming = showTiming;
+public class VishnuDomUtil {
+  public VishnuDomUtil (ParamTable myParamTable, String name, ClusterServesPlugIn cluster) {
+	this.myParamTable = myParamTable;
 	this.name = name;
 	this.cluster = cluster;
+  }
+  
+  protected ParamTable getMyParams () {	return myParamTable;  }
+
+  protected void localSetup () 
+  {
+    try {showTiming = getMyParams().getBooleanParam("showTiming");}    
+    catch(Exception e) {showTiming = false;}
   }
   
   protected String getDocAsString (Document doc) {
@@ -271,4 +276,10 @@ public class VishnuDomUtil {
 			 " free "  + (rt.freeMemory  ()/(1024*1024)) + "M" +
 			 " total " + (rt.totalMemory ()/(1024*1024)) + "M");
   }
+
+  protected ParamTable myParamTable;
+
+  boolean showTiming;
+  String name;
+  ClusterServesPlugIn cluster;
 }
