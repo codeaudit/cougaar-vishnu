@@ -1,4 +1,4 @@
-/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/VishnuDomUtil.java,v 1.3 2001-06-28 23:27:43 gvidaver Exp $ */
+/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/VishnuDomUtil.java,v 1.4 2001-07-18 15:41:29 gvidaver Exp $ */
 
 package org.cougaar.lib.vishnu.client;
 
@@ -255,7 +255,7 @@ public class VishnuDomUtil {
    * @param start since when
    * @param prefix meaning of time difference
    */
-  protected void reportTime (String prefix, Date start) 
+  public void reportTime (String prefix, Date start) 
   {
     Runtime rt = Runtime.getRuntime ();
     Date end = new Date ();

@@ -255,7 +255,7 @@ public class VishnuConfig {
    * set the parameter to the name of the file.
    * </pre>
    */
-  protected String getNeededFile (String paramName, String defaultSuffix) {
+  public String getNeededFile (String paramName, String defaultSuffix) {
     String envFile  = null;
 	
     try {
