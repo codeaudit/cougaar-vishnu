@@ -732,10 +732,6 @@ public abstract class VishnuPlugIn
 	 if (vishnuResources.size () != data.getResources().length)
 	   System.out.println(getName () + ".runDirectly - ERROR - data says only " + 
 						  data.getResources().length + " resources.");
-
-	 if (showTiming) {
-	   domUtil.reportTime (".addTasksDirectly - added tasks in ", start);
-	 }
    }
 
    protected void directlyHandleAssignments (Scheduler sched, SchedulingData data,
