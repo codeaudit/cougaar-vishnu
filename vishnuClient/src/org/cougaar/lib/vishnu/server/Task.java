@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Task.java,v 1.7 2001-07-29 21:33:01 gvidaver Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Task.java,v 1.8 2001-08-13 20:25:15 gvidaver Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -21,16 +21,13 @@ public class Task extends SchObject {
   private Task[] prerequisites;
   private boolean[] groupableTasks = null;
   private boolean[] ungroupableTasks = null;
-  private int myNum = 0;
-
-  private static int num = 0;
-  private Object mutex = new Object(); // synchronizes access to num
+  private int myNum;
+  protected GroupingInfo groupingInfo;
   
-  public Task (TimeOps timeOps) {
+  public Task (TimeOps timeOps, GroupingInfo groupingInfo) {
     super (timeOps);
-	synchronized (mutex) {
-	  myNum = ++num;
-	}
+	this.groupingInfo = groupingInfo;
+	myNum = groupingInfo.taskCounter++;
   }
 
   public Assignment getAssignment()  { return assignment; }
@@ -55,30 +52,23 @@ public class Task extends SchObject {
   }
 
   public boolean groupableWith (Task task, SchedulingSpecs specs) {
-    if (groupableTasks == null) {
-	  synchronized (mutex) {
-		groupableTasks = new boolean [num + 1];
-		ungroupableTasks = new boolean [num + 1];
-	  }
-      if (! specs.hasGroupableSpec()) {
-        java.util.Arrays.fill (groupableTasks, true);
-        return true;
-      }
-    }
-    else {
-      if (groupableTasks [task.myNum])
-        return true;
-      if (ungroupableTasks [task.myNum])
-        return false;
-    }
+	try {
+	  if (groupingInfo.isGroupable(task.myNum, specs))
+		return true;
+	} catch (Exception e) {
+	  System.out.println ("groupableTasks length = " + groupableTasks.length + " task num " + task.myNum);
+	}
+	
+	if (groupingInfo.isUngroupable (task.myNum))
+	  return false;
 
     if (specs.areGroupable (this, task) &&
         specs.areGroupable (task, this)) {
-      groupableTasks [task.myNum] = true;
+      groupingInfo.setGroupable (task.myNum);
       return true;
     }
     else {
-      ungroupableTasks [task.myNum] = true;
+      groupingInfo.setUngroupable (task.myNum);
       return false;
     }
   }
