@@ -90,12 +90,22 @@
   }
 
   // write tasks
-  $result = mysql_db_query ("vishnu_prob_" . $problem,
-               "select obj_" . $taskkey . " from obj_" . $taskobject . ";");
-  if (!$result) {
-    echo "data.php - error on query - " . mysql_error ();
-    echo " sql=" . "select obj_" . $taskkey . " from obj_" . $taskobject . ";";
+  $is_multitask = ismultitask ($problem);
+  if ($is_multitask)
+    $sql = "select obj_$taskkey from obj_$taskobject;";
+  else {
+    $sql = "select obj_$taskkey from obj_$taskobject left join " .
+           "assignments on obj_$taskkey = task_key where " .
+           "(frozen is null) or (frozen = \"no\") or ";
+    if ($window["end_time"])
+      $sql .= "((setup_time < \"" . $window["end_time"] . "\") and " .
+              "(wrapup_time > \"" . $window["start_time"] . "\"));";
+    else
+      $sql .= "(wrapup_time > \"" . $window["start_time"] . "\");";
   }
+  $result = mysql_db_query ("vishnu_prob_$problem", $sql);
+  if (!$result)
+    echo "data.php - error on query - " . mysql_error () . " sql=$sql";
 
   while ($value = mysql_fetch_row ($result)) {
     echo "<TASK>\n";
@@ -138,8 +148,17 @@
   mysql_free_result ($result);
 
   // write frozen assignments
-  $result = mysql_db_query ("vishnu_prob_" . $problem,
-              "select * from assignments where frozen = \"yes\";");
+  if ($is_multitask)
+    $sql = "select * from assignments where frozen = \"yes\";";
+  else {
+    $sql = "select * from assignments where frozen = \"yes\" and ";
+    if ($window["end_time"])
+      $sql .= "((setup_time < \"" . $window["end_time"] . "\") and " .
+              "(wrapup_time > \"" . $window["start_time"] . "\"));";
+    else
+      $sql .= "(wrapup_time > \"" . $window["start_time"] . "\");";
+  }
+  $result = mysql_db_query ("vishnu_prob_$problem", $sql);
   while ($value = mysql_fetch_array ($result)) {
     echo "<FROZEN task=\"" . $value["task_key"] .
          "\" resource =\"" . $value["resource_key"] .

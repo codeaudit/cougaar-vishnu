@@ -272,6 +272,14 @@
 </td>
 </tr>
 
+<tr>
+<td ALIGN=CENTER colspan=2>
+<font size=+2>
+<a href="copyproblem.php?problem=<? echo $problem; ?>"/>Copy Problem</a>
+</font>
+</td>
+</tr>
+
 </table>
 <TABLE CELLPADDING=0><TR><TD><TD></TR></TABLE>
 

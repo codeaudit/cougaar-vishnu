@@ -3,11 +3,27 @@
 
   Header("Content-Type: text/plain");
   require ("clientlink.php");
+  require ("utilities.php");
 
+  function getsql ($a, $is_multitask, $window) {
+    if ($is_multitask)
+      return "delete from $a;";
+    else {
+      $sql = "delete from $a where (frozen = \"no\") or ";
+      if ($window["end_time"])
+        return $sql . "((setup_time < \"" . $window["end_time"] . "\") " .
+               "and (wrapup_time > \"" . $window["start_time"] . "\"));";
+      else
+        return $sql . "(wrapup_time > \"" . $window["start_time"] . "\");";
+    }
+  }
+
+  $is_multitask = ismultitask ($problem);
+  $window = getwindow ($problem);
   $result = mysql_db_query ("vishnu_prob_" . $problem,
-                            "delete from assignments;");
+                getsql ("assignments", $is_multitask, $window));
   $result = mysql_db_query ("vishnu_prob_" . $problem,
-                            "delete from multitaskassignments;");
+                getsql ("multitaskassignments", $is_multitask, $window));
   $result = mysql_db_query ("vishnu_prob_" . $problem,
                             "delete from activities;");
 
@@ -52,8 +68,11 @@
     }
   }
 
+  function endHandler ($parser, $name) {
+  }
+
   $parser = xml_parser_create();
-  xml_set_element_handler ($parser, "startHandler", "");
+  xml_set_element_handler ($parser, "startHandler", "endHandler");
   xml_parse ($parser, StripSlashes($data));
   echo "SUCCESS\n";
 ?>

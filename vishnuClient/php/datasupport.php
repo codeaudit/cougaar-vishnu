@@ -34,7 +34,7 @@
     echo "<OBJECT type=\"" . $type . "\" >\n";
     $result2 = mysql_db_query ("vishnu_prob_" . $problem,
                   "select * from obj_" . $type . " where obj_" .
-                  keyfortype ($type, $problem) . " = \"" . $key . "\";");
+                  keyfortype2 ($type, $problem) . " = \"" . $key . "\";");
     $value2 = mysql_fetch_array ($result2);
     $result = mysql_db_query ("vishnu_prob_" . $problem,
                   "select * from object_fields where object_name = \"" .
@@ -87,7 +87,7 @@
 
   $keys = array();
 
-  function keyfortype ($type, $problem) {
+  function keyfortype2 ($type, $problem) {
     global $keys;
     if ($key = $keys["type"])
       return $key;
@@ -123,7 +123,7 @@
     $types = gettoptypes ($problem);
     for ($i = 0; $i < sizeof ($types); $i++) {
       $result = mysql_db_query ("vishnu_prob_" . $problem,
-                     "select obj_" . keyfortype ($types[$i], $problem) .
+                     "select obj_" . keyfortype2 ($types[$i], $problem) .
                      " from obj_" . $types[$i] . ";");
       while ($value = mysql_fetch_row ($result))
         writeobject ($types[$i], $value[0], $problem);

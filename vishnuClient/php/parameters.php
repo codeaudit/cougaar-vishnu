@@ -36,12 +36,12 @@
 <tr><td nowrap><font size=+1>
 Start (default = now)
 </td><td>
-<INPUT type=text size=20 name=start value=<? echo $window["start_time"]?>>
+<INPUT type=text size=20 name=start value="<? echo $window["start_time"]?>">
 </font></td><td></td></tr>
 <tr><td nowrap><font size=+1>
 End (default = end of time)
 </td><td>
-<INPUT type=text size=20 name=end value=<? echo $window["end_time"]?>>
+<INPUT type=text size=20 name=end value="<? echo $window["end_time"]?>">
 </font></td><td></td></tr>
 <tr><td></td></tr>
 <tr><td></td></tr>
