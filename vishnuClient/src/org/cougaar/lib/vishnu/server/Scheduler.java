@@ -1,15 +1,11 @@
 package org.cougaar.lib.vishnu.server;
 
 import org.apache.xerces.parsers.SAXParser;
-
 import org.xml.sax.helpers.DefaultHandler;
-
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-
 import java.io.*;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -125,25 +121,13 @@ public class Scheduler {
           if (debug) System.out.println ("Did ack.");
           timeOps = new TimeOps();
           Date start = new Date();
-          error = readSpecs();
+          error = readProblem();
           if (error != null)
             throw error;
-          if (debug) System.out.println ("Read specs.");
-
-          start = new Date();
-          error = readData();
-          if (error != null)
-            throw error;
-          if (debug)
-            reportTime ("Scheduler read data in ", start);
-
-          start = new Date();
           specs.initializeData (data);
           data.initialize (specs);
-          error = setupGA();
-          if (error != null)
-            throw error;
-          if (debug) reportTime ("Set up ga in ", start);
+          if (debug)
+            reportTime ("Read problem and initialized in ", start);
 
           canceled = false;
           start = new Date();
@@ -339,7 +323,11 @@ public class Scheduler {
     return str.indexOf ("canceled") != -1;
   }
 
-  private Exception readData() {
+  private Exception readProblem() {
+    specs = new SchedulingSpecs (timeOps);
+    data = new SchedulingData (timeOps);
+    ga = new GeneticAlgorithm (this);
+
     Map args = getArgs();
     StringBuffer text = new StringBuffer (2048);
     Map accesses = specs.allObjectAccesses();
@@ -355,18 +343,8 @@ public class Scheduler {
     }
     args.put ("fields", text.toString());
 
-    data = new SchedulingData (timeOps);
-    return ClientComms.readXML (args, "data.php", data.getXMLHandler());
-  }
-
-  private Exception readSpecs() {
-    specs = new SchedulingSpecs (timeOps);
-    return ClientComms.readXML (getArgs(), "specs.php", specs.getXMLHandler());
-  }
-
-  private Exception setupGA() {
-    ga = new GeneticAlgorithm (this);
-    return ClientComms.readXML (getArgs(), "gaparms.php", ga.getXMLHandler());
+    return ClientComms.readXML (args, "getproblem.php",
+                                new ProblemHandler());
   }
 
   private Map getArgs() {
@@ -484,7 +462,7 @@ public class Scheduler {
 	ga = new GeneticAlgorithm (this);
 	data = new SchedulingData (timeOps);
 	parser = new SAXParser();
-	parser.setContentHandler (new InternalRequestHandler());
+	parser.setContentHandler (new ProblemHandler());
     try {
 	  parser.setFeature("http://xml.org/sax/features/validation",
 						validatingInternalParser);
@@ -592,8 +570,8 @@ public class Scheduler {
     text.append (timeOps.timeToString (assign.getEndTime()));
   }
 
-  private class InternalRequestHandler extends DefaultHandler {
-    DefaultHandler dataHandler = data.getInternalXMLHandler();
+  private class ProblemHandler extends DefaultHandler {
+    DefaultHandler dataHandler = data.getXMLHandler();
     DefaultHandler specsHandler = specs.getXMLHandler();
     boolean handlingSpecs = false;
     DefaultHandler gaHandler = ga.getXMLHandler();

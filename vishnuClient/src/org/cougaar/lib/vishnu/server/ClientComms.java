@@ -140,11 +140,12 @@ public class ClientComms {
     } catch (ConnectException ce) {
       return printDiagnostic (ce, stringURL);
     } catch (Exception e) {
-      System.err.println ("ClientComms.readXML - Got exception : " + e.getMessage());
+      System.err.println ("ClientComms.readXML - Got exception : " +
+                          e.getMessage());
 //      e.printStackTrace();
       try {
 	  System.out.println ("ClientComms.readXML - returned html was :\n" +
-						  testURL (new URL (stringURL)));
+                              testURL (new URL (stringURL)));
       } catch (Exception ee) {}
       return e;
     }

@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.28 2001-08-03 16:55:40 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.29 2001-08-03 21:43:57 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -407,111 +407,6 @@ public class SchedulingData {
    * Now supports nested lists, nested objects.
    */
   private class DataHandler extends DefaultHandler {
-    private String keyValue;
-
-    private FastStack names = new FastStack();
-    private FastStack types = new FastStack();
-    private FastStack stack = new FastStack();
-    
-    public void startElement (String uri, String local,
-                              String name, Attributes atts) {
-      if (name.equals ("FIELD")) {
-        if (atts.getValue ("list") != null) {
-          SchObject object = (SchObject) stack.peek();
-		  object.addListField (atts.getValue ("name"));
-        } else if (atts.getValue ("obj") != null) {
-        } else {
-          boolean iskey = atts.getValue ("key") != null;
-          SchObject o = (SchObject) stack.peek();
-	  
-          o.addField (atts.getValue ("name"), atts.getValue ("type"),
-                      atts.getValue ("value"), iskey, false);
-          if (iskey)
-            keyValue = atts.getValue ("value");
-        }
-        names.push (atts.getValue ("name"));
-        types.push (atts.getValue ("type"));
-      }
-      else if (name.equals ("OBJECT")) {
-        stack.push (new SchObject (timeOps));
-      }
-      else if (name.equals ("TASK"))
-        stack.push (new Task (timeOps));
-      else if (name.equals ("RESOURCE"))
-        stack.push (new Resource (timeOps));
-      else if (name.equals ("GLOBAL")) {
-        stack.push (new SchObject (timeOps));
-        globals.put (atts.getValue ("name"), stack.peek ());
-        globalTypes.put (atts.getValue ("name"), atts.getValue ("type"));
-      }
-      else if (name.equals ("WINDOW")) {
-        startTime = timeOps.stringToTime (atts.getValue ("start"));
-        if ((atts.getValue ("end") != null) &&
-            (! atts.getValue ("end").equals ("")))
-          endTime = timeOps.stringToTime (atts.getValue ("end"));
-      }
-      else if (name.equals ("VALUE")) {
-        SchObject object = (SchObject) stack.peek();
-        String nameForList = (String) names.peek ();
-        String typeForList = (String) types.peek ();
-        object.addField (nameForList, typeForList,
-                         atts.getValue ("value"), false, true);
-      }
-      else if (name.equals ("VALUE2")) {
-	stack.push (new SchObject (timeOps));
-      }
-      else if (name.equals ("OBJECT")) {
-	stack.push (new SchObject (timeOps));
-      }
-      else if (name.equals ("FROZEN")) {
-        freezeTask (atts.getValue ("task"), atts.getValue ("resource"),
-                    atts.getValue ("start"), atts.getValue ("end"));
-      }
-      else if (! name.equals ("DATA"))
-        System.out.println ("SchedulingData.startElement - " + 
-                            "Unknown tag in scheduling data: " + name);
-    }
-
-    public void endElement (String uri, String local, String name) {
-      if (name.equals ("FIELD")) {
-        names.pop ();
-        types.pop ();
-      }
-      else if (name.equals ("OBJECT")) {
-        String nameForInner = (String) names.peek ();
-        String typeForInner = (String) types.peek ();
-        Object innerObject  = stack.pop ();
-        SchObject object    = (SchObject) stack.peek ();
-        object.addField (nameForInner, typeForInner, innerObject,
-                         false, false);
-      }
-      else if (name.equals ("TASK")) {
-        addTask ((Task) stack.pop());
-      }
-      else if (name.equals ("RESOURCE")) {
-        addResource ((Resource) stack.pop());
-      }
-      else if (name.equals ("VALUE2")) {
-		String nameForList = (String) names.peek ();
-		String typeForList = (String) types.peek ();
-		Object listObject  = stack.pop ();
-		SchObject object   = (SchObject) stack.peek ();
-        object.addField (nameForList, typeForList, listObject, 
-						 false, true);
-      }
-    }
-  }
-
-
-
-  public DefaultHandler getInternalXMLHandler() {
-    return new InternalDataHandler();
-  }
-
-  /**
-   * Now supports nested lists, nested objects.
-   */
-  private class InternalDataHandler extends DefaultHandler {
 
     private String globalName = null;
     private String prefix = "";
@@ -556,7 +451,7 @@ public class SchedulingData {
       public SchObject object;
     }
 
-    public InternalDataHandler() {
+    public DataHandler() {
       super();
       FieldFormat numberFF = new FieldFormat ("number", false, false, false);
       FieldFormat stringFF = new FieldFormat ("string", false, false, false);
