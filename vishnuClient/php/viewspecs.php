@@ -20,7 +20,7 @@
 
   function getTitle () {
     global $problem;
-    echo "Scheduling specs for $problem";
+    echo "Scheduling logic for $problem";
   }
 
   function getHeader() {
@@ -28,7 +28,7 @@
 
   function getSubheader() { 
     global $problem;
-    echo "Scheduling specifications for <font color=\"green\">" .
+    echo "Scheduling logic for <font color=\"green\">" .
          $problem . "</font>\n";
   }
 
@@ -311,11 +311,11 @@
               "&objtype=" . $value["obj_type"];
       $href = htmlspecialchars ($href);
       echo "<TR><TD bgcolor=\"#e1e1e1\">" .
-           "<A HREF=\"" . $href . "\"><IMG SRC=\"rect.php?red=" .
+           "<nobr>&nbsp;<A HREF=\"" . $href . "\"><IMG SRC=\"rect.php?red=" .
            $value2["red"] . "&green=" . $value2["green"] . "&blue=" .
            $value2["blue"] . "\"></A>" .
            "<FONT color=\"" . $color . "\">&nbsp;" .
-           $value["color"] . "</FONT></TD><TD align=center>" .
+           $value["color"] . "&nbsp;</nobr></FONT></TD><TD align=center>" .
            $value["obj_type"] .
            "</TD><TD align=center>" . $value["title"] .
            "</TD><TD><FONT face=\"courier\">" . $exp . "</font></TD></TR>\n";
@@ -326,5 +326,38 @@
          "\">click here</A> to add new color spec.<BR><BR>\n";
     mysql_close();
     linkToProblem ($problem);
+  }
+
+  function hintsForPage () {
+?>
+This page displays the current state of the problem-specific
+scheduling logic and provides links for editing of this logic.
+It is best to familiarize yourself with <a href="fulldoc.php#specs">
+how the problem-specific scheduling logic works</a> before
+attempting to use this page.
+<p>
+The scheduling logic consists of a set of named constraints/hooks.
+Most of the constraints/hooks have an associated formula, while a
+few of the hooks have instead a value selected from a multiple-choice
+list.  Each hook also has an associated default value, and the
+formula-based hooks that have no associated formula will always
+evaluated to this default value.
+<p>
+To edit the value of a hook, just click on the name and you will
+be taken to a page for editing the formula or picking a value.
+This page will also explain briefly about the purpose of the
+constraint.
+An alternative means of selecting a hook to edit is the pick
+list under the table.
+<p>
+At the bottom of the page are the color specifications.
+These are in a separate table because they work a little
+differently.
+You can add and delete colors as well as modifying existing ones.
+Like the other constraints/hooks, each color has an associated
+formula.  Unlike the others, each color also has a legend entry
+used to identify what this color means and what type of object
+to apply it to.
+<?
   }
 ?>
