@@ -82,9 +82,9 @@ public class ALPXMLize extends BaseXMLize {
   }
 
   static Object monitor = new Object ();
-  static XMLize instance = new XMLize ();
+  static ALPXMLize instance = new ALPXMLize ();
   
-  public static XMLize getInstance () {
+  public static ALPXMLize getInstance () {
 	return instance;
   }
 
