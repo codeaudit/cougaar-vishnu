@@ -29,6 +29,8 @@ public class SchedulingSpecs {
 
   private boolean minimizing;
   private int multitasking;
+  private boolean setupColor;
+  private boolean wrapupColor;
   private ArrayList allExpressions = new ArrayList();
   private ResultProducer optimizationCriterion;
   private ResultProducer deltaCriterion;
@@ -100,11 +102,19 @@ public class SchedulingSpecs {
     return timeOps;
   }
 
-  public boolean isMinimizing() {
+  public final boolean isMinimizing() {
     return minimizing;
   }
 
-  public int getMultitasking() {
+  public final boolean doSetupColor() {
+    return setupColor;
+  }
+
+  public final boolean doWrapupColor() {
+    return wrapupColor;
+  }
+
+  public final int getMultitasking() {
     return multitasking;
   }
 
@@ -793,6 +803,8 @@ public class SchedulingSpecs {
           multitasking = MULTITASKING_UNGROUPED;
         else if (mt.equals ("ignoring_time"))
           multitasking = MULTITASKING_IGNORING_TIME;
+        setupColor = "color".equals (atts.getValue ("setupdisplay"));
+        wrapupColor = "color".equals (atts.getValue ("wrapupdisplay"));
       }
       else if ((! name.equals ("SPECS")) &&
                (! name.equals ("OPTCRITERION")) &&

@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Assignment.java,v 1.7 2001-08-06 17:22:20 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Assignment.java,v 1.8 2001-09-07 18:39:14 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -19,6 +19,8 @@ public class Assignment extends TimeBlock {
   private int taskEndTime;
   private int taskStartTime;
   private boolean frozen = false;
+  private String setupColor = null;
+  private String wrapupColor = null;
 
   public Assignment (Task task, Resource resource, int startTime,
                      int taskStartTime, int taskEndTime, int endTime,
@@ -38,6 +40,8 @@ public class Assignment extends TimeBlock {
   public boolean getFrozen() { return frozen; }
 
   public void setResource (Resource r) { resource = r; }
+  public void setSetupColor (String c) { setupColor = c; }
+  public void setWrapupColor (String c) { wrapupColor = c; }
 
   public String toString() {
     return ("<ASSIGNMENT task=\"" + task.getKey() + "\" " +
@@ -46,11 +50,18 @@ public class Assignment extends TimeBlock {
   }
 
   public String attributesString() {
-    return ("resource=\"" + resource.getKey()
-            + "\" setup=\"" + timeOps.timeToString (getStartTime())
-            + "\" start=\"" + timeOps.timeToString (getTaskStartTime())
-            + "\" end=\"" + timeOps.timeToString (getTaskEndTime())
-            + "\" wrapup=\"" + timeOps.timeToString (getEndTime())
-            + "\" " + displayAttributes());
+    StringBuffer text = new StringBuffer (200);
+    text.append("resource=\"").append(resource.getKey()).append
+      ("\" setup=\"").append(timeOps.timeToString (getStartTime())).append
+      ("\" start=\"").append(timeOps.timeToString (getTaskStartTime())).append
+      ("\" end=\"").append(timeOps.timeToString (getTaskEndTime())).append
+      ("\" wrapup=\"").append(timeOps.timeToString (getEndTime())).append
+      ("\" ").append
+      (((setupColor == null) ? "" :
+       ("setupcolor=\"" + setupColor + "\" "))).append
+      (((wrapupColor == null) ? "" :
+       ("wrapupcolor=\"" + wrapupColor + "\" "))).append
+      (displayAttributes());
+    return new String (text);
   }
 }
