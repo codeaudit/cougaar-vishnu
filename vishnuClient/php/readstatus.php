@@ -11,7 +11,10 @@
                               "select * from scheduler_request where " .
                               "problem = \"" . $problem . "\";");
     $value = mysql_fetch_array ($result);
-    $retval = "percent_complete=" . ($value ? $value["percent_complete"] : -1) . "\n";
+    $retval = "percent_complete=" .
+              ($value ? $value["percent_complete"] : -1) . "\n";
+    if ($value["error_message"])
+      $retval .= "error=" . $value["error_message"] . "\n";
     mysql_free_result ($result);
     mysql_close();
 
