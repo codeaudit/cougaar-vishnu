@@ -68,11 +68,25 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+/**
+ * A simple expander base class.  
+ *
+ * Must subclass to get full behavior.  
+ *
+ * Especially consider overriding handleAssignment to make the subtasks 
+ * appropriate for your application.
+ *
+ * @see #handleAssignment
+ */
 public class VishnuExpanderPlugin extends VishnuPlugin implements UTILExpanderPlugin {
   /**
    * Provide the callback that is paired with the buffering thread, which is a
    * listener.  The buffering thread is the listener to the callback
    *
+   * Creates an instance of the ExpandableTaskCallback, which means the plugin
+   * is looking for tasks that are naked, and not yet expanded or part of workflows.
+   *
+   * @param bufferingThread -- the thread the callback informs when there are new input tasks
    * @return an ExpandableTaskCallback with the buffering thread as its listener
    * @see org.cougaar.lib.callback.UTILWorkflowCallback
    */
@@ -224,17 +238,26 @@ public class VishnuExpanderPlugin extends VishnuPlugin implements UTILExpanderPl
   }
 
   /**
-   * if no asset could be found to handle the task, handle them in some way -
-   * Tasks that did not get expanded become failed expansions.
+   * Makes expansions given the task-to-asset assignment.<p>
+   * 
+   * If the task has a setup or wrapup duration, and expansion is made and
+   * then the subtasks get allocated with the setup and wrapup durations.  <p>
    *
-   * debugging may come on automatically
-   */
-  //  public void handleImpossibleTasks (List unallocatedTasks) {
-  //    super.handleImpossibleTasks (unallocatedTasks);
-  //  }
-
+   * Subclasses should override with a method that attaches information representing
+   * the assignment via a preposition and also call <code>makeSetupAndWrapupTasks</code> to 
+   * create the optional setup and wrapup tasks.  Probably a downstream allocator will
+   * use the preposition information to create an allocation to the assigned asset.
+   *
+   * @see org.cougaar.lib.vishnu.client.VishnuPlugin#makeSetupAndWrapupTasks
+   * @param task task being assigned to asset
+   * @param asset asset handling the task
+   * @param start start of the main task
+   * @param end   end   of the main task
+   * @param setupStart start of a setup task, equal to start if there is no setup task
+   * @param wrapupEnd  end   of a wrapup task, equal to end if there is no wrapup task
+   **/
   public void handleAssignment (Task task, Asset asset, Date start, Date end, Date setupStart, Date wrapupEnd) {
-	makeSetupWrapupExpansion (task, asset, start, end, setupStart, wrapupEnd);
+    makeSetupWrapupExpansion (task, asset, start, end, setupStart, wrapupEnd);
   }
 
   /** 
@@ -246,6 +269,11 @@ public class VishnuExpanderPlugin extends VishnuPlugin implements UTILExpanderPl
    */
   public void handleTask(Task t) {}
 
+  /**
+   * Here's where we react to a rescinded task.
+   * 
+   * does nothing by default 
+   */
   public void handleRemovedTask(Task t) {}
 
   /**

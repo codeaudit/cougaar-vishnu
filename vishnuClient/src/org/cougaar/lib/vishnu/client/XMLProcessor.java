@@ -55,14 +55,7 @@ import org.cougaar.util.ConfigFinder;
 import org.cougaar.planning.ldm.plan.Task;
 
 /**
- * ALP-Vishnu bridge.
- *
- * Base class for interacting with the Vishnu scheduler.
- *
- * Abstract because it does not define :
- *  - createThreadCallback
- * each of which is defined in the allocator, aggregator, and expander 
- * subclasses.
+ * Handles XML interaction...
  *
  * <!--
  * (When printed, any longer line will wrap...)

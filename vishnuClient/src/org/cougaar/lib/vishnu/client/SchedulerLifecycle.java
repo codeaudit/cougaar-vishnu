@@ -10,7 +10,10 @@ import org.w3c.dom.Document;
  * A mode has to deal with four basic steps (setup, initialize, prepare data, run).
  * <p>
  * It also has to deal with removed tasks, since the scheduler may have state associated
- * with past tasks.
+ * with past tasks. <p>
+ *
+ * Paired with the ModeListener.
+ * @see ModeListener
  */
 public interface SchedulerLifecycle {
   /** create scheduler, if needed */

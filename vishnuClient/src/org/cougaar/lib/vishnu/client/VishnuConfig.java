@@ -35,6 +35,10 @@ import java.util.Set;
 import org.cougaar.util.StringKey;
 import java.util.Stack;
 
+/** 
+ * Keeps track of configuration files <p>
+ * Also has methods for dealing with template tasks and prototypical resources for when in introspective mode. 
+ */
 public class VishnuConfig {
   private static String SPECS_SUFFIX = ".vsh.xml";
   private static String GA_SUFFIX = ".ga.xml";
@@ -43,14 +47,14 @@ public class VishnuConfig {
   private static String DFF_SUFFIX = ".dff.xml";
 
   public VishnuConfig (ParamMap myParamTable, String pluginName, String clusterName) {
-	this.myParamTable = myParamTable;
-	this.clusterName = clusterName;
-	this.name = pluginName;
+    this.myParamTable = myParamTable;
+    this.clusterName = clusterName;
+    this.name = pluginName;
 
-	try { myExtraOutput = getMyParams().getBooleanParam ("ExtraOutput");
-	} catch (Exception e) {}
-	try { myExtraExtraOutput = getMyParams().getBooleanParam ("ExtraExtraOutput");
-	} catch (Exception e) {}
+    try { myExtraOutput = getMyParams().getBooleanParam ("ExtraOutput");
+    } catch (Exception e) {}
+    try { myExtraExtraOutput = getMyParams().getBooleanParam ("ExtraExtraOutput");
+    } catch (Exception e) {}
   }
 
   protected String     getClusterName () { return clusterName;  }
@@ -77,13 +81,13 @@ public class VishnuConfig {
    * to determine how many of the tasks should be sent as templates.
    */
   protected List getTemplateTasks (List tasks, int firstTemplateTasks) {
-	List templateTasks = new ArrayList ();
-	int size = (tasks.size () < firstTemplateTasks) ?
-	  tasks.size () : firstTemplateTasks;
+    List templateTasks = new ArrayList ();
+    int size = (tasks.size () < firstTemplateTasks) ?
+      tasks.size () : firstTemplateTasks;
 	
-	for (int i = 0; i < size; i++)
-	  templateTasks.add (tasks.get (i));
-	return templateTasks;
+    for (int i = 0; i < size; i++)
+      templateTasks.add (tasks.get (i));
+    return templateTasks;
   }
 
   /**
@@ -105,7 +109,7 @@ public class VishnuConfig {
    * @return Collection of assets to send to Vishnu
    */
   protected Collection getAssetTemplatesForTasks (List tasks, List assetClassName, Collection assetCollection) {
-	return getDistinctAssetTypes (assetClassName, assetCollection);
+    return getDistinctAssetTypes (assetClassName, assetCollection);
   }
   
   /**
@@ -121,75 +125,75 @@ public class VishnuConfig {
    * @return Collection of the asset instances
    */
   protected Collection getDistinctAssetTypes (List assetClassName, Collection assetCollection) {
-	Map typeIDToAsset = new HashMap ();
+    Map typeIDToAsset = new HashMap ();
 
     for (Iterator iter = assetCollection.iterator (); iter.hasNext (); ) {
       Asset asset = (Asset) iter.next ();
-	  String typeID = 
-		asset.getTypeIdentificationPG().getTypeIdentification();
-	  StringKey typeKey = new StringKey (typeID);
+      String typeID = 
+	asset.getTypeIdentificationPG().getTypeIdentification();
+      StringKey typeKey = new StringKey (typeID);
 	  
       if (!typeIDToAsset.containsKey (typeKey))
-		typeIDToAsset.put (typeKey, asset);
+	typeIDToAsset.put (typeKey, asset);
     }
 
     Set distinctAssets = new HashSet (typeIDToAsset.values ());
 
-	// find most-derived common descendant of all assets
+    // find most-derived common descendant of all assets
 
-	Object first = distinctAssets.iterator().next();
-	Class firstClass = first.getClass();
-	Class currentClass = firstClass;
-	Stack currentClasses = new Stack ();
-	currentClasses.push (currentClass);
+    Object first = distinctAssets.iterator().next();
+    Class firstClass = first.getClass();
+    Class currentClass = firstClass;
+    Stack currentClasses = new Stack ();
+    currentClasses.push (currentClass);
 	
+    while ((currentClass = currentClass.getSuperclass()) != java.lang.Object.class) {
+      if (myExtraExtraOutput)
+	System.out.println (getName() + ".getDistinctAssetTypes : super " + currentClass);
+      currentClasses.push (currentClass);
+    }
+	
+    for (Iterator iter = distinctAssets.iterator(); iter.hasNext();) {
+      Class assetClass = iter.next().getClass();
+	  
+      if (assetClass != firstClass){
+	currentClass = assetClass;
+	Stack otherClasses  = new Stack ();
+
+	otherClasses.push (currentClass);
+		
 	while ((currentClass = currentClass.getSuperclass()) != java.lang.Object.class) {
 	  if (myExtraExtraOutput)
-		System.out.println (getName() + ".getDistinctAssetTypes : super " + currentClass);
-	  currentClasses.push (currentClass);
-	}
-	
-	for (Iterator iter = distinctAssets.iterator(); iter.hasNext();) {
-	  Class assetClass = iter.next().getClass();
-	  
-	  if (assetClass != firstClass){
-		currentClass = assetClass;
-		Stack otherClasses  = new Stack ();
-
-		otherClasses.push (currentClass);
-		
-		while ((currentClass = currentClass.getSuperclass()) != java.lang.Object.class) {
-		  if (myExtraExtraOutput)
-			System.out.println (getName() + ".getDistinctAssetTypes : super " + currentClass);
-		  otherClasses.push (currentClass);
-		}
-
-		currentClasses.retainAll (otherClasses);
-		
-		if (myExtraOutput) {
-		  for (int i = 0; i < currentClasses.size(); i++)
-			System.out.println (getName() + ".getDistinctAssetTypes : shared class " + currentClasses.get(i));
-		}
-	  }
-		
+	    System.out.println (getName() + ".getDistinctAssetTypes : super " + currentClass);
+	  otherClasses.push (currentClass);
 	}
 
-	// return final name in complete class name, e.g. from org.cougaar.glm.ldm.asset.Truck, Truck
-	String classname = "" + currentClasses.get(0);
+	currentClasses.retainAll (otherClasses);
+		
+	if (myExtraOutput) {
+	  for (int i = 0; i < currentClasses.size(); i++)
+	    System.out.println (getName() + ".getDistinctAssetTypes : shared class " + currentClasses.get(i));
+	}
+      }
+		
+    }
+
+    // return final name in complete class name, e.g. from org.cougaar.glm.ldm.asset.Truck, Truck
+    String classname = "" + currentClasses.get(0);
     int index = classname.lastIndexOf (".");
     classname = classname.substring (index+1, classname.length ());
 	
-	assetClassName.add (classname);
+    assetClassName.add (classname);
 	
-	if (myExtraOutput) {
-	  for (int i = 0; i < currentClasses.size(); i++)
-		System.out.println (getName() + ".getDistinctAssetTypes : result class " + currentClasses.get(i));
-	}
+    if (myExtraOutput) {
+      for (int i = 0; i < currentClasses.size(); i++)
+	System.out.println (getName() + ".getDistinctAssetTypes : result class " + currentClasses.get(i));
+    }
 	
-	if (distinctAssets.isEmpty())
-	  System.out.println (getName () + ".getDistinctAssetTypes - ERROR? no templates assets?");
+    if (distinctAssets.isEmpty())
+      System.out.println (getName () + ".getDistinctAssetTypes - ERROR? no templates assets?");
 
-	return distinctAssets;
+    return distinctAssets;
   }
 
   /**
@@ -205,7 +209,7 @@ public class VishnuConfig {
    * @return filename of other data object format file
    */
   protected String getOtherDataFormat () {
-	return getNeededFile ("otherDataFormatFile", OTHER_FORMAT_SUFFIX);
+    return getNeededFile ("otherDataFormatFile", OTHER_FORMAT_SUFFIX);
   }
 
   /**
@@ -220,7 +224,7 @@ public class VishnuConfig {
    * @return filename of other data object(s)
    */
   protected String getOtherData () {
-	return getNeededFile ("otherDataFile", OTHER_DATA_SUFFIX);
+    return getNeededFile ("otherDataFile", OTHER_DATA_SUFFIX);
   }
 
   /**
@@ -235,7 +239,7 @@ public class VishnuConfig {
    * @return filename of specs file
    */
   protected String getSpecsFile () {
-	return getNeededFile ("specsFile", SPECS_SUFFIX);
+    return getNeededFile ("specsFile", SPECS_SUFFIX);
   }
 
   /**
@@ -252,11 +256,11 @@ public class VishnuConfig {
    * @return relative path to specs parameters
    */
   protected String getGASpecsFile () {
-	return getNeededFile ("gaFile", GA_SUFFIX);
+    return getNeededFile ("gaFile", GA_SUFFIX);
   }
 
   protected String getFormatFile () {
-	return getNeededFile ("defaultFormat", DFF_SUFFIX);
+    return getNeededFile ("defaultFormat", DFF_SUFFIX);
   }
 
   /**
@@ -270,13 +274,13 @@ public class VishnuConfig {
     String envFile  = null;
 	
     try {
-	  envFile = getMyParams().getStringParam (paramName);
-	  if (myExtraOutput)
-		System.out.println ("VishnuConfig.getNeededFile - envFile = " + envFile + 
-				    " - paramName - " + paramName);
+      envFile = getMyParams().getStringParam (paramName);
+      if (myExtraOutput)
+	System.out.println ("VishnuConfig.getNeededFile - envFile = " + envFile + 
+			    " - paramName - " + paramName);
     } 
     catch (Exception pe) { // no parameter, try default
-	  envFile = getClusterName () + defaultSuffix;
+      envFile = getClusterName () + defaultSuffix;
     }
 	
     return envFile;

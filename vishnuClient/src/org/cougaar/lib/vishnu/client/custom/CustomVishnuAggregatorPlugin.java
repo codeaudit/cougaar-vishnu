@@ -50,25 +50,24 @@ public class CustomVishnuAggregatorPlugin extends VishnuAggregatorPlugin {
    * Use a different data xmlizer to create the data xml stream to send to vishnu,<br>
    * specifically, TranscomDataXMLize.
    * 
-   * @see org.cougaar.pkg.glmtrans.plugins.TranscomDataXMLize#createDoc
    */
   protected XMLProcessor createXMLProcessor  () { 
     if (myExtraOutput)
       System.out.println (getName () + ".createXMLProcessor - creating TRANSCOM xml processor.");
 
-	return new XMLProcessor (getMyParams(), getName(), getClusterName(), domUtil, comm, getConfigFinder()) {
-		public void createDataXMLizer (Map nameToDescrip, String assetClassName) {
-		  if (getExtraOutput())
-			System.out.println (this.getName() + ".createDataXMLizer - setting data xmlizer.");
+    return new XMLProcessor (getMyParams(), getName(), getClusterName(), domUtil, comm, getConfigFinder()) {
+	public void createDataXMLizer (Map nameToDescrip, String assetClassName) {
+	  if (getExtraOutput())
+	    System.out.println (this.getName() + ".createDataXMLizer - setting data xmlizer.");
 		  
-		  setDataXMLizer(createXMLizer(getRunDirectly()));
-		}
-	  }; 
+	  setDataXMLizer(createXMLizer(getRunDirectly()));
+	}
+      }; 
   }
 
   /** override to use a different XMLizer */
   protected XMLizer createXMLizer (boolean direct) {
-	return new CustomDataXMLize (direct);
+    return new CustomDataXMLize (direct);
   }
 
   /** 
@@ -81,11 +80,11 @@ public class CustomVishnuAggregatorPlugin extends VishnuAggregatorPlugin {
    * @param timeOps - time object used when making Vishnu dates
    */
   public void prepareVishnuObjects (List alpObjects, Collection changed, 
-									List vishnuTasks, List vishnuResources, 
-									List changedVishnuResources,
-									Document formatDoc, TimeOps timeOps) { 
-	DirectTranslator dt = (DirectTranslator) getDataXMLizer ();
-	((CustomDataXMLize) dt).setFormatDoc (formatDoc, timeOps);
-	dt.createVishnuObjects (alpObjects, changed, vishnuTasks, vishnuResources, changedVishnuResources);
+				    List vishnuTasks, List vishnuResources, 
+				    List changedVishnuResources,
+				    Document formatDoc, TimeOps timeOps) { 
+    DirectTranslator dt = (DirectTranslator) getDataXMLizer ();
+    ((CustomDataXMLize) dt).setFormatDoc (formatDoc, timeOps);
+    dt.createVishnuObjects (alpObjects, changed, vishnuTasks, vishnuResources, changedVishnuResources);
   }
 }

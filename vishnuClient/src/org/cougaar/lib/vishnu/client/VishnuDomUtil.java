@@ -18,7 +18,6 @@
  *  PERFORMANCE OF THE COUGAAR SOFTWARE.
  * </copyright>
  */
-/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/VishnuDomUtil.java,v 1.9 2002-03-11 19:50:39 gvidaver Exp $ */
 
 package org.cougaar.lib.vishnu.client;
 
@@ -57,21 +56,32 @@ import org.cougaar.util.ConfigFinder;
 
 import org.cougaar.lib.param.ParamMap;
 
+/** A collection of helper methods for manipulating DOM documents. */
 public class VishnuDomUtil {
   public VishnuDomUtil (ParamMap myParamTable, String name, ConfigFinder configFinder) {
-	this.myParamTable = myParamTable;
-	this.name = name;
-	this.configFinder = configFinder;
+    this.myParamTable = myParamTable;
+    this.name = name;
+    this.configFinder = configFinder;
   }
   
   protected ParamMap getMyParams () {	return myParamTable;  }
 
+  /** sets showTiming parameter */
   protected void localSetup () 
   {
     try {showTiming = getMyParams().getBooleanParam("showTiming");}    
     catch(Exception e) {showTiming = false;}
   }
   
+  /** 
+   * Makes a human-readable String representation of a dom document <p>
+   *
+   * Uses XMLSerializer to do its work.
+   * 
+   * @see org.apache.xml.serialize.XMLSerializer
+   * @param doc the document to translate into a String
+   * @return String readable document equivalent
+   */
   protected String getDocAsString (Document doc) {
     StringWriter sw = new StringWriter();
 
@@ -79,27 +89,28 @@ public class VishnuDomUtil {
     of.setLineWidth (150);
     XMLSerializer serializer = new XMLSerializer (sw, of);
     try {
-	  Date start = new Date();
+      Date start = new Date();
       serializer.serialize (doc);
-	  if (showTiming)
-		reportTime (" - got doc as string in ", start);
+      if (showTiming)
+	reportTime (" - got doc as string in ", start);
     } catch (IOException ioe) {System.out.println ("Exception " + ioe);}
-
-	return sw.toString ();
+    
+    return sw.toString ();
   }
   
+  /** write document to a CharArrayWriter stream using XMLSerializer */
   protected CharArrayWriter getDocAsArray (Document doc) {
     CharArrayWriter sw = new CharArrayWriter();
 
     OutputFormat of = new OutputFormat (doc);
-	of.setPreserveSpace (false);
+    of.setPreserveSpace (false);
 	
-	XMLSerializer serializer = new XMLSerializer (sw, of);
+    XMLSerializer serializer = new XMLSerializer (sw, of);
     try {
       serializer.serialize (doc);
     } catch (IOException ioe) {System.out.println ("Exception " + ioe);}
 
-	return sw;
+    return sw;
   }
 
   /**
@@ -110,7 +121,7 @@ public class VishnuDomUtil {
    */
   protected void appendDoc (Document originalDoc, String filename) {
     Element originalRoot = originalDoc.getDocumentElement ();
-	appendDoc (originalDoc, originalRoot, filename);
+    appendDoc (originalDoc, originalRoot, filename);
   }
 
   /**
@@ -120,7 +131,7 @@ public class VishnuDomUtil {
    * @param filename    - name of the document to append
    */
   protected void appendDoc (Document originalDoc, Element originalAppendLoc,
-							String filename) {
+			    String filename) {
     try {
       DOMParser parser = new DOMParser ();
       InputStream inputStream = configFinder.open(filename);
@@ -144,7 +155,7 @@ public class VishnuDomUtil {
    * @param filename    - name of the document to append
    */
   protected void appendChildrenToDoc (Document originalDoc, Element originalAppendLoc,
-									  String filename) {
+				      String filename) {
     try {
       DOMParser parser = new DOMParser ();
       InputStream inputStream = configFinder.open(filename);
@@ -153,17 +164,17 @@ public class VishnuDomUtil {
 
       Element appendDocRoot = appendDoc.getDocumentElement ();
 	  
-	  if (appendDocRoot.getTagName().equals ("GLOBAL_DATA_LIST")) {
+      if (appendDocRoot.getTagName().equals ("GLOBAL_DATA_LIST")) {
 		
-		NodeList nlist = appendDocRoot.getChildNodes();
+	NodeList nlist = appendDocRoot.getChildNodes();
 
-		for (int i = 0; i < nlist.getLength(); i++) {
-		  Node rootChild = nlist.item (i);
-		  merge (originalAppendLoc, rootChild);
-		}
-	  }
-	  else
-		merge (originalAppendLoc, appendDoc.getDocumentElement ());
+	for (int i = 0; i < nlist.getLength(); i++) {
+	  Node rootChild = nlist.item (i);
+	  merge (originalAppendLoc, rootChild);
+	}
+      }
+      else
+	merge (originalAppendLoc, appendDoc.getDocumentElement ());
 	  
     } catch (SAXException sax) {
       System.out.println (name + ".appendDoc - Got sax exception:\n" + sax);
@@ -211,15 +222,15 @@ public class VishnuDomUtil {
       int nlength = nlist.getLength();
 
       for(int i = 0; i < nlength; i++){
-		Node child = nlist.item(i);
-		merge (clonedNode, child);
+	Node child = nlist.item(i);
+	merge (clonedNode, child);
       }
     }
     else if (rootToAdd.getNodeType() == Node.TEXT_NODE) {
       String data = rootToAdd.getNodeValue ().trim();
       if (data.length () > 0) {
-		Text textNode = targetDoc.createTextNode (data);
-		placeToAdd.appendChild (textNode);
+	Text textNode = targetDoc.createTextNode (data);
+	placeToAdd.appendChild (textNode);
       }
     }
   }
@@ -244,11 +255,12 @@ public class VishnuDomUtil {
     return clonedNode;
   }
 
+  /** write document to an output stream using XMLSerializer */
   protected void writeDocToStream (Document doc, OutputStream os) {
     OutputFormat of = new OutputFormat (doc, "UTF-8", true);
-	of.setLineWidth (150);
+    of.setLineWidth (150);
 	
-	XMLSerializer serializer = new XMLSerializer (os, of);
+    XMLSerializer serializer = new XMLSerializer (os, of);
 
     try {
       serializer.serialize (doc);
@@ -281,7 +293,7 @@ public class VishnuDomUtil {
     long min  = diff/60000l;
     long sec  = (diff - (min*60000l))/1000l;
     long millis = diff - (min*60000l) - (sec*1000l);
-	//	if (min < 1l && sec < 1l && millis < 10l) return;
+    //	if (min < 1l && sec < 1l && millis < 10l) return;
     System.out.println  (name + prefix +
 			 min + 
 			 ":" + ((sec < 10) ? "0":"") + sec + 

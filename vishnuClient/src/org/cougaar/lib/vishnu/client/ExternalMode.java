@@ -50,6 +50,7 @@ public class ExternalMode extends PluginHelper implements SchedulerLifecycle {
     localSetup ();
   }
 
+  /** sets local parameters */
   protected void localSetup () {
     super.localSetup ();
 
@@ -137,11 +138,17 @@ public class ExternalMode extends PluginHelper implements SchedulerLifecycle {
     sendOtherData ();
   }
 
+  /** ask VishnuComm to serialize and post the data 
+   * @see org.cougaar.lib.vishnu.client.VishnuComm#serializeAndPostData
+   */
   protected void serializeAndPostDoc (Document doc) {
     comm.serializeAndPostData (doc);
   }
   
-  /** send other data, if it hasn't already been sent */
+  /** 
+   * Send other data, if it hasn't already been sent 
+   * @see org.cougaar.lib.vishnu.client.VishnuComm#serializeAndPostData
+   */
   protected void sendOtherData () {
     if (!sentOtherDataAlready && xmlProcessor.otherDataFileExists(config.getOtherData()))
       comm.serializeAndPostData (xmlProcessor.getOtherDataDoc (config.getOtherData ()));
@@ -210,14 +217,17 @@ public class ExternalMode extends PluginHelper implements SchedulerLifecycle {
 			"For more information, contact gvidaver@bbn.com or dmontana@bbn.com");
   }
 
+  /** used by sendDataToVishnu */
   public void setNameToDescrip (Map map) {
     myNameToDescrip = map;
   }
 
+  /** used by sendDataToVishnu */
   public void setSingleAssetClassName (String name) {
     singleAssetClassName = name;
   }
 
+  /** name of this object */
   protected String getName () { return "ExternalMode"; }
   
   Map myNameToDescrip;

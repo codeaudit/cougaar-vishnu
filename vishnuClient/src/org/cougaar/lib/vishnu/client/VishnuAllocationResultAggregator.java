@@ -32,8 +32,16 @@ import org.cougaar.planning.ldm.plan.Workflow;
 import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.planning.ldm.plan.TaskScoreTable;
 
-/** AllocationResultAggregator is a class which specifies how allocationresults
- * should be aggregated.  Currenlty used by Workflow.computeAllocationResult
+/** 
+ * VishnuAllocationResultAggregator is a class which specifies how AllocationResults
+ * should be aggregated.  Currently called by Workflow.aggregateAllocationResults. <p>
+ *
+ * Largely a copy of the default AllocationResultAggregator, except that it doesn't
+ * use the time aspects of tasks with Verb TRANSIT.  These are for setup and wrapup tasks
+ * that are only indirectly related to the parent task.
+ *
+ * @see org.cougaar.lib.vishnu.client.VishnuPlugin#makeSetupWrapupExpansion
+ * @see org.cougaar.planning.ldm.plan.Workflow#aggregateAllocationResults
  * @see org.cougaar.planning.ldm.plan.AllocationResult
  **/
 

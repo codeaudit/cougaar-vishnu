@@ -69,22 +69,23 @@ import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 
 /**
+ * <pre>
  * ALP-Vishnu bridge.
  *
  * Base class for interacting with the Vishnu scheduler.
  *
  * There are 3 main dimensions of behavior for this plugin: 
- *  - SchedulerMode (External, Internal, or Direct)
- *  - Job type      (Batch or Incremental)
- *  - Translation   (Automatic or Custom)
+ *  - SchedulerMode (External, Internal, or Direct)         
+ *  - Job type      (Batch or Incremental)                  
+ *  - Translation   (Automatic or Custom)                   
  *
  * Supports three main scheduler modes : External, Internal, and Direct.  These
  * are classes which implement the SchedulerLifecycle interface.  They
  * orchestrate the steps to use the Vishnu Scheduler.  The VishnuPlugin
  * is a ModeListener and its as a mode listener that the modes communicate
  * with the plugin.
- * <p>
- * <p>
+ * 
+ * 
  * <b>External</b> mode uses the web server and expects the scheduling to be 
  * done by a separate Vishnu Scheduler process.  All communication is done with 
  * XML.
@@ -110,6 +111,12 @@ import org.xml.sax.InputSource;
  *  - createThreadCallback
  * each of which is defined in the allocator, aggregator, and expander 
  * subclasses.
+ *
+ * </pre>
+ *
+ * @see org.cougaar.lib.vishnu.client.VishnuAggregatorPlugin#createThreadCallback
+ * @see org.cougaar.lib.vishnu.client.VishnuAllocatorPlugin#createThreadCallback
+ * @see org.cougaar.lib.vishnu.client.VishnuExpanderPlugin#createThreadCallback
  *
  * <!--
  * (When printed, any longer line will wrap...)
@@ -407,6 +414,7 @@ public abstract class VishnuPlugin
   }
 
   /**
+   * <pre>
    * Heart of the plugin.
    * 
    * Deal with the tasks that we have accumulated.
@@ -474,6 +482,12 @@ public abstract class VishnuPlugin
       domUtil.reportTime (" - Vishnu did " + numTasks + " tasks in ", start);
   }
 
+  /** 
+   * little helper method called by processTasks, if using a stored object format  <p>
+   *
+   * Reads object format if hasn't been yet.  Sends format if it hasn't been sent yet.
+   *
+   */
   protected void initializeWithStoredFormat () {
     // only generate format the document once
     if (objectFormatDoc == null)
@@ -782,12 +796,13 @@ public abstract class VishnuPlugin
    * Implemented for DirectResultListener interface.
    *
    * @param tasksAndResources - Cougaar tasks and resources to translate
+   * @param changedAssets - list of changed Cougaar assets
    * @param vishnuTasks - list to add Vishnu tasks to 
    * @param vishnuResources - list to add Vishnu resources to 
-   * @param objectFormat - contains field type info necessary to create fields on Vishnu objects
+   * @param changedVishnuResources - list of changed Vishnu resources
    * @param timeOps - time object used when making Vishnu dates
    */
-  public void prepareVishnuObjects (List tasksAndResources, Collection changedAsssets,
+  public void prepareVishnuObjects (List tasksAndResources, Collection changedAssets,
 				    List vishnuTasks, List vishnuResources, List changedVishnuResources,
 				    Document objectFormat, TimeOps timeOps) { 
     System.err.println (getName ()+ ".prepareVishnuObjects - ERROR - don't run directly if you haven't defined this method.");
@@ -799,11 +814,16 @@ public abstract class VishnuPlugin
     return myTaskUIDtoObject.size();
   }
 
+  /** called by waitForAnswer -- we don't have to remember taskUID-to-object mappings after answer is returned */
   protected void clearTasks () {
     myTaskUIDtoObject.clear();
   }
 
-  /** implemented for ResultListener interface */
+  /** 
+   * Used when XML assignment information is returned to find matching resource asset <p>
+   *
+   * implemented for ResultListener interface 
+   */
   public Task getTaskForKey (StringKey key) {
     Task task = (Task)  myTaskUIDtoObject.get (key);
     return task;
@@ -824,7 +844,11 @@ public abstract class VishnuPlugin
     return myAssetUIDtoObject.size();
   }
 
-  /** implemented for ResultListener interface */
+  /** 
+   * Used when XML assignment information is returned to find matching resource asset <p>
+   *
+   * implemented for ResultListener interface 
+   */
   public Asset getAssetForKey (StringKey key) {
     Asset asset = (Asset)  myAssetUIDtoObject.get (key);
 
@@ -883,11 +907,13 @@ public abstract class VishnuPlugin
   }
 
   /** 
+   * <pre>
    * Should define in subclass -- create an allocation 
    *
    * The parameters are what got returned from the vishnu scheduler.
    *
    * implemented for ResultListener interface 
+   * </pre>
    * @see VishnuAllocatorPlugin#handleAssignment
    * @param task  task that was assigned to asset
    * @param asset asset handling task
@@ -900,11 +926,13 @@ public abstract class VishnuPlugin
 				Date start, Date end, Date setupStart, Date wrapupEnd) {}
 
   /** 
+   * <pre>
    * Should define in subclass -- create an aggregation
    *
    * The parameters are what got returned from the vishnu scheduler.
    *
    * implemented for ResultListener interface 
+   * </pre>
    * @see VishnuAggregatorPlugin#handleMultiAssignment
    * @param tasks  tasks to be aggregated together and assigned to asset
    * @param asset asset handling task
@@ -985,6 +1013,7 @@ public abstract class VishnuPlugin
   }
 
   /** 
+   * <pre>
    * create first and possibly only subtask of MPTask
    * 
    * Time preferences have 
@@ -992,7 +1021,7 @@ public abstract class VishnuPlugin
    *  2) the best arrival time = latest arrival = end of main task
    *
    * Attaches WITH prep that shows which asset was used
-   *
+   * </pre>
    **/
   protected Task createMainTask (Task task, Asset asset, Date start, Date end, Date setupStart, Date wrapupEnd) {
     NewTask mainTask = (NewTask) UTILExpand.makeSubTask (ldmf, task, task.getDirectObject(), task.getSource());
@@ -1003,6 +1032,7 @@ public abstract class VishnuPlugin
   }
 
   /** 
+   * <pre>
    * create setup task that goes before main subtask
    * 
    * Time preferences have 
@@ -1011,6 +1041,7 @@ public abstract class VishnuPlugin
    *
    * Attaches WITH prep that shows which asset was used
    *
+   * </pre>
    **/
   protected Task createSetupTask (Task task, Asset asset, Date start, Date end, Date setupStart, Date wrapupEnd) {
     NewTask setupTask = (NewTask) UTILExpand.makeSubTask (ldmf, task, task.getDirectObject(), task.getSource());
@@ -1022,6 +1053,7 @@ public abstract class VishnuPlugin
   }
 
   /** 
+   * <pre>
    * create wrapup task that goes after main subtask
    * 
    * Time preferences have 
@@ -1030,6 +1062,7 @@ public abstract class VishnuPlugin
    *
    * Attaches WITH prep that shows which asset was used
    *
+   * </pre>
    **/
   protected Task createWrapupTask (Task task, Asset asset, Date start, Date end, Date setupStart, Date wrapupEnd) {
     NewTask wrapupTask = (NewTask) UTILExpand.makeSubTask (ldmf, task, task.getDirectObject(), task.getSource());
@@ -1041,12 +1074,14 @@ public abstract class VishnuPlugin
   }
 
   /**
+   * <pre>
    * Adjust preferences so that the start time preference is the assigned 
    * start time, and the end time preference has a best date that is the 
    * assigned end time.  The early and late dates of the end time preference
    * are the same as the first parent task. (This isn't very important, as the
    * downstream allocator should just allocate to the start and best times.)
    * 
+   * </pre>
    * @param a - the asset associated with the MPTask
    * @param g - parent task list
    * @param start - the date for the START_TIME preference

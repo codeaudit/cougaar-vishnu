@@ -33,7 +33,15 @@ import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+/** 
+ * Result handler used by VishnuAggregatorPlugin  <p>
+ *
+ * Interacts with ResultListener, which the plugin implements
+ *
+ * @see ResultListener
+ */
 public class AggregateXMLResultHandler extends XMLResultHandler {
+  /** called by VishnuAggregatorPlugin#createXMLResultHandler */
   public AggregateXMLResultHandler (ModeListener parent, VishnuComm comm, XMLProcessor xmlProcessor, 
 				    VishnuDomUtil domUtil, VishnuConfig config,
 				    ParamMap myParamTable) {
@@ -43,9 +51,9 @@ public class AggregateXMLResultHandler extends XMLResultHandler {
   /**
    * Given the XML that indicates assignments, parse it <p>
    *
-   * Uses the <code>myTaskUIDtoObject</code> and <code>myAssetUIDtoObject</code> maps <br>
-   * to lookup the keys returned in the xml to figure out which task was assigned to  <br>
-   * which asset.  These were set in processTasks using setUIDToObjectMap.
+   * Asks the ResultListener to lookup the keys returned in the xml to figure out <br>
+   * which task was assigned to which asset.  These were set in processTasks using <br>
+   * setUIDToObjectMap.
    * 
    * @param name the tag name
    * @param atts the tag's attributes
@@ -126,6 +134,7 @@ public class AggregateXMLResultHandler extends XMLResultHandler {
     }
   }
 
+  /** Calls resultListener (= the plugin) handleMultiAssignment when sees a MULTITASK end tag */
   protected void parseEndElement (String name) {
     try {
       if (name.equals ("MULTITASK")) {

@@ -17,21 +17,21 @@ import org.cougaar.lib.param.ParamMap;
  */
 public class PluginHelper {
   public PluginHelper (ModeListener parent, VishnuComm comm, XMLProcessor xmlProcessor, 
-					   VishnuDomUtil domUtil, VishnuConfig config,
-					   ParamMap myParamTable) {
-	this.parent = parent;
-	this.comm = comm;
-	this.xmlProcessor = xmlProcessor;
-	this.domUtil = domUtil;
-	this.config = config;
+		       VishnuDomUtil domUtil, VishnuConfig config,
+		       ParamMap myParamTable) {
+    this.parent = parent;
+    this.comm = comm;
+    this.xmlProcessor = xmlProcessor;
+    this.domUtil = domUtil;
+    this.config = config;
 	
-	this.myParamTable = myParamTable;
+    this.myParamTable = myParamTable;
 	
-	localSetup ();
+    localSetup ();
   }
   
   protected ParamMap   getMyParams    () { 
-	return myParamTable; 
+    return myParamTable; 
   }
 
   protected void localSetup () {
@@ -42,7 +42,7 @@ public class PluginHelper {
     catch(Exception e) {myExtraExtraOutput = false;}
 
     try {showTiming = 
-		   getMyParams().getBooleanParam("showTiming");}    
+	   getMyParams().getBooleanParam("showTiming");}    
     catch(Exception e) {  showTiming = true; }
   }
   

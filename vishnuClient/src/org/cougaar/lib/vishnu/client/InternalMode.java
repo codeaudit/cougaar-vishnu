@@ -44,6 +44,7 @@ import org.xml.sax.SAXException;
  *
  */
 public class InternalMode extends ExternalMode {
+  /** just calls localSetup */
   public InternalMode (ModeListener parent, VishnuComm comm, XMLProcessor xmlProcessor, 
 		       VishnuDomUtil domUtil, VishnuConfig config, ResultHandler resultHandler,
 		       ParamMap myParamTable) {
@@ -63,10 +64,11 @@ public class InternalMode extends ExternalMode {
   }
   
   /**
-   * Place to handle rescinded tasks.
+   * Place to handle rescinded tasks. <p>
    *
    * Sends XML to unfreeze the task assignment and delete it.
    * @param newAssets changed assets found in the container
+   * @see org.cougaar.lib.vishnu.server.Scheduler#setupInternal
    */
   public void handleRemovedTasks(Enumeration removedTasks) {
     if (incrementalScheduling) {
@@ -79,15 +81,17 @@ public class InternalMode extends ExternalMode {
   }
 
   /** 
+   * <pre>
    * Run internally. Give the scheduler the contents of 
    * the internalBuffer (in VishnuComm), which has captured all the xml output 
    * that would normally go to the various URLs if in external mode.  
-   * <p>
-   * Then, parse the results using an XMLResultHandler, which is just a SAX <br>
-   * Parser and the AssignmentHandler, which just calls parseStartElement and <br>
+   * 
+   * Then, parse the results using an XMLResultHandler, which is just a SAX 
+   * Parser and the AssignmentHandler, which just calls parseStartElement and
    * parseEndElement.  The AssignmentHandler will call methods in the VishnuPlugin
-   * to create plan elements for each assignment.<p>
+   * to create plan elements for each assignment.
    *
+   * </pre>
    * @see XMLResultHandler#parseStartElement
    * @see XMLResultHandler#parseEndElement
    */
@@ -133,13 +137,17 @@ public class InternalMode extends ExternalMode {
    * Implemented for SchedulerLifecycle
    * <p>
    * Call SAXParser in scheduler to set it up with the specs, object format, etc.
+   * @see org.cougaar.lib.vishnu.server.Scheduler#setupInternal
    */
   public void initializeWithFormat () {
     sched.setupInternal (comm.getBuffer (), false);
     comm.clearBuffer ();
   }
   
-  /** Call setupInternal to initialize scheduler with task and asset data */  
+  /** 
+   * Call setupInternal to initialize scheduler with task and asset data 
+   * @see org.cougaar.lib.vishnu.server.Scheduler#setupInternal
+   */  
   protected int prepareScheduler () {
     // sched is the scheduler...
     if (comm.getBuffer ().length () != 0) {
@@ -150,7 +158,10 @@ public class InternalMode extends ExternalMode {
     return parent.getNumTasks();
   }
 
-  /** send other data, if it hasn't already been sent */
+  /** 
+   * send other data, if it hasn't already been sent 
+   * @see org.cougaar.lib.vishnu.server.Scheduler#setupInternal
+   */
   protected void sendOtherData () {
     if (comm.getBuffer ().length () != 0) {
       sched.setupInternal (comm.getBuffer (), false);
@@ -187,19 +198,25 @@ public class InternalMode extends ExternalMode {
     }
   }
 
+  /** 
+   * Serialize and post telling scheduler to setupInternal 
+   *
+   * @see org.cougaar.lib.vishnu.server.Scheduler#setupInternal
+   */
   protected void serializeAndPostDoc (Document doc) {
     comm.serializeAndPostData (doc);
     sched.setupInternal (comm.getBuffer(), false);
     comm.clearBuffer ();
   }
 
+  /** name of this object */
   protected String getName () { return parent.getName() + "-InternalMode"; }
   
   Map myNameToDescrip;
   String singleAssetClassName;
   boolean alwaysClearDatabase;
+  /** the internal scheduler instance */
   protected Scheduler sched;
-  protected boolean sentOtherDataAlready = false;
   
   private final SimpleDateFormat format =
     new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");

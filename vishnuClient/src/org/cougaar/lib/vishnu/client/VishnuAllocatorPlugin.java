@@ -70,9 +70,15 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
   }
 
   /**
+   * Callback for input tasks 
+   *
    * Provide the callback that is paired with the buffering thread, which is a
    * listener.  The buffering thread is the listener to the callback
    *
+   * Creates an instance of the WorkflowCallback, which means the plugin
+   * is looking for tasks that are part of workflows.
+   *
+   * @param bufferingThread -- the thread the callback informs when there are new input tasks
    * @return a WorkflowCallback with the buffering thread as its listener
    */
   protected UTILFilterCallback createThreadCallback (UTILGenericListener bufferingThread) { 

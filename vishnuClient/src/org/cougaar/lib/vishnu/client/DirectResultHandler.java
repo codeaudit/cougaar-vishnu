@@ -19,17 +19,20 @@ import java.util.Vector;
 import org.w3c.dom.Document;
 
 /** 
- * Direct mode.  
- * <p>
+ * <pre>
+ * For Direct mode.  Handles results returned directly from scheduler.
+ * 
  * Creates an internal instance of the scheduler and talks to it, instead
  * of to a web server.  Uses direct translation of Cougaar to Vishnu objects,
  * and reads the assignments directly.  <b>No XML involved.</b>
  *
  * Needs the plugin to be a DirectResultListener.  Mainly this means implementing
  * the prepareVishnuObjects method.
- * @see DirectResultListener
+ * </pre>
+ * @see DirectResultListener#prepareVishnuObjects
  */
 public class DirectResultHandler extends PluginHelper implements ResultHandler {
+  /** records reference to ResultListener parent */
   public DirectResultHandler (ModeListener parent, VishnuComm comm, XMLProcessor xmlProcessor, 
 			      VishnuDomUtil domUtil, VishnuConfig config, 
 			      ParamMap myParamTable) {
@@ -39,6 +42,7 @@ public class DirectResultHandler extends PluginHelper implements ResultHandler {
     localSetup ();
   }
 	
+  /** sets parameter : debugParseAnswer */
   protected void localSetup () {
     super.localSetup ();
 
@@ -47,7 +51,28 @@ public class DirectResultHandler extends PluginHelper implements ResultHandler {
     catch(Exception e) {debugParseAnswer = false;}
   }
   
-  /** directly handle assignments */
+  /** 
+   * <pre>
+   * Directly handle assignments. 
+   *
+   * If the assignment is a one-to-one assignment, call parseAssignment directly.
+   * parseAssignment will call the resultHandler's handleAssignment.  This typically
+   * results in an allocation or expansion.
+   *
+   * Otherwise if it's a multi-task assignment, calls handleMultiAssignment. This
+   * typically results in an aggregation set and an MPTask.
+   *
+   * Asks the scheduler for which assignment is being done.  
+   * Asks the scheduler data for the list of tasks and resources.
+   * Uses the time ops object to convert Vishnu time into ALP time.
+   *
+   * </pre>
+   * @see org.cougaar.lib.vishnu.server.Scheduler#assignmentsMultitask
+   * @see org.cougaar.lib.vishnu.server.SchedulingData#getTasks
+   * @see org.cougaar.lib.vishnu.server.SchedulingData#getResources
+   * @see ResultListener#handleAssignment
+   * @see ResultListener#handleMultiAssignment
+   **/
   public void directlyHandleAssignments (Scheduler sched, SchedulingData data,
 					 TimeOps timeOps) {
     Date start = new Date ();
@@ -116,7 +141,18 @@ public class DirectResultHandler extends PluginHelper implements ResultHandler {
   }
 
 
-  /** called by runDirectly when the scheduler is finished for each assignment */
+  /** 
+   * Called by directlyHandleAssignment when the scheduler is finished for each assignment <p>
+   *
+   * Calls resultHandler's handleAssignment after calling getTaskFromAssignment and getAssignedAsset
+   *
+   * @see #directlyHandleAssignments
+   * @see #getTaskFromAssignment
+   * @see #getAssignedAsset
+   * @see VishnuPlugin#handleAssignment
+   * @see VishnuAggregatorPlugin#handleAssignment
+   * @see VishnuAllocatorPlugin#handleAssignment
+   */
   protected void parseAssignment (String task, String resource, Date assignedStart, Date assignedEnd, 
 				  Date assignedSetup, Date assignedWrapup) {
     if (debugParseAnswer)
@@ -136,9 +172,13 @@ public class DirectResultHandler extends PluginHelper implements ResultHandler {
   }
   
   /** 
+   * Asks resultListener for task corresponding to key <tt>task</tt>.<p>
+   *
    * Removes the task from the the list of known tasks kept in the plugin 
    * 
    * @see VishnuPlugin#removeTask
+   * @param task key returned from assignment xml
+   * @return equivalent ALP task
    */
   protected Task getTaskFromAssignment (String task) {
     StringKey taskKey = new StringKey (task);
@@ -155,6 +195,12 @@ public class DirectResultHandler extends PluginHelper implements ResultHandler {
     return handledTask;
   }
   
+  /** 
+   * Asks resultListener for asset corresponding to key <tt>resource</tt> 
+   *
+   * @param resource key returned from assignment xml
+   * @return equivalent ALP asset
+   */
   protected Asset getAssignedAsset (String resource) {
     Asset assignedAsset = resultListener.getAssetForKey (new StringKey (resource));
     if (assignedAsset == null) 

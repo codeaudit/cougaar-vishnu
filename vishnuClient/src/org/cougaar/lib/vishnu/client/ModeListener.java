@@ -8,6 +8,8 @@ import java.util.Collection;
  * The lifecycle must know what tasks are required to schedule,
  * which assets are available to use to handle those tasks, 
  * and if the assets change.
+ *
+ * @see SchedulerLifecycle
  */
 public interface ModeListener {
   // task stuff

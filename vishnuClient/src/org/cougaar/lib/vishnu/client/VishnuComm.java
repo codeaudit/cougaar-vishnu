@@ -56,32 +56,47 @@ import org.w3c.dom.Document;
 
 import org.xml.sax.helpers.DefaultHandler;
 
+/** 
+ * Abstractions of communication for Vishnu  <p>
+ *
+ * Hides whether we're running internally or externally from callers. <p>
+ *
+ * Knows about command-to-URL mapping, e.g. postCancel becomes a URL calling 
+ * the php script postcancel.php. <p>
+ *
+ * Uses an internalBuffer to write to when we're running internally.  It holds
+ * the same bytes as are sent to the web server when running externally.
+ **/
 public class VishnuComm {
   private static Map clusterToInstance = new HashMap ();
 
+  /** 
+   * Sets the problem name <p>
+   * calls postCancel and postClear if running externally 
+   */
   public VishnuComm (ParamMap myParamTable,
-					 String name, 
-					 String clusterName,
-					 VishnuDomUtil domUtil,
-					 boolean runInternal) {
-	this.myParamTable = myParamTable;
+		     String name, 
+		     String clusterName,
+		     VishnuDomUtil domUtil,
+		     boolean runInternal) {
+    this.myParamTable = myParamTable;
 	
-	localSetup ();
-	this.name = name;
-	this.clusterName = clusterName;
-	this.domUtil = domUtil;
+    localSetup ();
+    this.name = name;
+    this.clusterName = clusterName;
+    this.domUtil = domUtil;
 
     URL = "http://" + hostName + phpPath;
 
-	setProblemName ();
+    setProblemName ();
 
-	this.runInternal = runInternal;
+    this.runInternal = runInternal;
 	
-	// clears any pending jobs for this problem
-	if (!runInternal) {
-	  postCancel ();
-	  postClear  ();
-	}
+    // clears any pending jobs for this problem
+    if (!runInternal) {
+      postCancel ();
+      postClear  ();
+    }
   }
 
   protected ParamMap   getMyParams    () { return myParamTable; }
@@ -89,6 +104,7 @@ public class VishnuComm {
   protected String     getClusterName () { return clusterName;  }
   public    String     getProblem     () { return myProblem;    }
   
+  /** sets a variety of parameters */
   protected void localSetup () 
   {
     try {myExtraOutput = getMyParams().getBooleanParam("ExtraOutput");}    
@@ -107,10 +123,10 @@ public class VishnuComm {
     catch(Exception e) {myUser = "vishnu";}
 
     try { myPassword = getMyParams().getStringParam("password");} 
-	catch(Exception e) {myPassword = "vishnu";}
+    catch(Exception e) {myPassword = "vishnu";}
 
     try { myLegalHosts = getMyParams().getStringParam("legalHosts").trim();} 
-	catch(Exception e) {myLegalHosts = "";} // empty = all schedulers are OK
+    catch(Exception e) {myLegalHosts = "";} // empty = all schedulers are OK
 
     try {postProblemFile = getMyParams().getStringParam("postProblemFile");}    
     catch(Exception e) {postProblemFile = "postproblem" + PHP_SUFFIX;}
@@ -128,20 +144,20 @@ public class VishnuComm {
     catch(Exception e) {assignmentsFile = "assignments" + PHP_SUFFIX;}
 
     try {showTiming = 
-		   getMyParams().getBooleanParam("showTiming");}    
+	   getMyParams().getBooleanParam("showTiming");}    
     catch(Exception e) {showTiming = true;}
 
     try {testing = getMyParams().getBooleanParam("testing");}    
     catch(Exception e) {testing = false;}
 
-	// writes the XML sent to Vishnu web server to a file (human readable)
+    // writes the XML sent to Vishnu web server to a file (human readable)
     try {writeXMLToFile = 
-		   getMyParams().getBooleanParam("writeXMLToFile");}    
+	   getMyParams().getBooleanParam("writeXMLToFile");}    
     catch(Exception e) {writeXMLToFile = false;}
 
-	// writes the XML sent to Vishnu web server to a file (machine readable)
+    // writes the XML sent to Vishnu web server to a file (machine readable)
     try {writeEncodedXMLToFile = 
-		   getMyParams().getBooleanParam("writeEncodedXMLToFile");}    
+	   getMyParams().getBooleanParam("writeEncodedXMLToFile");}    
     catch(Exception e) {writeEncodedXMLToFile = false;}
 
     // seconds - total wait time is maxWaitCycles * waitTime
@@ -149,17 +165,29 @@ public class VishnuComm {
     catch(Exception e) {waitTime = 5000L;}
 
     // how many times to poll Vishnu before giving up 
-	// total wait time is maxWaitCycles * waitTime
+    // total wait time is maxWaitCycles * waitTime
     try {maxWaitCycles = getMyParams().getIntParam("maxWaitCycles");}    
     catch(Exception e) {maxWaitCycles = 10;}
   }
 
+  /** 
+   * serialize document and post as data to web server or internal buffer 
+   *
+   * Just calls serializeAndPost with correct arguments.
+   * @see #serializeAndPost
+   **/
   public void serializeAndPostData (Document doc) {
-      serializeAndPost (doc, true, runInternal, internalBuffer);
+    serializeAndPost (doc, true, runInternal, internalBuffer);
   }
 
+  /** 
+   * serialize document and post as problem definition to web server or internal buffer 
+   *
+   * Just calls serializeAndPost with correct arguments.
+   * @see #serializeAndPost
+   */
   public void serializeAndPostProblem (Document doc) {
-      serializeAndPost (doc, false, runInternal, internalBuffer);
+    serializeAndPost (doc, false, runInternal, internalBuffer);
   }
 
   /**
@@ -175,85 +203,114 @@ public class VishnuComm {
    * named ClusterName_encoded_number.  This file contains exactly what is   
    * sent to the web server, after URL encoding has been performed.          <p>
    *
+   * Does the work of serialization here, by calling DomUtil function getDocAsArray,
+   * and lets the other signature do actual posting.
+   *
+   * @see VishnuDomUtil#getDocAsArray
    * @param doc - DOM doc to send to URL
    * @param postData - true if posting data 
    */
   protected void serializeAndPost (Document doc, boolean postData, 
-								   boolean runInternal, StringBuffer internalBuffer) {
-	serializeAndPost (domUtil.getDocAsArray (doc).toString(), postData, runInternal, internalBuffer);
+				   boolean runInternal, StringBuffer internalBuffer) {
+    serializeAndPost (domUtil.getDocAsArray (doc).toString(), postData, runInternal, internalBuffer);
 
-	if (writeXMLToFile) {
-	  String suffix = (postData) ? "data" : "problem";
-	  String fileName = getClusterName () + "_" + suffix + "_" + numFilesWritten++ + ".xml";
-	  System.out.println (getName () + ".serializeAndPost - Writing XML to file " + fileName);
-	  try {
-		FileOutputStream temp = new FileOutputStream (fileName);
-		domUtil.writeDocToStream (doc, temp);
-	  } 
-	  catch (FileNotFoundException fnfe) { /* never happen */ }
-	  catch (IOException ioe) { /* never happen */ }
-	}
+    if (writeXMLToFile) {
+      String suffix = (postData) ? "data" : "problem";
+      String fileName = getClusterName () + "_" + suffix + "_" + numFilesWritten++ + ".xml";
+      System.out.println (getName () + ".serializeAndPost - Writing XML to file " + fileName);
+      try {
+	FileOutputStream temp = new FileOutputStream (fileName);
+	domUtil.writeDocToStream (doc, temp);
+      } 
+      catch (FileNotFoundException fnfe) { /* never happen */ }
+      catch (IOException ioe) { /* never happen */ }
+    }
   }
 
+  /** 
+   * <pre>
+   * Does most of the work of posting, the other signature does the serializing.
+   *
+   * If running internally, just appends the data to the buffer. Otherwise tries to
+   * to either post data or post the problem
+   *
+   * Only called by other serializeAndPost
+   *
+   * </pre>
+   * @see #postProblem
+   * @see #postData
+   **/
   protected void serializeAndPost (String doc, boolean postData, 
-								   boolean runInternal, StringBuffer internalBuffer) {
-	if (runInternal)
-	  appendToInternalBuffer( doc, internalBuffer);
-	else {
-	  if (postData) {
-		if (!postData (doc)) {
-		  showPostDataWarning ();
-		}
-	  }
-	  else
-		postProblem (doc);
+				   boolean runInternal, StringBuffer internalBuffer) {
+    if (runInternal)
+      appendToInternalBuffer( doc, internalBuffer);
+    else {
+      if (postData) {
+	if (!postData (doc)) {
+	  showPostDataWarning ();
 	}
+      }
+      else
+	postProblem (doc);
+    }
   }
 
+  /** adds data to internal buffer */
   public void appendToBuffer (String data) {
-	appendToInternalBuffer (data, internalBuffer);
+    appendToInternalBuffer (data, internalBuffer);
   }
 
+  /** adds data to internal buffer, removing any xml header */
   protected void appendToInternalBuffer (String data, StringBuffer internalBuffer) {
-	int index;
-	if ((index = data.indexOf ("?>")) != -1) {
-	  String stuff = data.substring (index+2);
-	  internalBuffer.append (stuff);
-	}
+    int index;
+    if ((index = data.indexOf ("?>")) != -1) {
+      String stuff = data.substring (index+2);
+      internalBuffer.append (stuff);
+    }
   }
 
+  /** 
+   * Clears internal buffer  <p>
+   * 
+   * Called by various methods in InternalMode, after having asked scheduler to parse data
+   * in the buffer.
+   * @see InternalMode#prepareScheduler
+   **/
   public void clearBuffer () {
-	internalBuffer = new StringBuffer (INITIAL_INTERNAL_BUFFER_SIZE);
+    internalBuffer = new StringBuffer (INITIAL_INTERNAL_BUFFER_SIZE);
   }
 
+  /** return string representation of buffer */
   public String getBuffer () {
-	return new String (internalBuffer);
+    return new String (internalBuffer);
   }
 
+  /** dumps warning to stdout when problem definition is out of sync with data format */
   protected void showPostDataWarning () {
-	System.out.println ("\n-----------------------------------------------\n" + 
-						getName() + ".serializeAndPost - got an error posting data.\n"+
-						"\nThis could be due to one of several causes :\n" + 
-						"1) Connection problems with the web server, if running with a web server OR \n" +
-						"2) An inconsistency between the object format defined for the problem and\n" + 
-						"   the data.  You may have to regenerate your object format definition file if you\n" +
-						"   see messages like:\n"+
-						"<DIV align=left>\n" +
-						"Context: parsing data<BR>\n" +
-						"Action: object<BR>\n" +
-						"Identifier: <BR>\n" +
-						"Command: insert into obj_Package values ();<BR>\n" +
-						"Database: vishnu_prob_TRANSCOM_pumpernickle<BR>\n" +
-						"Error Text: You have an error in your SQL syntax near ');' at line 1<BR><BR>\n" +
-						"</DIV>\n\n" +
-						"The problem is that the scheduler is expecting the input tasks and assets \n" +
-						"to be consistent with the object format, but an unexpected field or object\n" +
-						"is being sent.\n" +
-						"For more information, contact Gordon Vidaver, gvidaver@bbn.com, 617 873 3558\n"+
-						"-----------------------------------------------");
+    System.out.println ("\n-----------------------------------------------\n" + 
+			getName() + ".serializeAndPost - got an error posting data.\n"+
+			"\nThis could be due to one of several causes :\n" + 
+			"1) Connection problems with the web server, if running with a web server OR \n" +
+			"2) An inconsistency between the object format defined for the problem and\n" + 
+			"   the data.  You may have to regenerate your object format definition file if you\n" +
+			"   see messages like:\n"+
+			"<DIV align=left>\n" +
+			"Context: parsing data<BR>\n" +
+			"Action: object<BR>\n" +
+			"Identifier: <BR>\n" +
+			"Command: insert into obj_Package values ();<BR>\n" +
+			"Database: vishnu_prob_TRANSCOM_pumpernickle<BR>\n" +
+			"Error Text: You have an error in your SQL syntax near ');' at line 1<BR><BR>\n" +
+			"</DIV>\n\n" +
+			"The problem is that the scheduler is expecting the input tasks and assets \n" +
+			"to be consistent with the object format, but an unexpected field or object\n" +
+			"is being sent.\n" +
+			"For more information, contact Gordon Vidaver, gvidaver@bbn.com, 617 873 3558\n"+
+			"-----------------------------------------------");
   }
   
   /**
+   * <pre>
    * sets Problem name used by Vishnu
    *
    * Uses a shared, static Map of cluster names to plugin instances so
@@ -271,49 +328,59 @@ public class VishnuComm {
    *
    * (There is nothing to tell which is which in the name.)
    *
+   * </pre>
    */
   protected void setProblemName () {
-	synchronized (clusterToInstance) {
-	  List instances = (List) clusterToInstance.get (getClusterName ());
-	  if (instances == null) {
-		clusterToInstance.put (getClusterName (), instances = new ArrayList ());
-	  }
-	  instances.add (this);
-	}
+    synchronized (clusterToInstance) {
+      List instances = (List) clusterToInstance.get (getClusterName ());
+      if (instances == null) {
+	clusterToInstance.put (getClusterName (), instances = new ArrayList ());
+      }
+      instances.add (this);
+    }
 
     try {myProblem = getMyParams().getStringParam("problemName");}    
     catch(Exception e) {
-	  myProblem = getClusterName();
+      myProblem = getClusterName();
 
-	  synchronized (clusterToInstance) {
-		if (((List) clusterToInstance.get (getClusterName ())).size () > 1) {
-		  myProblem = myProblem + "_" + 
-			((List) clusterToInstance.get (getClusterName ())).indexOf (this);
-		  if (myExtraExtraOutput)
-			System.out.println (getName ()+ ".localSetup - this " + this + " is " + 
-								((List) clusterToInstance.get (getClusterName ())).indexOf (this) +
-								" of " + 
-								((List) clusterToInstance.get (getClusterName ())).size ());
-		}
-	  }
-	  // mysql doesn't like -'s
-	  myProblem = myProblem.replace('-', '_');
+      synchronized (clusterToInstance) {
+	if (((List) clusterToInstance.get (getClusterName ())).size () > 1) {
+	  myProblem = myProblem + "_" + 
+	    ((List) clusterToInstance.get (getClusterName ())).indexOf (this);
+	  if (myExtraExtraOutput)
+	    System.out.println (getName ()+ ".localSetup - this " + this + " is " + 
+				((List) clusterToInstance.get (getClusterName ())).indexOf (this) +
+				" of " + 
+				((List) clusterToInstance.get (getClusterName ())).size ());
 	}
+      }
+      // mysql doesn't like -'s
+      myProblem = myProblem.replace('-', '_');
+    }
 	
-	try {
-	    String machineName = java.net.InetAddress.getLocalHost().getHostName ().replace('-', '_');
-	    if (machineName.indexOf('.') != -1) {
-		machineName = machineName.substring (0, machineName.indexOf('.'));
-	    }
-	    machineName = machineName.replace('.', '_');
-	    myProblem = myProblem + "_" + machineName;
-	}
-	catch (UnknownHostException uhe) {
-	  System.err.println (getName () + ".localSetup - Huh? Could not find localhost? " +
-						  uhe.getMessage ());
-	}
+    try {
+      String machineName = java.net.InetAddress.getLocalHost().getHostName ().replace('-', '_');
+      if (machineName.indexOf('.') != -1) {
+	machineName = machineName.substring (0, machineName.indexOf('.'));
+      }
+      machineName = machineName.replace('.', '_');
+      myProblem = myProblem + "_" + machineName;
+    }
+    catch (UnknownHostException uhe) {
+      System.err.println (getName () + ".localSetup - Huh? Could not find localhost? " +
+			  uhe.getMessage ());
+    }
   }
 
+  /** 
+   * Posts data to web site or internal buffer, depending on mode  <p>
+   *
+   * URL encodes the data <p>
+   *
+   * Calls postToURL with URL header and data
+   * @see #postToURL
+   * @param data to send to URL
+   */
   public boolean postData (String data) {
     StringBuffer sb = new StringBuffer ();
     sb.append ("?" + "bogus=ferris&");
@@ -324,51 +391,34 @@ public class VishnuComm {
     sb.append ("data=");
     sb.append (java.net.URLEncoder.encode(data));
 
-	Date start = new Date();
+    Date start = new Date();
     String reply =
       postToURL (hostName, postDataFile, sb.toString (), null, true);
-	if (showTiming)
-	  domUtil.reportTime (" - did post of data string to URL in ", start);
+    if (showTiming)
+      domUtil.reportTime (" - did post of data string to URL in ", start);
 
-	if (!reply.startsWith ("SUCCESS")) {
+    if (!reply.startsWith ("SUCCESS")) {
       System.out.println (getName () + ".postData - ERROR : Reply to post data was <" + reply + ">");
-	  return false;
-	}
-	else if (myExtraOutput)
+      return false;
+    }
+    else if (myExtraOutput)
       System.out.println (getName () + ".postData - Reply to post data was <" + reply.trim() + ">");
 	
-	return true;
-  }
-
-  public boolean postData (Document dataDoc) {
-    StringBuffer sb = new StringBuffer ();
-    sb.append ("?" + "bogus=ferris&");
-    sb.append (getProblemPostVar ());
-    sb.append (getInstancePostVar () + "&");
-    sb.append ("user=" + myUser + "&");
-    sb.append ("password=" + myPassword + "&");
-    sb.append ("data=");
-
-	Date start = new Date();
-    String reply =
-      postToURL (hostName, postDataFile, sb.toString (), dataDoc, true);
-	if (showTiming)
-	  domUtil.reportTime (" - did post of data Doc to URL in ", start);
-	
-	if (!reply.startsWith ("SUCCESS")) {
-      System.out.println (getName () + ".postData - ERROR : Reply to post data was <" + reply + ">");
-	  return false;
-	}
-	else if (myExtraOutput)
-      System.out.println (getName () + ".postData - Reply to post data was <" + reply.trim() + ">");
-
-	return true;
+    return true;
   }
 
   /**
-   * bogus is sent first because user would not arrive 
-   * at php with value if it was sent first.  No idea why.
+   * Posts problem to web site/internal buffer <p>
    *
+   * URL encodes the data <p>
+   *
+   * Calls postToURL with URL header and data <p>
+
+   * bogus is sent first because user would not arrive 
+   * at php with value if it was sent first.  No idea why. <p>
+   *
+   * @see #postToURL
+   * @param data to send to URL
    */
   public void postProblem (String data) {
     StringBuffer sb = new StringBuffer ();
@@ -385,9 +435,9 @@ public class VishnuComm {
   }
 
   /**
-   * Cancels any pending jobs.
+   * Cancels any pending jobs. <p>
    * 
-   * Should only be done once, when the plugin loads.
+   * Should only be done once, when the plugin loads. <p>
    *
    * This is an insurance policy against the case where someone
    * starts a society and runs it, but never starts a scheduler, or otherwise
@@ -396,7 +446,10 @@ public class VishnuComm {
    * jobs for this problem, effectively blocking it for all time.
    *
    * bogus is sent first because <code>user</code> would not arrive 
-   * at php with value if it was sent first.  No idea why.
+   * at php with value if it was sent first.  No idea why. <p>
+   *
+   * Calls postToURL with URL header
+   * @see #postToURL
    */
   public void postCancel () {
     StringBuffer sb = new StringBuffer ();
@@ -406,14 +459,22 @@ public class VishnuComm {
     sb.append ("password=" + myPassword);
 
     if (myExtraOutput)
-	  System.out.println (getName () + ".postCancel - canceling any pending scheduling requests for " + 
-						  myProblem);
+      System.out.println (getName () + ".postCancel - canceling any pending scheduling requests for " + 
+			  myProblem);
 
-	String reply = postToURL (hostName, postCancelFile, sb.toString (), null, true);
+    String reply = postToURL (hostName, postCancelFile, sb.toString (), null, true);
     if (myExtraOutput)
-	  System.out.println (getName () + ".postCancel - reply was " + reply);
+      System.out.println (getName () + ".postCancel - reply was " + reply);
   }
 
+  /**
+   * <pre>
+   * Tells database or scheduler to forget all data associated with the problem
+   *
+   * Calls postToURL with URL header
+   * </pre>
+   * @see #postToURL 
+   */
   public void postClear () {
     StringBuffer sb = new StringBuffer ();
     sb.append ("?" + "bogus=ferris&"); 
@@ -422,21 +483,27 @@ public class VishnuComm {
     sb.append ("password=" + myPassword);
 
     if (myExtraOutput)
-	  System.out.println (getName () + ".postClear - clearing data from previous runs " + 
-						  myProblem);
+      System.out.println (getName () + ".postClear - clearing data from previous runs " + 
+			  myProblem);
 
-	String clearDataMsg = sb + "&<PROBLEM NAME="+getProblem ()+"/><CLEARDATABASE" + '\\' + ">";
+    String clearDataMsg = sb + "&<PROBLEM NAME="+getProblem ()+"/><CLEARDATABASE" + '\\' + ">";
 
-	String reply = postToURL (hostName, postDataFile, clearDataMsg, null, true);
+    String reply = postToURL (hostName, postDataFile, clearDataMsg, null, true);
     if (myExtraOutput)
-	  System.out.println (getName () + ".postClear - reply was " + reply);
+      System.out.println (getName () + ".postClear - reply was " + reply);
   }
 
   /** 
+   * <pre>
+   * Tells the scheduler to start.
+   *
    * bogus is sent first because <code>user</code> would not arrive <br>
    * at php with it's value if it was sent first.  No idea why.  <p>
    *
    * BOZO - Still a problem???
+   * Calls postToURL with URL header
+   * </pre>
+   * @see #postToURL 
    */
   public void startScheduling () {
     StringBuffer sb = new StringBuffer ();
@@ -449,23 +516,36 @@ public class VishnuComm {
 
     String reply = postToURL (hostName, kickoffFile, sb.toString (), null, true);
     if (myExtraOutput)
-	  System.out.println (getName () + ".startScheduling - reply to kickoff was " + reply.trim());
+      System.out.println (getName () + ".startScheduling - reply to kickoff was " + reply.trim());
   }
 
+  /** 
+   * <pre>
+   * Polls the scheduler for it's status
+   *
+   * Only uses in external mode
+   *
+   * Sleeps between polls
+   *
+   * Calls postToURL with URL header
+   * </pre>
+   * @see ExternalMode#run
+   * @see #postToURL 
+   */
   public boolean waitTillFinished () {
-	String postVars = getWaitPostVars ();
+    String postVars = getWaitPostVars ();
 	
     boolean gotAnswer = false;
     for (int i = 0; i < maxWaitCycles; i++) {
       String response = 
-		postToURL (hostName, readStatusFile, postVars, null, true);
+	postToURL (hostName, readStatusFile, postVars, null, true);
       if (response.indexOf (done) != -1) {
-		gotAnswer = true;
-		break;
+	gotAnswer = true;
+	break;
       }
       else if (myExtraOutput) {
-		System.out.println (getName() + ".waitTillFinished - Scheduler not done. Reply was <" + response.trim() + ">");
-	  }
+	System.out.println (getName() + ".waitTillFinished - Scheduler not done. Reply was <" + response.trim() + ">");
+      }
 
       try { Thread.sleep (waitTime); } catch (Exception e) {}
     }
@@ -473,6 +553,34 @@ public class VishnuComm {
     return gotAnswer;
   }
 
+  /** 
+   * <pre>
+   * Get the answer back from the web site/scheduler 
+   *
+   * Called by XMLResultHandler
+   *
+   * Calls readXML with the assignment handler
+   *
+   * </pre>
+   * @see XMLResultHandler#parseAnswer
+   * @see #readXML
+   **/
+  public void getAnswer (DefaultHandler assignmentHandler) {
+    try {
+      String url = "http://" + hostName + phpPath + assignmentsFile + getWaitPostVars();
+      URL aURL = new URL (url);
+
+      if (myExtraOutput)
+	System.out.println (getName () + ".getAnswer - reading from " + url);
+
+      readXML (aURL, assignmentHandler);
+    } catch (Exception e) {
+      System.out.println (getName () + ".getAnswer - BAD URL : " + e);
+      e.printStackTrace ();
+    }
+  }
+
+  /** create wait URL */
   protected String getWaitPostVars () {
     StringBuffer sb = new StringBuffer ();
     sb.append ("?" + "bogus=ferris&" + getProblemPostVar ());
@@ -480,103 +588,82 @@ public class VishnuComm {
     sb.append ("user=" + myUser + "&");
     sb.append ("password=" + myPassword + "&");
     sb.append ("ferris=bueller");
-	return sb.toString ();
+    return sb.toString ();
   }
   
-  public void getAnswer (DefaultHandler assignmentHandler) {
-	try {
-	  String url = "http://" + hostName + phpPath + assignmentsFile + getWaitPostVars();
-	  URL aURL = new URL (url);
-
-	  if (myExtraOutput)
-		System.out.println (getName () + ".getAnswer - reading from " + url);
-
-	  readXML (aURL, assignmentHandler);
-	} catch (Exception e) {
-	  System.out.println (getName () + ".getAnswer - BAD URL : " + e);
-	  e.printStackTrace ();
-	}
-  }
-
+  /** the problem post variable */
   protected String getProblemPostVar () {
     return "problem=" + myProblem + "&";
   }
 
+  /** the problem instance post variable */
   protected String getInstancePostVar () {
     return "instance=" + myInstance;
   }
 
+  /** the user post variable */
   protected String getUserPostVar () {
     return "user=" + myUser;
   }
 
-  public URLConnection getConnection (String host,
-									  String fileToExec,
-									  String data,
-									  Document doc,
-									  boolean readResponse) {
-    try {
-      String url = "http://" + host + phpPath + fileToExec;
-      URL newURL = new URL (url);
-      URLConnection connection = newURL.openConnection();
-      connection.setDoOutput (true);
-      connection.setDoInput  (readResponse);
-
-	  return connection;
-    } catch (Exception e) {
-      System.out.println ("BAD URL : " + e);
-	  e.printStackTrace ();
-      return null;
-    }
-  }
-
+  /** 
+   * Posts data to a URL, given the host, the php file, the URL header data, the doc to send
+   *
+   * @return response, if asked for one with <code>readResponse</code>
+   */
   public String postToURL (String host,
-						   String fileToExec,
-						   String data,
-						   Document doc,
-						   boolean readResponse) {
+			   String fileToExec,
+			   String data,
+			   Document doc,
+			   boolean readResponse) {
     try {
       String url = "http://" + host + phpPath + fileToExec;
       if (testing) {
-		System.out.println ("postToURL - (complete) Sending to : " + url);
-		System.out.println (java.net.URLDecoder.decode(data));
+	System.out.println ("postToURL - (complete) Sending to : " + url);
+	System.out.println (java.net.URLDecoder.decode(data));
       }
       else if (myExtraOutput) {
-		System.out.println ("postToURL - (partial) Sending to : " + url);
-		System.out.println (data.substring (0,
-											(data.length () > 100) ? 100 : data.length()));
+	System.out.println ("postToURL - (partial) Sending to : " + url);
+	System.out.println (data.substring (0,
+					    (data.length () > 100) ? 100 : data.length()));
       }
       return postToURL (new URL (url), 
-						data, doc,
-						readResponse);
+			data, doc,
+			readResponse);
     } catch (Exception e) {
       System.out.println ("BAD URL : " + e);
-	  e.printStackTrace ();
+      e.printStackTrace ();
       return "";
     }
   }
 
+  /** 
+   * Called from other signature  <p>
+   * 
+   * Post data to the URL <br>
+   * If readResponse is true, read the response back from the URL and return it.
+   */
   public String postToURL (URL aURL,
-						   String data,
-						   Document doc,
-						   boolean readResponse) {
+			   String data,
+			   Document doc,
+			   boolean readResponse) {
     try {
       URLConnection connection = aURL.openConnection();
       connection.setDoOutput (true);
       connection.setDoInput  (readResponse);
 
-	  Date start = new Date();
+      Date start = new Date();
       sendData (connection, data, doc);
-	  if (showTiming)
-		domUtil.reportTime (" - postToURL sent " + data.length() + " chars of data in ", start);
+      if (showTiming)
+	domUtil.reportTime (" - postToURL sent " + data.length() + " chars of data in ", start);
 
       if (readResponse) {
-		start = new Date();
-		String response = getResponse (connection);
-		if (showTiming)
-		  domUtil.reportTime (" - postToURL read response of " + response.length() + " in ", start);
-		return response;
-	  }
+	start = new Date();
+	String response = getResponse (connection);
+	if (showTiming)
+	  domUtil.reportTime (" - postToURL read response of " + response.length() + " in ", start);
+	return response;
+      }
     }
     catch(Exception e) {
       System.err.println ("VishnuPlugin.postToURL -- exception sending data to URL : " + aURL +
@@ -585,73 +672,77 @@ public class VishnuComm {
     }
     return "";
   }
-  /**
-    Sends data on the connection.
-   */
 
+  /**
+   * Sends data on the connection.  Writes to buffered stream that wraps the URL output stream. <br>
+   *
+   * Calls VishnuDomUtil.writeDocToStream to do most of work. <br>
+   *
+   * Optionally writes encoded XML to a file.
+   * @see VishnuDomUtil#writeDocToStream
+   */
   public void sendData(URLConnection connection, String data, Document doc) throws IOException {
     if (myExtraOutput) {
-	  System.out.println (name + ".sendData - Sending " + data.length () + " characters.");
-	  System.out.println ("\tData=" + data.substring (0,
-													  (data.length () > 100) ? 100 : data.length()));
+      System.out.println (name + ".sendData - Sending " + data.length () + " characters.");
+      System.out.println ("\tData=" + data.substring (0,
+						      (data.length () > 100) ? 100 : data.length()));
     }
 
     OutputStream os = new BufferedOutputStream(connection.getOutputStream ());
     byte [] bytes = data.getBytes ();
     os.write(bytes);
-	if (doc != null) {
-	  domUtil.writeDocToStream (doc, os);
-	  /*
-	  if (writeXMLToFile) {
-		String fileName = getClusterName () + "_" + numFilesWritten++;
-		System.out.println ("Writing XML to file " + fileName);
-		FileOutputStream temp = new FileOutputStream (fileName);
-		writeDocToStream (doc, temp);
-	  }
-	  */
-	} else if (writeEncodedXMLToFile) {
-	  String fileName = clusterName + "_encoded_" + numFilesWritten++;
-	  System.out.println (name + ".sendData : Writing XML to file " + fileName);
-	  FileOutputStream temp = new FileOutputStream (fileName);
-	  bytes = data.getBytes ();
-	  temp.write(bytes);
-	  temp.flush ();
-	  temp.close ();
+    if (doc != null) {
+      domUtil.writeDocToStream (doc, os);
+      /*
+	if (writeXMLToFile) {
+	String fileName = getClusterName () + "_" + numFilesWritten++;
+	System.out.println ("Writing XML to file " + fileName);
+	FileOutputStream temp = new FileOutputStream (fileName);
+	writeDocToStream (doc, temp);
 	}
+      */
+    } else if (writeEncodedXMLToFile) {
+      String fileName = clusterName + "_encoded_" + numFilesWritten++;
+      System.out.println (name + ".sendData : Writing XML to file " + fileName);
+      FileOutputStream temp = new FileOutputStream (fileName);
+      bytes = data.getBytes ();
+      temp.write(bytes);
+      temp.flush ();
+      temp.close ();
+    }
 	
     os.flush ();
     os.close ();
   }
 
   /**
-   * Returns response as string.
+   * Returns response as string. <br>
    *
    * If there is an IOException on the input stream, will try two more times.
    *
    * @param  connection the url connection to get data from
    * @return String reponse from URL
    */
-
   public String getResponse(URLConnection connection) throws IOException {
     StringBuffer sb = new StringBuffer ();
-	int numTries = 3;
-	boolean madeInputStream = false;
+    int numTries = 3;
+    boolean madeInputStream = false;
     InputStream is = null;
 	
-	while (numTries > 0 && !madeInputStream) {
-	  try {
-		is = connection.getInputStream();
-		madeInputStream = true;
-	  } catch (IOException ioe) {
-		System.out.println (name + ".getResponse - IO Exception on reading from URL, trying again.");
-		numTries--;
-		try { Thread.sleep (5000l); } catch (Exception e) {}
-	  }
-	}
-	if (!madeInputStream) {
-	  System.out.println (name + ".getResponse - ERROR : could not read from URL " + connection);
-	  return null;
-	}
+    while (numTries > 0 && !madeInputStream) {
+      try {
+	is = connection.getInputStream();
+	madeInputStream = true;
+      } catch (IOException ioe) {
+	System.out.println (name + ".getResponse - IO Exception on reading from URL, trying again.");
+	numTries--;
+	try { Thread.sleep (5000l); } catch (Exception e) {}
+      }
+    }
+    if (!madeInputStream) {
+      System.out.println (name + ".getResponse - ERROR : could not read from URL " + connection);
+      return null;
+    }
 
     byte b[] = new byte[1024];
     int len;
@@ -661,6 +752,7 @@ public class VishnuComm {
     return sb.toString ();
   }
 
+  /** post to URL without using URLConnection -- currently not used */
   private static String socketPostToURL (String hostName,
 					 String phpPath,
 					 String url,
@@ -689,18 +781,24 @@ public class VishnuComm {
     return "";
   }
 
+  /** 
+   * Get XML back from URL and give it to a SAX Parser, running the handler 
+   *
+   * @param aURL the URL to read from
+   * @param handler will parse the XML coming from URL
+   **/
   protected void readXML (URL aURL, DefaultHandler handler) {
     try {
       if (myExtraOutput) {
-	  URLConnection connection = aURL.openConnection();
-	  connection.setDoOutput (false);
-	  connection.setDoInput  (true);
+	URLConnection connection = aURL.openConnection();
+	connection.setDoOutput (false);
+	connection.setDoInput  (true);
 
-	  System.out.println (getResponse (connection));
+	System.out.println (getResponse (connection));
       }
 
       SAXParser parser = new SAXParser();
-	  parser.setContentHandler(handler);
+      parser.setContentHandler(handler);
       parser.parse (aURL.toString());
     }
     catch(Exception e) {
@@ -710,41 +808,75 @@ public class VishnuComm {
   }
 
   // necessary configuration parameters - info about the Vishnu web server and mysql user and password
+  /** web server user */
   protected String myUser     = "vishnu";
+  /** web server password */
   protected String myPassword = "vishnu";
+  /** web server host */
   protected String hostName = "dante.bbn.com";
+  /** php path on web server host, relative to document root */
   protected String phpPath  = "/~dmontana/vishnu/";
+  /** root of the URL, set above */
   protected String URL      = "http://" + hostName + phpPath;
+  /** list of hosts the scheduler can run on */
   protected String myLegalHosts = "";
 
   protected String PHP_SUFFIX = ".php";
+  /** php file to execute */
   protected String postProblemFile = "postproblem" + PHP_SUFFIX;
+  /** php file to execute */
   protected String postDataFile    = "postdata" + PHP_SUFFIX;
+  /** php file to execute */
   protected String kickoffFile     = "postkickoff" + PHP_SUFFIX;
+  /** php file to execute */
   protected String readStatusFile  = "readstatus" + PHP_SUFFIX;
+  /** php file to execute */
   protected String assignmentsFile = "assignments" + PHP_SUFFIX;
+  /** php file to execute */
   protected String postCancelFile  = "postcancel" + PHP_SUFFIX;
+  /** message from web server when problem is done */
   protected String done            = "percent_complete=100";
 
+  /** max times to wait between polls in waitTillFinished */
   protected int maxWaitCycles = 10;
+
+  /** wait between polls in waitTillFinished */
   protected long waitTime      = 1000;
 
+  /** problem name */
   protected String myProblem  = "testProblem";
+  /** not used... */
   protected String myInstance = "testInstance";
 
+  /** parameter -- dump timing results to stdout */
   protected boolean showTiming;
-  protected boolean testing;
-  protected boolean myExtraOutput;
-  protected boolean myExtraExtraOutput;
-  protected boolean writeEncodedXMLToFile;
-  protected boolean writeXMLToFile = false;
-  protected String name;
-  protected String clusterName;
-  protected VishnuDomUtil domUtil;
-  protected int numFilesWritten = 0; // how many files have been written out via the writeEncodedXMLToFile flag
 
+  /** parameter -- write complete URL to stdout -- little used */
+  protected boolean testing;
+  /** parameter -- write verbose debug output to stdout */
+  protected boolean myExtraOutput;
+  /** parameter -- write really verbose debug output to stdout */
+  protected boolean myExtraExtraOutput;
+  /** parameter -- write encoded xml to a file */
+  protected boolean writeEncodedXMLToFile;
+  /** parameter -- write xml to a file */
+  protected boolean writeXMLToFile = false;
+  /** name of the cluster+plugin */
+  protected String name;
+  /** name of the cluster */
+  protected String clusterName;
+  /** dom helper */
+  protected VishnuDomUtil domUtil;
+
+  /** how many files have been written out via the writeEncodedXMLToFile or writeXMLToFile flag */
+  protected int numFilesWritten = 0; 
+
+  /** param table from plugin */
   protected ParamMap myParamTable;
+  /** parameter -- run internally (when true) or externally */
   protected boolean runInternal;
   private static final int INITIAL_INTERNAL_BUFFER_SIZE = 16384; //2097152; // 2 M
+
+  /** holds data posted to URLs when running internally */
   protected StringBuffer internalBuffer = new StringBuffer ();
 }

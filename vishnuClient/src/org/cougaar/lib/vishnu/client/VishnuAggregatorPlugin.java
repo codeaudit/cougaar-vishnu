@@ -116,6 +116,7 @@ import org.cougaar.core.plugin.PluginBindingSite;
  */
 public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregatorPlugin, UTILExpansionListener {
 
+  /** creates an XMLResultHandler specially for this plugin */
   protected XMLResultHandler createXMLResultHandler () {
     return new AggregateXMLResultHandler (this, comm, xmlProcessor, domUtil, config, getMyParams ());
   }
@@ -145,7 +146,15 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 
   /*** Callback for input tasks ***/
   protected UTILWorkflowCallback   myWorkflowCallback;
-  /** Callback for input tasks ***/
+  /** 
+   * Callback for input tasks 
+   *
+   * Creates an instance of the WorkflowCallback, which means the plugin
+   * is looking for tasks that are part of workflows.
+   *
+   * @param bufferingThread -- the thread the callback informs when there are new input tasks
+   * @return UTILFilterCallback -- an instance of UTILWorkflowCallback
+   **/
   protected UTILFilterCallback createThreadCallback (UTILGenericListener bufferingThread) { 
     if (myExtraOutput)
       System.out.println (getName () + " Filtering for tasks with Workflows...");
@@ -321,6 +330,7 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
   }
   
   /**
+   * <pre>
    * Makes an aggregation given a list of assignments.
    * 
    * Makes an aggregation with a medium confidence and publishes it.  
@@ -343,6 +353,7 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
    *  5) Makes Mp task parent task list reflect new parent tasks
    *  6) Makes aggregations connecting parent tasks to mp task
    *
+   * </pre>
    * @param taskList - tasks for this asset
    * @param anAsset that these tasks are grouped for
    * @param start time start
@@ -352,8 +363,8 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
    * @see org.cougaar.planning.ldm.plan.Aggregation
    * @see org.cougaar.planning.ldm.plan.MPTask
    * @see org.cougaar.lib.vishnu.client.VishnuPlugin#makeSetupWrapupExpansion
-   * <a href="http://www.cougaar.org/projects/vishnu/fulldoc.html#specs">
-   * Click here for more about setup and wrapup specifications.</a>
+   * @see <a href="http://www.cougaar.org/projects/vishnu/fulldoc.html#specs">
+   * Click here for more on setup and wrapup specifications.</a>
    */
   public void makePlanElement (Vector tasklist, Asset anAsset, Date start, Date end, Date setupStart, Date wrapupEnd,
 			       boolean assetWasUsedBefore) {
