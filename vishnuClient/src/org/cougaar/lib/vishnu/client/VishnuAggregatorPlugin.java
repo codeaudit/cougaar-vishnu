@@ -775,7 +775,7 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
       if (at == AspectType.START_TIME)
 	result += 1000.0d; // BOZO : hack -- still needed?
 
-      tmp_av_vec.addElement(new AspectValue(at, result));
+      tmp_av_vec.addElement(AspectValue.newAspectValue(at, result));
 
       //debug (getName() + ".makeAVsFromPrefs - adding type " + at + " value " + result);
     }      
@@ -811,7 +811,7 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 	// allocate as if you can do it at the "Best" point
 	result = ((AspectScorePoint)sf.getBest()).getValue();
       }
-      tmp_av_vec.addElement(new AspectValue(at, result));
+      tmp_av_vec.addElement(AspectValue.newAspectValue(at, result));
     }      
 
     AspectValue [] avs = new AspectValue[tmp_av_vec.size()];
