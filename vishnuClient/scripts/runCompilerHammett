@@ -1,2 +1,2 @@
-java -Dorg.cougaar.lib.vishnu.server.host=hammett.bbn.com -Dorg.cougaar.lib.vishnu.server.path="/vishnu/php/" -Dorg.cougaar.lib.vishnu.server.user=root -Dorg.cougaar.lib.vishnu.server.password="abc123" -Dorg.cougaar.lib.vishnu.server.debugXML=false org.cougaar.lib.vishnu.server.ExpressionCompiler
+java -Dvishnu.host=hammett.bbn.com -Dvishnu.path="/vishnu/php/" -Dvishnu.user=root -Dvishnu.password="abc123" -Dvishnu.debugXML=false org.cougaar.lib.vishnu.server.ExpressionCompiler
 

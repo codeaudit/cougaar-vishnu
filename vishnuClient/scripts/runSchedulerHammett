@@ -1,2 +1,2 @@
-java -Dorg.cougaar.lib.vishnu.server.host=hammett.bbn.com -Dorg.cougaar.lib.vishnu.server.path="/vishnu/php/" -Dorg.cougaar.lib.vishnu.server.debug=false -Dorg.cougaar.lib.vishnu.server.Scheduler.debug=true -Dorg.cougaar.lib.vishnu.server.Scheduler.php4=true -Dorg.cougaar.lib.vishnu.server.TimeBlock.debug=false -Dorg.cougaar.lib.vishnu.server.debugXML=false -Dorg.cougaar.lib.vishnu.server.user=root -Dorg.cougaar.lib.vishnu.server.password=abc123 -Xms60m -Xmx100m org.cougaar.lib.vishnu.server.Scheduler 
+java -Dvishnu.host=hammett.bbn.com -Dvishnu.path="/vishnu/php/" -Dvishnu.debug=false -Dvishnu.Scheduler.debug=true -Dvishnu.TimeBlock.debug=false -Dvishnu.debugXML=false -Dvishnu.user=root -Dvishnu.password=abc123 -Xms60m -Xmx100m org.cougaar.lib.vishnu.server.Scheduler 
 

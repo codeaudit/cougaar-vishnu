@@ -24,7 +24,7 @@ REM     If empty or undefined, scheduler will try to schedule all problems
 REM     posted to web server.  
 REM
 REM     Can be a comma separated list,
-REM     e.g. -Dorg.cougaar.lib.vishnu.server.Scheduler.machines="pumpernickle, hammet"
+REM     e.g. -Dvishnu.Scheduler.machines="pumpernickle, hammet"
 REM
 REM	  The scheduler will print which problems it's scheduling, so if you see problems 
 REM     that aren't yours, you may want to restrict your scheduler.
@@ -33,8 +33,8 @@ REM  8) problems - Specific problems this scheduler is restricted to handle.  Fo
 REM  instance, if there were two problems running on machine X, and you had schedulers
 REM  on machines Y and Z, and you wanted to make sure the scheduler on machine Y was only
 REM  doing problem #1 and the scheduler on Z only do problem #2.  In this case, 
-REM   on Y, you'd set -Dorg.cougaar.lib.vishnu.server.Scheduler.problems="problem_1" and
-REM   on Z, you'd set -Dorg.cougaar.lib.vishnu.server.Scheduler.problems="problem_2"
+REM   on Y, you'd set -Dvishnu.Scheduler.problems="problem_1" and
+REM   on Z, you'd set -Dvishnu.Scheduler.problems="problem_2"
 REM
 REM  Debugging params (safe to ignore):
 REM
@@ -44,18 +44,18 @@ REM  11) debug - general debug
 REM  12) debugXML - show XML sent and received over URLs 
 REM      (scheduler will not actually process requests)
 
-set PROPERTIES=-Dorg.cougaar.lib.vishnu.server.host=alp-107.alp.isotic.org
-set PROPERTIES=%PROPERTIES% -Dorg.cougaar.lib.vishnu.server.path="/~demo/TOPS/vishnu/php/"
-set PROPERTIES=%PROPERTIES% -Dorg.cougaar.lib.vishnu.server.user=root
-set PROPERTIES=%PROPERTIES% -Dorg.cougaar.lib.vishnu.server.password=""
-set PROPERTIES=%PROPERTIES% -Dorg.cougaar.lib.vishnu.server.Scheduler.showAssignments=false
-set PROPERTIES=%PROPERTIES% -Dorg.cougaar.lib.vishnu.server.Scheduler.waitInterval=1000
-set PROPERTIES=%PROPERTIES% -Dorg.cougaar.lib.vishnu.server.Scheduler.machines=""
-set PROPERTIES=%PROPERTIES% -Dorg.cougaar.lib.vishnu.server.Scheduler.problems=""
-set PROPERTIES=%PROPERTIES% -Dorg.cougaar.lib.vishnu.server.Scheduler.debug=false
-set PROPERTIES=%PROPERTIES% -Dorg.cougaar.lib.vishnu.server.TimeBlock.debug=false
-set PROPERTIES=%PROPERTIES% -Dorg.cougaar.lib.vishnu.server.debug=false
-set PROPERTIES=%PROPERTIES% -Dorg.cougaar.lib.vishnu.server.debugXML=false
+set PROPERTIES=-Dvishnu.host=alp-107.alp.isotic.org
+set PROPERTIES=%PROPERTIES% -Dvishnu.path="/~demo/TOPS/vishnu/php/"
+set PROPERTIES=%PROPERTIES% -Dvishnu.user=root
+set PROPERTIES=%PROPERTIES% -Dvishnu.password=""
+set PROPERTIES=%PROPERTIES% -Dvishnu.Scheduler.showAssignments=false
+set PROPERTIES=%PROPERTIES% -Dvishnu.Scheduler.waitInterval=1000
+set PROPERTIES=%PROPERTIES% -Dvishnu.Scheduler.machines=""
+set PROPERTIES=%PROPERTIES% -Dvishnu.Scheduler.problems=""
+set PROPERTIES=%PROPERTIES% -Dvishnu.Scheduler.debug=false
+set PROPERTIES=%PROPERTIES% -Dvishnu.TimeBlock.debug=false
+set PROPERTIES=%PROPERTIES% -Dvishnu.debug=false
+set PROPERTIES=%PROPERTIES% -Dvishnu.debugXML=false
 
 java %PROPERTIES% -Xms60m -Xmx100m org.cougaar.lib.vishnu.server.Scheduler 
 

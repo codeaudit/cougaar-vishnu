@@ -21,9 +21,9 @@
 #      (scheduler will not actually process requests)
 
 java \
--Dorg.cougaar.lib.vishnu.server.host=alp-107.alp.isotic.org \
--Dorg.cougaar.lib.vishnu.server.path="/~demo/TOPS/vishnu/php/" \
--Dorg.cougaar.lib.vishnu.server.user=root \
--Dorg.cougaar.lib.vishnu.server.password="" \
--Dorg.cougaar.lib.vishnu.server.debugXML=false org.cougaar.lib.vishnu.server.ExpressionCompiler
+-Dvishnu.host=alp-107.alp.isotic.org \
+-Dvishnu.path="/~demo/TOPS/vishnu/php/" \
+-Dvishnu.user=root \
+-Dvishnu.password="" \
+-Dvishnu.debugXML=false org.cougaar.lib.vishnu.server.ExpressionCompiler
 

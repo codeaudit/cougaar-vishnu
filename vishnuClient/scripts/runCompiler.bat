@@ -23,10 +23,10 @@ REM
 REM  5) debugXML - show XML sent and received over URLs 
 REM      (scheduler will not actually process requests)
 
-set PROPERTIES=-Dorg.cougaar.lib.vishnu.server.host=alp-107.alp.isotic.org
-set PROPERTIES=%PROPERTIES% -Dorg.cougaar.lib.vishnu.server.path="/~demo/TOPS/vishnu/php/"
-set PROPERTIES=%PROPERTIES% -Dorg.cougaar.lib.vishnu.server.user=root
-set PROPERTIES=%PROPERTIES% -Dorg.cougaar.lib.vishnu.server.password=""
+set PROPERTIES=-Dvishnu.host=alp-107.alp.isotic.org
+set PROPERTIES=%PROPERTIES% -Dvishnu.path="/~demo/TOPS/vishnu/php/"
+set PROPERTIES=%PROPERTIES% -Dvishnu.user=root
+set PROPERTIES=%PROPERTIES% -Dvishnu.password=""
 
 java %PROPERTIES% org.cougaar.lib.vishnu.server.ExpressionCompiler
 
