@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.27 2001-08-03 15:09:40 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.28 2001-08-03 16:55:40 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -87,17 +87,25 @@ public class SchedulingData {
       frozenTasks.put (task, a);
   }
 
-  public void freezeTask (Task task) {
-    Assignment a = task.getAssignment();
-    if (a != null)
-      freezeTask (task, a.getResource(), a.getTaskStartTime(),
-                  a.getTaskEndTime());
-  }
-
-  public void freezeTask (Task task, Resource res, int start, int end) {
-    primaryTasks.remove (task);
-    frozenTasks.put (task, new Assignment (task, res, start, start,
-                                           end, end, true, timeOps));
+  public void freezeTask (String task, String res, String start, String end) {
+    Task t = getTask (task);
+    if (t == null) {
+      System.out.println ("Trying to freeze unknown task " + task);
+      return;
+    }
+    Assignment a = t.getAssignment();
+    Resource r = (res != null) ? getResource (res) :
+                 ((a != null) ? a.getResource() : null);
+    int s = (start != null) ? timeOps.stringToTime (start) :
+            ((a != null) ? a.getTaskStartTime() : Integer.MAX_VALUE);
+    int e = (end != null) ? timeOps.stringToTime (end) :
+            ((a != null) ? a.getTaskEndTime() : Integer.MIN_VALUE);
+    if ((r == null) || (s == Integer.MAX_VALUE) || (e == Integer.MIN_VALUE)) {
+      System.out.println ("Missing data for freezing task " + task);
+      return;
+    }
+    primaryTasks.remove (t);
+    frozenTasks.put (t, new Assignment (t, r, s, s, e, e, true, timeOps));
   }
 
   public void unfreezeTask (String key) {
@@ -456,15 +464,8 @@ public class SchedulingData {
 	stack.push (new SchObject (timeOps));
       }
       else if (name.equals ("FROZEN")) {
-        Task task = getTask (atts.getValue ("task"));
-        if (task == null) {
-          System.out.println ("Trying to freeze unknown task " +
-                              atts.getValue ("task"));
-          return;
-        }
-        freezeTask (task, getResource (atts.getValue ("resource")),
-                    timeOps.stringToTime (atts.getValue ("start")),
-                    timeOps.stringToTime (atts.getValue ("end")));
+        freezeTask (atts.getValue ("task"), atts.getValue ("resource"),
+                    atts.getValue ("start"), atts.getValue ("end"));
       }
       else if (! name.equals ("DATA"))
         System.out.println ("SchedulingData.startElement - " + 
@@ -736,13 +737,8 @@ public class SchedulingData {
         globalTypes.clear();
       }
       else if (name.equals ("FREEZE")) {
-        Task task = getTask (atts.getValue ("task"));
-        if (task == null) {
-          System.out.println ("Trying to freeze unknown task " + 
-                              atts.getValue ("task"));
-          return;
-        }
-        freezeTask (task);
+        freezeTask (atts.getValue ("task"), atts.getValue ("resource"),
+                    atts.getValue ("start"), atts.getValue ("end"));
       }
       else if (name.equals ("UNFREEZE")) {
         unfreezeTask (atts.getValue ("task"));
@@ -750,7 +746,7 @@ public class SchedulingData {
       else if (name.equals ("FREEZEALL")) {
         Task[] tasks = getTasks();
         for (int i = 0; i < tasks.length; i++)
-          freezeTask (tasks[i]);
+          freezeTask (tasks[i].getKey(), null, null, null);
       }
       else if (name.equals ("UNFREEZEALL")) {
         Task[] tasks = getTasks();
