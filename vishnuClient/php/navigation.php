@@ -15,7 +15,7 @@
 <TITLE><? getTitle (); ?></TITLE> 
 </HEAD>
 
-<BODY>
+<BODY bgcolor="white">
 <DIV align=center>
 <table border=0 width=100%>
 <tr>
