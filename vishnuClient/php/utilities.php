@@ -255,7 +255,8 @@
     $result = mysql_db_query ("vishnu_prob_" . $problem,
                               "select * from window;");
     $value = mysql_fetch_array ($result);
-    if ((! $value) || ($value["start_time"] == "NULL"))
+    if ((! $value) || (! $value["start_time"]) ||
+        ($value["start_time"] == "NULL"))
       $window["start_time"] = makedate (time());
     else
       $window["start_time"] = $value["start_time"];
