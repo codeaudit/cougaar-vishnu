@@ -225,8 +225,15 @@ public class VishnuAllocatorPlugIn extends VishnuPlugIn implements UTILAllocator
    * </pre>
    */
   public void handleRemovedAlloc (Allocation alloc) {
-	  
-    System.out.println("VishnuAllocatorPlugIn.handleRemovedAlloc called");
+	if (myExtraOutput || true) {
+	  String owner = "?";
+	  try {
+		owner =  alloc.getTask().getDirectObject().getUID().getOwner();
+	  } catch (Exception e) {}
+	
+	  System.out.println(getName() + ".handleRemovedAlloc called for task " + alloc.getTask().getUID() + 
+						 " from unit " + owner);
+	}
 
     Vector removedTasks = new Vector();
     removedTasks.add(alloc.getTask());
