@@ -1,5 +1,3 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/ClientComms.java,v 1.9 2001-04-12 17:50:30 dmontana Exp $
-
 package org.cougaar.lib.vishnu.server;
 
 import java.io.*;
@@ -81,11 +79,16 @@ public class ClientComms {
       os.write (request.getBytes());
 
       InputStream is = socket.getInputStream();
+
       StringBuffer sb = new StringBuffer ();
       byte b[] = new byte[1024];
       int len;
       while ((len = is.read(b)) > -1)
         sb.append (new String(b, 0, len));
+
+	  os.close ();
+	  is.close ();
+	  
       return sb.toString();
 
     } catch (ConnectException ce) {
