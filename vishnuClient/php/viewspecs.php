@@ -307,7 +307,8 @@
                                   $value["test_id"]), 1000, 1);
       $href = "editcolorspec.php?color=" . $value["color"] . "&" .
               $args . "&title=" . urlencode ($value["title"]) .
-              "&expression=" . urlencode (encodeexp ($exp));
+              "&expression=" . urlencode (encodeexp ($exp)) .
+              "&objtype=" . $value["obj_type"];
       $href = htmlspecialchars ($href);
       echo "<TR><TD bgcolor=\"#e1e1e1\">" .
            "<A HREF=\"" . $href . "\"><IMG SRC=\"rect.php?red=" .

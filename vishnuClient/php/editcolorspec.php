@@ -38,7 +38,7 @@
   }    
 
   function mainContent () {
-    global $problem, $color, $expression, $title;
+    global $problem, $color, $expression, $title, $objtype;
     echo "<FORM METHOD=get ACTION=\"updatespec.php\">\n";
     $colors = array ($color);
     $color_defs = array();
@@ -53,11 +53,6 @@
     }
     echo "<table><tr><td align=right>Color</td>\n<td>";
     multiplechoice ("color", $colors, $color);
-    $result = mysql_db_query ("vishnu_prob_" . $problem,
-                              "select * from color_tests where color=\"" .
-                              $color . "\";");
-    $value = mysql_fetch_array ($result);
-    mysql_free_result ($result);
     echo "</td></tr><tr><td align=right>Object Type</td>\n<td>";
     $result = mysql_db_query ("vishnu_prob_" . $problem,
                   "select multitasking, setup_display, " .
@@ -71,7 +66,7 @@
     if ($value[2] == "color")
       $arr[] = $isg ? "grouped_wrapup" : "wrapup";
     $arr[] = "activity";
-    multiplechoice ("objtype", $arr, $value["obj_type"]);
+    multiplechoice ("objtype", $arr, $objtype);
     echo "</td></tr><tr><td align=right>" .
          "Description for legend</td>\n<td>";
     echo "<INPUT type=\"text\" size=30 maxlength=80 name=\"title\" " .
