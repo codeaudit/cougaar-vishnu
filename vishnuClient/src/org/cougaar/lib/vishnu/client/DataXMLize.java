@@ -611,14 +611,17 @@ public class DataXMLize extends FormatXMLize {
     Element listTag = createList (doc);
 	fieldElem.appendChild (listTag);
 
-	for (Iterator iter = rs.iterator (); iter.hasNext (); ) {
-	  TimeSpan elem = (TimeSpan) iter.next ();
-	  Element value = createValue (doc);
-	  listTag.appendChild (value);
-	  value.appendChild (createLittleInterval (doc, 
-											   new Date (elem.getStartTime ()),
-											   new Date (elem.getEndTime   ())));
+	if (!rs.isEmpty ()) {
+	  for (Iterator iter = rs.iterator (); iter.hasNext (); ) {
+		TimeSpan elem = (TimeSpan) iter.next ();
+		Element value = createValue (doc);
+		listTag.appendChild (value);
+		value.appendChild (createLittleInterval (doc, 
+												 new Date (elem.getStartTime ()),
+												 new Date (elem.getEndTime   ())));
+	  }
 	}
+	
 	return fieldElem;
   }
   
