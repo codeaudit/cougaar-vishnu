@@ -1,4 +1,4 @@
-/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/Attic/VishnuPlugIn.java,v 1.9 2001-02-21 00:38:18 gvidaver Exp $ */
+/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/Attic/VishnuPlugIn.java,v 1.10 2001-02-21 02:19:39 gvidaver Exp $ */
 
 package org.cougaar.lib.vishnu.client;
 
@@ -30,25 +30,11 @@ import org.cougaar.core.society.UniqueObject;
 import org.cougaar.util.StringKey;
 import org.cougaar.util.UnaryPredicate;
 import org.cougaar.util.TimeSpan;
-import org.cougaar.core.util.XMLizable;
 
-import java.io.CharArrayReader;
-import java.io.CharArrayWriter;
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.io.IOException;
-import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.io.StringReader;
-import java.io.StringWriter;
-
-import java.net.MalformedURLException;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.net.URL;
-import java.net.URLConnection;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -68,26 +54,18 @@ import java.util.TreeSet;
 import java.util.Vector;
 
 import org.apache.xerces.dom.DocumentImpl;
-import org.apache.xerces.parsers.DOMParser;
 import org.apache.xerces.parsers.SAXParser;
-import org.apache.xml.serialize.OutputFormat;
-import org.apache.xml.serialize.TextSerializer;
-import org.apache.xml.serialize.XMLSerializer;
 
-import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Text;
 
 import org.xml.sax.AttributeList;
 import org.xml.sax.HandlerBase;
 import org.xml.sax.InputSource;
 import org.xml.sax.Parser;
 import org.xml.sax.SAXException;
-import org.xml.sax.helpers.ParserFactory;
 
 import org.cougaar.lib.vishnu.server.Scheduler;
 import org.cougaar.lib.vishnu.client.VishnuComm;
