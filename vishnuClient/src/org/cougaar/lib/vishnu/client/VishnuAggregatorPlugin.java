@@ -618,7 +618,12 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
     Date earlyDate = start.after (prefHelper.getEarlyDate(firstParentTask)) ?
       start : prefHelper.getEarlyDate(firstParentTask);
 	
-    Vector prefs = allocHelper.enumToVector(firstParentTask.getPreferences());
+    Vector prefs;
+
+    synchronized (firstParentTask) { // bug #2124
+      prefs = allocHelper.enumToVector(firstParentTask.getPreferences());
+    };
+
     prefs = prefHelper.replacePreference (prefs, prefHelper.makeStartDatePreference (ldmf, start));
     prefs = prefHelper.replacePreference (prefs, 
 					      prefHelper.makeEndDatePreference (ldmf, 
@@ -720,7 +725,10 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
     int i = 0;
     for (Iterator iter = g.iterator (); iter.hasNext (); ) {
       Task task = (Task) iter.next ();
-      Vector preferences = allocHelper.enumToVector(task.getPreferences ());
+      Vector preferences;
+      synchronized (task) { // synchronize on a task's preferences when you get them - bug #2124
+	preferences = allocHelper.enumToVector(task.getPreferences ());
+      }
       // all the time-only preference items will share the same aspects
       if (preferences.size () == 2) {
 	if (timeOnlyAspects == null)

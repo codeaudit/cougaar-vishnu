@@ -1047,7 +1047,9 @@ public abstract class VishnuPlugin
   protected Task createMainTask (Task task, Asset asset, Date start, Date end, Date setupStart, Date wrapupEnd) {
     NewTask mainTask = (NewTask) expandHelper.makeSubTask (ldmf, task, task.getDirectObject(), task.getSource());
     mainTask.setPrepositionalPhrases (getPrepPhrases (task, asset).elements());
-    mainTask.setPreferences (getPreferences (task, start, start, end, end).elements());
+    synchronized (task) { // bug #2124
+      mainTask.setPreferences (getPreferences (task, start, start, end, end).elements());
+    }
     if (isDebugEnabled()) debug (getName () + ".createMainTask : made main task : " + mainTask.getUID());
     return mainTask;
   }
