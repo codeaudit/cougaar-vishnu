@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/ClientComms.java,v 1.1 2001-01-10 19:29:55 rwu Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/ClientComms.java,v 1.2 2001-01-25 15:28:31 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -78,8 +78,9 @@ public class ClientComms {
 		sb.append (new String(b, 0, len));
 	  
 	  return sb.toString();
-    }
-    catch(Exception e) {
+    } catch (ConnectException ce) {
+      printDiagnostic (ce, null);
+    } catch(Exception e) {
       System.err.println (e.getMessage());
       e.printStackTrace();
     }
@@ -88,15 +89,21 @@ public class ClientComms {
 
   private static Exception printDiagnostic (Exception e, String stringURL) {
     System.err.println (e.getMessage());
-    System.out.println
-      ("ClientComms.readXML - could not connect to :\n" + stringURL);
+    if (stringURL != null)
+      System.out.println
+        ("ClientComms.readXML - could not connect to :\n" + stringURL);
     System.out.println
       ("The Java command-line variables you can set are:");
-    System.out.println ("-Dorg.cougaar.lib.vishnu.server.host");
-    System.out.println ("-Dorg.cougaar.lib.vishnu.server.path");
-    System.out.println ("-Dorg.cougaar.lib.vishnu.server.user");
-    System.out.println ("-Dorg.cougaar.lib.vishnu.server.password");
-    System.out.println ("-Dorg.cougaar.lib.vishnu.server.port");
+    System.out.println ("-Dorg.cougaar.lib.vishnu.server.host" +
+                        " (default = localhost)");
+    System.out.println ("-Dorg.cougaar.lib.vishnu.server.path" +
+                        " (default = /~vishnu/)");
+    System.out.println ("-Dorg.cougaar.lib.vishnu.server.user" +
+                        " (default = vishnu)");
+    System.out.println ("-Dorg.cougaar.lib.vishnu.server.password" +
+                        " (default = \"\")");
+    System.out.println ("-Dorg.cougaar.lib.vishnu.server.port" +
+                        " (default = 80)");
     return e;
   }
 
