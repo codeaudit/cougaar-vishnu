@@ -1167,77 +1167,342 @@ first before attempting to read this section.
 
 <? makeSubsection ("Overview", "br1"); ?>
 
-<P>The Cougaar-Vishnu Bridge is used to connect a <a href="http://www.cougaar.org">Cougaar</a> plugin to the Vishnu Scheduling System.  The bridge is instantiated in the usual plugin flavors: expander, allocator, and aggregator. Typically an allocator would be used for a one-to-one scheduling problem and an aggregator for a many-to-one problem.  Sometimes a task-to-resource assignment needs to be made in an expander and that assignment recorded in prepositions on the new subtask of the expansion.  Such an assignment might be a piece of necessary information for a downstream plugin.</P>
-
-<P>The Bridge interfaces between a <a href="http://www.cougaar.org">Cougaar</a> plugin and Vishnu by mapping <a href="http://www.cougaar.org">Cougaar</a> tasks and assets to Vishnu tasks and resources.  LDM objects are translated into XML of a form that Vishnu understands, and Vishnu assignments, expressed in XML, are used to create plan elements.</P>
-
-<P>Each instance of a bridge plugin maps to a problem in the Vishnu database. When a bridge plugin receives a task for the first time, it sends its problem definition to Vishnu.  The problem definition is composed of the object format of the tasks and resources, the scheduling specs, the GA parameters, the object format of any other data that is neither task nor resource, and that other data itself.</P>
-
-<P>The object format of the tasks and resources is automatically generated from the plugin's tasks and assets, but the other parts of the problem definition are defined by files associated with the plugin.</P>
-
-<P>The associated files are, by default, the name of the cluster, with a suffix identifying the type of file.  For instance, a cluster named Sample with a bridge plugin might have the following files:</P>
-
-<div align=center>
-<TABLE BORDER CELLSPACING=1 CELLPADDING=7>
-<TR><TD WIDTH=120 VALIGN="TOP">
-<B><P>File</B></TD>
-<TD WIDTH=270 VALIGN="TOP">
-<B><P>Description</B></TD>
-<TD WIDTH=90 VALIGN="TOP">
-<B><P>Required</B></TD>
-</TR>
-<TR><TD WIDTH=120 VALIGN="TOP">
-<P>Sample.vsh.xml</TD>
-<TD WIDTH=270 VALIGN="TOP">
-<P>Scheduling specifications for the problem</TD>
-<TD WIDTH=90 VALIGN="TOP">
-<P>Yes</TD>
-</TR>
-<TR><TD WIDTH=120 VALIGN="TOP">
-<P>Sample.ga.xml</TD>
-<TD WIDTH=270 VALIGN="TOP">
-<P>GA parameters for the problem</TD>
-<TD WIDTH=90 VALIGN="TOP">
-<P>Yes</TD>
-</TR>
-<TR><TD WIDTH=120 VALIGN="TOP">
-<P>Sample.odf.xml</TD>
-<TD WIDTH=270 VALIGN="TOP">
-<P>Object format(s) for the other data</TD>
-<TD WIDTH=90 VALIGN="TOP">
-<P>Optional</TD>
-</TR>
-<TR><TD WIDTH=120 VALIGN="TOP" HEIGHT=14>
-<P>Sample.odd.xml</TD>
-<TD WIDTH=270 VALIGN="TOP" HEIGHT=14>
-<P>Instance of the other data</TD>
-<TD WIDTH=90 VALIGN="TOP" HEIGHT=14>
-<P>Optional</TD>
-</TR>
-</TABLE>
+<p>The Cougaar-Vishnu Bridge is used to connect a <a href="http://www.cougaar.org">
+Cougaar</a>
+ plugin to the Vishnu Scheduling System.  The bridge is instantiated in the
+usual plugin flavors: expander, allocator, and aggregator. Typically an allocator
+would be used for a one-to-one scheduling problem (multitasking = none/ignoring_time)
+and an aggregator for a many-to-one problem (multitasking = grouped/ungrouped).
+ (Sometimes a task-to-resource assignment needs to be made in an expander
+and that assignment recorded in prepositions on the new subtask of the expansion.
+ Such an assignment might be a piece of necessary information for a downstream
+plugin.)</p>
+<p> The Bridge interfaces between a <a href="http://www.cougaar.org">Cougaar</a>
+ plugin and Vishnu by mapping <a href="http://www.cougaar.org">Cougaar</a>
+ tasks and assets to Vishnu tasks and resources. LDM objects are translated
+into Vishnu objects so they can be manipulated by the Vishnu scheduler. 
+The scheduler creates Vishnu assignments, and these are used to create plan
+elements.</p>
+<p>When a bridge plugin receives a task for the first time, it sends its
+problem definition to Vishnu.  The problem definition is composed of the
+object format of the tasks and resources, the scheduling specs, the GA parameters,
+the object format of any other data that is neither task nor resource, and
+that other data itself.</p>
+<p></p>
+<p>The associated files are, by default, the name of the cluster, with a suffix
+identifying the type of file.  For instance, a cluster named Sample with
+a bridge plugin might have the following files:</p>
+<div align="Center">
+<table border="1" cellspacing="1" cellpadding="7">
+  <tbody>
+    <tr>
+      <td width="120" valign="Top">
+      <p><b>File</b></p>
+      </td>
+      <td width="270" valign="Top">
+      <p><b>Description</b></p>
+      </td>
+      <td width="90" valign="Top">
+      <p><b>Required</b></p>
+      </td>
+    </tr>
+    <tr>
+      <td width="120" valign="Top">
+      <p>Sample.vsh.xml</p>
+      </td>
+      <td width="270" valign="Top">
+      <p>Scheduling specifications for the problem</p>
+      </td>
+      <td width="90" valign="Top">
+      <p>Yes</p>
+      </td>
+    </tr>
+    <tr>
+      <td width="120" valign="Top">
+      <p>Sample.ga.xml</p>
+      </td>
+      <td width="270" valign="Top">
+      <p>GA parameters for the problem</p>
+      </td>
+      <td width="90" valign="Top">
+      <p>Yes</p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="Top">Sample.env.xml<br>
+      </td>
+      <td valign="Top">Vishnu parameters <br>
+(possibly including vishnu_parameters.env.xml and vishnu_server.xml)<br>
+      </td>
+      <td valign="Top">Usual, but not required<br>
+      </td>
+    </tr>
+    <tr>
+      <td valign="Top">vishnu_parameters.env.xml<br>
+      </td>
+      <td valign="Top">Typical parameters governing Vishnu behavior<br>
+      </td>
+      <td valign="Top">Usual<br>
+      </td>
+    </tr>
+    <tr>
+      <td valign="Top">vishnu_server.env.xml</td>
+      <td valign="Top">Information defining possible web servers, when in
+web-server mode<br>
+      </td>
+      <td valign="Top">Optional<br>
+      </td>
+    </tr>
+    <tr>
+      <td width="120" valign="Top">
+      <p>Sample.odf.xml</p>
+      </td>
+      <td width="270" valign="Top">
+      <p>Object format(s) for the other data</p>
+      </td>
+      <td width="90" valign="Top">
+      <p>Optional</p>
+      </td>
+    </tr>
+    <tr>
+      <td width="120" valign="Top" height="14">
+      <p>Sample.odd.xml</p>
+      </td>
+      <td width="270" valign="Top" height="14">
+      <p>Instance of the other data</p>
+      </td>
+      <td width="90" valign="Top" height="14">
+      <p>Optional<br>
+      </p>
+      </td>
+    </tr>
+    <tr>
+      <td valign="Top">Sample.dff.xml<br>
+      </td>
+      <td valign="Top">Problem data object format<br>
+      </td>
+      <td valign="Top">Optional<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<div align="Left">
+<p>(The problem name can be changed by setting a plugin parameter.)</p>
+<p></p>
 </div>
-
-
-<P>(The problem name can be changed by setting a plugin parameter.)</P>
-
-<P>Once the problem definition is sent to Vishnu, the assets are translated into XML and sent as resource data for the problem.  This is only done the first time.  Then, the tasks are translated into XML and sent.  Now the problem is completely defined and ready to be solved.  The bridge then submits a request to Vishnu to create a schedule.  The bridge waits until a result is ready, and then parses the assignments that are returned to generate plan elements.</P>
-
-<? makeSubsection ("Translation", "br2"); ?>
-
-<P>The translation from Cougaar objects to Vishnu XML is done directly.  Two XML formats are created for Vishnu : the XML that describes the object format or meta-data and the object data itself.  The Cougaar objects are traversed twice, once to create the object format XML and once to create the data XML. (These two XML formats are described separately.)  A Format XMLizer traverses the Cougaar objects to create the format XML and a Data XMLizer traverses these same objects again to create the data XML.</P>
-<div align=center>
-<IMG SRC="Image1.gif" WIDTH=479 HEIGHT=359>
 </div>
-<font size=-1><B>Cougaar-Vishnu bridge implementation.</B> The bridge sends as input to Vishnu the object format, scheduling specs, genetic algorithm parameters, and other data (not pictured).  This defines the problem. Then, the data for the specific job is sent. When the scheduler is finished, XML assignments are returned, and used to create plan elements.</font>
-
-<P><B>Tasks for setup and wrapup durations - </B>Also, note that if a setup or wrapup duration is defined in the specs, separate tasks are created to represent these durations.  These tasks need their allocation results handled differently than those for the task itself, since their time spans may well fall outside of the preferences of the original task.  For example, the time spent for a plane to fly back to base should not be included in the time spent performing the delivery of an item that was on the plane.  This is handled automatically by the Vishnu bridge with a special allocation result aggregator.</P>
-<P>The creation of these wrapup and setup tasks is slightly different for each plugin flavor. For expanders, a one-to-one expansion becomes a one-to-two expansion if one of the specs is defined, and one-to-three if both are.  For aggregators, the MP task created by the aggregation is expanded.  And for allocators, there is a one-to-two or three expansion, and each subtask gets allocated to the assigned resource.  Plugins downstream of aggregators should note that the aggregator will produce either one MP task or multiple tasks depending on the existence of the wrapup or setup durations.</P>
-<P><B>Post processing - </B>
-The Format and Data XMLizers perform some post processing to give unique names to types and fields that have the same name in the corresponding Java object.  For instance, a preposition can have any type of object as an indirect object, so the bridge must figure out what types of indirect objects are present on the tasks and give them separate, unique field names.  In addition, commonly used property groups are given unique names and turned into global data.  These shared property groups are referenced by name in the tasks and resources.</P>
+<p>  </p>
+<div align="Center">
+<div align="Left">
+<p>Once the problem definition is sent to Vishnu, the assets are translated
+and sent (at least once) as resource data for the problem. Then, the tasks
+are translated and sent.  Now the problem  is completely defined and ready
+to be solved.  The bridge then submits a request to Vishnu to create a schedule.
+ The bridge waits until a result is ready, and then parses the assignments
+that are returned to generate plan elements.</p>
+</div>
+</div>
+<p>The Bridge has four orthogonal behaviors that can be controlled through
+parameters or through subclassing of Vishnu client objects.</p>
+<ul>
+  <li>Internal or Web Server</li>
+  <li>Incremental or Batch </li>
+  <li>XML or Direct Translation</li>
+  <li> Automatic or Custom Translation</li>
+</ul>
+<h2>Internal or Web Server</h2>
+<p>Vishnu can run in either <b>internal </b>or <b>web-server</b> mode.  In
+the <b>internal </b>mode, everything happens within a single VM.  There is
+no web server, no separate scheduler process, and no GUI to view the results.
+ However, performance is better.  This is controlled by the <b>runInternal
+</b>flag, which is in the vishnu_parameters file.  The direct translation
+mode is only available when running internally.  The web-server mode is the
+basic Vishnu architecture described in section 2.</p>
+<p>In web-sever mode, each instance of a bridge plugin gets its own Vishnu
+problem name.  Each instance of a bridge plugin maps to a problem in the
+Vishnu database that will appear on the problem list page on the web server.
+ </p>
+<h2>Incremental or Batch mode</h2>
+<p>The plugin has a choice of running in <b>incremental</b>, or <b>batch</b>
+ mode.  This is controlled by the <b>incrementalScheduling </b>flag in the
+parameters file.  In incremental mode, previous assignments are remembered
+and influence future problems.  In batch mode, all problem data is re-submitted
+every time.  In this mode, the prior use of the asset must be indicated in
+one of the scheduling specs, typically the resource unavailability.  The
+implication is that there may be solutions developed that are sub-optimal,
+in the sense that a resource that is only partially used (for instance a
+truck with only one box on it) would be seen as used and unavailable for
+further tasks.</p>
+<p>In incremental mode, Vishnu maintains incremental state, remembering previous
+assignments.  This allows the scheduler to continue assigning tasks to nearly
+empty resources.  The default mode for GLMTrans, for example, is incremental.
+  In addition, the number of tasks in a batch is not as important in incremental
+mode, allowing smaller batches and in larger societies, better performance.
+ The reason for this is if one agent depends on the results of another, it
+is better to have the dependent agent process many small batches quickly,
+instead of doing one large batch, returning one large set of results after
+a long wait.<br>
+</p>
+<p>Not all types of problems benefit from incremental mode. Grouping problems
+would tend to be better run in incremental mode. <br>
+ </p>
+<h2></h2>
+<div align="Center">
+<div align="Left">
+<p></p>
+</div>
+</div>
+<p></p>
+<h2>XML or Direct Translation</h2>
+<p>The plugin has a number of choices as to the nature of the translation
+:   <br>
+</p>
+<ul>
+  <li>    XML Translation</li>
+</ul>
+<p></p>
+<p></p>
+<p>This mode is set by the <b>runInternal </b>and <b>runDirectly </b>flags.
+ If <b>runInternal </b>is false, the communication between bridge and scheduler
+must be through XML.  If <b>runInternal </b>is true and <b>runDirectly </b>
+is false, the communication medium is XML.  </p>
+<p>LDM objects are translated into XML of a form that Vishnu understands, 
+and Vishnu assignments, expressed in XML are returned, and used to create
+plan elements.  <br>
+</p>
+<ul>
+  <li>    Direct Translation</li>
+</ul>
+<p>This mode is set by having both <b>runInternal </b>and <b>runDirectly
+</b>flags set to true.  Here, Vishnu objects are created directly from Cougaar
+objects, without XML as an intermediary representation.</p>
+<p>In neither mode is the plugin developer required to decide whether XML
+or Direct translation is being done.  This handling is at the dataHelper
+level of abstraction.<br>
+</p>
+<p></p>
+<p></p>
+<h2>Automatic or Custom Translation</h2>
+<p>The translation process can either be automatic, requiring no effort on 
+the part of the plugin developer, or custom requiring some coding and object 
+format definition.  </p>
+<b>Automatic </b>mode has the advantage that all the information about the
+tasks and resources is discovered and sent automatically, so it may be easier
+to quickly develop a prototype using this mode.  The disadvantage is that
+a great deal of information is sent, much of which may not be relevant to
+the scheduling task.  This can be especially taxing when in web-server mode.<br>
+<br>
+<b>Custom </b>mode has the advantage that only the fields that are necessary
+for the problem are defined and sent.  This can greatly increase performance.
+ The GLMTrans society runs in this mode. The disadvantage is that the plugin
+developer is forced to write translation code.<br>
+<h3>Custom Translation</h3>
+This requires specifying a &lt;ClusterName&gt;.dff.xml (Default format) file 
+and writing code that works with the translation process to generate the appropriate
+XML or objects.  <br>
+<h4>Default file format</h4>
+For an example of a dff file, this is part of the format from a GLMTrans
+agent:<br>
+<br>
+&lt;?xml version='1.0'?&gt;<br>
+&lt;PROBLEM name="TRANSCOM" &gt;<br>
+  &lt;DATAFORMAT&gt;<br>
+    &lt;OBJECTFORMAT name="Transport" is_task="true" is_resource="false"
+&gt;<br>
+       &lt;FIELDFORMAT name="id" datatype="string" is_subobject="false" is_globalptr="false"
+is_list="false" is_key="true" /&gt;<br>
+       &lt;FIELDFORMAT name="arrival" datatype="datetime" is_subobject="false"
+is_globalptr="false" is_list="false" is_key="false" /&gt;<br>
+ ....<br>
+<p> </p>
+<p>This says that objects named "Transport" are tasks (is_task="true"). It's
+first field is named "id" and it is of type "string." </p>
+<p>This file must be written by hand.  There are many examples in the GLMTrans
+project.</p>
+<h4>Custom code<br>
+ </h4>
+<p>Within the Vishnu client code there is support for custom translation.
+ Essentially this means creating an object that implements the XMLizer and
+DirectTranslator interfaces.  An object that does this already is the CustomDataXMLizer.
+ To do custom translation, you must :</p>
+<p>1) Override VishnuPlugIn.createXMLizer and make it return your XMLizer.
+ Typically this is a subclass of CustomDataXMLizer.<br>
+2) Override CustomDataXMLizer.processTask and processAsset to send the fields
+of the tasks and assets you wish to send.  <br>
+Nested objects, lists, and all the other Vishnu datatypes can be sent.  For
+example, here's a snippet from a GLMTrans plugin:</p>
+<p><font face="Courier New, Courier, monospace">  protected boolean processTask
+(Object object, Object taskOrAsset) {</font><font face="Courier New, Courier, monospace"><br>
+</font><font face="Courier New, Courier, monospace">    super.processTask
+(object, taskOrAsset);</font><font face="Courier New, Courier, monospace"><br>
+</font><font face="Courier New, Courier, monospace">    Task task = (Task)
+taskOrAsset;</font><font face="Courier New, Courier, monospace"><br>
+</font><font face="Courier New, Courier, monospace"><br>
+</font><font face="Courier New, Courier, monospace">    dataHelper.createDateField(object,
+"arrival", UTILPreference.getBestDate(task));</font><font face="Courier New, Courier, monospace"><br>
+</font><font face="Courier New, Courier, monospace">     ....</font><br>
+</p>
+<p>    This will attach a field <b>arrival </b>of type <b>date </b>to the
+task being sent to Vishnu.  The <b>dataHelper </b>is an object that allows
+you to send either XML or directly create Vishnu objects, depending on the
+setting of the <b>runDirectly </b>flag.  If <b>runDirectly </b>is false,
+it will generate XML that looks like: </p>
+&lt;OBJECT type="Transport"&gt; <br>
+....<br>
+&lt;FIELD name="arrival" value="2001-09-21 13:00:00"/&gt; <br>
+....<br>
+<br>
+    There are many example implementations of custom bridges in the GLMTrans
+society.<br>
+<h3>Automatic Translation</h3>
+<p>The object format of the tasks and resources is automatically generated 
+from the plugin's tasks and assets, but the other parts of the problem definition 
+are defined by files associated with the plugin.</p>
+<p>The translation from Cougaar objects to Vishnu XML is done directly. 
+Two XML formats are created for Vishnu : the XML that describes the object
+format or meta-data and the object data itself.  The Cougaar objects are
+traversed twice, once to create the object format XML and once to create
+the data XML. (These two XML formats are described separately.)  A Format
+XMLizer traverses the Cougaar objects to create the format XML and a Data
+XMLizer traverses these same objects again to create the data XML.</p>
+<div align="Center"><img src="Image1.gif" width="479" height="359">
+</div>
+<font size="-1"><b>Cougaar-Vishnu bridge implementation.</b> The bridge sends
+as input to Vishnu the object format, scheduling specs, genetic algorithm
+parameters, and other data (not pictured).  This defines the problem. Then,
+the data for the specific job is sent. When the scheduler is finished, XML
+assignments are returned, and used to create plan elements.</font>
+<p></p>
+<p><b>Post processing - </b> The Format and Data XMLizers perform some post
+processing to give unique names to types and fields that have the same name
+in the corresponding Java object.  For instance, a preposition can have any
+type of object as an indirect object, so the bridge must figure out what
+types of indirect objects are present on the tasks and give them separate,
+unique field names.  In addition, commonly used property groups are given
+unique names and turned into global data.  These shared property groups are
+referenced by name in the tasks and resources.</p>
+<h2><b>Other notes:</b></h2>
+<p><b>Tasks for setup and wrapup durations - </b>Also, note that if a setup 
+or wrapup duration is defined in the specs, separate tasks are created to 
+represent these durations.  These tasks need their allocation results handled 
+differently than those for the task itself, since their time spans may well 
+fall outside of the preferences of the original task.  For example, the time 
+spent for a plane to fly back to base should not be included in the time spent
+performing the delivery of an item that was on the plane.  This is handled
+automatically by the Vishnu bridge with a special allocation result aggregator.</p>
+<p>The creation of these wrapup and setup tasks is slightly different for 
+each plugin flavor. For expanders, a one-to-one expansion becomes a one-to-two 
+expansion if one of the specs is defined, and one-to-three if both are.  For
+aggregators, the MP task created by the aggregation is expanded.  And for
+allocators, there is a one-to-two or three expansion, and each subtask gets
+allocated to the assigned resource. </p>
 
 <? makeSubsection ("Assignment Freezing", "br3"); ?>
 
 <P>There is another facility provided by the bridge for expanders and aggregators.  Since resource availability is represented in the role schedule, and since the role schedule does not reflect an assignment until an allocation is made, there is a gap of time between when an assignment is returned and when the resource's availability reflects the assignment.  During this period, a new task could come in and be scheduled against the asset during the interval of a previous assignment.  To protect against this, expanders and aggregators freeze task assignments until the plugin detects, through the allocation result, that an allocation has been made against the asset.  Once this happens, the assignment is unfrozen and can be cleared from the Vishnu database.</P>
+
+Note : This facility is only active in batch mode.
 
 <? makeSubsection ("Parameters", "br4"); ?>
 
