@@ -335,4 +335,11 @@ public class VishnuAllocationResultAggregator implements AllocationResultAggrega
       return currentar;
     }
   }
+
+  public static class KeyHolder implements Serializable {
+    int[] keys;
+    KeyHolder(int keys[]) {
+      this.keys = keys;
+    }
+  }
 }
