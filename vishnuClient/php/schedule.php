@@ -106,9 +106,38 @@
     }
     echo "</TD></TR>\n";
   }
-
   echo "</TABLE>\n";
-  linkToProblem ($problem);
+
+  $taskstr = "obj_" . $taskobject;
+  $keystr = $taskstr . ".obj_" . $taskkey;
+  $result = mysql_db_query ("vishnu_prob_" . $problem,
+              "select $keystr from $taskstr left join assignments " .
+              "on $keystr = assignments.task_key where assignments" .
+              ".task_key is NULL;");
+  if (mysql_num_rows ($result) == 0)
+    echo "<br><b><font size=+1>All Tasks Assigned</font></b>\n";
+  else {
+?>
+<FORM METHOD="get" ACTION="task.php">
+<b><font size=+1>Unassigned Tasks:&nbsp;</font></b>
+<SELECT NAME="taskname">
+<?
+  while ($value = mysql_fetch_row ($result))
+    echo "<OPTION> $value[0]";
+?>
+</SELECT>
+<INPUT TYPE=hidden NAME="problem" VALUE="<? echo $problem ?>">
+<INPUT TYPE=hidden NAME="taskobject" VALUE="<? echo $taskobject ?>">
+<INPUT TYPE=hidden NAME="taskkey" VALUE="<? echo $taskkey ?>">
+<INPUT TYPE=hidden NAME="resourceobject" VALUE="<? echo $resourceobject ?>">
+<INPUT TYPE=hidden NAME="resourcekey" VALUE="<? echo $resourcekey ?>">
+<INPUT TYPE=submit VALUE="View" NAME="action">
+</FORM>
+<?
+  }
+  mysql_free_result ($result);
+
+//  linkToProblem ($problem);
   mysql_close();
   }
 ?>
