@@ -3,6 +3,7 @@
   require ("utilities.php");
 
   $norightbar = 1;
+  $horizbar = 1;
   require ("navigation.php");
 
   function getTitle () {

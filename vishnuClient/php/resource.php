@@ -5,8 +5,10 @@
 
   if (! $action)
     $action = "View";
-  if ($action == "View")
+  if ($action == "View") {
     $norightbar = 1;
+    $horizbar = 1;
+  }
   require ("navigation.php");
 
   function getTitle () {
