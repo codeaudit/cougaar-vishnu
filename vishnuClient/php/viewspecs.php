@@ -241,7 +241,8 @@
 	"<a href=\"editspec.php?problem=" . $problem . 
 	"&specname=" . urlencode($constraints[$name]) . "\"/>" . 
 	"<font color=green>" . $name . "</font></a>" . 
-	"</TD><TD><font face=\"courier\">" . $value . "</font></TD></TR>\n";
+	"</TD><TD><font face=\"courier\">" .
+        ($value ? $value : "&nbsp;") . "</font></TD></TR>\n";
   }
 
   function dechex2 ($num) {
