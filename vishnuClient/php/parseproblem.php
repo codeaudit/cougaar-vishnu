@@ -330,9 +330,6 @@
       $islist = $attribs["IS_LIST"];
       $iskey = $attribs["IS_KEY"];
       $dt = $attribs["DATATYPE"];
-      // BOZO take this out eventually BOZO
-      if (substr ($dt, 0, 6) == "string")
-        $dt = "string";
       do_query ("prob_" . $problem, "parsing metadata", "field format",
                 $attribs["NAME"],
                 "insert into object_fields values (\"" .
