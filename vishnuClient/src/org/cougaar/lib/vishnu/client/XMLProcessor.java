@@ -930,6 +930,9 @@ public class XMLProcessor {
     public Map getFields () { return fields; }
   }
 
+  protected VishnuComm getComm () { return comm; }
+  protected boolean    getExtraOutput () { return myExtraOutput; }
+  
   protected boolean showFormatXML = false;
   protected boolean showDataXML = false;
   protected boolean debugFormatXMLizer = false;
