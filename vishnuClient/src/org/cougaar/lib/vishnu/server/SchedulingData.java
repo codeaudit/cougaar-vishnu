@@ -1,14 +1,17 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.33 2001-08-15 22:36:55 dmontana Exp $
-
 package org.cougaar.lib.vishnu.server;
 
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.Attributes;
-import java.util.HashMap;
-import java.util.TreeSet;
+
 import java.util.ArrayList;
-import java.util.Stack;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.Stack;
+import java.util.TreeSet;
 
 /**
  * Holds scheduling data for the generic scheduler.
@@ -33,12 +36,7 @@ import java.util.Comparator;
 public class SchedulingData {
 
   private HashMap tasks = new HashMap();
-  private TreeSet frozenTasks = new TreeSet (new Comparator()
-                 { public int compare (Object o1, Object o2) {
-                   int t1 = ((Task) o1).getAssignment().getTaskStartTime();
-                   int t2 = ((Task) o2).getAssignment().getTaskStartTime();
-                   return t1 - t2;
-                 }});
+  private Set frozenTasks = new HashSet ();
   private HashMap linkedToFrozenTasks;
   private ArrayList primaryTasks = new ArrayList();
   private HashMap resources = new HashMap();
@@ -142,6 +140,36 @@ public class SchedulingData {
   public final Task[] getFrozenTasks() {
     Task[] arr = new Task [frozenTasks.size()];
     return (Task[]) frozenTasks.toArray (arr);
+  }
+
+  /** 
+   * Returns a list of frozen tasks, sorted by task start time. <p>
+   * 
+   * Make a list from the set, because sets cannot contain duplicate members. <p>
+   *
+   * When the set is ordered by start time, the set ignores adding a task 
+   * that has the same time as an existing member.  For instance, if all tasks 
+   * to be frozen start at the same time, there will only be one task in the set 
+   * at the end of "adding" them all. 
+   *
+   * @return array of frozen tasks sorted by start time
+   */
+  public final Task[] getSortedFrozenTasks () {
+	List sortedTasks = new ArrayList (frozenTasks);
+	Collections.sort (sortedTasks, 
+					  new Comparator() { 
+						  public int compare (Object o1, Object o2) {
+							int t1 = ((Task) o1).getAssignment().getTaskStartTime();
+							int t2 = ((Task) o2).getAssignment().getTaskStartTime();
+							return t1 - t2;
+						  }
+						}
+					  );
+
+    Task[] arr = new Task [frozenTasks.size()];
+
+	// fills the given array, arr, with the contents of frozenTasks, and returns it
+	return (Task []) sortedTasks.toArray (arr);
   }
 
   public final boolean isFrozen (Task task) {
