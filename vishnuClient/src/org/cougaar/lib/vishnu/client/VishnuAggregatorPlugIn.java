@@ -117,6 +117,9 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
       System.out.println (getName () + " Filtering for tasks with Workflows...");
 
     myWorkflowCallback = new UTILWorkflowCallback  (bufferingThread); 
+	myWorkflowCallback.setExtraDebug (myExtraOutput);
+	myWorkflowCallback.setExtraExtraDebug (myExtraExtraOutput);
+	
     return myWorkflowCallback;
   } 
   /** Callback for input tasks ***/
