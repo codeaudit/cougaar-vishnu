@@ -49,6 +49,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 import java.util.TreeSet;
 import java.util.Vector;
 
@@ -345,7 +346,8 @@ public abstract class VishnuPlugIn
 	changed.add (changedAsset);
     sendDataToVishnu (changed, myNameToDescrip, 
 					  false /* don't clear database */, 
-					  true /* send assets as CHANGEDOBJECTS */);
+					  true /* send assets as CHANGEDOBJECTS */,
+					  singleAssetClassName);
 
 	myFrozenTasks.removeAll (frozenTasks);
   }
@@ -389,7 +391,10 @@ public abstract class VishnuPlugIn
 	  Date start = new Date();
       
 	  if (!sentFormatAlready || sendSpecsEveryTime) {
-		Collection formatTemplates = getAssetTemplatesForTasks(tasks);
+		List assetClassName = new ArrayList(); // just a way of returning a second return value from function
+		Collection formatTemplates = getAssetTemplatesForTasks(tasks, assetClassName);
+		singleAssetClassName = (String) assetClassName.get(0);
+		
 		formatTemplates.addAll (getTemplateTasks(tasks));
 		if (myExtraOutput) {
 		  System.out.println (getName () + ".processTasks - " + formatTemplates.size() + " unique assets : ");
@@ -398,7 +403,7 @@ public abstract class VishnuPlugIn
 		  System.out.println ("");
 		}
 
-		Map [] nameInfo = sendFormat (formatTemplates);
+		Map [] nameInfo = sendFormat (formatTemplates, singleAssetClassName);
 		myNameToDescrip   = nameInfo[0];
 		myTypesToNodes    = nameInfo[1];
 		if (!runInternal)
@@ -443,7 +448,8 @@ public abstract class VishnuPlugIn
       
 	  sendDataToVishnu (tasks, myNameToDescrip, 
 						alwaysClearDatabase, 
-						false /* send assets as NEWOBJECTS */);
+						false /* send assets as NEWOBJECTS */,
+						singleAssetClassName);
 	  if (showTiming) {
 		domUtil.reportTime (" - Vishnu completed data XML processing in ", dataStart);
 		domUtil.reportTime (" - Vishnu completed XML processing in ", start);
@@ -584,8 +590,8 @@ public abstract class VishnuPlugIn
    * @param list of tasks to use to filter out relevant assets
    * @return Collection of assets to send to Vishnu
    */
-  protected Collection getAssetTemplatesForTasks (List tasks) {
-	return getDistinctAssetTypes ();
+  protected Collection getAssetTemplatesForTasks (List tasks, List assetClassName) {
+	return getDistinctAssetTypes (assetClassName);
   }
   
   /**
@@ -602,7 +608,7 @@ public abstract class VishnuPlugIn
    * </pre>
    * @return Collection of the asset instances
    */
-  protected Collection getDistinctAssetTypes () {
+  protected Collection getDistinctAssetTypes (List assetClassName) {
 	Map typeIDToAsset = new HashMap ();
 
     for (Iterator iter = getAssets (); iter.hasNext (); ) {
@@ -617,8 +623,59 @@ public abstract class VishnuPlugIn
 
     Set distinctAssets = new HashSet (typeIDToAsset.values ());
 
+	// find most-derived common descendant of all assets
+
+	Object first = distinctAssets.iterator().next();
+	Class firstClass = first.getClass();
+	Class currentClass = firstClass;
+	Stack currentClasses = new Stack ();
+	currentClasses.push (currentClass);
+	
+	while ((currentClass = currentClass.getSuperclass()) != java.lang.Object.class) {
+	  if (myExtraExtraOutput)
+		System.out.println (getName() + ".getDistinctAssetTypes : super " + currentClass);
+	  currentClasses.push (currentClass);
+	}
+	
+	for (Iterator iter = distinctAssets.iterator(); iter.hasNext();) {
+	  Class assetClass = iter.next().getClass();
+	  
+	  if (assetClass != firstClass){
+		currentClass = assetClass;
+		Stack otherClasses  = new Stack ();
+
+		otherClasses.push (currentClass);
+		
+		while ((currentClass = currentClass.getSuperclass()) != java.lang.Object.class) {
+		  if (myExtraExtraOutput)
+			System.out.println (getName() + ".getDistinctAssetTypes : super " + currentClass);
+		  otherClasses.push (currentClass);
+		}
+
+		currentClasses.retainAll (otherClasses);
+		
+		if (myExtraOutput) {
+		  for (int i = 0; i < currentClasses.size(); i++)
+			System.out.println (getName() + ".getDistinctAssetTypes : shared class " + currentClasses.get(i));
+		}
+	  }
+		
+	}
+
+	// return final name in complete class name, e.g. from org.cougaar.domain.glm.ldm.asset.Truck, Truck
+	String classname = "" + currentClasses.get(0);
+    int index = classname.lastIndexOf (".");
+    classname = classname.substring (index+1, classname.length ());
+	
+	assetClassName.add (classname);
+	
+	if (myExtraOutput) {
+	  for (int i = 0; i < currentClasses.size(); i++)
+		System.out.println (getName() + ".getDistinctAssetTypes : result class " + currentClasses.get(i));
+	}
+	
 	if (distinctAssets.isEmpty())
-	  System.out.println (getName () + ".getDistinctAssetTypes - no templates assets?");
+	  System.out.println (getName () + ".getDistinctAssetTypes - ERROR? no templates assets?");
 
 	return distinctAssets;
   }
@@ -652,15 +709,15 @@ public abstract class VishnuPlugIn
    * @param templates -- a collection of all the template resources 
    *                     and a template task.
    */
-  protected Map [] sendFormat (Collection templates) {
+  protected Map [] sendFormat (Collection templates, String assetClassName) {
 	if (myExtraOutput)
-	  System.out.println (getName () + ".sendFormat");
+	  System.out.println (getName () + ".sendFormat, resource " + assetClassName);
     Map [] nameInfo = null;
 	Date start = new Date ();
 	
     try {
       // perform the transform!
-	  Document problemFormatDoc = getFormatDoc (templates);
+	  Document problemFormatDoc = getFormatDoc (templates, assetClassName);
 
 	  if (showFormatXML) {
 		System.out.println (domUtil.getDocAsString(problemFormatDoc));
@@ -740,9 +797,9 @@ public abstract class VishnuPlugIn
   }
 
   /** uses formatXMLizer to generate XML for Vishnu */
-  protected Document getFormatDoc (Collection taskAndAssets) {
+  protected Document getFormatDoc (Collection taskAndAssets, String assetClassName) {
 	FormatXMLize formatXMLizer = new FormatXMLize (debugFormatXMLizer);
-    return formatXMLizer.createDoc (taskAndAssets);
+    return formatXMLizer.createDoc (taskAndAssets, assetClassName);
   }
 
   /** 
@@ -753,8 +810,8 @@ public abstract class VishnuPlugIn
    * @param taskAndAssets what to send
    * @param nameToDescrip mapping of object type to object description (field names, etc.)
    */
-  protected Document getDataDoc (Collection taskAndAssets, DataXMLize dataXMLizer) {
-	return dataXMLizer.createDoc (taskAndAssets);
+  protected Document getDataDoc (Collection taskAndAssets, DataXMLize dataXMLizer, String assetClassName) {
+	return dataXMLizer.createDoc (taskAndAssets, assetClassName);
   }
 
   /**
@@ -853,7 +910,7 @@ public abstract class VishnuPlugIn
   /**
    * <pre>
    * Looks at all the object format nodes in the document
-   * and removed duplicates (two object formats with the same name and 
+   * and removes duplicates (two object formats with the same name and 
    * same fields).
    * 
    * Object formats that have the same name but with different fields are 
@@ -907,12 +964,14 @@ public abstract class VishnuPlugIn
       descrip.addFields (child);
     }
 
-	pruneObjectFormat (root, nameToNodes, potentialDuplicates);
+	processObjectFormats (root, nameToNodes, potentialDuplicates, new DuplicateProcessor ());
+	processObjectFormats (root, nameToNodes, potentialDuplicates, new MergeProcessor ());
 	
     addFieldsForDifferentTypes (root, doc, nameToNodes, nameToDescrip);
 
 	// possibly unnecessary
-	pruneObjectFormat (root, nameToNodes, potentialDuplicates);
+	processObjectFormats (root, nameToNodes, potentialDuplicates, new DuplicateProcessor ());
+	processObjectFormats (root, nameToNodes, potentialDuplicates, new MergeProcessor ());
 
     return new Map [] { nameToDescrip, nameToNodes };
   }
@@ -921,8 +980,9 @@ public abstract class VishnuPlugIn
    * <pre>
    * Given a set of potential duplicate types, removes those that are duplicates
    * from the set of DOM Node OBJECTFORMATs sent to Vishnu.
-   *
+   * </pre>
    * Removes duplicate OBJECTFORMATs from <code>root</code>.
+   * <pre>
    * 
    * If there is only one remaining Node for a type in potentialDuplicates, the type
    * is removed from the list of potential duplicates.
@@ -941,7 +1001,7 @@ public abstract class VishnuPlugIn
       String type = (String) iter.next();
 	  
 	  if (myExtraExtraOutput)
-		System.out.println ("type " + type);
+		System.out.println (getName() + ".pruneObjectFormat - type " + type);
 	  
 	  List nodesForType = (List) nameToNodes.get (type);
 	  List copyOfNodesForType = new ArrayList (nodesForType);
@@ -964,15 +1024,75 @@ public abstract class VishnuPlugIn
 	  }
     }
 	if (myExtraExtraOutput)
-	  System.out.println ("removing " + dupsToRemove + " from " + potentialDuplicates);
+	  System.out.println (getName() + ".pruneObjectFormat - removing " + 
+						  dupsToRemove + " from " + potentialDuplicates);
 	potentialDuplicates.removeAll (dupsToRemove);
 	if (myExtraExtraOutput)
-	  System.out.println (getName () + ".dup - " + potentialDuplicates.size () + " potential dups remain");
+	  System.out.println (getName () + ".pruneObjectFormat - " + 
+						  potentialDuplicates.size () + " potential dups remain.");
+
+    for (Iterator iter = toRemove.iterator (); iter.hasNext (); )
+      root.removeChild ((Node) iter.next ());
+  }
+
+  protected void processObjectFormats (Node root, Map nameToNodes, Set potentialDuplicates, 
+									   FormatProcessor formatProcessor) {
+    Set toRemove = new HashSet ();
+	Set dupsToRemove = new HashSet ();
+    for (Iterator iter = potentialDuplicates.iterator (); iter.hasNext(); ){
+      String type = (String) iter.next();
+	  
+	  if (myExtraExtraOutput)
+		System.out.println (getName() + ".pruneObjectFormat - type " + type);
+	  
+	  List nodesForType = (List) nameToNodes.get (type);
+	  List copyOfNodesForType = new ArrayList (nodesForType);
+	  if (myExtraExtraOutput)
+		System.out.println ("nodes for type " + nodesForType);
+
+	  Set nameToNodeToRemove = new HashSet ();
+	  for (Iterator iter2 = copyOfNodesForType.iterator (); iter2.hasNext(); ){
+		Node objectFormat = (Node) iter2.next();
+		formatProcessor.examineObjectFormat (objectFormat, nodesForType, iter2, toRemove);
+	  }
+	  if (nodesForType.size () == 1) {
+		if (myExtraExtraOutput)
+		  System.out.println ("\tremoving " + type);
+		dupsToRemove.add (type);
+	  }
+    }
+	if (myExtraExtraOutput)
+	  System.out.println (getName() + ".pruneObjectFormat - removing " + 
+						  dupsToRemove + " from " + potentialDuplicates);
+	potentialDuplicates.removeAll (dupsToRemove);
+	if (myExtraExtraOutput)
+	  System.out.println (getName () + ".pruneObjectFormat - " + 
+						  potentialDuplicates.size () + " potential dups remain.");
 
     for (Iterator iter = toRemove.iterator (); iter.hasNext (); )
       root.removeChild ((Node) iter.next ());
   }
   
+  class FormatProcessor {
+	protected void examineObjectFormat (Node objectFormat, List nodesForType, Iterator iter, Set toRemove) {};
+  }
+  
+  class MergeProcessor extends FormatProcessor {
+	protected void examineObjectFormat (Node objectFormat, List nodesForType, Iterator iter, Set toRemove) {
+	  mergeNode (objectFormat, nodesForType, iter);
+	}
+  }
+  
+  class DuplicateProcessor extends FormatProcessor {
+	protected void examineObjectFormat (Node objectFormat, List nodesForType, Iterator iter, Set toRemove) {
+	  if (duplicateNode (objectFormat, nodesForType)) {
+		if (myExtraExtraOutput)
+		  System.out.println ("\tfound dup");
+		toRemove.add (objectFormat);
+	  }
+	}
+  }
+
   /**
    * <pre>
    * Checks to see if first is an object format that has already been
@@ -1046,27 +1166,7 @@ public abstract class VishnuPlugIn
 		  String name  = first.getAttributes().getNamedItem ("name").getNodeValue();
 		  System.out.println ("VishnuPlugIn.duplicateNode - Found a duplicate " + first.getNodeName () + " " + name);
 		}
-		boolean thisIsResource = 
-		  first.getAttributes().getNamedItem ("is_resource").getNodeValue().equals("true");
-		boolean otherIsNotResource = 
-		  other.getAttributes().getNamedItem ("is_resource").getNodeValue().equals("false");
-		if (thisIsResource && otherIsNotResource) {
-		  if (myExtraExtraOutput) {
-			String name  = first.getAttributes().getNamedItem ("name").getNodeValue();
-			System.out.println ("VishnuPlugIn.duplicateNode - setting resource attribute for duplicate " + name);
-		  }
-		  
-		  other.getAttributes().getNamedItem ("is_resource").setNodeValue("true");
-
-		  // set is_key attribute on other object format
-		  for (int k = 0; k < otherChildNodes.getLength (); k++) {
-			String field = otherChildNodes.item (k).getAttributes().getNamedItem ("name").getNodeValue();
-			if (field.equals("UID")) {
-			  otherChildNodes.item (k).getAttributes().getNamedItem ("is_key").setNodeValue("true");
-			  break;
-			}
-		  }
-		}
+		setResourceAttributes (first, other);
 		
 		nodes.remove (first);
 		return true;
@@ -1075,6 +1175,104 @@ public abstract class VishnuPlugIn
     return false;
   }
 
+  protected void mergeNode (Node first, List nodes, Iterator nodeListIter) {
+    if (nodes.size () == 1)
+      return; // if no others to compare against, it's not a duplicate
+
+    NodeList firstChildNodes  = first.getChildNodes ();
+
+	Map firstFieldToType = new HashMap ();
+
+	for (int k = 0; k < firstChildNodes.getLength (); k++) {
+	  String firstChildName = 
+		firstChildNodes.item (k).getAttributes().getNamedItem ("name").getNodeValue();
+	  String type  = 
+		firstChildNodes.item (k).getAttributes().getNamedItem ("datatype").getNodeValue();
+	  firstFieldToType.put (firstChildName, type);
+	}
+	
+    for (int i = 0; i < nodes.size (); i++) {
+      Node other = (Node) nodes.get (i);
+      if (first == other)
+		continue;  // ignore self to tell if duplicate
+
+      NodeList otherChildNodes = other.getChildNodes ();
+
+	  //	  if (firstChildNodes.getLength () > otherChildNodes.getLength ())
+	  //	  	continue; // can't be a subset if more fields
+
+	  // create name->type mapping for other node
+      Map otherFieldToType = new HashMap ();
+	  Map otherNameToNode  = new HashMap ();
+
+	  boolean hasTypeCollision = false;
+      for (int k = 0; k < otherChildNodes.getLength (); k++) {
+		String field = otherChildNodes.item (k).getAttributes().getNamedItem ("name").getNodeValue();
+		String type  = otherChildNodes.item (k).getAttributes().getNamedItem ("datatype").getNodeValue();
+		if (myExtraOutput)
+		  System.out.println (getName() + ".mergeNodes - other field " + field + " - type " + type);
+		
+		if (firstFieldToType.containsKey(field) &&
+			!firstFieldToType.get(field).equals (type)) {
+		  if (myExtraOutput)
+			System.out.println (getName() + ".mergeNodes - found type collision at " + field + " - " + 
+								firstFieldToType.get(field) + " vs " + type);
+		  hasTypeCollision=true;
+		  break;
+		}
+		
+		otherFieldToType.put (field, type);
+		otherNameToNode.put  (field, otherChildNodes.item (k));
+      }
+
+	  if (hasTypeCollision) continue; // can't merge
+
+	  Map namesInOther = new HashMap (otherFieldToType);
+	  namesInOther.entrySet().removeAll (firstFieldToType.entrySet());
+	  
+	  for (Iterator iter = namesInOther.keySet ().iterator(); iter.hasNext();) {
+		Object fieldName = iter.next();
+		Node otherNode = (Node) otherNameToNode.get (fieldName);
+		// add new fields
+		first.appendChild (otherNode);
+		firstFieldToType.put (fieldName, namesInOther.get(fieldName));
+	  }
+
+	  if (myExtraExtraOutput) {
+		String name  = first.getAttributes().getNamedItem ("name").getNodeValue();
+		System.out.println (getName() + ".mergeNode - Found a mergable node " + first.getNodeName () + " " + name);
+	  }
+	  setResourceAttributes (first, other);
+		
+	  nodeListIter.remove ();
+	}
+  }
+
+  protected void setResourceAttributes (Node first, Node other) {
+	boolean thisIsResource = 
+	  first.getAttributes().getNamedItem ("is_resource").getNodeValue().equals("true");
+	boolean otherIsNotResource = 
+	  other.getAttributes().getNamedItem ("is_resource").getNodeValue().equals("false");
+	if (thisIsResource && otherIsNotResource) {
+	  if (myExtraExtraOutput) {
+		String name  = first.getAttributes().getNamedItem ("name").getNodeValue();
+		System.out.println (getName() + ".mergeNode - Found a mergable node - setting resource attribute for duplicate " + name);
+	  }
+		  
+	  other.getAttributes().getNamedItem ("is_resource").setNodeValue("true");
+
+	  // set is_key attribute on other object format
+      NodeList otherChildNodes = other.getChildNodes ();
+	  for (int k = 0; k < otherChildNodes.getLength (); k++) {
+		String field = otherChildNodes.item (k).getAttributes().getNamedItem ("name").getNodeValue();
+		if (field.equals("UID")) {
+		  otherChildNodes.item (k).getAttributes().getNamedItem ("is_key").setNodeValue("true");
+		  break;
+		}
+	  }
+	}
+  }
+  
   /**
    * <pre>
    * Add new fields
@@ -1196,10 +1394,10 @@ public abstract class VishnuPlugIn
       if (!newFields.isEmpty ()) {
 		for (Iterator iter2 = newFields.iterator (); iter2.hasNext ();) {
 		  Node newNode = (Node) iter2.next ();
-		  String type = newNode.getAttributes().getNamedItem("datatype").getNodeValue();
-		  String name = newNode.getAttributes().getNamedItem("name").getNodeValue();
-
 		  if (myExtraOutput) {
+			String type = newNode.getAttributes().getNamedItem("datatype").getNodeValue();
+			String name = newNode.getAttributes().getNamedItem("name").getNodeValue();
+
 			String ofName = 
 			  objectFormatNode.getAttributes().getNamedItem("name").getNodeValue();
 			System.out.println (getName () + ".addFieldsForDifferentTypes - to node " + 
@@ -1246,13 +1444,15 @@ public abstract class VishnuPlugIn
   protected void sendDataToVishnu (List tasks, 
 								   Map nameToDescrip, 
 								   boolean clearDatabase, 
-								   boolean sendingChangedObjects) {
+								   boolean sendingChangedObjects,
+								   String assetClassName) {
 	int totalTasks = tasks.size ();
 	int totalSent  = 0;
 
 	DataXMLize dataXMLizer = new DataXMLize (debugDataXMLizer);
 	dataXMLizer.setNameToDescrip (nameToDescrip);
-
+	dataXMLizer.setResourceName (assetClassName);
+	
 	while (totalSent < totalTasks) {
 	  int toIndex = totalSent+sendDataChunkSize;
 	  if (toIndex > totalTasks)
@@ -1263,7 +1463,7 @@ public abstract class VishnuPlugIn
 	  if (myExtraOutput)
 		System.out.println (getName () + ".sendDataToVishnu, from " + totalSent + " to " + toIndex);
 	  
-	  sendDocument (chunk, dataXMLizer, clearDatabase, sendingChangedObjects);
+	  sendDocument (chunk, dataXMLizer, clearDatabase, sendingChangedObjects, assetClassName);
 	  if (clearDatabase) clearDatabase = false; // flip bit after first one
 	  totalSent += sendDataChunkSize;
 	}
@@ -1274,8 +1474,9 @@ public abstract class VishnuPlugIn
   protected void sendDocument (Collection tasks, 
 							   DataXMLize dataXMLizer,
 							   boolean clearDatabase, 
-							   boolean sendingChangedObjects) {
-	Document dataDoc = getDataDoc (tasks, dataXMLizer);
+							   boolean sendingChangedObjects,
+							   String assetClassName) {
+	Document dataDoc = getDataDoc (tasks, dataXMLizer, assetClassName);
 	  
 	if (showDataXML)
 	  System.out.println (domUtil.getDocAsString(dataDoc));
@@ -1449,8 +1650,11 @@ public abstract class VishnuPlugIn
 	if (runInternal)
 	  appendToInternalBuffer( domUtil.getDocAsArray (doc).toString());
 	else {
-	  if (postData)
-		comm.postData (domUtil.getDocAsArray (doc).toString());
+	  if (postData) {
+		if (!comm.postData (domUtil.getDocAsArray (doc).toString())) {
+		  showPostDataWarning ();
+		}
+	  }
 	  else
 		comm.postProblem (domUtil.getDocAsArray (doc).toString());
 
@@ -1466,6 +1670,29 @@ public abstract class VishnuPlugIn
 	}
   }
 
+  protected void showPostDataWarning () {
+	System.out.println ("\n-----------------------------------------------\n" + 
+						getName() + ".serializeAndPost - got an error posting data.\n"+
+						"\nThis could be due to one of several causes :\n" + 
+						"1) Connection problems with the web server, if running with a web server OR \n" +
+						"2) An inconsistency between the object format defined for the problem and\n" + 
+						"   the data.  You may have to regenerate your object format definition file if you\n" +
+						"   see messages like:\n"+
+						"<DIV align=left>\n" +
+						"Context: parsing data<BR>\n" +
+						"Action: object<BR>\n" +
+						"Identifier: <BR>\n" +
+						"Command: insert into obj_Package values ();<BR>\n" +
+						"Database: vishnu_prob_TRANSCOM_pumpernickle<BR>\n" +
+						"Error Text: You have an error in your SQL syntax near ');' at line 1<BR><BR>\n" +
+						"</DIV>\n\n" +
+						"The problem is that the scheduler is expecting the input tasks and assets \n" +
+						"to be consistent with the object format, but an unexpected field or object\n" +
+						"is being sent.\n" +
+						"For more information, contact Gordon Vidaver, gvidaver@bbn.com, 617 873 3558\n"+
+						"-----------------------------------------------");
+  }
+  
   protected void appendToInternalBuffer (String data) {
 	int index;
 	if ((index = data.indexOf ("?>")) != -1) {
@@ -1936,4 +2163,5 @@ public abstract class VishnuPlugIn
 
   protected VishnuComm comm;
   protected VishnuDomUtil domUtil;
+  protected String singleAssetClassName;
 }
