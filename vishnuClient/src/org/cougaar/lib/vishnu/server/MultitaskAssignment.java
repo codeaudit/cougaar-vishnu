@@ -1,5 +1,3 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/MultitaskAssignment.java,v 1.5 2001-08-31 16:41:09 dmontana Exp $
-
 package org.cougaar.lib.vishnu.server;
 
 /**
