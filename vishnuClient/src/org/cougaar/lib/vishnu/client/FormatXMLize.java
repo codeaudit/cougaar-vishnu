@@ -42,7 +42,7 @@ import org.w3c.dom.NodeList;
  * if it exists.
  */
 
-public class FormatXMLize extends BaseXMLize {
+public class FormatXMLize extends BaseXMLize implements XMLizer {
   protected Class collectionClass;
   protected Class enumerationClass;
   protected Class dateClass;
@@ -336,7 +336,13 @@ public class FormatXMLize extends BaseXMLize {
 	item.appendChild(elem);
   }
   
-  protected Document createDoc (Collection items, String assetClassName) {
+  /** 
+   * implemented for XMLizer interface <p>
+   *
+   * creates an DOM Document out of the collection of items passed in, <br>
+   * with the name of the resource class.
+   **/
+  public Document createDoc (Collection items, String assetClassName) {
     Document doc = new DocumentImpl(); 
     Element root = doc.createElement("PROBLEM");
 	doc.appendChild (root);
