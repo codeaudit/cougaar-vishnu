@@ -2691,6 +2691,10 @@ fields in Vishnu do not change over time.
 execute the compiler without the web server.  We should implement
 something analogous to the internal scheduler so that the compiler
 can be run from a command line.
+<li> <b>Runtime Check of Legality of Specs</b> - Since data structures
+may have changed since the last compilation of the scheduling
+specifications, do a quick check before scheduling that the specs
+are still legal.
 <ul>
 </div>
 
