@@ -46,7 +46,7 @@ public class XMLize extends BaseXMLize {
 	if (debug)
 	  System.out.println("Object traversed already/max depth: " + 
 						 obj.getClass().toString() + " " + obj);
-	if (isUID (obj)) {
+	if (isUniqueObject (obj)) {
 	  Element item = doc.createElement("UID");
       item.appendChild(doc.createTextNode(((UniqueObject)obj).getUID().getUID()));
 	  parentElement.appendChild(item);
