@@ -663,13 +663,15 @@ public class XMLProcessor {
 	      !type.equals ("matrix"));
     }
 
+  /** 
+   * get the document from the data xmlizer, set some attributes on the header, 
+   * and then do any post-processing 
+   **/
   public Document prepareDocument (Collection tasks, 
 								   XMLizer dataXMLizer,
 								   boolean clearDatabase, 
 								   boolean sendingChangedObjects,
-								   String assetClassName,
-								   boolean sentOtherDataAlready,
-								   String otherDataFile) {
+								   String assetClassName) {
 	Document dataDoc = getDataDoc (tasks, dataXMLizer, assetClassName);
 	  
 	if (showDataXML)
@@ -677,11 +679,16 @@ public class XMLProcessor {
 
 	Node dataNode = setDocHeader (dataDoc, clearDatabase);
 
-	postProcessData (dataDoc, dataNode, sendingChangedObjects, sentOtherDataAlready, otherDataFile);
+	// really just change newobjects tag to changedobjects tag if sendingChangedObjects is true
+	postProcessData (dataDoc, dataNode, sendingChangedObjects);
 	  
 	return dataDoc;
   }
-  
+
+  /** 
+   * Sets the vishnu epoch start and end time and the proper problem name.
+   * If clearDatabase is true, appends CLEARDATABASE tag. 
+   **/
   protected Node setDocHeader (Document dataDoc, boolean clearDatabase) {
 	Node root = dataDoc.getDocumentElement ();
 	((Element)root).setAttribute ("NAME", comm.getProblem ());
@@ -701,39 +708,51 @@ public class XMLProcessor {
 	return dataNode;
   }
 
-  protected boolean postProcessData (Document dataDoc,
-									 Node dataNode, boolean sendingChangedObjects,
-									 boolean sentOtherDataAlready,
-									 String otherDataFile) {
+  /** changes newobjects tag to changedobjects tag if sendingChangedObjects is true; */
+  protected void postProcessData (Document dataDoc, Node dataNode, boolean sendingChangedObjects) {
+	if (!sendingChangedObjects)
+	  return;
+	
 	NodeList nlist = dataNode.getChildNodes ();
-	boolean sentOtherData = false;
 	
 	for (int i = 0; i < nlist.getLength(); i++) {
 	  if (nlist.item (i).getNodeName ().equals ("NEWOBJECTS")) {
+
 		Node newobject = nlist.item (i);
 		NodeList objects = newobject.getChildNodes ();
-
-		if (!sentOtherDataAlready) {
-		  appendOtherData (dataDoc, (Element) newobject, otherDataFile);
-		  sentOtherData = true;
-		}
-
-		if (sendingChangedObjects) {
-		  String was = newobject.getNodeName ();
-		  Node changedObjects = dataDoc.createElement("CHANGEDOBJECTS");
-		  dataNode.insertBefore(changedObjects, newobject);
-		  dataNode.removeChild (newobject);
-		  for (int j =  0; j < objects.getLength (); j++)
-			changedObjects.appendChild (objects.item (j));
-		}
+		String was = newobject.getNodeName ();
+		Node changedObjects = dataDoc.createElement("CHANGEDOBJECTS");
+		dataNode.insertBefore(changedObjects, newobject);
+		dataNode.removeChild (newobject);
+		for (int j =  0; j < objects.getLength (); j++)
+		  changedObjects.appendChild (objects.item (j));
 
 		break; // we're only interested in the NEWOBJECTS tag
 	  }
 	}
-	
-	return sentOtherData;
   }
 
+  /** 
+   * send other global data wrapped in the problem header 
+   * @param otherDataFile - other data file to read, process, and send
+   **/
+  protected Document getOtherDataDoc (String otherDataFile) {
+	Document doc = new DocumentImpl(); 
+	Element root = doc.createElement("PROBLEM");
+	root.setAttribute ("NAME", comm.getProblem ());
+	doc.appendChild (root);
+	Element df   = doc.createElement("DATA");
+	root.appendChild(df);
+	
+	Element newobjects = doc.createElement("NEWOBJECTS");
+	df.appendChild (newobjects);
+
+	// attach other data
+	appendOtherData (doc, newobjects, otherDataFile);
+
+	return doc;
+  }
+  
   /**
    * <pre>
    * Append any global other data
@@ -819,7 +838,8 @@ public class XMLProcessor {
 	}
   }
   */
-  
+
+  /** make a document that tells Vishnu to freeze all assignments */
   public Document prepareFreezeAll () {
 	Document doc = new DocumentImpl ();
     Element newRoot = doc.createElement("PROBLEM");
