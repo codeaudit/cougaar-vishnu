@@ -170,6 +170,9 @@ public class DirectDataHelper implements DataHelper {
 	}
   }
   
+  protected Map geolocCodeCache = new HashMap ();
+  protected Map latLonCache = new HashMap ();
+
   /** 
    * Translate a Cougaar GeolocLocation into the equivalent Vishnu structure.
    *
@@ -184,41 +187,70 @@ public class DirectDataHelper implements DataHelper {
    * @param loc - the Cougaar GeolocLocation to translate into a Vishnu structure
    */
   public void createGeoloc (Object parent, String parentFieldName, GeolocLocation loc) {
-	StringBuffer sb = new StringBuffer ();
-	sb.append (parentFieldName);
-	sb.append ('.');
-	sb.append ("geolocCode");
-	SchObject objectParent = (SchObject) parent;
+    GeolocData geolocData = (GeolocData) geolocCodeCache.get(parentFieldName);
 
-	objectParent.addField (sb.toString (), "string", loc.getGeolocCode(), false, false);
+    if (geolocData == null) {
+      geolocData = new GeolocData (parentFieldName, loc);
+      geolocCodeCache.put (parentFieldName, geolocData);
+    }
+      
+    SchObject objectParent = (SchObject) parent;
 
-	SchObject latlong = new SchObject (timeOps);
-	float latDegrees = (float) loc.getLatitude  ().getDegrees();
-	float lonDegrees = (float) loc.getLongitude ().getDegrees();
-	
-	// fill in the fields on the predefined type
-	latlong.addFloat ("latitude",  latDegrees);
-	latlong.addFloat ("longitude", lonDegrees);
+    objectParent.addObject (geolocData.geoLocCode, loc.getGeolocCode());
 
-	StringBuffer baseNameBuffer = new StringBuffer ();
-	baseNameBuffer.append (parentFieldName);
-	baseNameBuffer.append ('.');
-	baseNameBuffer.append ("latlong");
-	String baseName = baseNameBuffer.toString ();
-	
-	// fill in the fields on the root task/resource
-	objectParent.addField (baseName, "latlong", latlong, false, false);
+    float latDegrees = (float) loc.getLatitude  ().getDegrees();
+    float lonDegrees = (float) loc.getLongitude ().getDegrees();
 
-	baseNameBuffer.append ('.');
+    SchObject latLonObject;
+    if ((latLonObject = (SchObject) latLonCache.get (loc.getGeolocCode())) == null) {
+      latLonObject = new SchObject (timeOps);
+      // fill in the fields on the predefined type
+      latLonObject.addFloat ("latitude",  latDegrees);
+      latLonObject.addFloat ("longitude", lonDegrees);
+      latLonCache.put (loc.getGeolocCode (), latLonObject);
+    }
 
-	StringBuffer longitudeBuffer = new StringBuffer (baseNameBuffer.toString());
-	baseNameBuffer.append  ("latitude");
-	longitudeBuffer.append ("longitude");
-	
-	// e.g. base name = from.latlong.latitude
-	objectParent.addFloat (baseNameBuffer.toString (), latDegrees);
-	// e.g. base name = from.latlong.longitude
-	objectParent.addFloat (longitudeBuffer.toString(), lonDegrees);
+    // fill in the fields on the root task/resource
+    objectParent.addObject (geolocData.baseName, latLonObject);
+
+    // e.g. base name = from.latlong.latitude
+    objectParent.addFloat (geolocData.latName, latDegrees);
+
+    // e.g. base name = from.latlong.longitude
+    objectParent.addFloat (geolocData.lonName, lonDegrees);
+  }
+
+  private class GeolocData {
+    public String geoLocCode;
+    public String baseName;
+    public String latName;
+    public String lonName;
+
+    public GeolocData (String parentFieldName, GeolocLocation loc) {
+      StringBuffer sb = new StringBuffer ();
+      sb.append (parentFieldName);
+      sb.append ('.');
+      sb.append ("geolocCode");
+      geoLocCode = sb.toString ();
+
+      StringBuffer baseNameBuffer = new StringBuffer ();
+      baseNameBuffer.append (parentFieldName);
+      baseNameBuffer.append ('.');
+      baseNameBuffer.append ("latlong");
+      baseName = baseNameBuffer.toString ();
+
+      StringBuffer latNameBuffer = new StringBuffer ();
+      latNameBuffer.append (baseName);
+      latNameBuffer.append ('.');
+      latNameBuffer.append ("latitude");
+      latName = latNameBuffer.toString ();
+
+      StringBuffer lonNameBuffer = new StringBuffer ();
+      lonNameBuffer.append (baseName);
+      lonNameBuffer.append ('.');
+      lonNameBuffer.append ("longitude");
+      lonName = lonNameBuffer.toString ();
+    }
   }
 
   /** 
