@@ -119,7 +119,6 @@ public class Scheduler {
             continue;
           }
           if (debug) System.out.println ("Did ack.");
-          timeOps = new TimeOps();
           Date start = new Date();
           error = readProblem();
           if (error != null)
@@ -330,10 +329,7 @@ public class Scheduler {
   }
 
   private Exception readProblem() {
-    specs = new SchedulingSpecs (timeOps);
-    data = new SchedulingData (timeOps);
-    ga = new GeneticAlgorithm (this);
-
+    setupObjects();
     Map args = getArgs();
 //    StringBuffer text = new StringBuffer (2048);
 //    Map accesses = specs.allObjectAccesses();
@@ -348,9 +344,15 @@ public class Scheduler {
 //      text.append (";");
 //    }
 //    args.put ("fields", text.toString());
-
     return ClientComms.readXML (args, "getproblem.php",
                                 new ProblemHandler());
+  }
+
+  private void setupObjects() {
+    timeOps = new TimeOps();
+    specs = new SchedulingSpecs (timeOps);
+    ga = new GeneticAlgorithm (this);
+    data = new SchedulingData (timeOps);
   }
 
   private Map getArgs() {
@@ -444,8 +446,7 @@ public class Scheduler {
   public void setupInternal (String problem, boolean initialize) {
     try {
       if (initialize)
-		setupInternalObjects ();
-
+        setupInternalObjects ();
       Date start = null;
       if (reportTiming) start = new Date ();
       parser.parse (new InputSource (new StringReader (problem)));
@@ -463,15 +464,12 @@ public class Scheduler {
    * either directly or from parsing XML.
    **/
   public void setupInternalObjects () {
-	timeOps = new TimeOps();
-	specs = new SchedulingSpecs (timeOps);
-	ga = new GeneticAlgorithm (this);
-	data = new SchedulingData (timeOps);
-	parser = new SAXParser();
-	parser.setContentHandler (new ProblemHandler());
+    setupObjects();
+    parser = new SAXParser();
+    parser.setContentHandler (new ProblemHandler());
     try {
-	  parser.setFeature("http://xml.org/sax/features/validation",
-						validatingInternalParser);
+      parser.setFeature("http://xml.org/sax/features/validation",
+                        validatingInternalParser);
     } catch (SAXException sax) {
       System.err.println (sax.getMessage());
       sax.printStackTrace();
