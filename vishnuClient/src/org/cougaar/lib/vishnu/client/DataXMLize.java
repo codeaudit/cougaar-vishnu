@@ -539,7 +539,7 @@ public class DataXMLize extends FormatXMLize {
 	return elem;
   }
 
-  private static final SimpleDateFormat format =
+  private final SimpleDateFormat format =
     new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");
 
   /**
