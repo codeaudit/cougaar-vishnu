@@ -13,6 +13,7 @@
   // canceled by a user, thus indicating to the scheduler to stop.
 
   require ("utilities.php");
+  $max_traces = 20;   // maximum number of stack traces to keep
 
   $mysql_link = mysql_connect ("localhost", $user, $password);
   $result = mysql_db_query ("vishnu_central",
@@ -32,7 +33,6 @@
           "insert into stack_traces values (\"$problem\", " .
           "\"$localhost\", \"" . makedate (time()) .
           "\", \"$message\", \"$trace\");");
-      $max_traces = 20;
       $result = mysql_db_query ("vishnu_central",
                     "select trace_time from stack_traces order by trace_time");
       $excess = mysql_num_rows ($result) - $max_traces;

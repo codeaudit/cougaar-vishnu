@@ -1,7 +1,8 @@
 <?
   /****************************************************************************
    *
-   * This file contains utility functions for the asset utilization graph
+   * This file contains utility functions for the asset utilization graph.
+   * It is currently out of use.
    *
    * Author:  rwu@bbn
    * Last Modified: 09/18/00

@@ -1,4 +1,8 @@
 <?
+  // assets.php is currently not in use.
+  // Someday it would be good to recover the functionality that
+  // allowed us to display graphs of how much the resources are used.
+
   require ("browserlink.php");
   require ("assetutil.php");
 ?>

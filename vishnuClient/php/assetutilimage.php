@@ -1,4 +1,6 @@
 <?
+  // assetutilimage.php is currently out of use.
+
   require ("browserlink.php");
   require ("assetutil.php");
   Header("Content-Type: image/png");
