@@ -87,7 +87,7 @@
     refSection ("Installation and Setup Procedure", "d", "D");
     refSubsection ("Installing the Web Server", "d1", "D");
     refSubsection ("Installing Java", "d2", "D");
-    refSubsection ("Installing Vishnu", "d3", "D");
+    refSubsection ("Installing and Executing Vishnu", "d3", "D");
     refSection ("To Do List", "e", "E");
 ?>
 
@@ -2205,6 +2205,15 @@ The metadata are:
 
 <? makeSection ("Installation and Setup Procedure", "d", "D"); ?>
 
+There are two pieces of Vishnu.  One is (predominantly) PHP code
+that runs on a web server.  The other is the Java code for the
+scheduler and compiler that can run either on the web server or on
+(an)other machine(s).  We start by describing how to get the base
+code on the web server set up.  This requires a variety of open-source
+applications (primarily Apache, MySQL, PHP and GD).  We then describe
+how to get the Java runtime environment set up.  Finally, we describe
+how to get the Vishnu code installed and executing.
+
 <? makeSubsection ("Installing the Web Server", "d1", "D"); ?>
 
 By far, the easiest way to install the required web server setup is
@@ -2387,31 +2396,56 @@ JPEG-6b         -  http://cygutils.netpedia.net/V1.1/jpeg-6b/jpegsrc.v6b.tar.gz<
 
 <? makeSubsection ("Installing Java", "d2", "D"); ?>
 
-<? makeSubsection ("Installing Vishnu", "d3", "D"); ?>
+We have used Sun's Java 1.2.2 as our environment.  This code is
+available from Sun's <a href="http://www.javasoft.com/products/jdk/1.2/">
+Javasoft web site</a>.
 
-<p>????????
-        To do this, place all the files
-        in the php directory into a directory on the server that can be
-        accessed via the web server (e.g., in a subdirectory of public_html).
-        Then, place the vishnu.jar file onto the machine (most likely the
-        server) where you will be running the scheduler and the formula
-        compiler.  Set your CLASSPATH variable to include this jar file.
-        Obtain an account for the MySQL database.  Run the initializesql
-        script to get the initial tables set up with the command<br>
-        mysql -u[username] -p[password] &lt; initializesql<br>
-        Start the scheduler with the command<br>
+The other component of the Java environment that Vishnu requires is
+an XML Java library.  We have used the Xerces library available at
+<a href="http://xml.apache.org/xerces-j/index.html">this web site</a>.
+After downloading this library, you must add the full path of the
+xerces.jar file to your CLASSPATH environment variable.
+
+<? makeSubsection ("Installing and Executing Vishnu", "d3", "D"); ?>
+
+<p>The tar file vishnu.tar.gz contains code/files that go in three
+different places.
+<ol>
+<li> The php and sql directories go on the web server.  The sql directory
+can go anywhere, but the php directory should go somewhere, or be linked
+to from somewhere, that is visible via the web server.  Perhaps the
+best way to do this on a UNIX machine is to type<br>
+> ln -s <fullpath>/php </home/httpd>/html/vishnu<br>
+where <fullpath> is the full pathname of the parent directory of php
+and </home/httpd> should be replaced with the home directory of Apache
+if /home/httpd is not the home directory.
+<li> The vishnu.jar file should go on whatever machines are executing the
+server and/or compiler.  On these machines, make sure to add
+<fullpath>/vishnu.jar to your CLASSPATH environment variable.
+<li> The testdata directory should go on whatever machine is going
+to be used for running the web browser for testing the system.
+</ol>
+
+<p>On the web server, you should one time run the command<br>
+> mysql -u[username] -p[password] &lt; initializesql<br>
+This should initialize the tables in the MySQL database.
+Once you have run this once, you should not need to run it again.
+
+<p>To start the automated scheduler, execute the command<br>
         java -Dorg.cougaar.lib.vishnu.server.host=[hostname]
         -Dorg.cougaar.lib.vishnu.server.path=[pathname]
         -Dorg.cougaar.lib.vishnu.server.user=[username]
         -Dorg.cougaar.lib.vishnu.server.password=[password]
-        -Dorg.cougaar.lib.vishnu.server.port=[portnumber] org.cougaar.lib.vishnu.server.Scheduler<br>
+        -Dorg.cougaar.lib.vishnu.server.port=[portnumber]
+        org.cougaar.lib.vishnu.server.Scheduler<br>
         Start the formula compiler with the same command with
         ExpressionCompiler
-        substituted for Scheduler.  (Note that it is best to make a small
+        substituted for Scheduler.  Note that it is best to make a small
         script file for starting the scheduler and compiler.  Also note
         that the defaults are hostname=[localhost], path="/~vishnu/",
-        user=vishnu, password="\", and portnumber=80.)
-        You are now all set up.
+        user=vishnu, password="\", and portnumber=80.
+
+<p>You should now be set up to run.
 
 <? makeSection ("To Do List", "e", "E"); ?>
 
