@@ -1,4 +1,4 @@
-/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/Attic/VishnuPlugIn.java,v 1.12 2001-02-23 20:18:55 gvidaver Exp $ */
+/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/Attic/VishnuPlugIn.java,v 1.13 2001-03-07 02:58:43 gvidaver Exp $ */
 
 package org.cougaar.lib.vishnu.client;
 
@@ -467,8 +467,8 @@ public abstract class VishnuPlugIn
   }
 
   private void showTimedOutMessage () {
-	System.out.println (getName () + ".processTasks -- " + 
-						"timed out waiting for scheduler to finish.\n" +
+	System.out.println (getName () + ".processTasks -- ERROR -- " + 
+						"Timed out waiting for scheduler to finish.\n" +
 						"Is there a scheduler running?\n" + 
 						"See vishnu/scripts/runScheduler in the vishnu distribution.\n" +
 						"It's good to set the machines property to include only\n" + 
