@@ -20,9 +20,6 @@
     echo "Schedule for $problem";
   }
 
-  function getHeader() {
-  }
-
   function getSubheader() { 
     global $problem;
     echo "Schedule for $problem";

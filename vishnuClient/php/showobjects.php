@@ -105,6 +105,12 @@
 <?
     mysql_close();
   }
+
+  function showHints() {
+?>
+Click on any task or resource in order to view that object.
+<?
+  }
 ?>
 
 

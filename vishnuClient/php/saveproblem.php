@@ -16,9 +16,6 @@
     echo "Saving " . $problem;
   }
 
-  function getHeader() {
-  }
-
   function getSubheader() { 
     global $problem;
     echo "Select what to save for problem " . $problem;

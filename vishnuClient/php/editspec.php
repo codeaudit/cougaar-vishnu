@@ -156,10 +156,25 @@
 
     showTaskAndResource ($problem);
 ?>
-
   <INPUT TYPE=hidden NAME="spec" VALUE="<? echo $spec ?>">
   <INPUT TYPE=hidden NAME="name" VALUE="<? echo $name ?>">
   <INPUT TYPE=hidden NAME="problem" VALUE="<? echo $problem ?>">
   <DIV ALIGN=center><INPUT TYPE=submit VALUE="Compile spec"></DIV>
+<?
+  }
 
-<? } ?>
+  function hintsForPage () {
+?>
+If it is a multiple-choice constraint/hook, then just select
+a value from the pick list of possible values, and then click
+"Compile Spec" to make the change.
+<p>
+If the constraint/hook expects an associated formula, then type
+that formula into the box, and then click "Compile Spec".
+It will take a few seconds before the request is handled.
+If the formula was a valid formula, it will tell you that the
+formula was updated.  If it was not a valid formula, then it
+will give you some indication of what the problem is.
+<?
+  }
+?>

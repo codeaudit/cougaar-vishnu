@@ -37,9 +37,6 @@
       showHeader();
   }
 
-  function getSubheader() { 
-  }
-
   function isFree ($resource, $start, $end) {
     global $problem;
     $result = mysql_db_query ("vishnu_prob_$problem",
@@ -235,4 +232,53 @@
  </td>
 </tr>
 </TABLE>
-<? } ?>
+<?
+  }
+
+  function hintsForPage () {
+    global $action;
+    if ($action == "View") {
+?>
+There are two types of data for a task.  The assignment data
+tells what resource the task was assigned to for what period of
+time.  The internal data tells the values of all the fields of the
+task.
+<p>
+Only the assignment data is editable from the "view" option.  (To edit
+the internal data, use the "edit" option.)
+You can choose to freeze the assignment (i.e., make it so that the
+automated scheduler cannot change the assignment) by clicking
+on the "Freeze Assignment" button.  (If the assignment is already
+frozen, you can alternatively unfreeze it.)
+You can also reassign the task to a different resource.
+At the current time, this reassignment is very unsophisticated;
+it will only reassign the task for the exact same time interval.
+The pick list of possible resources to assign the task to will only
+contain those resources that are capable of performing the task
+and are free for that time period.
+<?
+    } else if ($action == "View All") {
+      showHints();
+    } else if ($action == "Create") {
+?>
+To create an object, enter the value for each field
+in its corresponding box.
+Then, click on the "Create Object" button.
+If all the fields are valid, it will tell you that you have
+successfully create the object. Otherwise, it will indicate
+what the problem was.
+<?
+    } else if ($action == "Edit") {
+?>
+To edit the object, edit the value for each field
+in its corresponding box.
+Then, click on the "Edit Object" button.
+If all the fields are valid, it will tell you that you have
+successfully create the object. Otherwise, it will indicate
+what the problem was.
+<p>
+To delete the object, click on the "Delete Object" button.
+<?
+    }
+  }
+?>

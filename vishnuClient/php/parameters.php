@@ -15,13 +15,12 @@
     global $problem;
     echo "Parameters for " . $problem;
   }
+
   function getHeader () {
     global $problem;
     echo "Viewing/Editing Parameters for problem <font color=\"green\">" .
          $problem . "</font>";
   } 
-  function getSubheader() { 
-  }
 
   function mainContent () { 
     global $problem;

@@ -18,9 +18,6 @@
     echo "Editing " . ($color ? $color : "new") . " spec";
   }
 
-  function getHeader() {
-  }
-
   function getSubheader() { 
     global $color;
     echo "Editing spec for " .

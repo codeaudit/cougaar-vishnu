@@ -17,12 +17,6 @@
     echo "Result of loading problem";
   }
 
-  function getHeader() {
-  }
-
-  function mainContent () {
-  }
-
   function getSubheader() { 
     global $problem, $userfile, $userfile_name, $userfile_size;
     global $specifiedname;
