@@ -1,4 +1,4 @@
-/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/VishnuComm.java,v 1.2 2001-02-16 20:52:01 gvidaver Exp $ */
+/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/VishnuComm.java,v 1.3 2001-02-21 00:38:34 gvidaver Exp $ */
 
 package org.cougaar.lib.vishnu.client;
 
@@ -64,10 +64,10 @@ public class VishnuComm {
   
   protected void localSetup () 
   {
-    try {myExtraOutput = getMyParams().getBooleanParam("myExtraOutput");}    
+    try {myExtraOutput = getMyParams().getBooleanParam("ExtraOutput");}    
     catch(Exception e) {myExtraOutput = false;}
 
-    try {myExtraExtraOutput = getMyParams().getBooleanParam("myExtraExtraOutput");}    
+    try {myExtraExtraOutput = getMyParams().getBooleanParam("ExtraExtraOutput");}    
     catch(Exception e) {myExtraExtraOutput = false;}
 
     try {hostName = getMyParams().getStringParam("hostName");}    
@@ -81,6 +81,9 @@ public class VishnuComm {
 
     try { myPassword = getMyParams().getStringParam("password");} 
 	catch(Exception e) {myPassword = "vishnu";}
+
+    try { myLegalHosts = getMyParams().getStringParam("legalHosts").trim();} 
+	catch(Exception e) {myLegalHosts = "";} // empty = all schedulers are OK
 
     try {postProblemFile = getMyParams().getStringParam("postProblemFile");}    
     catch(Exception e) {postProblemFile = "postproblem" + PHP_SUFFIX;}
@@ -246,6 +249,7 @@ public class VishnuComm {
     sb.append (getInstancePostVar () + "&");
     sb.append (getUserPostVar () + "&");
     sb.append ("password=" + myPassword + "&");
+    sb.append ("legalhosts=" + myLegalHosts + "&");
     sb.append ("ferris=bueller");
 
     String reply = postToURL (hostName, kickoffFile, sb.toString (), null, true);
@@ -516,6 +520,7 @@ public class VishnuComm {
   protected String hostName = "dante.bbn.com";
   protected String phpPath  = "/~dmontana/vishnu/";
   protected String URL      = "http://" + hostName + phpPath;
+  protected String myLegalHosts = "";
 
   protected String PHP_SUFFIX = ".php";
   protected String postProblemFile = "postproblem" + PHP_SUFFIX;
