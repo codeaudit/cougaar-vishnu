@@ -591,6 +591,12 @@ public class DataXMLize extends FormatXMLize {
 		System.out.println ("DataXMLize - null pointer on " + unique + 
 							" - no UID set?");
 	  }
+
+	  if (UIDString.indexOf ('<') != -1)
+		UIDString = UIDString.replace('<','_');
+	  if (UIDString.indexOf ('>') != -1)
+		UIDString = UIDString.replace('>','_');
+
 	  elem.setAttribute ("value", UIDString);
 	}
 	else if (UIDClass.isInstance(theObj)) {
@@ -606,6 +612,11 @@ public class DataXMLize extends FormatXMLize {
 	  if (valueString.indexOf ('&') != -1) {
 		valueString = valueString.replace('&','+');
 	  }
+	  if (valueString.indexOf ('<') != -1)
+		valueString = valueString.replace('<','_');
+	  if (valueString.indexOf ('>') != -1)
+		valueString = valueString.replace('>','_');
+
 	  elem.setAttribute ("value", valueString);
 	}
 
