@@ -739,7 +739,7 @@
 </OPERATOR>
 </GROUPEDTEXT>
 <COLORTESTS>
-<COLORTEST color="cyan" obj_type="grouped" title="1 - 2 Pallets" >
+<COLORTEST color="cyan" obj_type="grouped_tasks" title="1 - 2 Pallets" >
 <OPERATOR operation="&lt;" >
 <OPERATOR operation="length" >
 <LITERAL value="tasks" type="variable" datatype="list:task" />
@@ -747,7 +747,7 @@
 <LITERAL value="3.0" type="constant" datatype="number" />
 </OPERATOR>
 </COLORTEST>
-<COLORTEST color="lightblue" obj_type="grouped" title="3 - 4 Pallets" >
+<COLORTEST color="lightblue" obj_type="grouped_tasks" title="3 - 4 Pallets" >
 <OPERATOR operation="and" >
 <OPERATOR operation="&gt;" >
 <OPERATOR operation="length" >
@@ -763,7 +763,7 @@
 </OPERATOR>
 </OPERATOR>
 </COLORTEST>
-<COLORTEST color="cornflowerblue" obj_type="grouped" title="5 - 6 Pallets" >
+<COLORTEST color="cornflowerblue" obj_type="grouped_tasks" title="5 - 6 Pallets" >
 <OPERATOR operation="and" >
 <OPERATOR operation="&gt;" >
 <OPERATOR operation="length" >
@@ -779,7 +779,7 @@
 </OPERATOR>
 </OPERATOR>
 </COLORTEST>
-<COLORTEST color="blue" obj_type="grouped" title="7 - 8 Pallets" >
+<COLORTEST color="blue" obj_type="grouped_tasks" title="7 - 8 Pallets" >
 <OPERATOR operation="&gt;" >
 <OPERATOR operation="length" >
 <LITERAL value="tasks" type="variable" datatype="list:task" />

@@ -49,29 +49,29 @@ public class JobshopInternal {
       byte[] b = new byte [(int) f.length()];
       f.read (b, 0, b.length);
       Scheduler sched = new Scheduler();
-      String str = sched.runInternalToProcess (new String (b), true);
+      String str = sched.runInternalToProcess (new String (b), true, true);
       SAXParser parser = new SAXParser();
       parser.setContentHandler (new AssignmentHandler());
       parser.parse (new InputSource (new StringReader (str)));
       System.out.println ("finished initial\n");
 
       // freeze all
-      str = sched.runInternalToProcess ("<DATA><FREEZEALL/></DATA>", false);
+      str = sched.runInternalToProcess ("<DATA><FREEZEALL/></DATA>", false, true);
       parser.parse (new InputSource (new StringReader (str)));
       System.out.println ("finished freezeall\n");
 
       // unfreeze all
-      str = sched.runInternalToProcess ("<DATA><UNFREEZEALL/></DATA>", false);
+      str = sched.runInternalToProcess ("<DATA><UNFREEZEALL/></DATA>", false, true);
       parser.parse (new InputSource (new StringReader (str)));
       System.out.println ("finished unfreezeall\n");
 
       // freeze inidividually
-      str = sched.runInternalToProcess ("<DATA><FREEZE task=\"welding 2\"/><FREEZE task=\"cutting 1\"/></DATA>", false);
+      str = sched.runInternalToProcess ("<DATA><FREEZE task=\"welding 2\"/><FREEZE task=\"cutting 1\"/></DATA>", false, true);
       parser.parse (new InputSource (new StringReader (str)));
       System.out.println ("finished freeze some\n");
 
       // unfreeze inidividually
-      str = sched.runInternalToProcess ("<DATA><UNFREEZE task=\"welding 2\"/><UNFREEZE task=\"cutting 1\"/></DATA>", false);
+      str = sched.runInternalToProcess ("<DATA><UNFREEZE task=\"welding 2\"/><UNFREEZE task=\"cutting 1\"/></DATA>", false, true);
       parser.parse (new InputSource (new StringReader (str)));
       System.out.println ("finished unfreeze some\n");
 
@@ -79,12 +79,12 @@ public class JobshopInternal {
       f = new RandomAccessFile ("testjs.update.vsh", "r");
       b = new byte [(int) f.length()];
       f.read (b, 0, b.length);
-      str = sched.runInternalToProcess (new String (b), false);
+      str = sched.runInternalToProcess (new String (b), false, true);
       parser.parse (new InputSource (new StringReader (str)));
       System.out.println ("finished updated\n");
 
       // clear database
-      str = sched.runInternalToProcess ("<DATA><CLEARDATABASE/></DATA>", false);
+      str = sched.runInternalToProcess ("<DATA><CLEARDATABASE/></DATA>", false, true);
       parser.parse (new InputSource (new StringReader (str)));
       System.out.println ("finished clearing database\n");
     }

@@ -29,7 +29,8 @@
 <!ATTLIST SPECS
           direction (minimize|maximize) "minimize"
           multitasking (none|grouped|ungrouped|ignoring_time) "none"
-          setupdisplay (striped|line) "striped"
+          setupdisplay (left|right|line|color) "left"
+          wrapupdisplay (left|right|line|color) "right"
           taskobject CDATA #IMPLIED
           resourceobject CDATA #IMPLIED >
 <!ELEMENT OPTCRITERION (OPERATOR|LITERAL) >

@@ -184,7 +184,7 @@
 </OPERATOR>
 </ACTIVITYTEXT>
 <COLORTESTS>
-<COLORTEST color="red" obj_type="grouped" title="Single task" >
+<COLORTEST color="red" obj_type="grouped_tasks" title="Single task" >
 <OPERATOR operation="=" >
 <OPERATOR operation="length" >
 <LITERAL value="tasks" type="variable" datatype="list:task" />
@@ -192,7 +192,7 @@
 <LITERAL value="1.0" type="constant" datatype="number" />
 </OPERATOR>
 </COLORTEST>
-<COLORTEST color="green" obj_type="grouped" title="Multiple Tasks" >
+<COLORTEST color="green" obj_type="grouped_tasks" title="Multiple Tasks" >
 <LITERAL value="true" type="constant" datatype="boolean" />
 </COLORTEST>
 <COLORTEST color="violet" obj_type="activity" title="Planned Maint" >
