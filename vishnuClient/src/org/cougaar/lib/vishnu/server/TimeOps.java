@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/TimeOps.java,v 1.6 2001-08-03 14:51:57 gvidaver Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/TimeOps.java,v 1.7 2001-08-07 23:31:01 gvidaver Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -45,33 +45,41 @@ public class TimeOps {
     return new Date (baseTime + ltime);
   }
 
+  public int dateToTime (Date time) {
+	return millisToTime (time.getTime());
+  }
+
   public int stringToTime (String str) {
     try {
-      long t = format.parse (str).getTime();
-      if (t <= minTime)
-        return Integer.MIN_VALUE;
-      if (t >= maxTime)
-        return Integer.MAX_VALUE;
-      if (baseTime == Long.MIN_VALUE) {
-        baseTime = t;
-        minTime = t + 1000l * (long) Integer.MIN_VALUE;
-        maxTime = t + 1000l * (long) Integer.MAX_VALUE;
-	if (debug)
-	  System.out.println ("Base time set to " +
-                              new java.util.Date (baseTime));
-      }
-      return (int) ((t - baseTime) / 1000);
+	  long t = format.parse (str).getTime();
+	  return millisToTime (t);
     } catch (java.text.ParseException e) {
       if (debug) {
-	System.out.println ("TimeBlock.stringToTime - Bad date string");
-	e.printStackTrace();
+		System.out.println ("TimeBlock.stringToTime - Bad date string");
+		e.printStackTrace();
       }
       return 0;
     } catch (NullPointerException npe) {
       System.out.println ("TimeBlock.stringToTime - Bad date string=" + 
-			  str);
+						  str);
       return 0;
     }
   }
 
+  /** t is in milliseconds */
+  public int millisToTime (long t) {
+	if (t <= minTime)
+	  return Integer.MIN_VALUE;
+	if (t >= maxTime)
+	  return Integer.MAX_VALUE;
+	if (baseTime == Long.MIN_VALUE) {
+	  baseTime = t;
+	  minTime = t + 1000l * (long) Integer.MIN_VALUE;
+	  maxTime = t + 1000l * (long) Integer.MAX_VALUE;
+	  if (debug)
+		System.out.println ("Base time set to " +
+							new java.util.Date (baseTime));
+	}
+	return (int) ((t - baseTime) / 1000);
+  }
 }
