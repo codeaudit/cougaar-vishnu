@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingSpecs.java,v 1.18 2001-08-03 12:34:23 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingSpecs.java,v 1.19 2001-08-07 18:25:53 gvidaver Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -167,15 +167,15 @@ public class SchedulingSpecs {
             capable.add (resources[j]);
 	    if (debug)
 	      System.out.println ("SchedulingSpecs.capableResources - " +
-                                  resources[j] + "(" + j + " of " +
+                                  resources[j].getKey() + "(" + j + " of " +
                                   resources.length + ")" +
-				  " is capable of doing " + tasks[i]);
+				  " is capable of doing " + tasks[i].getKey());
 	  } else {
 	    if (debug)
 	      System.out.println ("SchedulingSpecs.capableResources - " +
-                                  resources[j] + "(" + j + " of " +
+                                  resources[j].getKey() + "(" + j + " of " +
                                   resources.length + ")" +
-				  " is NOT capable of doing " + tasks[i]);
+				  " is NOT capable of doing " + tasks[i].getKey());
 	  }
         }
         Resource[] arr = new Resource [capable.size()];
@@ -417,8 +417,10 @@ public class SchedulingSpecs {
 
   public TimeBlock[] resourceUnavailableTimes (Resource resource) {
     TimeBlock[] blocks = new TimeBlock[0];
-    if (resourceUnavailableTimes == null)
+    if (resourceUnavailableTimes == null) {
       return blocks;
+	}
+	
     data.put ("resource", resource);
     Object obj = resourceUnavailableTimes.getResult (data);
     data.remove ("resource");
