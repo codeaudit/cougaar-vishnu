@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Scheduler.java,v 1.2 2001-01-17 01:38:55 gvidaver Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Scheduler.java,v 1.3 2001-01-17 21:54:16 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -141,7 +141,8 @@ public class Scheduler {
           reportTime ("Finished scheduling at " + new Date() +
                       ", it took ", grandStart);
         else
-          System.out.println ("Aborted scheduling");
+          System.out.println ("Aborted scheduling, message is: " +
+                              error.getMessage());
         problem = null;
       }
     }
