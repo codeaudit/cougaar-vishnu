@@ -23,6 +23,9 @@ create table compiler_request (problem varchar(255) not null,
                                error_text text,
                                status enum ("outstanding", "processing",
                                             "complete") not null);
+create table request_lock (host varchar(255) not null,
+                           lock_time datetime not null,
+                           primary key (lock_time));
 create table color_defs (name varchar(255) not null,
                          red tinyint unsigned not null,
                          green tinyint unsigned not null,
