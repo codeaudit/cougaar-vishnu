@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Resource.java,v 1.4 2001-02-02 18:44:59 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Resource.java,v 1.5 2001-02-05 20:52:00 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -92,8 +92,6 @@ public class Resource extends SchObject {
   }
 
   public void addGroupedContrib (Assignment a, MultitaskAssignment ma) {
-    lastAssignment = null;
-    lastNewGroup = false;
     if (ma != null)
       ma.addTask (a.getTask());
     else
@@ -105,6 +103,8 @@ public class Resource extends SchObject {
   }
 
   public void removeAssignment (String taskKey, boolean wasInSchedule) {
+    lastNewGroup = false;
+    lastAssignment = null;
     if (wasInSchedule)
       schedule.remove (assignments.get (taskKey));
     assignments.remove (taskKey);
