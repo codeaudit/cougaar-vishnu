@@ -1,5 +1,12 @@
 <?
-  // Load additional data for an existing problem from a file
+// This software is to be used in accordance with the COUGAAR license
+// agreement. The license agreement and other information can be found at
+// http://www.cougaar.org.
+//
+// Copyright 2001 BBNT Solutions LLC
+//
+//
+// Load additional data for an existing problem from a file
 
   require ("browserlink.php");
   require ("parsedata.php");

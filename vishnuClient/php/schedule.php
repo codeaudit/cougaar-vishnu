@@ -1,5 +1,12 @@
 <?
-  // View the schedule graphics for all the resources on a single page
+// This software is to be used in accordance with the COUGAAR license
+// agreement. The license agreement and other information can be found at
+// http://www.cougaar.org.
+//
+// Copyright 2001 BBNT Solutions LLC
+//
+//
+// View the schedule graphics for all the resources on a single page
 
   require ("browserlink.php");
   require ("utilities.php");

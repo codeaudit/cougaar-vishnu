@@ -1,8 +1,15 @@
 <?
-  // assignments.php returns an XML representation of the current
-  // assignments of tasks to resources.
-  // This is used by an external client to get back the results of
-  // a scheduling request.
+// This software is to be used in accordance with the COUGAAR license
+// agreement. The license agreement and other information can be found at
+// http://www.cougaar.org.
+//
+// Copyright 2001 BBNT Solutions LLC
+//
+//
+// assignments.php returns an XML representation of the current
+// assignments of tasks to resources.
+// This is used by an external client to get back the results of
+// a scheduling request.
 
   Header("Content-Type: text/xml");
   require ("utilities.php");

@@ -1,5 +1,12 @@
 <?
-  // Starts the scheduler by updating the tables of scheduling requests
+// This software is to be used in accordance with the COUGAAR license
+// agreement. The license agreement and other information can be found at
+// http://www.cougaar.org.
+//
+// Copyright 2001 BBNT Solutions LLC
+//
+//
+// Starts the scheduler by updating the tables of scheduling requests
 
   require ("browserlink.php");
   require ("utilities.php");

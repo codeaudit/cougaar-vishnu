@@ -1,6 +1,13 @@
 <?
-  // Display all the values of the constraint in the scheduling
-  // specifications in tabular format
+// This software is to be used in accordance with the COUGAAR license
+// agreement. The license agreement and other information can be found at
+// http://www.cougaar.org.
+//
+// Copyright 2001 BBNT Solutions LLC
+//
+//
+// Display all the values of the constraint in the scheduling
+// specifications in tabular format
 
   require ("browserlink.php");
   require ("utilities.php");

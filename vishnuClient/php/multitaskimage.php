@@ -1,6 +1,13 @@
 <?
-  // The schedule graphic for the case when there is ungrouped multitasking.
-  // Displays the percent of capacity versus time for each resource.
+// This software is to be used in accordance with the COUGAAR license
+// agreement. The license agreement and other information can be found at
+// http://www.cougaar.org.
+//
+// Copyright 2001 BBNT Solutions LLC
+//
+//
+// The schedule graphic for the case when there is ungrouped multitasking.
+// Displays the percent of capacity versus time for each resource.
 
   require ("browserlink.php");
   require ("utilities.php");

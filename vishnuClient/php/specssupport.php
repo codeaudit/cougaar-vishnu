@@ -1,5 +1,12 @@
 <?
-  // Write out an XML representation of the scheduling specifications
+// This software is to be used in accordance with the COUGAAR license
+// agreement. The license agreement and other information can be found at
+// http://www.cougaar.org.
+//
+// Copyright 2001 BBNT Solutions LLC
+//
+//
+// Write out an XML representation of the scheduling specifications
 
   function printobj ($type, $id) {
     global $problem;

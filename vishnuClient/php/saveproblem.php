@@ -1,5 +1,12 @@
 <?
-  // Set up which parts of a particular problem to download to a file
+// This software is to be used in accordance with the COUGAAR license
+// agreement. The license agreement and other information can be found at
+// http://www.cougaar.org.
+//
+// Copyright 2001 BBNT Solutions LLC
+//
+//
+// Set up which parts of a particular problem to download to a file
 
   require ("browserlink.php");
   require ("navigation.php");

@@ -1,4 +1,13 @@
 <?
+// This software is to be used in accordance with the COUGAAR license
+// agreement. The license agreement and other information can be found at
+// http://www.cougaar.org.
+//
+// Copyright 2001 BBNT Solutions LLC
+//
+//
+// expression compiler uses this URL to write back results
+
   Header("Content-Type: text/plain");
   require ("clientlink.php");
 

@@ -1,8 +1,15 @@
 <?
-  // The expression compiler accesses this URL to find out the next
-  // expression for it to compile.
-  // Along with the expression is the context of the problem.
-  // It is all specified in XML format.
+// This software is to be used in accordance with the COUGAAR license
+// agreement. The license agreement and other information can be found at
+// http://www.cougaar.org.
+//
+// Copyright 2001 BBNT Solutions LLC
+//
+//
+// The expression compiler accesses this URL to find out the next
+// expression for it to compile.
+// Along with the expression is the context of the problem.
+// It is all specified in XML format.
 
   Header("Content-Type: text/xml");
   require ("utilities.php");

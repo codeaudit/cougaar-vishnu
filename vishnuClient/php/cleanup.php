@@ -1,7 +1,14 @@
 <?
-  // cleanup.php handles deleting of problems.
-  // It first displays a list to choose from and, after the user has
-  // made his/her selections, then does the deletions.
+// This software is to be used in accordance with the COUGAAR license
+// agreement. The license agreement and other information can be found at
+// http://www.cougaar.org.
+//
+// Copyright 2001 BBNT Solutions LLC
+//
+//
+// cleanup.php handles deleting of problems.
+// It first displays a list to choose from and, after the user has
+// made his/her selections, then does the deletions.
 
   require ("browserlink.php");
   require ("navigation.php");

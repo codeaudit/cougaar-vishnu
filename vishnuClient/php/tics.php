@@ -1,5 +1,12 @@
 <?
-  // Display the tic marks for the time axis of a schedule graphic
+// This software is to be used in accordance with the COUGAAR license
+// agreement. The license agreement and other information can be found at
+// http://www.cougaar.org.
+//
+// Copyright 2001 BBNT Solutions LLC
+//
+//
+// Display the tic marks for the time axis of a schedule graphic
 
   Header("Content-Type: image/png");
   require ("utilities.php");

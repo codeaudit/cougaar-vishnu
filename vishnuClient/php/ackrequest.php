@@ -1,16 +1,23 @@
 <?
-  // ackrequest.php accepts acknowledgements and status updates from
-  // the schedulers.
-  //
-  // When a scheduler initially chooses to work on a problem, it
-  // passes in a percent_complete of 1.
-  // When it finishes, it sets percent_complete to be 100 and, if there
-  // was an error, sets message and trace to describe the error.
-  // For intermediate updates, a scheduler sets percent_complete to
-  // its estimate of that value.
-  //
-  // This returns the string "canceled" if the request has been
-  // canceled by a user, thus indicating to the scheduler to stop.
+// This software is to be used in accordance with the COUGAAR license
+// agreement. The license agreement and other information can be found at
+// http://www.cougaar.org.
+//
+// Copyright 2001 BBNT Solutions LLC
+//
+//
+// ackrequest.php accepts acknowledgements and status updates from
+// the schedulers.
+//
+// When a scheduler initially chooses to work on a problem, it
+// passes in a percent_complete of 1.
+// When it finishes, it sets percent_complete to be 100 and, if there
+// was an error, sets message and trace to describe the error.
+// For intermediate updates, a scheduler sets percent_complete to
+// its estimate of that value.
+//
+// This returns the string "canceled" if the request has been
+// canceled by a user, thus indicating to the scheduler to stop.
 
   require ("utilities.php");
   require ("clientlink.php");

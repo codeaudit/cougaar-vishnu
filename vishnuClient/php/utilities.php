@@ -1,5 +1,12 @@
 <?
-  // A whole variety of functions used by other URLs
+// This software is to be used in accordance with the COUGAAR license
+// agreement. The license agreement and other information can be found at
+// http://www.cougaar.org.
+//
+// Copyright 2001 BBNT Solutions LLC
+//
+//
+// A whole variety of functions used by other URLs
 
   // get the field names of a particular object type and put in $fields
   function fieldsfortype ($problem, $objecttype, $prefix,

@@ -1,14 +1,21 @@
 <?
-  // browserlink.php should be included in all other php files that
-  // access the database and are meant to be accessed via a browser.
-  // It performs basic authentication and establishes the database
-  // connection.
-  // The authentication is based on the ability to access the database
-  // vishnu_central using the given user and password.
-  // Cookies are set up so that the values are remembered between sessions.
-  //
-  // If the variable $login is set, then it automatically fails in order
-  // to allow login under a different user and password.
+// This software is to be used in accordance with the COUGAAR license
+// agreement. The license agreement and other information can be found at
+// http://www.cougaar.org.
+//
+// Copyright 2001 BBNT Solutions LLC
+//
+//
+// browserlink.php should be included in all other php files that
+// access the database and are meant to be accessed via a browser.
+// It performs basic authentication and establishes the database
+// connection.
+// The authentication is based on the ability to access the database
+// vishnu_central using the given user and password.
+// Cookies are set up so that the values are remembered between sessions.
+//
+// If the variable $login is set, then it automatically fails in order
+// to allow login under a different user and password.
 
   $cookieLifetime = 864000;   // 10 days
   $loginCookieLifetime = 120;

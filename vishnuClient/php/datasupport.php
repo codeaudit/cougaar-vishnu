@@ -1,7 +1,14 @@
 <?
-  // This file provides functions for writing of metadata and data.
-  // It is in the form fed into the web server, not the format fed
-  // into the scheduler.
+// This software is to be used in accordance with the COUGAAR license
+// agreement. The license agreement and other information can be found at
+// http://www.cougaar.org.
+//
+// Copyright 2001 BBNT Solutions LLC
+//
+//
+// This file provides functions for writing of metadata and data.
+// It is in the form fed into the web server, not the format fed
+// into the scheduler.
 
   function writedataformat ($problem) {
     echo "<DATAFORMAT>\n";

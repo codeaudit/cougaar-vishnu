@@ -1,7 +1,14 @@
 <!-- reload the page every 5 seconds -->
 <?
-  // Display the current status of the scheduler request for a particular
-  // problem.
+// This software is to be used in accordance with the COUGAAR license
+// agreement. The license agreement and other information can be found at
+// http://www.cougaar.org.
+//
+// Copyright 2001 BBNT Solutions LLC
+//
+//
+// Display the current status of the scheduler request for a particular
+// problem.
 
   $nocookie = 1;
   require ("browserlink.php");

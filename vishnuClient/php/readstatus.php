@@ -1,6 +1,13 @@
 <?
-  // An external client uses this URL to read the current status of
-  // a request scheduler run
+// This software is to be used in accordance with the COUGAAR license
+// agreement. The license agreement and other information can be found at
+// http://www.cougaar.org.
+//
+// Copyright 2001 BBNT Solutions LLC
+//
+//
+// An external client uses this URL to read the current status of
+// a request scheduler run
 
   Header("Content-Type: text/plain");
   require ("clientlink.php");

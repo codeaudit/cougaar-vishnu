@@ -1,5 +1,12 @@
 <?
-  // Displays the genetic algorithm and scheduling window parameters
+// This software is to be used in accordance with the COUGAAR license
+// agreement. The license agreement and other information can be found at
+// http://www.cougaar.org.
+//
+// Copyright 2001 BBNT Solutions LLC
+//
+//
+// Displays the genetic algorithm and scheduling window parameters
 
   require ("browserlink.php");
   require ("navigation.php");

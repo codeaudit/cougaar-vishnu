@@ -1,8 +1,15 @@
 <?
-  // Dynamic generation of FAQ.
-  // Note that to get the non-dynamic version, save the web page as
-  // faq.html, replace all references to faq.php and fulldoc.php
-  // with faq.html and fulldoc.html, and remove the reference to "Home".
+// This software is to be used in accordance with the COUGAAR license
+// agreement. The license agreement and other information can be found at
+// http://www.cougaar.org.
+//
+// Copyright 2001 BBNT Solutions LLC
+//
+//
+// Dynamic generation of FAQ.
+// Note that to get the non-dynamic version, save the web page as
+// faq.html, replace all references to faq.php and fulldoc.php
+// with faq.html and fulldoc.html, and remove the reference to "Home".
 
   $qs = array();
   function addq ($question, $answer, $name="", $putbrs=1) {

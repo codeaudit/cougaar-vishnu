@@ -1,7 +1,14 @@
 <?
-  // Creates the legend for the schedule graphic.
-  // The variable data should contain all the information needed
-  // to create the image.
+// This software is to be used in accordance with the COUGAAR license
+// agreement. The license agreement and other information can be found at
+// http://www.cougaar.org.
+//
+// Copyright 2001 BBNT Solutions LLC
+//
+//
+// Creates the legend for the schedule graphic.
+// The variable data should contain all the information needed
+// to create the image.
 
   Header("Content-Type: image/png");
   require ("utilities.php");

@@ -1,5 +1,12 @@
 <?
-  // Parsing of XML specifying the data
+// This software is to be used in accordance with the COUGAAR license
+// agreement. The license agreement and other information can be found at
+// http://www.cougaar.org.
+//
+// Copyright 2001 BBNT Solutions LLC
+//
+//
+// Parsing of XML specifying the data
 
   require_once ("utilities.php");
 

@@ -1,6 +1,13 @@
 <?
-  // Creates the labels for the time axis of the schedule graphic
-  // Set the variables start_time and end_time as arguments in the URL
+// This software is to be used in accordance with the COUGAAR license
+// agreement. The license agreement and other information can be found at
+// http://www.cougaar.org.
+//
+// Copyright 2001 BBNT Solutions LLC
+//
+//
+// Creates the labels for the time axis of the schedule graphic
+// Set the variables start_time and end_time as arguments in the URL
 
   Header("Content-Type: image/png");
   require ("utilities.php");

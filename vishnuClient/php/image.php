@@ -1,7 +1,14 @@
 <?
-  // Creates an image that is the schedule graphic.
-  // Include the variables problem, resourcename, start_time, and
-  // end_time in the arguments of the URL
+// This software is to be used in accordance with the COUGAAR license
+// agreement. The license agreement and other information can be found at
+// http://www.cougaar.org.
+//
+// Copyright 2001 BBNT Solutions LLC
+//
+//
+// Creates an image that is the schedule graphic.
+// Include the variables problem, resourcename, start_time, and
+// end_time in the arguments of the URL
 
   require ("browserlink.php");
   require ("utilities.php");

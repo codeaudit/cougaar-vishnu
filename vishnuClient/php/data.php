@@ -1,7 +1,14 @@
 <?
-  // Returns the XML for the data in the form that the scheduler likes
-  // to see it.  Note that this is different from how the database likes
-  // to read it originally, which is why this cannot just use datasupport.php.
+// This software is to be used in accordance with the COUGAAR license
+// agreement. The license agreement and other information can be found at
+// http://www.cougaar.org.
+//
+// Copyright 2001 BBNT Solutions LLC
+//
+//
+// Returns the XML for the data in the form that the scheduler likes
+// to see it.  Note that this is different from how the database likes
+// to read it originally, which is why this cannot just use datasupport.php.
 
   Header("Content-Type: text/xml");
   require ("utilities.php");

@@ -1,6 +1,13 @@
 <?
-  // For editing of the metadata (i.e., object formats).
-  // It handles all of the different operations.
+// This software is to be used in accordance with the COUGAAR license
+// agreement. The license agreement and other information can be found at
+// http://www.cougaar.org.
+//
+// Copyright 2001 BBNT Solutions LLC
+//
+//
+// For editing of the metadata (i.e., object formats).
+// It handles all of the different operations.
 
   require ("browserlink.php");
   require_once ("utilities.php");

@@ -1,5 +1,12 @@
 <?
-  // Functionality shared between task.php and resource.php
+// This software is to be used in accordance with the COUGAAR license
+// agreement. The license agreement and other information can be found at
+// http://www.cougaar.org.
+//
+// Copyright 2001 BBNT Solutions LLC
+//
+//
+// Functionality shared between task.php and resource.php
 
   require_once ("utilities.php");
 

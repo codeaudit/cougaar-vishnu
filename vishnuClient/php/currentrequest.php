@@ -1,8 +1,15 @@
 <?
-  // This URL returns to a scheduler a list of all outstanding
-  // scheduling requests which it is sanctioned to handle.
-  // They are in order from oldest to most recent request.
-  // While the scheduler is deciding which to take, a lock is set.
+// This software is to be used in accordance with the COUGAAR license
+// agreement. The license agreement and other information can be found at
+// http://www.cougaar.org.
+//
+// Copyright 2001 BBNT Solutions LLC
+//
+//
+// This URL returns to a scheduler a list of all outstanding
+// scheduling requests which it is sanctioned to handle.
+// They are in order from oldest to most recent request.
+// While the scheduler is deciding which to take, a lock is set.
 
   Header("Content-Type: text/xml");
   require ("utilities.php");
