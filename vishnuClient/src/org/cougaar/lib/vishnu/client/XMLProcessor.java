@@ -777,23 +777,28 @@ public class XMLProcessor {
    * </pre>
    */
   protected void appendOtherData (Document dataDoc, Element placeToAdd, String otherData) {
-	try {
-	  if (configFinder.open (otherData) != null) {
+	if (otherDataFileExists(otherData)) {
 	  if (myExtraOutput)
-		  System.out.println (getName () + " appending " + 
-							  otherData + " other data file");
+		System.out.println (getName () + " appending " + 
+							otherData + " other data file");
 
-		domUtil.appendChildrenToDoc (dataDoc, 
-							 placeToAdd, // NEWOBJECTS tag
-							 otherData);
-	  }
+	  domUtil.appendChildrenToDoc (dataDoc, 
+								   placeToAdd, // NEWOBJECTS tag
+								   otherData);
+	}
+  }
+  
+  public boolean otherDataFileExists (String otherDataFile) {
+	try {
+	  return (configFinder.open (otherDataFile) != null);
 	} catch (FileNotFoundException fnf) {
 	  if (myExtraOutput)
-		System.out.println (getName () + ".appendOtherData could not find optional file : " + otherData);
+		System.out.println (getName () + ".otherDataFileExists could not find optional file : " + otherDataFile);
 	} catch (IOException ioe) {
-	  System.out.println (getName () + ".appendOtherData - got io exception " +
+	  System.out.println (getName () + ".otherDataFileExists - got io exception " +
 						  ioe);
 	}
+	return false;
   }
   
   /**
@@ -887,7 +892,7 @@ public class XMLProcessor {
       Task t = (Task) removedTasks.nextElement();
 
       Element unfreeze = doc.createElement("UNFREEZE");
-      unfreeze.setAttribute ("TASK", t.getUID ().getUID());
+      unfreeze.setAttribute ("task", t.getUID ().getUID());
       newRoot.appendChild (unfreeze);
 
       Element obj = doc.createElement("OBJECT");
