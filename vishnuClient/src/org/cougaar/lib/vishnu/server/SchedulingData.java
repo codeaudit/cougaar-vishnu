@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.20 2001-06-19 20:43:39 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.21 2001-06-20 21:52:39 gvidaver Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -47,6 +47,8 @@ public class SchedulingData {
   private TimeOps timeOps;
   public static boolean debug = 
     ("true".equals (System.getProperty ("vishnu.debug")));
+  private static boolean throwExceptionOnMissingField =
+    ("true".equals (System.getProperty ("vishnu.SchedulingData.throwExceptionOnMissingField", "false")));
 
   public SchedulingData (TimeOps timeOps) {
     this.timeOps = timeOps;
@@ -500,9 +502,21 @@ public class SchedulingData {
         fieldname = atts.getValue ("name");
         FieldFormat ff = (FieldFormat)
           ((HashMap) formats.get (objectType)).get (fieldname);
-        if (ff == null)
-          throw new RuntimeException ("Undefined field named " + fieldname +
-                                      " for object type " + objectType);
+        if (ff == null) {
+		  if (throwExceptionOnMissingField) {
+			throw new RuntimeException ("Undefined field named " + fieldname +
+										" for object type " + objectType);
+		  }
+		  else {
+			if (debug)
+			  System.out.println ("SchedulingData.startElement - NOTE : found undefined field " +
+								  fieldname + " for object type " + objectType +
+								  ". Ignoring.");
+			prefixes.push (prefix);
+			return;
+		  }
+		}
+
         prefixes.push (prefix);
         if (ff.is_list) {
           listFormats.push (listFormat);
@@ -561,10 +575,14 @@ public class SchedulingData {
         }
       }
       else if (name.equals ("VALUE")) {
-        if (! listFormat.hasObjects) {
-          listFormat.object.addField (listFormat.name, listFormat.type,
-                                      atts.getValue ("value"), false, true);
-        }
+		if (listFormat != null) {
+		  if (! listFormat.hasObjects) {
+			listFormat.object.addField (listFormat.name, listFormat.type,
+										atts.getValue ("value"), false, true);
+		  }
+		}
+		else if (debug)
+		  System.out.println ("SchedulingData.startElement - expecting listFormat to be set when hit VALUE tag.");
       }
       else if (name.equals ("FIELDFORMAT")) {
         FieldFormat ff = new FieldFormat
