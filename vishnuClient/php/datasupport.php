@@ -146,6 +146,16 @@
     mysql_free_result ($result);
     echo "</NEWOBJECTS>\n";
 
+    // do frozen assignments
+    $result = mysql_db_query ("vishnu_prob_" . $problem,
+                  "select * from assignments where frozen = \"yes\";");
+    while ($value = mysql_fetch_array ($result)) {
+      echo "<FREEZE task=\"" . $value["task_key"] . "\" resource=\"" .
+           $value["resource_key"] . "\" start=\"" .
+           $value["start_time"] . "\" end=\"" .
+           $value["end_time"] . "\" />\n";
+    }
+
     echo "</DATA>\n";
   }
 ?>

@@ -159,10 +159,23 @@
       $globalname = $attribs["NAME"];
     }
     else if ($name == "FREEZE") {
-      my_query ("prob_" . $problem, "parsing data", "freeze",
-                $attribs["TASK"],
-                "update assignments set frozen = \"yes\" where " .
-                "task_key = \"" . $attribs["TASK"] . "\";");
+      $task = $attribs["TASK"];
+      if (! $attribs["RESOURCE"])
+        my_query ("prob_" . $problem, "parsing data", "freeze", $task,
+                  "update assignments set frozen = \"yes\" where " .
+                  "task_key = \"$task\";");
+      else {
+        my_query ("prob_" . $problem, "parsing data", "freeze", $task,
+                  "delete from assignments where task_key = \"$task\";");
+        my_query ("prob_" . $problem, "parsing data", "freeze", $task,
+                  "insert into assignments values (\"" .
+                  $attribs["TASK"] . "\", \"" .
+                  $attribs["RESOURCE"] . "\", \"" .
+                  $attribs["START"] . "\", \"" .
+                  $attribs["START"] . "\", \"" .
+                  $attribs["END"] . "\", \"" .
+                  $attribs["END"] . "\", \"yes\", \"\", \"\");");
+      }
     }
     else if ($name == "UNFREEZE") {
       my_query ("prob_" . $problem, "parsing data", "unfreeze",
