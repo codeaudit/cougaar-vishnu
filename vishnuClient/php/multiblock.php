@@ -47,9 +47,9 @@
 
     echo "<BR><TABLE BORDER=1 CELLPADDING=1>\n";
     echo "<TR><TD>Interval Start Time</TD><TD>" .
-         $value["start_time"] . "</TD></TR>\n";
+         $value["setup_time"] . "</TD></TR>\n";
     echo "<TR><TD>Interval End Time</TD><TD>" .
-         $value["end_time"] . "</TD></TR>\n";
+         $value["wrapup_time"] . "</TD></TR>\n";
     $page = "task.php?problem=" . $problem . "&taskobject=" .
             $taskobject . "&taskkey=" . $taskkey . "&resourceobject=" .
             $resourceobject . "&resourcekey=" . $resourcekey . 
