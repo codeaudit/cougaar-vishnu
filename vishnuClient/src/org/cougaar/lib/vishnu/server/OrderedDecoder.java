@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedDecoder.java,v 1.12 2001-04-12 17:50:30 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedDecoder.java,v 1.13 2001-06-28 17:57:23 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -55,15 +55,8 @@ public class OrderedDecoder implements GADecoder {
       for (int i = 0; i < tasks.size(); i++) {
         Task task = (Task) tasks.get(i);
         Task[] prereqs = task.getPrerequisites ();
-        boolean notReady = false;
         boolean readyButUnable = false;
         for (int j = 0; j < prereqs.length; j++) {
-          if ((prereqs[j] != null) &&
-              (tasks.contains (prereqs[j]) ||
-               tasks.contains (data.getPrimaryLink (prereqs[j])))) {
-            notReady = true;
-            break;
-          }
           if ((prereqs[j] != null) && (prereqs[j].getAssignment() == null)) {
             readyButUnable = true;  // if prereq unassigned, same for current
             break;
@@ -73,8 +66,6 @@ public class OrderedDecoder implements GADecoder {
           tasks.remove (i);
           break;
         }
-        if (notReady)
-          continue;
         Resource[] resources = specs.capableResources (task, data);
         Task[] linked = data.getLinkedTasks (task);
         // if only one capable resource, just do assignment

@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedMutation.java,v 1.4 2001-04-12 17:50:30 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedMutation.java,v 1.5 2001-06-28 17:57:23 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -66,7 +66,7 @@ public class OrderedMutation implements GAOperator {
     for (int i = 0; i < num; i++)
       newValues [ordered[i]] = parent.getValues() [selected[i]];
 
-    return new StringOfIntegers (newValues);
+    return OrderedInitializer.reorder (newValues);
   }
 
   public void setParms (String parms) {

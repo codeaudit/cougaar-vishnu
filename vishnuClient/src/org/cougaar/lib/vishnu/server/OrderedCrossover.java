@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedCrossover.java,v 1.3 2001-04-12 17:50:30 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedCrossover.java,v 1.4 2001-06-28 17:57:23 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -39,7 +39,7 @@ public class OrderedCrossover implements GAOperator {
       }
     }
 
-    return new StringOfIntegers (newValues);
+    return OrderedInitializer.reorder (newValues);
   }
 
   public void setParms (String parms) {
