@@ -184,7 +184,7 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
 	  AssignmentHandler xmlhandler = new AssignmentHandler();
 
 	  int unhandledTasks = myTaskUIDtoObject.size ();
-      readXML (aURL, xmlhandler);
+      comm.readXML (aURL, xmlhandler);
 
 	  if (myExtraOutput || true)
 		System.out.println (getName () + ".parseAnswer - created successful plan elements for " +
