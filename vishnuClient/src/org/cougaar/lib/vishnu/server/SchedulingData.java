@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.2 2001-01-15 15:36:59 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.3 2001-01-16 15:23:18 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -380,6 +380,7 @@ public class SchedulingData {
           object.addListField (listFormat.name);
           objects.push (object);
           object = null;
+          prefix = "";
         }
         else if (ff.is_subobject) {
           prefix = prefix + fieldname + ".";
