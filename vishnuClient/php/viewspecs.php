@@ -193,7 +193,7 @@
         $arg4 = indentlines ($arg4, $indent, 1);
         for ($i = 0; $i < sizeof ($arg4); $i++) {
           $str = $arg4[$i];
-          if ($i == (sizeof($arg3) - 1))
+          if ($i == (sizeof($arg4) - 1))
             $str .= ")";
           $arr2[] = $str;
         }
