@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Resource.java,v 1.9 2001-04-12 17:50:31 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Resource.java,v 1.10 2001-05-07 13:41:26 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -266,7 +266,10 @@ public class Resource extends SchObject {
     if (grouped) {
       Iterator iter = schedule.iterator();
       while (iter.hasNext()) {
-        MultitaskAssignment ma = (MultitaskAssignment) iter.next();
+        Object o = iter.next();
+        if (! (o instanceof MultitaskAssignment))
+          continue;
+        MultitaskAssignment ma = (MultitaskAssignment) o;
         if ((start >= ma.getTaskStartTime()) &&
             (end <= ma.getTaskEndTime()) &&
             task.groupableWith (ma.getTasks())) {
