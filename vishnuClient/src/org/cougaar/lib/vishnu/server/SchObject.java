@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchObject.java,v 1.5 2001-08-03 18:54:29 gvidaver Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchObject.java,v 1.6 2001-08-07 18:27:02 gvidaver Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -26,6 +26,8 @@ public class SchObject {
   protected TimeOps timeOps;
   private static boolean debug = 
     ("true".equals (System.getProperty ("vishnu.debug")));
+  private static boolean reportUnknownFields = 
+    ("true".equals (System.getProperty ("vishnu.server.SchObject.reportUnknownFields", "false")));
 
   public SchObject (TimeOps timeOps) {
     this.timeOps = timeOps;
@@ -85,7 +87,7 @@ public class SchObject {
   public Object getField (String name) {
 	Object field = data.get (name);
 	
-	if (field == null)
+	if (reportUnknownFields && (field == null))
 	  System.err.println ("SchObject.getField -- ERROR - getting unknown field " + name + 
 						  " on " + getKey ());
 
