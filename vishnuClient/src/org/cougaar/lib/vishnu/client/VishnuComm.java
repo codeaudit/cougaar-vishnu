@@ -111,6 +111,11 @@ public class VishnuComm {
     try {testing = getMyParams().getBooleanParam("testing");}    
     catch(Exception e) {testing = false;}
 
+	// writes the XML sent to Vishnu web server to a file (human readable)
+    try {writeXMLToFile = 
+		   getMyParams().getBooleanParam("writeXMLToFile");}    
+    catch(Exception e) {writeXMLToFile = false;}
+
 	// writes the XML sent to Vishnu web server to a file (machine readable)
     try {writeEncodedXMLToFile = 
 		   getMyParams().getBooleanParam("writeEncodedXMLToFile");}    
@@ -126,6 +131,86 @@ public class VishnuComm {
     catch(Exception e) {maxWaitCycles = 10;}
   }
 
+  protected void serializeAndPostData (Document doc, boolean runInternal, StringBuffer internalBuffer) {
+      serializeAndPost (doc, true, runInternal, internalBuffer);
+  }
+
+  protected void serializeAndPostProblem (Document doc, boolean runInternal, StringBuffer internalBuffer) {
+      serializeAndPost (doc, false, runInternal, internalBuffer);
+  }
+
+  /**
+   * post the Document <code>doc</code> to a URL.                            <p>
+   *                                                                        <br>
+   * If <code>writeXMLToFile</code> is set, will write a copy of what is     <p>
+   * sent to the URL to a file named ClusterName_type_number, where type is  <p>
+   * problem (the problem definition) or data (the tasks and resources), and <p>
+   * number is a counter that keeps the file names unique                    <p>
+   *                                                                        <br>
+   * What's written to the file is human readable, whereas if                <p>
+   * <code>writeEncodedXMLToFile</code> is set, a different file is written, <p>
+   * named ClusterName_encoded_number.  This file contains exactly what is   <p>
+   * sent to the web server, after URL encoding has been performed.
+   *
+   * @param doc - DOM doc to send to URL
+   * @param postData - true if posting data 
+   */
+  protected void serializeAndPost (Document doc, boolean postData, 
+								   boolean runInternal, StringBuffer internalBuffer) {
+	if (runInternal)
+	  appendToInternalBuffer( domUtil.getDocAsArray (doc).toString(), internalBuffer);
+	else {
+	  if (postData) {
+		if (!postData (domUtil.getDocAsArray (doc).toString())) {
+		  showPostDataWarning ();
+		}
+	  }
+	  else
+		postProblem (domUtil.getDocAsArray (doc).toString());
+
+	  if (writeXMLToFile) {
+		String suffix = (postData) ? "data" : "problem";
+		String fileName = getClusterName () + "_" + suffix + "_" + numFilesWritten++ + ".xml";
+		System.out.println (getName () + ".serializeAndPost - Writing XML to file " + fileName);
+		try {
+		  FileOutputStream temp = new FileOutputStream (fileName);
+		  domUtil.writeDocToStream (doc, temp);
+		} catch (FileNotFoundException fnfe) { /* never happen */ }
+	  }
+	}
+  }
+
+  protected void appendToInternalBuffer (String data, StringBuffer internalBuffer) {
+	int index;
+	if ((index = data.indexOf ("?>")) != -1) {
+	  String stuff = data.substring (index+2);
+	  internalBuffer.append (stuff);
+	}
+  }
+
+  protected void showPostDataWarning () {
+	System.out.println ("\n-----------------------------------------------\n" + 
+						getName() + ".serializeAndPost - got an error posting data.\n"+
+						"\nThis could be due to one of several causes :\n" + 
+						"1) Connection problems with the web server, if running with a web server OR \n" +
+						"2) An inconsistency between the object format defined for the problem and\n" + 
+						"   the data.  You may have to regenerate your object format definition file if you\n" +
+						"   see messages like:\n"+
+						"<DIV align=left>\n" +
+						"Context: parsing data<BR>\n" +
+						"Action: object<BR>\n" +
+						"Identifier: <BR>\n" +
+						"Command: insert into obj_Package values ();<BR>\n" +
+						"Database: vishnu_prob_TRANSCOM_pumpernickle<BR>\n" +
+						"Error Text: You have an error in your SQL syntax near ');' at line 1<BR><BR>\n" +
+						"</DIV>\n\n" +
+						"The problem is that the scheduler is expecting the input tasks and assets \n" +
+						"to be consistent with the object format, but an unexpected field or object\n" +
+						"is being sent.\n" +
+						"For more information, contact Gordon Vidaver, gvidaver@bbn.com, 617 873 3558\n"+
+						"-----------------------------------------------");
+  }
+  
   /**
    * <pre>
    * sets Problem name used by Vishnu
@@ -617,6 +702,7 @@ public class VishnuComm {
   protected boolean myExtraOutput;
   protected boolean myExtraExtraOutput;
   protected boolean writeEncodedXMLToFile;
+  protected boolean writeXMLToFile = false;
   protected String name;
   protected String clusterName;
   protected VishnuDomUtil domUtil;

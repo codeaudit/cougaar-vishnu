@@ -162,9 +162,11 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
 
   /** implemented for AggregationListener */
   public void handleRemovedAggregation (Aggregation agg) {	
+	/*
 	sendUpdatedRoleSchedule(null, 
 							getAssetFromMPTask (agg.getComposition().getCombinedTask ()), 
 							agg.getComposition().getParentTasks ());
+	*/
   }
 
   /** implemented for AggregationListener */

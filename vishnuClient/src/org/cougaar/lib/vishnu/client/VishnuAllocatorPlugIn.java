@@ -1,4 +1,4 @@
-/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/Attic/VishnuAllocatorPlugIn.java,v 1.1 2001-01-10 19:29:55 rwu Exp $ */
+/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/Attic/VishnuAllocatorPlugIn.java,v 1.2 2001-07-16 22:46:34 gvidaver Exp $ */
 
 package org.cougaar.lib.vishnu.client;
 
@@ -232,7 +232,7 @@ public class VishnuAllocatorPlugIn extends VishnuPlugIn implements UTILAllocator
 	Set tasks = new HashSet();
 	tasks.add(alloc.getTask ());
 	  
-	sendUpdatedRoleSchedule(alloc, alloc.getAsset (), tasks);
+	//	sendUpdatedRoleSchedule(alloc, alloc.getAsset (), tasks);
   }
 
   /**
