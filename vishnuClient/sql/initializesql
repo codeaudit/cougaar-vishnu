@@ -3,6 +3,10 @@ create database vishnu_central;
 use vishnu_central;
 create table problems (name varchar(255) not null,
                        primary key (name));
+create table permissions (user varchar(110) not null,
+                          problem varchar(135) not null,
+                          type enum ("read", "write") not null,
+                          unique (user, problem, type));
 create table scheduler_request (problem varchar(255) not null,
                                 request_time datetime not null,
                                 requester varchar(255) not null,
