@@ -1,0 +1,27 @@
+Scheduler README
+11/17/2000
+Gordon Vidaver
+
+The run scripts should run in both unix and dos, although files with .bat extensions are not provided.
+
+The names of the run scripts indicate which web server the scheduler or the expression compiler is pointing to,
+so runCompilerHammett means run the expression compiler, using the Hammett web server.
+
+If after that, there is a "onlyXXX" this means the scheduler will only handle the XXX problem.  This is specified
+by the org.cougaar.lib.vishnu.server.Scheduler.problems property set in the script, and users are encouraged to alter this property
+so that the schedulers do only their problems.  This property can specify a comma-separated list of problems.
+
+The basic runScheduler script does not define the problems property, and so will do any problem submitted to the
+alp-107 web server.
+
+Note that as long as someone somewhere on the network is running a "promiscuous" Scheduler, no 
+one else need run one, but if everyone is running schedulers that handle only specific problems, you will need
+to start your own scheduler.  If you don't, there can be situations where you run an ALP client and it works 
+one time, and then fails another, where the reason for failure is that someone else was running a 
+promiscuous scheduler the first time but not the second.  For this reason, it's generally good form to make 
+your own runScheduler script that does only your problem.
+
+At this time, the default web server is alp-107.  It's outside the firewall, so it should be accessible to
+everyone.
+
+
