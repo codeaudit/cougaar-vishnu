@@ -53,8 +53,8 @@ function putseparator ($width=120) {
 <a href="problem.php?problem=<? echo $problem ?>">
   <? echo $problem ?> main page</a>
 <? putseparator(); ?>
-<a href="viewspecs.php?problem=<? echo $problem ?>">
-  <? echo $problem ?> specs</a>
+<a href="schedule.php?problem=<? echo $problem ?>">
+  <? echo $problem ?> schedule</a>
 <? } ?>
 <? putseparator(); ?>
 <a href="fulldoc.php">Full Vishnu Documentation</a>

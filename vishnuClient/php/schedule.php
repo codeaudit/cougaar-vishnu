@@ -24,6 +24,21 @@
   function mainContent () {
     global $problem, $resourceobject, $taskobject, $resourcekey, $taskkey;
     global $start_time, $end_time, $start_time2, $end_time2;
+    if ((! $resourceobject) || (! $taskobject) ||
+        (! $resourcekey) || (! $taskkey)) {
+      $arr = gettaskandresourcetypes ($problem);
+      $taskobject = $arr[0];
+      $resourceobject = $arr[1];
+      $result = mysql_db_query ("vishnu_prob_" . $problem,
+                   "select * from object_fields where is_key=\"true\";");
+      while ($value = mysql_fetch_array ($result)) {
+        if ($value["object_name"] == $taskobject)
+          $taskkey = $value["field_name"];
+        if ($value["object_name"] == $resourceobject)
+          $resourcekey = $value["field_name"];
+      }
+      mysql_free_result ($result);
+    }
     $ismultitask = ismultitask ($problem);
     $isgrouped = isgrouped ($problem);
     $ignoretime = ignoringtime ($problem);
