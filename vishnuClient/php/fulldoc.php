@@ -975,17 +975,47 @@ the genetic algorithm performance:
 
 <? makeSection ("Using the Browser-Based GUI", "gui"); ?>
 
-<p>The GUI allows a user to see all the information about a problem including the data, scheduling specifications, and the schedule created.  The initial
-access to the GUI should always be via the top-level page, currently called vishnu.php and contained (like all the GUI code) in the directory
-vishnu/php.  This page allows the user to select the problem of interest, with the option of first loading a problem from a file or (sometime in the future)
-creating a problem from scratch.  Selecting a problem takes the user to the main page for that problem.
- 
-<p>All the information about the problem is easily accessible from its main page.  This includes links to any individual task or resource with its
-assignment/schedule data, a link to a view of the scheduling specifications, and a link to a graphic displaying all the schedule data for all the resources. 
-The main page for a problem also includes a link for starting the scheduler on the problem and a link to see whether the scheduler has completed. 
-Additionally, there are links for saving the problem data and/or specifications to a file and for loading the problem data from a file.  Editing the
-scheduling specifications requires first going to the page for viewing these specifications.
+<p>The GUI allows a user to see all the information about a problem including the data/metadata, scheduling specifications, and the schedule created.
+It also allows a user to edit the data and metadata for a problem.
 
+<p> The initial
+access to the GUI should usually be via the home page,
+currently called vishnu.php (the default index.html will send you there).
+This will be in whatever directory on the server the Vishnu code was
+installed in, but the recommendation is that it should be in the directory
+vishnu.  This page allows the user to either select an already loaded
+problem, load a problem from a file or
+create a problem from scratch.
+Selecting a problem takes the user to the main page for that problem.
+
+<p>All the information about the problem and all the operations
+to edit the problem can be accessed via links on the problem's main page.
+The current set of links allow the user to:
+<ul>
+<li> view the assignment data and internal data for any
+task object, edit the data in any task object, delete a task object,
+or create a new task object
+<li> view the assignment data and internal data for any
+resource object, where the assignment data is displayed as a color-coded
+schedule graphic, plue edit/create/delete resource objects
+<li> edit/create/delete any global objects.
+<li> view and/or edit the metadata, i.e. view
+the fields for a given object type, edit the fields of an object type,
+and create a new object type
+<li> view the full set of the scheduling specifications,
+including the color specifications, for the problem, and following
+links from the specifications viewing page, editing the specification
+for any constraint
+<li> view a color-coded and labeled graphic displaying all
+the schedule data for all the resources.
+<li> view the scheduling window and genetic algorithm parameters and
+change the values of these paramters
+<li> start the scheduler executing on the problem
+<li> see whether the scheduler has completed
+<li> load some additional problem data from a file
+<li> save the problem data and/or specifications to a file
+</ul>
+ 
 <? makeSection ("Cougaar-Vishnu Bridge", "bridge"); ?>
 
 <p><a href="http://www.cougaar.org">Cougaar</a> is an architecture for construction
