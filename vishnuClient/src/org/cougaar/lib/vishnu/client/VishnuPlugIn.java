@@ -1,4 +1,4 @@
-/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/Attic/VishnuPlugIn.java,v 1.7 2001-02-16 20:52:26 gvidaver Exp $ */
+/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/Attic/VishnuPlugIn.java,v 1.8 2001-02-17 00:20:35 gvidaver Exp $ */
 
 package org.cougaar.lib.vishnu.client;
 
@@ -1807,8 +1807,6 @@ public abstract class VishnuPlugIn
 		namedFields = new TreeSet ();
 		fields.put (name, namedFields);
       }
-      if (type.startsWith ("string"))
-		type = "string(128)";
 
       if (!namedFields.contains (type)) {
 		namedFields.add (type);
