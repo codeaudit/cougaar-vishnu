@@ -63,22 +63,24 @@
     $start_time = strtotime ($start_time2);
     $end_time = strtotime ($end_time2);
   }
-  if ((! $ignoretime) && (! $start_time) && (! $end_time)) {
-    $window = getwindow ($problem);
-    $start_time = maketime ($window["start_time"]);
-    if ($window["end_time"])
-      $end_time = maketime ($window["end_time"]);
-    else {
-      $window = resourcewindow ($problem, $ismultitask || $isgrouped,
-                                $resourcename);
-      $end_time = $window["end_time"];
-      if ($end_time == 0)
-        $end_time = $start_time + 1000000;
-      else if ($end_time == $window["start_time"])
-        $ignoretime = 1;
-    }
-  }
   if (! $ignoretime) {
+    $window = resourcewindow ($problem, $ismultitask || $isgrouped,
+                              $resourcename);
+    $task_start = $window["start_time"];
+    $task_end = $window["end_time"];
+    $window = getwindow ($problem);
+    $win_start = maketime ($window["start_time"]);
+    if ($window["end_time"])
+      $win_end = maketime ($window["end_time"]);
+    else
+      $win_end = $task_end;
+    if ((! $start_time) && (! $end_time)) {
+      $start_time = $win_start;
+      $end_time = $win_end;
+    }
+    if ($start_time == $end_time)
+      $ignoretime = 1;
+
     imagemap ($problem, $taskobject, $taskkey, $resourceobject,
               $resourcekey, $end_time, $start_time,
               $resourcename, $isgrouped, $ismultitask);
@@ -94,7 +96,7 @@
              "&resourcename=" . urlencode($resourcename); 
     imageControls ("resource", $problem, $resourceobject, $taskobject,
                    $resourcekey, $taskkey, $resourcename, $start_time,
-                   $end_time);
+                   $end_time, $win_start, $win_end, $task_start, $task_end);
     $t = time();
     if (! $ismultitask) {
       echo "<IMG SRC=\"legend.php?data=" . getlegenddata ($problem) . 

@@ -34,30 +34,37 @@
     $start_time = strtotime ($start_time2);
     $end_time = strtotime ($end_time2);
   }
-  if ((! $ignoretime) && (! $start_time) && (! $end_time)) {
+  if (! $ignoretime) {
+    $task_start = 0;
+    $task_end = 0;
+    for ($i = 0; $i < sizeof ($resources); $i++) {
+      $window = resourcewindow ($problem, $ismultitask || $isgrouped,
+                                $resources[$i]);
+      $t1 = $window["end_time"];
+      if (($t1 != 0) && (($task_end == 0) || ($t1 > $task_end)))
+        $task_end = $t1;
+      $t1 = $window["start_time"];
+      if (($t1 != 0) && (($task_start == 0) || ($t1 < $task_start)))
+        $task_start = $t1;
+    }
     $window = getwindow ($problem);
-    $start_time = maketime ($window["start_time"]);
+    $win_start = maketime ($window["start_time"]);
     if ($window["end_time"])
-      $end_time = maketime ($window["end_time"]);
-    else {
-      $end_time = $start_time;
-      for ($i = 0; $i < sizeof ($resources); $i++) {
-        $window = resourcewindow ($problem, $ismultitask || $isgrouped,
-                                  $resources[$i]);
-        $t1 = $window["end_time"];
-        if (($t1 != 0) && ($t1 > $end_time))
-          $end_time = $t1;
-      }
+      $win_end = maketime ($window["end_time"]);
+    else
+      $win_end = $task_end;
+    if ((! $start_time) && (! $end_time)) {
+      $start_time = $win_start;
+      $end_time = $win_end;
     }
     if ($start_time == $end_time)
       $ignoretime = 1;
-  }
 
-  if (! $ignoretime)
     for ($i = 0; $i < sizeof ($resources); $i++)
       imagemap ($problem, $taskobject, $taskkey, $resourceobject,
                 $resourcekey, $end_time, $start_time,
                 $resources[$i], $isgrouped, $ismultitask);
+  }
 
   echo "<TABLE CELLPADDING=5>\n";
   $t = time();
@@ -65,7 +72,8 @@
   if ((! $ignoretime) && (! $ismultitask)) {
     echo "<TR><TD colspan=2 align=center nowrap>";
     imageControls ("schedule", $problem, $resourceobject, $taskobject,
-                   $resourcekey, $taskkey, "", $start_time, $end_time);
+                   $resourcekey, $taskkey, "", $start_time, $end_time,
+                   $win_start, $win_end, $task_start, $task_end);
     echo "</TD></TR>";
     echo "<TR><TD></TD><TD align=center>";
     echo "<IMG SRC=\"legend.php?data=" . getlegenddata ($problem) . 

@@ -348,7 +348,8 @@
 
   function imageControls ($page, $problem, $resourceobject, $taskobject,
                           $resourcekey, $taskkey,
-                          $resourcename, $start_time, $end_time) {
+                          $resourcename, $start_time, $end_time,
+                          $win_start, $win_end, $task_start, $task_end) {
     $text = "<A HREF=\"" . $page . ".php?problem=" . $problem .
             "&resourceobject=" . $resourceobject .
             "&taskobject=" . $taskobject . "&taskkey=" . $taskkey .
@@ -372,7 +373,13 @@
     echo " | ";
     echo $text . "&start_time=" . ($start_time + $t2) . "&end_time=" .
          ($end_time + $t2) . "\">" . "Scroll Right" . "</A>\n";
-    echo " | &nbsp;&nbsp;";
+    echo " | ";
+    echo $text . "&start_time=" . $win_start . "&end_time=" .
+         $win_end . "\">" . "Show Scheduling Window" . "</A>\n";
+    echo " | ";
+    echo $text . "&start_time=" . $task_start . "&end_time=" .
+         $task_end . "\">" . "Show Assignment Range" . "</A>\n";
+    echo "<br><br>";
 ?>
   <INPUT TYPE=hidden NAME="problem" VALUE="<? echo $problem ?>">
   <INPUT TYPE=hidden NAME="resourceobject" VALUE="<? echo $resourceobject ?>">
@@ -382,13 +389,14 @@
   <? if ($resourcename != "")
     echo "<INPUT TYPE=hidden NAME=\"resourcename\" VALUE=\"" .
          $resourcename ."\">\n"; ?>
-  <INPUT TYPE=submit VALUE="Pick Times">
-  &nbsp;Start:
+  Start:
   <INPUT TYPE=text name="start_time2" size=19
          value="<? echo strftime ("%m/%d/%Y %T", $start_time); ?>">
   &nbsp;End:
   <INPUT TYPE=text name="end_time2" size=19
          value="<? echo strftime ("%m/%d/%Y %T", $end_time); ?>">
+  &nbsp;
+  <INPUT TYPE=submit VALUE="Select New Time Range">
 </FORM>
 <?
 //    $second = 1;
