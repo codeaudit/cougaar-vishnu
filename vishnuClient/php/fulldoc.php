@@ -899,7 +899,13 @@ a task.  The task duration, setup duration, and wrapup duration constraints dete
 multitasking constraint determines how resources handle multiple tasks at once.  A value of none implies that a resource handles only one task at a
 time.  A value of grouped implies that a resource can handle multiple tasks at once only if they start and end at the same times.  A value of ungrouped
 implies that a resource can handle multiple tasks without the need to coordinate the start and end times.   The groupable constraint applies only for
-grouped multitasking and determines when two tasks can be performed by a single resource at the same time.  The capacity contribution and capacity
+grouped multitasking and determines when two tasks can be performed by a single resource at the same time.
+Always define groupability to be both reflexive (if task1 is groupable
+with task2 then task2 is groupable with task1) and transitive (it task1
+is groupable with task2 and task2 is groupable with task3, then task1
+is groupable with task3); any non-transitive aspects of groupability
+can generally instead be handled using multiple capacities.
+The capacity contribution and capacity
 threshold constraints apply differently depending on whether or not there is multitasking.  When there is multitasking, the capacity constraints ensure that
 none of the different types of capacities are exceeded at any given time.  When there is no multitasking, these constraints ensure that the capacities are
 not exceeded over the history of the resource.
@@ -2736,7 +2742,6 @@ considering:
 <ul>
 <li> <b>Manual Assignments</b> - The user should be able to perform an assignment or unassignment of a task to a resource.
 <li> <b>Better Capacity Logic</b> - The current logic does not allow for resetting of capacity (due to unloading or the end of a time interval).
-<li> <b>Function Definition</b> - The user should be able to define new functions much easier than is now possible.
 <li> <b>Synchronization of Multiple Clients</b> - There should be better locking of database tables to ensure that no inconsistencies arise when we start using
    multiple clients, particularly multiple schedulers.
 <li> <b>Sparse Distance Matrices</b> - The user should be able to specify distances only between nearby locations, and the scheduler should be able to fill
@@ -2748,10 +2753,8 @@ considering:
    https instead of http for greater security.  We should consider defining the concept of privileges so that certain users can perform certain operations
    and access certain problems.  We should consider some way of better
 hiding the username and password used by the scheduler and compiler.
-<li> <b>Circularity Check</b> - We should ensure that the scheduler does not get stuck in an infinite loop due to circularities in the prerequisites of tasks.
 <li> <b>Schedule Stability Soft Constraint</b> - It should be possible to express a preference for keeping the schedule the same as much as possible without
    freezing the assignments.
-<li> <b>Faster Execution of Formulas</b> - Instead of recursing through the parse trees of the formulas, the scheduler should create linear representations that it can iterate through.
 <li> <b>Automatic Freezing of Past Assignments</b> - The automated
 scheduler should automatically not modify any assignment earlier than
 the start of the scheduler window.
@@ -2762,11 +2765,6 @@ view this data graphically.
 scheduler specifications, provide a way for the user to evaluate a
 formula for a constraint in a desired context (i.e., with the
 variables and assignments set appropriately).
-<li> <b>Internal Mode to Accept Objects Directly</b> - Currently, the
-mode where the automated scheduler is run internal to another Java process
-accepts the same XML input as the web-based mode.  It would give the
-user the option of being more efficient if the scheduler were to
-accept Java objects directly instead of parsing the XML into Java objects.
 <li> <b>Recheck Constraints for Frozen Tasks</b> - Instead of just
 assigning the frozen task to the same resource with the same start and
 end time, first check to make sure that the task is still of the same
@@ -2777,21 +2775,11 @@ if the effects ripple into other frozen assignments.
 certain conditions under which he or she wants to be alerted.  Generally,
 this will be when the assignment (or lack of assignment) for a particular
 task is far enough from the ideal to warrant human intervention.
-<li> <b>Improved in-line documentation</b> - Currently, there are not
-enough comments in the code, so we need to add some.
 <li> <b>Display reference field</b> - The key field for tasks and
 resources that provides a unique internal reference is also used for
 referencing these objects in the display.  We should consider adding
 an option for a separate (or additional) field for referencing these
 objects in the display.
-<li> <b>Field Name Stability for Cougaar Bridge</b> - Currently,
-the translated names of fields can change without actually changing
-the field names on the Cougaar side.  The problem is that the Cougaar
-side is truly object-oriented and can handle different data types
-in a single field, while Vishnu is not object-oriented.  Hence,
-for each data type in a particular field, there has to be a different
-field in Vishnu.  We need a better scheme so that the names of the
-fields in Vishnu do not change over time.
 <li> <b>Command-Line Compiler</b> - Currently, there is now way to
 execute the compiler without the web server.  We should implement
 something analogous to the internal scheduler so that the compiler
