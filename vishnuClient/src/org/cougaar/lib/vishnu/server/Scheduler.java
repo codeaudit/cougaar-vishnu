@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Scheduler.java,v 1.4 2001-02-05 19:34:13 gvidaver Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Scheduler.java,v 1.5 2001-02-09 00:22:49 gvidaver Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -319,11 +319,26 @@ public class Scheduler {
       }
     }
 
+      /**
+       * <pre>
+       * true if the properties are set up so the scheduler will accept the
+       * the problem.  If the properties are not set, the scheduler will
+       * try to do all problems.
+       *
+       * Looks for both allowed machines and specific allowed problem names
+       * 
+       * alp-107 becomes alp_107
+       * </pre>
+       * @return true if <code>problemName</code> is acceptable
+       */
 	protected boolean doableProblem (String problemName) {
 	  boolean match = false;
 	  
 	  for (Iterator iter = allowedMachines.iterator (); iter.hasNext(); ) {
 		String machine = (String) iter.next ();
+		machine = machine.replace('-','_'); 
+		//System.out.println ("Scheduler.doableProblem - comparing machine <" + machine +
+		//				    "> with <" + problemName);
 		if (problemName.endsWith (machine)) {
 		  match = true;
 		  break;
