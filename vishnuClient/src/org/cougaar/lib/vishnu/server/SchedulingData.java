@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.29 2001-08-03 21:43:57 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.30 2001-08-13 20:24:38 gvidaver Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -45,15 +45,25 @@ public class SchedulingData {
   private int startTime;
   private int endTime = Integer.MAX_VALUE;
   private TimeOps timeOps;
+  private GroupingInfo groupingInfo = new GroupingInfo ();
+
   public static boolean debug = 
     ("true".equals (System.getProperty ("vishnu.debug")));
   private static boolean throwExceptionOnMissingField =
     ("true".equals (System.getProperty ("vishnu.SchedulingData.throwExceptionOnMissingField", "false")));
-
+  
   public SchedulingData (TimeOps timeOps) {
     this.timeOps = timeOps;
   }
 
+  public TimeOps getTimeOps () {
+	return timeOps;
+  }
+
+  public GroupingInfo getGroupingInfo () {
+	return groupingInfo;
+  }
+  
   public int getStartTime() {
     return startTime;
   }
@@ -555,7 +565,7 @@ public class SchedulingData {
         }
         objects.push (object);
         if (objectType.equals (taskObject))
-          object = new Task (timeOps);
+          object = new Task (timeOps, groupingInfo);
         else if (objectType.equals (resourceObject))
           object = new Resource (timeOps);
         else if (object == null) {
@@ -679,5 +689,4 @@ public class SchedulingData {
       }
     }
   }
-
 }
