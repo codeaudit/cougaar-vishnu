@@ -255,6 +255,8 @@
   tableentry ("Capacity Contributions", "capacity_contrib");
   tableentry ("Capacity Thresholds", "capacity_thresh");
   tableentry ("Groupable", "groupable");
+  tableentry ("Linked", "linked");
+  tableentry ("Link Time Difference", "link_time_diff");
   tableentry ("Task Text", "task_text");
   tableentry ("Grouped Tasks Text", "grouped_text");
   tableentry ("Activity Text", "activity_text");

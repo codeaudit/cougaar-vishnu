@@ -59,6 +59,8 @@
     printobj2 ("CAPACITYCONTRIB", "capacity_contrib", $value);
     printobj2 ("CAPACITYTHRESH", "capacity_thresh", $value);
     printobj2 ("GROUPABLE", "groupable", $value);
+    printobj2 ("LINKED", "linked", $value);
+    printobj2 ("LINKTIMEDIFF", "link_time_diff", $value);
     printobj2 ("TASKTEXT", "task_text", $value);
     printobj2 ("GROUPEDTEXT", "grouped_text", $value);
     printobj2 ("ACTIVITYTEXT", "activity_text", $value);

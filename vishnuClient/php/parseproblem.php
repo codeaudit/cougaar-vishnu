@@ -204,6 +204,10 @@
                 "capacity_thresh_index smallint, " .
                 "groupable_type enum (\"operator\", \"literal\"), " .
                 "groupable_index smallint, " .
+                "linked_type enum (\"operator\", \"literal\"), " .
+                "linked_index smallint, " .
+                "link_time_diff_type enum (\"operator\", \"literal\"), " .
+                "link_time_diff_index smallint, " .
                 "task_text_type enum (\"operator\", \"literal\"), " .
                 "task_text_index smallint, " .
                 "grouped_text_type enum (\"operator\", \"literal\"), " .
@@ -388,7 +392,8 @@
                 "NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, " .
                 "NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, " .
                 "NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, " .
-                "NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);");
+                "NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, " .
+                "NULL, NULL, NULL, NULL);");
     }
     else if ($name == "OPERATOR") {
       $stack[] = array ($attribs["OPERATION"]);
@@ -522,6 +527,12 @@
     else if ($name == "GROUPABLE") {
       updateconstraint ("groupable");
     }
+    else if ($name == "LINKED") {
+      updateconstraint ("linked");
+    }
+    else if ($name == "LINKTIMEDIFF") {
+      updateconstraint ("link_time_diff");
+    }
     else if ($name == "TASKTEXT") {
       updateconstraint ("task_text");
     }
@@ -573,7 +584,8 @@
                 "NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, " .
                 "NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, " .
                 "NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, " .
-                "NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);");
+                "NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, " .
+                "NULL, NULL, NULL, NULL);");
   
   }
 ?>
