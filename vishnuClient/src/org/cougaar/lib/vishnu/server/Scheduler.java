@@ -200,7 +200,7 @@ public class Scheduler {
 	Date start = new Date ();
     Task[] tasks = data.getTasks();
     StringBuffer text = new StringBuffer (tasks.length * 200);
-    text.append ("<?xml version='1.0'?>\n<SCHEDULE>\n");
+    text.append ("<?xml version='1.0'?>\n<ASSIGNMENTS>\n");
     boolean isEndTime = data.getEndTime() != Integer.MAX_VALUE;
     int maxTime = isEndTime ? data.getEndTime() : data.getStartTime();
     for (int i = 0; i < tasks.length; i++) {
@@ -230,7 +230,7 @@ public class Scheduler {
           text.append (multi[j]).append ("\n");
         }
     }
-    text.append ("</SCHEDULE>\n");
+    text.append ("</ASSIGNMENTS>\n");
 	if (debug) reportTime ("\t\tWrote resources in ", start);
     return text.toString();
   }
