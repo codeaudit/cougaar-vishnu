@@ -1,12 +1,28 @@
+# You must run this script as part of installation of Vishnu.
+# Use the command
+#   mysql -u<username> -p<password> < <path>/initializesql
+#
+# It sets up vishnu_central, the shared database, which must
+# be created statically.
+# Note that the problem-specific databases are created dynamically.
+
 drop database if exists vishnu_central;
 create database vishnu_central;
 use vishnu_central;
+
+# problems is the central catalog of all problems by name
 create table problems (name varchar(255) not null,
                        primary key (name));
+
+# permissions is not used yet, but will hopefully someday be use
+# to help with access control
 create table permissions (user varchar(110) not null,
                           problem varchar(135) not null,
                           type enum ("read", "write") not null,
                           unique (user, problem, type));
+
+# scheduler_request keeps track of all requests for the automated
+# scheduler to run
 create table scheduler_request (problem varchar(255) not null,
                                 request_time datetime not null,
                                 requester varchar(255) not null,
@@ -14,6 +30,9 @@ create table scheduler_request (problem varchar(255) not null,
                                 percent_complete tinyint not null,
                                 error_message varchar(255),
                                 legal_hosts varchar(255) not null);
+
+# compiler_request keeps track of all requests for the expression
+# compiler to run
 create table compiler_request (problem varchar(255) not null,
                                expression text not null,
                                request_time datetime not null,
@@ -23,14 +42,24 @@ create table compiler_request (problem varchar(255) not null,
                                error_text text,
                                status enum ("outstanding", "processing",
                                             "complete") not null);
+
+# request_lock provides a way for one scheduler to briefly lock out all
+# other schedulers when deciding what problem to take next (so that a
+# race condition does not lead to them taking the same problem)
 create table request_lock (host varchar(255) not null,
                            lock_time datetime not null,
                            primary key (lock_time));
+
+# stack_traceskeeps the last N stack traces from the automated schedulers
+# for the purposes of debugging without losing this key information
 create table stack_traces (problem varchar(255) not null,
                            host varchar(255) not null,
                            trace_time datetime not null,
                            error_message varchar(255),
                            trace text not null);
+
+# color_defs defines the different colors that can be used in the
+# schedule graphic display
 create table color_defs (name varchar(255) not null,
                          red tinyint unsigned not null,
                          green tinyint unsigned not null,
@@ -56,6 +85,8 @@ insert into color_defs values ("cornflowerblue", 100, 149, 237);
 insert into color_defs values ("chocolate", 226, 105, 30);
 
 
+# constraint_descrip provides the data for online documentation of
+# the different constraints in the scheduling specifications
 create table constraint_descrip (name varchar(60) not null, 
 				 readable_name varchar(60) not null, 
 				 return_type varchar(60) not null, 
