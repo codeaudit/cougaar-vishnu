@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Scheduler.java,v 1.9 2001-04-03 19:26:17 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Scheduler.java,v 1.10 2001-04-04 14:50:56 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -142,7 +142,7 @@ public class Scheduler {
 	  writeCapacities();
         }
         if (debug && (error == null)) reportTime ("Wrote schedule in ", start);
-        ackProblem (100, (error == null) ? null : error.getMessage());
+        ackProblem (100, error);
         if (error == null)
           reportTime ("Finished scheduling at " + new Date() +
                       ", it took ", grandStart);
@@ -261,12 +261,17 @@ public class Scheduler {
   }
 
   /** returns true if canceled */
-  boolean ackProblem (int percentComplete, String message) {
+  boolean ackProblem (int percentComplete, Exception error) {
     Map args = getArgs();
     args.put ("percent_complete", new Integer (percentComplete));
     args.put ("number", probNumber);
-    if (message != null)
-      args.put ("message", message);
+    if (error != null) {
+      args.put ("message", error.toString());
+      StringWriter sw = new StringWriter();
+      PrintWriter pw = new PrintWriter (sw, true);
+      error.printStackTrace (pw);
+      args.put ("trace", sw.toString());
+    }
     String str = ClientComms.postToURL (args, "ackrequest.php");
     return str.indexOf ("canceled") != -1;
   }

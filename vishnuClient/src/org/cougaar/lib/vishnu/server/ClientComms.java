@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/ClientComms.java,v 1.6 2001-03-27 18:19:19 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/ClientComms.java,v 1.7 2001-04-04 14:50:56 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -72,14 +72,15 @@ public class ClientComms {
         "Content-Type: application/x-www-form-urlencoded\r\n" +
         "Content-Length: " + data.length() + "\r\n\r\n" + data + "\r\n\r\n";
       os.write (request.getBytes());
+
       InputStream is = socket.getInputStream();
-	  StringBuffer sb = new StringBuffer ();
-	  byte b[] = new byte[1024];
-	  int len;
-	  while ((len = is.read(b)) > -1)
-		sb.append (new String(b, 0, len));
-	  
-	  return sb.toString();
+      StringBuffer sb = new StringBuffer ();
+      byte b[] = new byte[1024];
+      int len;
+      while ((len = is.read(b)) > -1)
+        sb.append (new String(b, 0, len));
+      return sb.toString();
+
     } catch (ConnectException ce) {
       printDiagnostic (ce, null);
     } catch(Exception e) {
