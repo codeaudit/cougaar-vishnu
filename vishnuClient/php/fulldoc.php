@@ -526,241 +526,255 @@ the constraints that are used for specifying how items are
 displayed on the schedule graphic.
 
 <p><div align=center>
-<table border cellspacing=1 cellpadding=0>
- <tr>
-  <td width=109 bgcolor=black align=center>
-        <font color=white><b>Constraint</b></font></td>
-  <td width=72 bgcolor=black align=center>
-        <font color=white><b>Type</b></font></td>
-  <td width=102 bgcolor=black align=center>
-        <font color=white><b>Variables</b></font></td>
-  <td width=66 bgcolor=black align=center>
-        <font color=white><b>Default Value</b></font></td>
-  <td width=241 bgcolor=black align=center>
-        <font color=white><b>Description</b></font></td>
- </tr>
- <tr>
-  <td width=109 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Optimization Criterion</td>
-  <td width=72 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>number</td>
-  <td width=102 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>&nbsp;</td>
-  <td width=66 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>0</td>
-  <td width=241 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Numerical value indicating how good the current schedule is</td>
- </tr>
- <tr>
-  <td width=109 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Optimization Direction</td>
-  <td width=72 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>multiple choice</td>
-  <td width=102 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>N/A</td>
-  <td width=66 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>minimize</td>
-  <td width=241 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Must be either minimize or maximize
+<table border="1" cellspacing="1" cellpadding="0">
+  <tbody>
+    <tr>
+      <td width="109" bgcolor="black" align="Center"><font color="white"><b>
+ Constraint</b></font></td>
+      <td width="72" bgcolor="black" align="Center"><font color="white"><b>
+ Type</b></font></td>
+      <td width="102" bgcolor="black" align="Center"><font color="white"><b>
+ Variables</b></font></td>
+      <td width="66" bgcolor="black" align="Center"><font color="white"><b>
+ Default Value</b></font></td>
+      <td width="241" bgcolor="black" align="Center"><font color="white"><b>
+ Description</b></font></td>
+    </tr>
+    <tr>
+      <td width="109" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " valign="Top"><a name="Optimization_Criterion"></a>
+          <a href="#optimization_criterion_constraint">Optimization Criterion</a>
+      </td>
+      <td width="72" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ number</td>
+      <td width="102" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top"><br>
+      </td>
+      <td width="66" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ 0</td>
+      <td width="241" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " valign="Top">
+          Numerical value indicating how good the current schedule is</td>
+    </tr>
+    <tr>
+      <td width="109" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " valign="Top"><a name="Optimization_Direction"></a>
+          Optimization Direction</td>
+      <td width="72" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ multiple choice</td>
+      <td width="102" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ N/A</td>
+      <td width="66" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ minimize</td>
+      <td width="241" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " valign="Top">
+          Must be either minimize or maximize   </td>
+    </tr>
+    <tr>
+      <td width="109" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " valign="Top"><a name="Delta_Criterion"></a>
+          <a href="#delta_criterion_constraint">Delta Criterion</a>
+      </td>
+      <td width="72" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ number</td>
+      <td width="102" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ task, resouce</td>
+      <td width="66" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ 0</td>
+      <td width="241" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " valign="Top">
+          Incremental contribution to optimization criterion          introduced 
+by having resource perform task   </td>
+    </tr>
+    <tr>
+      <td width="109" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " valign="Top"><a name="Best_Time"></a>
+          Best Time</td>
+      <td width="72" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ datetime</td>
+      <td width="102" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ task, resouce, duration</td>
+      <td width="66" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ start_time</td>
+      <td width="241" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " valign="Top">
+          Optimal time for the task to begin   </td>
+    </tr>
+    <tr>
+      <td width="109" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " valign="Top"><a name="Capability_Criterion"></a>
+      <a href="#capability_constraint">Capability</a>
+      </td>
+      <td width="72" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ boolean</td>
+      <td width="102" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ task, resouce</td>
+      <td width="66" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ true</td>
+      <td width="241" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " valign="Top">
+          Whether resource has the required skills to perform task   </td>
+    </tr>
+    <tr>
+      <td width="109" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " valign="Top"><a name="Task_Duration"></a>
+      <a href="#task_duration_constraint">Task Duration</a>
+      </td>
+      <td width="72" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ number</td>
+      <td width="102" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ task, resouce</td>
+      <td width="66" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ 0</td>
+      <td width="241" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " valign="Top">
+          How many seconds it takes resource to perform task   </td>
+    </tr>
+    <tr>
+      <td width="109" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " valign="Top"><a name="Setup_Duration"></a>
+      <a href="#setup_duration_constraint">Setup Duration</a>
+      </td>
+      <td width="72" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ number</td>
+      <td width="102" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ task, previous, resouce</td>
+      <td width="66" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ 0</td>
+      <td width="241" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " valign="Top">
+          How many seconds it takes resource to prepare to perform task if 
+it last performed previous   </td>
+    </tr>
+    <tr>
+      <td width="109" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " valign="Top"><a name="Wrapup_Duration"></a>
+      <a href="#setup_duration_constraint">Wrapup Duration</a>
+      </td>
+      <td width="72" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ number</td>
+      <td width="102" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ task, next, resouce</td>
+      <td width="66" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ 0</td>
+      <td width="241" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " valign="Top">
+          How many seconds it takes resource to clean up after doing task 
+if it will be performing next   </td>
+    </tr>
+    <tr>
+      <td width="109" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " valign="Top"><a name="Prerequisites"></a>
+      <a href="#prerequisites_constraint">Prerequisites</a>
+      </td>
+      <td width="72" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ list of strings</td>
+      <td width="102" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ task</td>
+      <td width="66" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ empty list</td>
+      <td width="241" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " valign="Top">
+          Names of all the tasks that must be scheduled before scheduling 
+task   </td>
+    </tr>
+    <tr>
+      <td width="109" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " valign="Top"><a name="Task_Unavailable_Times"></a>
+      <a href="#task_unavailability_constraint">Task Unavailability</a>
+      </td>
+      <td width="72" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ list of intervals</td>
+      <td width="102" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ task, resource, prerequisites, duration</td>
+      <td width="66" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ empty list</td>
+      <td width="241" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " valign="Top">
+          All intervals of time when task cannot be scheduled (label1 and 
+label2 fields ignored)   </td>
+    </tr>
+    <tr>
+      <td width="109" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " valign="Top"><a name="Resource_Unavailable_Times"></a>
+      <a href="#resource_unavailability_constraint">Resource Unavailability</a>
+      </td>
+      <td width="72" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ list of intervals</td>
+      <td width="102" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ resource</td>
+      <td width="66" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ empty list</td>
+      <td width="241" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " valign="Top">
+          All intervals of time when resource is busy (label1 and label2
+can be used for text and color)   </td>
+    </tr>
+    <tr>
+      <td width="109" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " valign="Top"><a name="Capacity_Contributions"></a>
+      <a href="#capacity_contribution_constraint">Capacity Contribution</a>
+      </td>
+      <td width="72" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ number <b>or</b> list of numbers</td>
+      <td width="102" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ task</td>
+      <td width="66" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ 0</td>
+      <td width="241" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " valign="Top">
+          How much task contributes towards filling each type of capacity
   </td>
- </tr>
- <tr>
-  <td width=109 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Delta Criterion</td>
-  <td width=72 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>number</td>
-  <td width=102 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>task, resouce</td>
-  <td width=66 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>0</td>
-  <td width=241 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Incremental contribution to optimization criterion 
-        introduced by having resource perform task
-  </td>
- </tr>
- <tr>
-  <td width=109 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Best Time</td>
-  <td width=72 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>datetime</td>
-  <td width=102 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>task, resouce, duration</td>
-  <td width=66 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>start_time</td>
-  <td width=241 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Optimal time for the task to begin
-  </td>
- </tr>
- <tr>
-  <td width=109 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Capability</td>
-  <td width=72 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>boolean</td>
-  <td width=102 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>task, resouce</td>
-  <td width=66 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>true</td>
-  <td width=241 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Whether resource has the required skills to perform task
-  </td>
- </tr>
- <tr>
-  <td width=109 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Task Duration</td>
-  <td width=72 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>number</td>
-  <td width=102 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>task, resouce</td>
-  <td width=66 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>0</td>
-  <td width=241 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        How many seconds it takes resource to perform task
-  </td>
- </tr>
- <tr>
-  <td width=109 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Setup Duration</td>
-  <td width=72 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>number</td>
-  <td width=102 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>task, previous, resouce</td>
-  <td width=66 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>0</td>
-  <td width=241 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        How many seconds it takes resource to prepare to perform task if it last performed previous
-  </td>
- </tr>
- <tr>
-  <td width=109 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Wrapup Duration</td>
-  <td width=72 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>number</td>
-  <td width=102 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>task, next, resouce</td>
-  <td width=66 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>0</td>
-  <td width=241 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        How many seconds it takes resource to clean up after doing task if it will be performing next
-  </td>
- </tr>
- <tr>
-  <td width=109 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Prerequisites</td>
-  <td width=72 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>list of strings</td>
-  <td width=102 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>task</td>
-  <td width=66 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>empty list</td>
-  <td width=241 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Names of all the tasks that must be scheduled before scheduling task
-  </td>
- </tr>
- <tr>
-  <td width=109 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Task Unavailability</td>
-  <td width=72 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>list of intervals</td>
-  <td width=102 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>task, resource, prerequisites, duration</td>
-  <td width=66 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>empty list</td>
-  <td width=241 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        All intervals of time when task cannot be scheduled (label1 and label2 fields ignored)
-  </td>
- </tr>
- <tr>
-  <td width=109 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Resource Unavailability</td>
-  <td width=72 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>list of intervals</td>
-  <td width=102 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>resource</td>
-  <td width=66 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>empty list</td>
-  <td width=241 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        All intervals of time when resource is busy (label1 and label2 can be used for text and color)
-  </td>
- </tr>
- <tr>
-  <td width=109 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Capacity Contribution</td>
-  <td width=72 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>number <b>or</b> list of numbers</td>
-  <td width=102 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>task</td>
-  <td width=66 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>0</td>
-  <td width=241 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        How much task contributes towards filling each type of capacity
-  </td>
- </tr>
- <tr>
-  <td width=109 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Capacity Threshold</td>
-  <td width=72 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>number <b>or</b> list of numbers</td>
-  <td width=102 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>resource</td>
-  <td width=66 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>0</td>
-  <td width=241 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        How much capacity of each type that resource has
-  </td>
- </tr>
- <tr>
-  <td width=109 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Multitasking</td>
-  <td width=72 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>multiple choice</td>
-  <td width=102 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>N/A</td>
-  <td width=66 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>none</td>
-  <td width=241 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Ability of resources to perform more than one task at a time (must be none, ungrouped, grouped, or ignoring_time)
-  </td>
- </tr>
- <tr>
-  <td width=109 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Groupable</td>
-  <td width=72 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>boolean</td>
-  <td width=102 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>task1, task2</td>
-  <td width=66 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>true</td>
-  <td width=241 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Whether task1 and task2 can be done as part of the same group (should be reflexive and transitive)
-  </td>
- </tr>
- <tr>
-  <td width=109 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Linked</td>
-  <td width=72 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>boolean</td>
-  <td width=102 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>task1, task2</td>
-  <td width=66 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>false</td>
-  <td width=241 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Whether the start time of <i>task2</i> is linked to the start time of <i>task1</i>
-  </td>
- </tr>
- <tr>
-  <td width=109 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Link Time Difference</td>
-  <td width=72 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>number</td>
-  <td width=102 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>task1, task2</td>
-  <td width=66 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>0</td>
-  <td width=241 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Number of seconds that the start time of <i>task2</i> must follow the start time of <i>task1</i>
-  </td>
- </tr>
+    </tr>
+    <tr>
+      <td width="109" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " valign="Top"><a name="Capacity_Thresholds"></a>
+      <a href="#capacity_threshold_constraint">Capacity Threshold</a>
+      </td>
+      <td width="72" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ number <b>or</b> list of numbers</td>
+      <td width="102" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ resource</td>
+      <td width="66" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ 0</td>
+      <td width="241" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " valign="Top">
+          How much capacity of each type that resource has   </td>
+    </tr>
+    <tr>
+      <td width="109" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " valign="Top"><a name="Multitasking"></a>
+      <a href="#multitasking_constraint">Multitasking</a>
+      </td>
+      <td width="72" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ multiple choice</td>
+      <td width="102" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ N/A</td>
+      <td width="66" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ none</td>
+      <td width="241" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " valign="Top">
+          Ability of resources to perform more than one task at a time (must 
+be <a href="#multitasking_none">none</a>
+ , <a href="#multitasking_ungrouped">ungrouped</a>
+ , <a href="#multitasking_grouped">grouped</a>
+ , or <a href="#multitasking_ignoring_time">ignoring_time</a>
+)   </td>
+    </tr>
+    <tr>
+      <td width="109" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " valign="Top"><a name="Groupable"></a>
+      <a href="#groupable_constraint">Groupable</a>
+      </td>
+      <td width="72" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ boolean</td>
+      <td width="102" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ task1, task2</td>
+      <td width="66" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ true</td>
+      <td width="241" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " valign="Top">
+          Whether task1 and task2 can be done as part of the same group (should 
+be reflexive and transitive)   </td>
+    </tr>
+    <tr>
+      <td width="109" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " valign="Top"><a name="Linked"></a>
+          Linked</td>
+      <td width="72" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ boolean</td>
+      <td width="102" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ task1, task2</td>
+      <td width="66" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ false</td>
+      <td width="241" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " valign="Top">
+          Whether the start time of <i>task2</i> is linked to the start time 
+of <i>task1</i></td>
+    </tr>
+    <tr>
+      <td width="109" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " valign="Top"><a name="Link_Time_Difference"></a>
+          Link Time Difference</td>
+      <td width="72" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ number</td>
+      <td width="102" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ task1, task2</td>
+      <td width="66" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " align="Center" valign="Top">
+ 0</td>
+      <td width="241" style="padding-top: 0in; padding-right: 5.4pt; padding-bottom: 0in; padding-left: 5.4pt; " valign="Top">
+          Number of seconds that the start time of <i>task2</i> must follow 
+the start time of <i>task1</i></td>
+    </tr>
+  </tbody>
 </table>
+
 <br><b>Table 1. The Scheduling Constraints</b></div>
 
 <p><br><div align=center>
@@ -779,7 +793,7 @@ displayed on the schedule graphic.
  </tr>
  <tr>
   <td width=109 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Task Text</td>
+        <a name="Task_Text">Task Text</td>
   <td width=72 style='padding:0in 5.4pt 0in 5.4pt' align=center
         valign=top>string <b>or</b> number <b>or</b> boolean</td>
   <td width=102 style='padding:0in 5.4pt 0in 5.4pt' align=center
@@ -792,7 +806,7 @@ displayed on the schedule graphic.
  </tr>
  <tr>
   <td width=109 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Activity Text</td>
+        <a name="Activity_Text">Activity Text</td>
   <td width=72 style='padding:0in 5.4pt 0in 5.4pt' align=center
         valign=top>string <b>or</b> number <b>or</b> boolean</td>
   <td width=102 style='padding:0in 5.4pt 0in 5.4pt' align=center
@@ -805,7 +819,7 @@ displayed on the schedule graphic.
  </tr>
  <tr>
   <td width=109 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Grouped Tasks Text</td>
+        <a name="Grouped_Tasks_Text">Grouped Tasks Text</td>
   <td width=72 style='padding:0in 5.4pt 0in 5.4pt' align=center
         valign=top>string <b>or</b> number <b>or</b> boolean</td>
   <td width=102 style='padding:0in 5.4pt 0in 5.4pt' align=center
@@ -818,7 +832,7 @@ displayed on the schedule graphic.
  </tr>
  <tr>
   <td width=109 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Task Color (one for each possible color)</td>
+        <a name="Task_Color">Task Color (one for each possible color)</td>
   <td width=72 style='padding:0in 5.4pt 0in 5.4pt' align=center
         valign=top>boolean</td>
   <td width=102 style='padding:0in 5.4pt 0in 5.4pt' align=center
@@ -831,7 +845,7 @@ displayed on the schedule graphic.
  </tr>
  <tr>
   <td width=109 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Activity Color (one for each possible color)</td>
+        <a name="Activity_Color">Activity Color (one for each possible color)</td>
   <td width=72 style='padding:0in 5.4pt 0in 5.4pt' align=center
         valign=top>boolean</td>
   <td width=102 style='padding:0in 5.4pt 0in 5.4pt' align=center
@@ -844,7 +858,7 @@ displayed on the schedule graphic.
  </tr>
  <tr>
   <td width=109 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Grouped Tasks Color (one for each possible color)</td>
+        <a name="Grouped_Tasks_Color">Grouped Tasks Color (one for each possible color)</td>
   <td width=72 style='padding:0in 5.4pt 0in 5.4pt' align=center
         valign=top>boolean</td>
   <td width=102 style='padding:0in 5.4pt 0in 5.4pt' align=center
@@ -857,7 +871,7 @@ displayed on the schedule graphic.
  </tr>
  <tr>
   <td width=109 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Setup Display</td>
+        <a name="Setup_Display">Setup Display</td>
   <td width=72 style='padding:0in 5.4pt 0in 5.4pt' align=center
         valign=top>multiple choice</td>
   <td width=102 style='padding:0in 5.4pt 0in 5.4pt' align=center
@@ -870,7 +884,7 @@ displayed on the schedule graphic.
  </tr>
  <tr>
   <td width=109 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        Wrapup Display</td>
+        <a name="Wrapup_Display">Wrapup Display</td>
   <td width=72 style='padding:0in 5.4pt 0in 5.4pt' align=center
         valign=top>multiple choice</td>
   <td width=102 style='padding:0in 5.4pt 0in 5.4pt' align=center
@@ -887,42 +901,99 @@ displayed on the schedule graphic.
 
 <? makeSection ("Automated Scheduler Algorithm", "alg"); ?>
 
-<p>The automated scheduler uses a genetic algorithm to optimize the schedule according to the optimization criterion given in the constraint.  The genetic
-algorithm allows the user not only to specify parameters that control operation but also to specify code to be plugged in for the genetic operators, an
-initial population generator, and a genotype-to-phenotype (i.e., chromosome-to-schedule) decoder.  For now, we have defined only a single type of
-genetic algorithm, which is what we will describe here.
- 
-<p>The current genetic algorithm uses an order-based chromosome.  Each chromosome is a list of all the tasks that need to be scheduled in a particular
-order.  The initial population generator creates random orderings of the tasks.  The mutation operator picks some of the elements of the parent's list
-(that in general are not contiguous) and shuffles their order to create the child.  The crossover operator picks some of the elements of the first parent's
-list and puts them in the order they are in the second parent.  A decoder (which is the complicated part and which we describe in more detail below)
-translates each ordering of tasks into a schedule.  The optimization criterion is used to evaluate the schedule corresponding to each chromosome.
+<p>The automated scheduler uses a genetic algorithm to optimize the schedule
+according to the <a name="optimization_criterion_constraint"></a>
+<b>optimization criterion</b> given in the constraint.  The genetic algorithm allows
+the user not only to specify parameters that control operation but also to
+specify code to be plugged in for the genetic operators, an initial population
+generator, and a genotype-to-phenotype (i.e., chromosome-to-schedule) decoder.
+ For now, we have defined only a single type of genetic algorithm, which
+is what we will describe here.   </p>
+<p>The current genetic algorithm uses an order-based chromosome.  Each chromosome
+is a list of all the tasks that need to be scheduled in a particular order.
+ The initial population generator creates random orderings of the tasks.
+ The mutation operator picks some of the elements of the parent's list (that
+in general are not contiguous) and shuffles their order to create the child.
+ The crossover operator picks some of the elements of the first parent's list
+and puts them in the order they are in the second parent.  A decoder (which
+is the complicated part and which we describe in more detail below) translates
+each ordering of tasks into a schedule.  The optimization criterion is used
+to evaluate the schedule corresponding to each chromosome.  </p>
+<p>The decoder iterates performing the following procedure until all tasks
+are scheduled (or deemed unscheduled).  Take the first element in the list
+that is not yet scheduled (or marked unscheduled) and for which all of the
+tasks in its lists of prerequisites are already scheduled.  Try assigning
+this task to each of the resources capable of performing this task at the
+earliest possible time, and evaluate how good this assignment is using the
+<a name="delta_criterion_constraint"></a>
+<b>delta criterion</b>.  Keep the assignment to that resource that is the best (i.e.,
+perform a greedy selection of resource).   <br>
+</p>
 
-<p>The decoder iterates performing the following procedure until all tasks are scheduled (or deemed unscheduled).  Take the first element in the list that is
-not yet scheduled (or marked unscheduled) and for which all of the tasks in its lists of prerequisites are already scheduled.  Try assigning this task to
-each of the resources capable of performing this task at the earliest possible time, and evaluate how good this assignment is using the delta criterion. 
-Keep the assignment to that resource that is the best (i.e., perform a greedy selection of resource).
-
- 
-<p>The decoder uses the constraints to ensure that the schedule conforms to the problem requirements.  The prerequisites constraint determines which
-tasks need to be scheduled before a particular task.  The capability constraint determines which resources can perform a particular task.  The task
-unavailability constraint determines which periods of time to block off in terms of not allowing the given task to be scheduled during those times.  The
-resource unavailability constraint determines when a given resource cannot be scheduled for performing a task or for setting up for or wrapping up from
-a task.  The task duration, setup duration, and wrapup duration constraints determine how much time must be allocated for the given activities.  The
-multitasking constraint determines how resources handle multiple tasks at once.  A value of none implies that a resource handles only one task at a
-time.  A value of grouped implies that a resource can handle multiple tasks at once only if they start and end at the same times.  A value of ungrouped
-implies that a resource can handle multiple tasks without the need to coordinate the start and end times.   The groupable constraint applies only for
-grouped multitasking and determines when two tasks can be performed by a single resource at the same time.
-Groupability is assumed to be defined
-to be both reflexive (if task1 is groupable
-with task2 then task2 is groupable with task1) and transitive (it task1
-is groupable with task2 and task2 is groupable with task3, then task1
-is groupable with task3); any non-transitive aspects of groupability
-can generally instead be handled using multiple capacities.
-The capacity contribution and capacity
-threshold constraints apply differently depending on whether or not there is multitasking.  When there is multitasking, the capacity constraints ensure that
-none of the different types of capacities are exceeded at any given time.  When there is no multitasking, these constraints ensure that the capacities are
-not exceeded over the history of the resource.
+The decoder uses the constraints to ensure that the schedule 
+conforms to the problem requirements.  <br>
+      The constraints are as follows:<br>
+<ul>
+  <li>The <b><a name="prerequisites_constraint"></a>
+    </b><b>prerequisites </b>constraint determines which tasks need to be
+ scheduled before a particular task.  </li>
+  <li>The <b><a name="capability_constraint"></a>
+    </b><b>capability </b>constraint determines which resources can perform
+ a particular task.  </li>
+  <li>The <b><a name="task_unavailability_constraint"></a>
+    </b><b>task unavailability</b> constraint determines which periods of
+ time to block off in terms of not allowing the given task to be scheduled
+ during those times.  </li>
+  <li>The <a name="resource_unavailability_constraint"></a>
+    <b>resource unavailability</b> constraint determines when a given resource
+ cannot be scheduled for performing a task or for setting up for or wrapping
+ up from a task.  </li>
+  <li>The <a name="task_duration_constraint"></a>
+    <b>task duration</b>, <a name="setup_duration_constraint"></a>
+    <b>setup duration</b>, and <a name="wrapup_duration_constraint"></a>
+    <b>wrapup duration</b> constraints determine how much time must be allocated
+ for the given activities.  </li>
+  <li>The <a name="multitasking_constraint"></a>
+    <b>multitasking</b> constraint determines how resources handle multiple
+ tasks at once.  </li>
+  <ul>
+    <li>A value of <a name="multitasking_none"></a>
+      <b>none </b>implies that a resource handles only one task at a time. 
+ </li>
+    <li>A value of <a name="multitasking_grouped"></a>
+      <b>grouped </b>implies that a resource can handle multiple tasks at 
+once only if they start and end at the same times.  </li>
+    <li>A value of <a name="multitasking_ungrouped"></a>
+      <b>ungrouped </b>implies that a resource can handle multiple tasks without
+the need to coordinate the start and end times.</li>
+    <li>A value of <a name="multitasking_ignoring_time"></a>
+      <b>ignoring time</b> implies that no time-based calculation will occur. 
+ This means the problem will be of the knapsack variety, like the <a href="#c4">Generalized 
+Assignment Problem</a>.</li>
+  </ul>
+  <li>The <b><a name="groupable_constraint"></a>
+    </b><b>groupable </b>constraint applies only for grouped multitasking
+ and determines when two tasks can be performed by a single resource at the
+ same time. Groupability is assumed to be defined to be both </li>
+  <ul>
+    <li>reflexive (if task1 is groupable with task2 then task2 is groupable
+ with task1) and </li>
+    <li>transitive (it task1 is groupable with task2 and task2 is groupable
+ with task3, then task1 is groupable with task3); any non-transitive aspects
+ of groupability can generally instead be handled using multiple capacities.</li>
+  </ul>
+  <li>The <b><a name="capacity_contribution_constraint"></a>
+    </b><b>capacity </b><b>contribution </b>and <b><a name="capacity_threshold_constraint"></a>
+    </b><b>capacity </b><b>threshold </b>constraints apply differently depending
+ on whether or not there is multitasking.  </li>
+  <ul>
+    <li>When there is multitasking, the capacity constraints ensure that
+none of the different types of capacities are exceeded at any given time.
+ </li>
+    <li>When there is no multitasking, these constraints ensure that the
+capacities are not exceeded over the history of the resource.</li>
+  </ul>
+</ul>
 
 <p>[NOTE: The fact that the decoder itself does a simple optimization
 means that the genetic algorithm does not have to work as hard.  Even if
