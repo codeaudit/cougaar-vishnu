@@ -139,9 +139,12 @@ To delete the object, click on the "Delete Object" button.
 <?
   }
 
-  function hintsForCreate() {
+  function hintsForCreate ($global) {
 ?>
-To create an object, enter the value for each field
+To create an object,
+<? if ($global) echo "enter the name of the global object in " .
+                     "the name field and"; ?>
+enter the value for each field
 in its corresponding box.
 Then, click on the "Create Object" button.
 If all the fields are valid, it will tell you that you have

@@ -260,7 +260,7 @@ and are free for that time period.
     } else if ($action == "View All")
       showHints();
     else if ($action == "Create")
-      hintsForCreate();
+      hintsForCreate (0);
     else if ($action == "Edit")
       hintsForEdit();
   }

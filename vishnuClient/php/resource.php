@@ -170,7 +170,7 @@ assigned to the resource.
     } else if ($action == "View All")
       showHints();
     else if ($action == "Create")
-      hintsForCreate();
+      hintsForCreate (0);
     else if ($action == "Edit")
       hintsForEdit();
   }

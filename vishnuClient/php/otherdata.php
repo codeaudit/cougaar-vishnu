@@ -45,7 +45,7 @@
       if (! $objecttype) {
 ?>
 <h2>Select type of object to create</h2><br>
-<FORM METHOD=post ACTION="otherdata.php">
+<FORM METHOD=get ACTION="otherdata.php">
 <SELECT NAME="objecttype">
 <?
         $result = mysql_db_query ("vishnu_prob_" . $problem,
@@ -94,4 +94,25 @@
 
     mysql_close();
   }
+
+  function hintsForPage () {
+    global $action, $objecttype;
+    if ($action == "View") {
 ?>
+There are no actions to be taken when viewing global data.
+<?
+    } else if (($action == "Create") && $objecttype) {
+      hintsForCreate (1);
+    } else if ($action == "Create") {
+?>
+The first step in creating an object is to select the type of
+object to create from the pick list.  Note that the task and
+resource object types will not be included in this pick list,
+because tasks and resources are created differently.
+<?
+    } else if ($action == "Edit") {
+      hintsForEdit();
+    }
+  }
+?>
+
