@@ -2608,8 +2608,6 @@ considering:
 <li> <b>Rollback for Data Error</b> - When there is an error loading data, the database should roll back to a state where it was consistent rather than be in an
    inconsistent state.  This will necessitate using Berkeley BDB tables to provide rollback capability.  Remember to delete the problem name if there is
    an error loading the problem definition.
-<li> <b>Geographic Display</b> - When a latlong or xy_coord can be defined for each task, we should provide a simple graphical representation of the route
-   of each resource.
 <li> <b>Access Control and Security</b> - We should use
    https instead of http for greater security.  We should consider defining the concept of privileges so that certain users can perform certain operations
    and access certain problems.  We should consider some way of better
@@ -2626,6 +2624,18 @@ the start of the scheduler window.
 <li> <b>Geographic Display</b> - For those problems where the tasks have
 associated geographic data (latlongs or xy_coords), we should provide a way to
 view this data graphically.
+<li> <b>Evaluation of Specs in Browser</b> - To allow debugging of
+scheduler specifications, provide a way for the user to evaluate a
+formula for a constraint in a desired context (i.e., with the
+variables and assignments set appropriately).
+<li> <b>Best Time Either Start or End</b> - Instead of making the best
+time always be the start time of the task, provide a way to allow it
+alternatively to be the end time of the task.
+<li> <b>Internal Mode to Accept Objects Directly</b> - Currently, the
+mode where the automated scheduler is run internal to another Java process
+accepts the same XML input as the web-based mode.  It would give the
+user the option of being more efficient if the scheduler were to
+accept Java objects directly instead of parsing the XML into Java objects.
 <ul>
 </div>
 
