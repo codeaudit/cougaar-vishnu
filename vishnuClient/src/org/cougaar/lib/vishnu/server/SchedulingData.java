@@ -634,10 +634,14 @@ public class SchedulingData {
         }
       }
       else if (name.equals ("VALUE")) {
-        if (! listFormat.hasObjects) {
-          listFormat.object.addField (listFormat.name, listFormat.type,
-                                      atts.getValue ("value"), false, true);
-        }
+		if (listFormat != null) {
+		  if (! listFormat.hasObjects) {
+			listFormat.object.addField (listFormat.name, listFormat.type,
+										atts.getValue ("value"), false, true);
+		  }
+		}
+		else if (debug)
+		  System.out.println ("SchedulingData.startElement - expecting listFormat to be set when hit VALUE tag.");
       }
       else if (name.equals ("FIELDFORMAT")) {
         FieldFormat ff = new FieldFormat
