@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedInitializer.java,v 1.9 2001-08-15 18:21:49 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/stackstuff/Attic/OrderedInitializer.java,v 1.1 2001-08-15 18:21:55 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -66,9 +66,6 @@ public class OrderedInitializer implements GAInitializer {
         selected.add (task);
         break;
       }
-if ((original.size() + i + 1) != ordering.length)
-for (int k = 0; k < original.size(); k++)
-System.out.println ("task = " + tasks[((Integer) original.get(k)).intValue()].getKey());
       if ((original.size() + i + 1) != ordering.length)
         throw new RuntimeException
           ("Dependency Loop<br>\nTry looking at the way you " +

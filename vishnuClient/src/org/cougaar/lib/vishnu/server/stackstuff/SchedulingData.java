@@ -1,14 +1,13 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.31 2001-08-15 18:21:49 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/stackstuff/Attic/SchedulingData.java,v 1.1 2001-08-15 18:21:57 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.Attributes;
 import java.util.HashMap;
-import java.util.TreeSet;
 import java.util.ArrayList;
 import java.util.Stack;
-import java.util.Comparator;
+import java.lang.Float;
 
 /**
  * Holds scheduling data for the generic scheduler.
@@ -33,12 +32,7 @@ import java.util.Comparator;
 public class SchedulingData {
 
   private HashMap tasks = new HashMap();
-  private TreeSet frozenTasks = new TreeSet (new Comparator()
-                 { public int compare (Object o1, Object o2) {
-                   int t1 = ((Task) o1).getAssignment().getTaskStartTime();
-                   int t2 = ((Task) o2).getAssignment().getTaskStartTime();
-                   return t1 - t2;
-                 }});
+  private HashMap frozenTasks = new HashMap();
   private HashMap linkedToFrozenTasks;
   private ArrayList primaryTasks = new ArrayList();
   private HashMap resources = new HashMap();
@@ -51,25 +45,15 @@ public class SchedulingData {
   private int startTime;
   private int endTime = Integer.MAX_VALUE;
   private TimeOps timeOps;
-  private GroupingInfo groupingInfo = new GroupingInfo ();
-
   public static boolean debug = 
     ("true".equals (System.getProperty ("vishnu.debug")));
   private static boolean throwExceptionOnMissingField =
     ("true".equals (System.getProperty ("vishnu.SchedulingData.throwExceptionOnMissingField", "false")));
-  
+
   public SchedulingData (TimeOps timeOps) {
     this.timeOps = timeOps;
   }
 
-  public TimeOps getTimeOps () {
-	return timeOps;
-  }
-
-  public GroupingInfo getGroupingInfo () {
-	return groupingInfo;
-  }
-  
   public int getStartTime() {
     return startTime;
   }
@@ -96,15 +80,11 @@ public class SchedulingData {
   }
 
   public void replaceTask (Task task) {
-    Task old = getTask (task.getKey());
-    Assignment a = old.getAssignment();
-    task.setAssignment (a);
+    Object a = frozenTasks.get (getTask (task.getKey()));
     removeTask (task.getKey());
     addTask (task);
-    if (a.getFrozen()) {
-      frozenTasks.remove (old);
-      frozenTasks.add (task);
-    }
+    if (a != null)
+      frozenTasks.put (task, a);
   }
 
   public void freezeTask (String task, String res, String start, String end) {
@@ -125,8 +105,7 @@ public class SchedulingData {
       return;
     }
     primaryTasks.remove (t);
-    t.setAssignment (new Assignment (t, r, s, s, e, e, true, timeOps));
-    frozenTasks.add (t); 
+    frozenTasks.put (t, new Assignment (t, r, s, s, e, e, true, timeOps));
   }
 
   public void unfreezeTask (String key) {
@@ -139,32 +118,33 @@ public class SchedulingData {
     frozenTasks.remove (task);
   }
 
-  public final Task[] getTasks() {
+  public Task[] getTasks() {
     Task[] arr = new Task [tasks.size()];
     return (Task[]) tasks.values().toArray (arr);
   }
 
-  public final Task[] getFrozenTasks() {
+  public Task[] getFrozenTasks() {
     Task[] arr = new Task [frozenTasks.size()];
-    return (Task[]) frozenTasks.toArray (arr);
+    return (Task[]) frozenTasks.keySet().toArray (arr);
   }
 
-  public final boolean isFrozen (Task task) {
-    if (task == null)
-      return false;
-    Assignment a = task.getAssignment();
-    return ((a != null) && (a.getFrozen()));
+  public boolean isFrozen (Task task) {
+    return (frozenTasks.get (task) != null);
+  }
+  
+  public Assignment getFrozenAssignment (Task task) {
+    return (Assignment) frozenTasks.get (task);
   }
 
   /** Tasks that actually are represented in chromosome; this is all
    *  tasks that are not frozen and that are either not linked or are
    *  the representative task in a set of linked tasks */
-  public final Task[] getPrimaryTasks() {
+  public Task[] getPrimaryTasks() {
     Task[] arr = new Task [primaryTasks.size()];
     return (Task[]) primaryTasks.toArray (arr);
   }
 
-  public final HashMap getLinkedToFrozenTasks () {
+  public HashMap getLinkedToFrozenTasks () {
     return linkedToFrozenTasks;
   }
 
@@ -208,9 +188,9 @@ public class SchedulingData {
     resources.remove (key);
     Task[] ft = getFrozenTasks();
     for (int i = 0; i < ft.length; i++) {
-      Assignment a = ft[i].getAssignment();
+      Assignment a = (Assignment) frozenTasks.get (ft[i]);
       if ((a != null) && (a.getResource().getKey().equals (key)))
-        unfreezeTask (ft[i].getKey());
+        frozenTasks.remove (ft[i]);
     }
   }
 
@@ -218,7 +198,7 @@ public class SchedulingData {
     resources.remove (r.getKey());
     Task[] ft = getFrozenTasks();
     for (int i = 0; i < ft.length; i++) {
-      Assignment a = ft[i].getAssignment();
+      Assignment a = (Assignment) frozenTasks.get (ft[i]);
       if ((a != null) && (a.getResource().getKey().equals (r.getKey())))
         a.setResource (r);
     }
@@ -257,8 +237,7 @@ public class SchedulingData {
     for (int i = 0; i < tasks.length; i++) {
       Assignment a = tasks[i].getAssignment();
       if (a != null) {
-        if (! a.getFrozen())
-          tasks[i].setAssignment (null);
+        tasks[i].setAssignment (null);
         a.getResource().removeAssignment (a.getTask().getKey(), true);
       }
     }
@@ -272,11 +251,8 @@ public class SchedulingData {
 
   public void initialize (SchedulingSpecs specs) {
     Task[] tasks = getTasks();
-    for (int i = 0; i < tasks.length; i++) {
-      if (! isFrozen (tasks[i]))
-        tasks[i].setAssignment (null);
-      tasks[i].setFrozenBlock (null);
-    }
+    for (int i = 0; i < tasks.length; i++)
+      tasks[i].setAssignment (null);
     Resource[] resources = getResources();
     for (int i = 0; i < resources.length; i++)
       resources[i].initialize();
@@ -373,8 +349,8 @@ public class SchedulingData {
         continue;
       java.util.Iterator iter = group.keySet().iterator();
       while (iter.hasNext()) {
-        Task task2 = (Task) iter.next();
-        if (isFrozen (task2)) {
+        Object task2 = iter.next();
+        if (frozenTasks.get (task2) != null) {
           linkedToFrozenTasks.put (task, task2);
           primaryTasks.remove (task);
           break;
@@ -579,7 +555,7 @@ public class SchedulingData {
         }
         objects.push (object);
         if (objectType.equals (taskObject))
-          object = new Task (timeOps, groupingInfo);
+          object = new Task (timeOps);
         else if (objectType.equals (resourceObject))
           object = new Resource (timeOps);
         else if (object == null) {
@@ -703,4 +679,5 @@ public class SchedulingData {
       }
     }
   }
+
 }

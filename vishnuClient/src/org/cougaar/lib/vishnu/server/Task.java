@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Task.java,v 1.8 2001-08-13 20:25:15 gvidaver Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Task.java,v 1.9 2001-08-15 18:21:49 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -23,6 +23,7 @@ public class Task extends SchObject {
   private boolean[] ungroupableTasks = null;
   private int myNum;
   protected GroupingInfo groupingInfo;
+  private Resource.Block frozenBlock = null;
   
   public Task (TimeOps timeOps, GroupingInfo groupingInfo) {
     super (timeOps);
@@ -30,19 +31,23 @@ public class Task extends SchObject {
 	myNum = groupingInfo.taskCounter++;
   }
 
-  public Assignment getAssignment()  { return assignment; }
+  public final Assignment getAssignment()  { return assignment; }
 
-  public void setAssignment (Assignment a)  { assignment = a; }
+  public final void setAssignment (Assignment a)  { assignment = a; }
 
-  public float[] getCapacityContribs()  { return capacityContribs; }
+  public final Resource.Block getFrozenBlock()  { return frozenBlock; }
 
-  public void setCapacityContribs (float[] contribs) {
+  public final void setFrozenBlock (Resource.Block fb)  { frozenBlock = fb; }
+
+  public final float[] getCapacityContribs()  { return capacityContribs; }
+
+  public final void setCapacityContribs (float[] contribs) {
     capacityContribs = contribs;
   }
 
-  public Task[] getPrerequisites()  { return prerequisites; }
+  public final Task[] getPrerequisites()  { return prerequisites; }
 
-  public void setPrerequisites (Task[] p)  { prerequisites = p; }
+  public final void setPrerequisites (Task[] p)  { prerequisites = p; }
 
   public boolean groupableWith (Task[] tasks, SchedulingSpecs specs) {
     for (int i = 0; i < tasks.length; i++)
@@ -52,15 +57,15 @@ public class Task extends SchObject {
   }
 
   public boolean groupableWith (Task task, SchedulingSpecs specs) {
-	try {
-	  if (groupingInfo.isGroupable(task.myNum, specs))
-		return true;
-	} catch (Exception e) {
-	  System.out.println ("groupableTasks length = " + groupableTasks.length + " task num " + task.myNum);
-	}
+    try {
+      return groupingInfo.isGroupable(task.myNum, specs);
+    } catch (Exception e) {
+      System.out.println ("groupableTasks length = " +
+                          groupableTasks.length + " task num " + task.myNum);
+    }
 	
-	if (groupingInfo.isUngroupable (task.myNum))
-	  return false;
+    if (groupingInfo.isUngroupable (task.myNum))
+      return false;
 
     if (specs.areGroupable (this, task) &&
         specs.areGroupable (task, this)) {

@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Reusable.java,v 1.4 2001-08-15 18:21:49 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/stackstuff/Attic/Reusable.java,v 1.1 2001-08-15 18:21:56 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -36,9 +36,9 @@ public class Reusable {
     private final void setValue (float val)  { this.val = val; }
     public final float floatValue ()  { return val; }
     public final int intValue ()  { return (int) val; }
-    public final String toString()  { return (new Float (val)).toString(); }
-    public final RFloat copy()  { return new RFloat (val); }
-    public final boolean equals (Object obj) {
+    public String toString()  { return (new Float (val)).toString(); }
+    public RFloat copy()  { return new RFloat (val); }
+    public boolean equals (Object obj) {
       return ((obj instanceof RFloat) ?
               (val == ((RFloat) obj).floatValue()) : false);
     }
@@ -49,15 +49,15 @@ public class Reusable {
     public RInteger (int val)  { this.val = val; }
     private final void setValue (int val)  { this.val = val; }
     public final int intValue ()  { return val; }
-    public final String toString()  { return (new Integer (val)).toString(); }
-    public final RInteger copy()  { return new RInteger (val); }
-    public final boolean equals (Object obj) {
+    public String toString()  { return (new Integer (val)).toString(); }
+    public RInteger copy()  { return new RInteger (val); }
+    public boolean equals (Object obj) {
       return ((obj instanceof RInteger) ?
               (val == ((RInteger) obj).intValue()) : false);
     }
   }
 
-  public final RFloat getFloat (float val) {
+  public RFloat getFloat (float val) {
     if (floatObjsUsed < floatObjects.size()) {
       RFloat f = (RFloat) floatObjects.get (floatObjsUsed);
       f.setValue (val);
@@ -70,7 +70,7 @@ public class Reusable {
     return f;
   }
 
-  public final RInteger getInteger (int val) {
+  public RInteger getInteger (int val) {
     if (intObjsUsed < intObjects.size()) {
       RInteger i = (RInteger) intObjects.get (intObjsUsed);
       i.setValue (val);
@@ -83,7 +83,7 @@ public class Reusable {
     return i;
   }
 
-  public final ArrayList getList () {
+  public ArrayList getList () {
     if (listObjsUsed < listObjects.size()) {
       ArrayList l = (ArrayList) listObjects.get (listObjsUsed);
       l.clear();
