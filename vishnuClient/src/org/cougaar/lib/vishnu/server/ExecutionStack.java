@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/ExecutionStack.java,v 1.2 2001-08-10 22:37:31 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/ExecutionStack.java,v 1.3 2001-08-13 19:35:07 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -21,11 +21,13 @@ public class ExecutionStack {
   public static final int PUSH = 0;
   public static final int VARIABLE = 1;
   public static final int CONSTANT = 2;
+  public static final int GET = 220;
   public static final int SET = 3;
   public static final int UNSET = 201;
   public static final int JUMP = 202;
   public static final int JUMPNULL = 203;
   public static final int JUMPIF = 4;
+  public static final int JUMPIFNOT = 224;
   public static final int ITER_INIT = 214;
   public static final int ITER_START = 215;
   public static final int ITER_END = 216;
@@ -70,6 +72,11 @@ public class ExecutionStack {
   private TimeOps timeOps;
 
 
+  public ExecutionStack (Reusable reuse, TimeOps timeOps) {
+    this.reuse = reuse;
+    this.timeOps = timeOps;
+  }
+
   public void convertToArrays() {
     commands = new int [tempCommands.size()];
     args1 = new Object [commands.length];
@@ -81,23 +88,22 @@ public class ExecutionStack {
     }
   }
 
-  public void setData (Reusable reuse, TimeOps timeOps) {
-    this.reuse = reuse;
-    this.timeOps = timeOps;
-  }
-
   public void addCommand (int command, Object arg1, int arg2) {
     tempCommands.add (new Integer (command));
     tempArgs1.add (arg1);
     tempArgs2.add (new Integer (arg2));
   }
 
+  public int currentSize() {
+    return tempCommands.size();
+  }
+
   public Object getResult (Map data) {
     Object curr = null;
     int cmdPtr = -1;
+    int num;
 
-    while (cmdPtr < commands.length) {
-      cmdPtr++;
+    while (++cmdPtr < commands.length) {
       switch (commands[cmdPtr]) {
 
         case PUSH:
@@ -111,6 +117,10 @@ public class ExecutionStack {
 
         case CONSTANT:
           curr = args1[cmdPtr];
+          break;
+
+        case GET:
+          curr = ((SchObject) curr).getField ((String) args1[cmdPtr]);
           break;
 
         case SET:
@@ -132,6 +142,11 @@ public class ExecutionStack {
 
         case JUMPIF:
           if (((Boolean) curr).booleanValue())
+            cmdPtr = args2[cmdPtr];
+          break;
+
+        case JUMPIFNOT:
+          if (! ((Boolean) curr).booleanValue())
             cmdPtr = args2[cmdPtr];
           break;
 
