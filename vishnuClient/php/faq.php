@@ -298,7 +298,7 @@
         LDM to reflect the assignments.  The main thing that it leaves to
         you, the user, is defining the scheduling specifications.",
         "bridge");
-  addq ("How do I use a bridge plugin within a COUGAAR society?",
+  addq ("How do I use a bridge plugin within a Cougaar society?",
         "This is described in <a href=\"fulldoc.php#bridge\">Section
         7</a> of the full documentation.");
 

@@ -969,6 +969,15 @@ the genetic algorithm performance:
         limit on this fraction
   </td>
  </tr>
+ <tr>
+  <td width=80 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
+        Report Interval</td>
+  <td width=460 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
+        How often (in seconds) the genetic algorithm reports
+        its percent complete status to the web server (0 means not
+        until the end)
+  </td>
+ </tr>
 </table>
 </div>
 

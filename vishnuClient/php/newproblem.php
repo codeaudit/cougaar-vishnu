@@ -25,12 +25,12 @@
     }
     $str = "<PROBLEM name=\"" . $problem . "\">\n" .
            "<GAPARMS pop_size=\"20\" parent_scalar=\"0.70\" " . 
-           "max_evals=\"100\" max_time=\"20\" max_duplicates=\"15\" " .
-           "max_top_dog_age=\"20\" initializer=\"org.cougaar.lib.vishnu.server." .
+           "max_evals=\"4000\" max_time=\"20\" max_duplicates=\"300\" " .
+           "max_top_dog_age=\"100\" initializer=\"org.cougaar.lib.vishnu.server." .
            "OrderedInitializer\" decoder=\"org.cougaar.lib.vishnu.server.OrderedDecoder\" >" .
            "\n<GAOPERATORS>\n<GAOPERATOR " .
            "name=\"org.cougaar.lib.vishnu.server.OrderedMutation\" prob=\"0.50\" " .
-           "parms=\"0.8\" />\n<GAOPERATOR " .
+           "parms=\"1.0\" />\n<GAOPERATOR " .
            "name=\"org.cougaar.lib.vishnu.server.OrderedCrossover\" prob=\"0.50\" />\n" .
            "</GAOPERATORS>\n</GAPARMS>\n</PROBLEM>\n";
     parseproblem ($str, $user, $password);

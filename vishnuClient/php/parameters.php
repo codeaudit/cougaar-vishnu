@@ -96,6 +96,12 @@ Maximum Fraction Mutated
 <INPUT type=text size=20 name=mfm value =<?
 echo $op1mut ? $gaparms["operator1_parms"] : $gaparms["operator2_parms"]; ?>>
 </font></td><td></td></tr>
+<tr><td nowrap><font size=+1>
+Report Interval
+</td><td>
+<INPUT type=text size=20 name=rep value =<?
+echo $gaparms["report_interval"]; ?>>
+</font></td><td></td></tr>
 </table>
 <br><input type=submit value="Update Parameters">
 </form>
