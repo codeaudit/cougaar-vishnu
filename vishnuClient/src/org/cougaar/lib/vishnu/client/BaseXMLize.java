@@ -199,12 +199,9 @@ public abstract class BaseXMLize {
 										   boolean isList, boolean isFirst,
 										   Collection createdNodes);
 
-  protected boolean isUID (Object obj) {
-	UID uid;
-	
+  protected boolean isUniqueObject (Object obj) {
 	return (obj instanceof UniqueObject) &&
-	  ((uid = (((UniqueObject)obj).getUID())) != null) &&
-	  (uid.getUID() != null);
+	  (((UniqueObject)obj).getUID() != null);
   }
   
   protected List getProperties (Object obj, Map listProps) {
@@ -416,7 +413,8 @@ public abstract class BaseXMLize {
 	  (aClass == org.cougaar.domain.planning.ldm.plan.RelationshipScheduleImpl.class) || 
 	  (aClass == org.cougaar.domain.planning.ldm.plan.AspectValue.class) ||
 	  (aClass == org.cougaar.domain.planning.ldm.plan.AllocationImpl.class) ||
-	  (org.cougaar.core.plugin.PlugInAdapter.class.isAssignableFrom (aClass));
+	  (org.cougaar.core.plugin.PlugInAdapter.class.isAssignableFrom (aClass)) ||
+	  (org.cougaar.domain.planning.ldm.asset.LockedPG.class.isAssignableFrom (aClass));
   }
   
   private final Comparator lessStringIgnoreCase = 
