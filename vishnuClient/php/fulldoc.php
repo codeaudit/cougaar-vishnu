@@ -572,7 +572,7 @@ displayed on the schedule graphic.
   <td width=72 style='padding:0in 5.4pt 0in 5.4pt' align=center
         valign=top>datetime</td>
   <td width=102 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>task, resouce</td>
+        valign=top>task, resouce, duration</td>
   <td width=66 style='padding:0in 5.4pt 0in 5.4pt' align=center
         valign=top>start_time</td>
   <td width=241 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
@@ -650,7 +650,7 @@ displayed on the schedule graphic.
   <td width=72 style='padding:0in 5.4pt 0in 5.4pt' align=center
         valign=top>list of intervals</td>
   <td width=102 style='padding:0in 5.4pt 0in 5.4pt' align=center
-        valign=top>task, resource, prerequisites</td>
+        valign=top>task, resource, prerequisites, duration</td>
   <td width=66 style='padding:0in 5.4pt 0in 5.4pt' align=center
         valign=top>empty list</td>
   <td width=241 style='padding:0in 5.4pt 0in 5.4pt' valign=top>

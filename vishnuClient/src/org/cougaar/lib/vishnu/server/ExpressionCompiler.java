@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/ExpressionCompiler.java,v 1.2 2001-01-25 20:49:38 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/ExpressionCompiler.java,v 1.3 2001-02-02 19:08:22 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -130,6 +130,7 @@ public class ExpressionCompiler {
     else if (spec.equals ("best_time")) {
       variables.put ("task", "task");
       variables.put ("resource", "resource");
+      variables.put ("duration", "number");
     }
     else if (spec.equals ("task_duration")) {
       variables.put ("task", "task");
@@ -152,6 +153,7 @@ public class ExpressionCompiler {
       variables.put ("task", "task");
       variables.put ("resource", "resource");
       variables.put ("prerequisites", "list:task");
+      variables.put ("duration", "number");
     }
     else if (spec.equals ("resource_unavail")) {
       variables.put ("resource", "resource");

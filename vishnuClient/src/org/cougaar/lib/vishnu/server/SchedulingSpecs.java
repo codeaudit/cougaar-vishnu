@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingSpecs.java,v 1.6 2001-02-02 18:44:59 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingSpecs.java,v 1.7 2001-02-02 19:08:22 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -118,7 +118,6 @@ public class SchedulingSpecs {
     data.remove ("task");
     data.remove ("resource");
     reuse.resetObjects();
-    System.out.println ("Delta = " + f);
     if (f == null)
       return 0.0f;
     return f.floatValue();
@@ -128,8 +127,10 @@ public class SchedulingSpecs {
                        int duration, boolean schedChanged) {
     if (bestTimeCache == null)
       return Integer.MIN_VALUE;
+    data.put ("duration", new Reusable.RFloat ((float) duration));
     Reusable.RInteger i = (Reusable.RInteger)
       bestTimeCache.getResult (task, resource, schedChanged);
+    data.remove ("duration");
     reuse.resetObjects();
     if (i == null)
       return Integer.MIN_VALUE;
@@ -373,9 +374,11 @@ public class SchedulingSpecs {
     if (taskUnavailableTimesCache == null)
       return blocks;
     data.put ("prerequisites", new ArrayList (Arrays.asList (prereqs)));
+    data.put ("duration", new Reusable.RFloat ((float) duration));
     Object obj = taskUnavailableTimesCache.getResult (task, resource,
                                                       schedChanged);
     data.remove ("prerequisites");
+    data.remove ("duration");
     reuse.resetObjects();
     if (obj == null)
       return blocks;
@@ -636,7 +639,9 @@ public class SchedulingSpecs {
 
     public CacheByTaskResource (ResultProducer rp) {
       this.rp = rp;
-      boolean resourceDependent = rp.containsVariable ("resource");
+      boolean resourceDependent =
+        (rp.containsVariable ("resource") ||
+         rp.containsVariable ("duration"));
       boolean scheduleDependent =
         (rp instanceof Operator) && ((Operator) rp).scheduleDependent();
       if (resourceDependent && scheduleDependent)

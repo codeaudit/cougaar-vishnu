@@ -50,12 +50,12 @@
   echo "<TR><TD>Assigned Tasks</TD><TD>";
   printlist ($arr);
   echo "</TD></TR>\n";
-  echo "<TR><TD>Capacities Used</TD><TD>";
-  printlist ($value["capacities_used"]);
-  echo "</TD></TR>\n";
-  echo "<TR><TD>Capacities</TD><TD>";
-  printlist ($value["capacities"]);
-  echo "</TD></TR>\n";
+//  echo "<TR><TD>Capacities Used</TD><TD>";
+//  printlist ($value["capacities_used"]);
+//  echo "</TD></TR>\n";
+//  echo "<TR><TD>Capacities</TD><TD>";
+//  printlist ($value["capacities"]);
+//  echo "</TD></TR>\n";
   echo "</TABLE>\n";
   mysql_close();
   }

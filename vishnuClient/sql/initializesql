@@ -108,7 +108,7 @@ insert into constraint_descrip values (	"prerequisites",
 insert into constraint_descrip values (	"task_unavail",
 					"Task Unavailability", 
 				       	"list of intervals", 
-					"task, resource, prerequisites", 
+					"task, resource, prerequisites, duration", 
 					"empty list", 
 	 				"All intervals of time when <i>task</i> cannot be scheduled (label1 and label2 fields ignored)");
 
@@ -201,6 +201,6 @@ insert into constraint_descrip values (	"setup_wrapup_display",
 insert into constraint_descrip values (	"best_time",
 					"Best Time", 
 				       	"number", 
-					"task", 
+					"task, resource, duration", 
 					"", 
 	 				"Optimal time for the task to begin");
