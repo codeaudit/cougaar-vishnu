@@ -1,4 +1,4 @@
-/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/Attic/VishnuPlugIn.java,v 1.8 2001-02-17 00:20:35 gvidaver Exp $ */
+/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/Attic/VishnuPlugIn.java,v 1.9 2001-02-21 00:38:18 gvidaver Exp $ */
 
 package org.cougaar.lib.vishnu.client;
 
@@ -201,7 +201,7 @@ public abstract class VishnuPlugIn
     catch(Exception e) {firstTemplateTasks = 2;}
 	
 	domUtil = new VishnuDomUtil (getMyParams(), getName(), getCluster());
-	comm    = new VishnuComm (getMyParams(), getName (), getClusterName (), domUtil);
+	comm    = new VishnuComm    (getMyParams(), getName(), getClusterName(), domUtil);
 
 	// helpful for debugging connection configuration problems
 	if (runInternal)
@@ -490,7 +490,8 @@ public abstract class VishnuPlugIn
 						"See vishnu/scripts/runScheduler in the vishnu distribution.\n" +
 						"It's good to set the machines property to include only\n" + 
 						"those machines you are running from, or else the scheduler\n" +
-						"could process any job posted by anyone to the web server.");
+						"could process any job posted by anyone to the web server.\n" +
+						"For more information, contact gvidaver@bbn.com or dmontana@bbn.com");
   }
 
   /** 
