@@ -1,5 +1,3 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Scheduler.java,v 1.19 2001-06-22 16:40:09 dmontana Exp $
-
 package org.cougaar.lib.vishnu.server;
 
 import org.apache.xerces.parsers.SAXParser;
@@ -59,6 +57,8 @@ public class Scheduler {
     ("true".equals (System.getProperty ("vishnu.Scheduler.showAssignments")));
   private static boolean reportTiming = 
     ("true".equals (System.getProperty ("vishnu.Scheduler.reportTiming")));
+  private static boolean validatingInternalParser = 
+    ("true".equals (System.getProperty ("vishnu.Scheduler.validatingInternalParser", "false")));
 
   private Set allowedProblems = new HashSet ();
   private Set allowedMachines = new HashSet ();
@@ -125,6 +125,7 @@ public class Scheduler {
             throw error;
           if (debug) System.out.println ("Read specs.");
 
+          start = new Date();
           error = readData();
           if (error != null)
             throw error;
@@ -152,13 +153,22 @@ public class Scheduler {
           start = new Date();
           if (! canceled) {
             writeSchedule();
+			if (debug) reportTime ("\tWrote schedule in ", start);
+			Date two = new Date();
             writeCapacities();
+			if (debug) reportTime ("\tWrote capacities in ", two);
+			Date three = new Date();
             writeCapabilities();
+			if (debug) reportTime ("\tWrote capabilities in ", three);
           }
-          if (debug) reportTime ("Wrote schedule in ", start);
+          if (debug) reportTime ("Wrote schedule, capacities, and capabilities in ", start);
           ackProblem (100, null);
-          reportTime ("Finished scheduling at " + new Date() +
-                      ", it took ", grandStart);
+          reportTime ("Finished scheduling " + 
+					  (data.getTasks ().length - data.getFrozenTasks ().length) + 
+					  " new, " + data.getFrozenTasks ().length + 
+					  " frozen tasks against " + data.getResources().length + 
+					  " resources at " + new Date() +
+                      ". It took ", grandStart);
         } catch (Exception e) {
           ackProblem (100, e);
           System.out.println ("Aborted scheduling, message is: " +
@@ -196,6 +206,7 @@ public class Scheduler {
 
   /** Compute the XML representation of assignments */
   private String textForSchedule () {
+	Date start = new Date ();
     Task[] tasks = data.getTasks();
     StringBuffer text = new StringBuffer (tasks.length * 200);
     text.append ("<?xml version='1.0'?>\n<SCHEDULE>\n");
@@ -211,6 +222,8 @@ public class Scheduler {
           maxTime = assign.getEndTime();
       }
     }
+	if (debug) reportTime ("\t\tWrote tasks in ", start);
+	start = new Date ();
     Resource[] resources = data.getResources();
     for (int i = 0; i < resources.length; i++) {
       TimeBlock[] activities = resources[i].getActivities();
@@ -227,6 +240,7 @@ public class Scheduler {
         }
     }
     text.append ("</SCHEDULE>\n");
+	if (debug) reportTime ("\t\tWrote resources in ", start);
     return text.toString();
   }
 
@@ -260,10 +274,12 @@ public class Scheduler {
       new StringBuffer (tasks.length * data.getResources().length * 20);
     text.append ("<?xml version='1.0'?>\n<CAPABILITIES>\n");
     for (int i = 0; i < tasks.length; i++) {
-      Resource[] resources = specs.capableResources (tasks[i], data);
-      for (int j = 0; j < resources.length; j++)
-        text.append ("<CAPABILITY task=\"" + tasks[i].getKey() +
-                     "\" resource=\"" + resources[j].getKey() + "\" />\n");
+	  if (!data.isFrozen (tasks[i])) {
+		Resource[] resources = specs.capableResources (tasks[i], data);
+		for (int j = 0; j < resources.length; j++)
+		  text.append ("<CAPABILITY task=\"" + tasks[i].getKey() +
+					   "\" resource=\"" + resources[j].getKey() + "\" />\n");
+	  }
     }
     text.append ("</CAPABILITIES>\n");
     if (showAssignments)
@@ -440,6 +456,7 @@ public class Scheduler {
       data = new SchedulingData (timeOps);
       SAXParser parser = new SAXParser();
       parser.setContentHandler (new InternalRequestHandler());
+	  parser.setFeature("http://xml.org/sax/features/validation", validatingInternalParser);
       Date start = null;
       if (reportTiming) start = new Date ();
       parser.parse (new InputSource (new StringReader (problem)));
