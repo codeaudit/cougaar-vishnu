@@ -33,6 +33,16 @@
   mysql_free_result ($result);
   $colorsused = array();
 
+  function allocatecolor ($color) {
+    global $colorsused, $colors, $im;
+    if ($colorsused [$color])
+      return $colorsused [$color];
+    $cnum = imagecolorallocate ($im, $colors[$color][0],
+                                $colors[$color][1], $colors[$color][2]);
+    $colorsused [$color] = $cnum;
+    return $cnum;
+  }
+
   function displayblock ($value, $inner) {
     global $width, $height, $font, $fontwidth, $secs_per_pixel;
     global $im, $black, $colors, $colorsused, $start_time, $end_time;
@@ -52,14 +62,6 @@
       $left = $tleft;
       $right = $tright;
     }
-    $color = $value["color"];
-    if ($colorsused [$color])
-      $cnum = $colorsused [$color];
-    else {
-      $cnum = imagecolorallocate ($im, $colors[$color][0],
-                                  $colors[$color][1], $colors[$color][2]);
-      $colorsused [$color] = $cnum;
-    }
     if (($left >= $width) || ($right < 0))
       return;
     if ($left < 0)
@@ -67,7 +69,8 @@
     if ($right >= $width)
       $right = $width - 1;
     imagefilledrectangle ($im, $left, 0, $right, $height - 1, $black);
-    imagefilledrectangle ($im, $left + 2, 2, $right - 2, $height - 3, $cnum);
+    imagefilledrectangle ($im, $left + 2, 2, $right - 2, $height - 3,
+                          allocatecolor ($value["color"]));
     if ($tleft > $left) {
       if (($setupdisplay == "left") && (($tleft - 1) > $left))
         stripedrectangle ($im, $left, 0, $tleft - 1, $height - 1,
@@ -75,7 +78,11 @@
       if (($setupdisplay == "right") && (($tleft - 1) > $left))
         stripedrectangle ($im, $left, 0, $tleft - 1, $height - 1,
                           $black, 0, 0);
-      imagedashedline ($im, $tleft, 0, $tleft, $height - 1, $black);
+      if (($setupdisplay == "color") && (($tleft - 1) > $left))
+        imagefilledrectangle ($im, $left + 2, 2, $tleft - 1, $height - 3,
+                              allocatecolor ($value["setup_color"]));
+      if ($setupdisplay != "color")
+        imagedashedline ($im, $tleft, 0, $tleft, $height - 1, $black);
     }
     if ($tright < $right) {
       if (($wrapupdisplay == "left") && (($right - 1) > $tright))
@@ -84,7 +91,11 @@
       if (($wrapupdisplay == "right") && (($right - 1) > $tright))
         stripedrectangle ($im, $tright, 0, $right - 1, $height - 1,
                           $black, 0, 0);
-      imagedashedline ($im, $tright, 0, $tright, $height - 1, $black);
+      if (($wrapupdisplay == "color") && (($right - 1) > $tright))
+        imagefilledrectangle ($im, $tright + 1, 2, $right - 2, $height - 3,
+                              allocatecolor ($value["wrapup_color"]));
+      if ($setupdisplay != "color")
+        imagedashedline ($im, $tright, 0, $tright, $height - 1, $black);
     }
     $text = $value["text"];
     $len = $right - $left - strlen ($text) * $fontwidth;
