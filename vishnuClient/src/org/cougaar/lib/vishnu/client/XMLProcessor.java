@@ -152,7 +152,7 @@ public class XMLProcessor {
   /** uses formatXMLizer to generate XML for Vishnu */
   protected Document getFormatDoc (Collection taskAndAssets, String assetClassName) {
 	FormatXMLize formatXMLizer = new FormatXMLize (debugFormatXMLizer);
-    return formatXMLizer.createDoc (taskAndAssets, assetClassName);
+    return formatXMLizer.createDoc (taskAndAssets, null, assetClassName);
   }
 
   /** 
@@ -163,8 +163,8 @@ public class XMLProcessor {
    * @param taskAndAssets what to send
    * @param nameToDescrip mapping of object type to object description (field names, etc.)
    */
-  protected Document getDataDoc (Collection taskAndAssets, XMLizer dataXMLizer, String assetClassName) {
-	return dataXMLizer.createDoc (taskAndAssets, assetClassName);
+  protected Document getDataDoc (Collection taskAndAssets, Collection changedAssets, XMLizer dataXMLizer, String assetClassName) {
+	return dataXMLizer.createDoc (taskAndAssets, changedAssets, assetClassName);
   }
 
   public Document getFormatDocWithoutDuplicates (Collection templates, String assetClassName, List returnedMap) {
@@ -688,11 +688,12 @@ public class XMLProcessor {
    * and then do any post-processing 
    **/
   public Document prepareDocument (Collection tasks, 
+								   Collection changed,
 								   XMLizer dataXMLizer,
 								   boolean clearDatabase, 
 								   boolean sendingChangedObjects,
 								   String assetClassName) {
-	Document dataDoc = getDataDoc (tasks, dataXMLizer, assetClassName);
+	Document dataDoc = getDataDoc (tasks, changed, dataXMLizer, assetClassName);
 	  
 	if (showDataXML)
 	  System.out.println (domUtil.getDocAsString(dataDoc));

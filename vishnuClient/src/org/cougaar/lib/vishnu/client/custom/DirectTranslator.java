@@ -20,12 +20,13 @@
  */
 package org.cougaar.lib.vishnu.client.custom;
 
-import java.util.List;
+import java.util.*;
 
 /** 
  * Defines method you need if you want to create Vishnu Objects and 
  * participate in the direct translation process 
  */
 public interface DirectTranslator {
-  void createVishnuObjects (List alpObjects, List vishnuTasks, List vishnuResources); 
+  void createVishnuObjects (List alpObjects, Collection changed, List vishnuTasks, List vishnuResources,
+							List changedVishnuResources); 
 }

@@ -20,6 +20,7 @@
  */
 package org.cougaar.lib.vishnu.client.custom;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -79,9 +80,12 @@ public class CustomVishnuAggregatorPlugIn extends VishnuAggregatorPlugIn {
    * @param objectFormat - contains field type info necessary to create fields on Vishnu objects
    * @param timeOps - time object used when making Vishnu dates
    */
-  protected void prepareVishnuObjects (List alpObjects, List vishnuTasks, List vishnuResources, Document formatDoc, TimeOps timeOps) { 
+  protected void prepareVishnuObjects (List alpObjects, Collection changed, 
+									   List vishnuTasks, List vishnuResources, 
+									   List changedVishnuResources,
+									   Document formatDoc, TimeOps timeOps) { 
 	DirectTranslator dt = (DirectTranslator) getDataXMLizer ();
 	((CustomDataXMLize) dt).setFormatDoc (formatDoc, timeOps);
-	dt.createVishnuObjects (alpObjects, vishnuTasks, vishnuResources);
+	dt.createVishnuObjects (alpObjects, changed, vishnuTasks, vishnuResources, changedVishnuResources);
   }
 }

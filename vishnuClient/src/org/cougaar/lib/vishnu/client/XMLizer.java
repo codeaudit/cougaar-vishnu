@@ -29,11 +29,8 @@ import org.w3c.dom.Document;
  * <p>
  * Create and return xml for first class log plan objects.
  * <p>
- * Element name is extracted from object class, by taking the
- * last field of the object class, and dropping a trailing "Impl",
- * if it exists.
  */
 
 public interface XMLizer {
-  Document createDoc (Collection items, String assetClassName);
+  Document createDoc (Collection items, Collection changedItems, String assetClassName);
 }
