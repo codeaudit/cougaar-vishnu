@@ -310,17 +310,26 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 	Date early = prefHelper.getEarlyDate (task);
 	Date late  = prefHelper.getLateDate  (task);
 
-	debug ("" + task.getUID() +
-			    " - ready " + ready + (start.before(ready) ? (" AFTER start " + start) : "") +
-			    " early " + early   + (end.before(early) ? (" AFTER end " + end) : "") +
-			    " best " + prefHelper.getBestDate (task) + 
-			    " late " + late     + (end.after(late) ? (" BEFORE end " + end) : ""));
+	if (start.before(ready) ||
+	    end.before  (early) ||
+	    end.after   (late))
+	  warn ("" + task.getUID() +
+		" - ready " + ready + (start.before(ready) ? (" AFTER start " + start) : "") +
+		" early " + early   + (end.before(early) ? (" AFTER end " + end) : "") +
+		" best " + prefHelper.getBestDate (task) + 
+		" late " + late     + (end.after(late) ? (" BEFORE end " + end) : ""));
+	else
+	  debug ("" + task.getUID() +
+		 " - ready " + ready + (start.before(ready) ? (" AFTER start " + start) : "") +
+		 " early " + early   + (end.before(early) ? (" AFTER end " + end) : "") +
+		 " best " + prefHelper.getBestDate (task) + 
+		 " late " + late     + (end.after(late) ? (" BEFORE end " + end) : ""));
       }
       debug ("\nresource = " + asset +
-			  "\nsetup    = " + setupStart +
-			  "\nstart    = " + start +
-			  "\nend      = " + end +
-			  "\nwrapup   = " + wrapupEnd);
+	     "\nsetup    = " + setupStart +
+	     "\nstart    = " + start +
+	     "\nend      = " + end +
+	     "\nwrapup   = " + wrapupEnd);
     }
   
     makePlanElement (tasks, asset, start, end, setupStart, wrapupEnd, assetWasUsedBefore);
@@ -504,7 +513,7 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
       boolean isSuccess = !allocHelper.exceedsPreferences (parentTask, aspectValues);
 
       if (!isSuccess) {
-	debug ("VishnuAggregatorPlugin.makeAggregation - making failed aggregation for " + parentTask);
+	warn ("VishnuAggregatorPlugin.addAggregations - making failed aggregation for " + parentTask);
 	expandHelper.showPlanElement (parentTask);
       }
 	  
