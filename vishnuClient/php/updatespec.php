@@ -12,7 +12,8 @@
   require ("parseproblem.php");
 
   if (! $spec) {
-    if ($objtype == "task") {
+    if (($objtype == "task") || ($objtype == "setup") ||
+        ($objtype == "wrapup")) {
       $spec = "task_color";
       $name = "task color: " . $color;
     }
@@ -20,7 +21,8 @@
       $spec = "activity_color";
       $name = "activity color: " . $color;
     }
-    else if ($objtype == "grouped") {
+    else if (($objtype == "grouped_tasks") || ($objtype == "grouped_setup") ||
+             ($objtype == "grouped_wrapup")) {
       $spec = "grouped_color";
       $name = "grouped tasks color: " . $color;
     }

@@ -231,7 +231,9 @@
       do_query ("prob_" . $problem, "setting up", "", $problem,
                 "create table color_tests (" .
                 "color varchar(255) not null, " .
-                "obj_type enum (\"task\", \"grouped\", \"activity\") " .
+                "obj_type enum (\"task\", \"grouped_tasks\", \"activity\", " .
+                   "\"setup\", \"grouped_setup\", " .
+                   "\"wrapup\", \"grouped_wrapup\") " .
                 "not null, " .
                 "title varchar(255) not null, " .
                 "test_type enum (\"operator\", \"literal\") not null, " .

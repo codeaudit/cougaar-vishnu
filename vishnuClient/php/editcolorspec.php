@@ -59,8 +59,12 @@
     $value = mysql_fetch_array ($result);
     mysql_free_result ($result);
     echo "</td></tr><tr><td align=right>Object Type</td>\n<td>";
-    $firstc = isgrouped ($problem) ? "grouped" : "task";
-    multiplechoice ("objtype", array ($firstc, "activity"),
+    $isg = isgrouped ($problem);
+    multiplechoice ("objtype",
+                    array ($isg ? "grouped_tasks" : "task",
+                           $isg ? "grouped_setup" : "setup",
+                           $isg ? "grouped_wrapup" : "wrapup",
+                           "activity"),
                     $value["obj_type"]);
     echo "</td></tr><tr><td align=right>" .
          "Description for legend</td>\n<td>";
