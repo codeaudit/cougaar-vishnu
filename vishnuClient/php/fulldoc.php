@@ -2672,6 +2672,25 @@ if the effects ripple into other frozen assignments.
 certain conditions under which he or she wants to be alerted.  Generally,
 this will be when the assignment (or lack of assignment) for a particular
 task is far enough from the ideal to warrant human intervention.
+<li> <b>Improved in-line documentation</b> - Currently, there are not
+enough comments in the code, so we need to add some.
+<li> <b>Display reference field</b> - The key field for tasks and
+resources that provides a unique internal reference is also used for
+referencing these objects in the display.  We should consider adding
+an option for a separate (or additional) field for referencing these
+objects in the display.
+<li> <b>Field Name Stability for Cougaar Bridge</b> - Currently,
+the translated names of fields can change without actually changing
+the field names on the Cougaar side.  The problem is that the Cougaar
+side is truly object-oriented and can handle different data types
+in a single field, while Vishnu is not object-oriented.  Hence,
+for each data type in a particular field, there has to be a different
+field in Vishnu.  We need a better scheme so that the names of the
+fields in Vishnu do not change over time.
+<li> <b>Command-Line Compiler</b> - Currently, there is now way to
+execute the compiler without the web server.  We should implement
+something analogous to the internal scheduler so that the compiler
+can be run from a command line.
 <ul>
 </div>
 
