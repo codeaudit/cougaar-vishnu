@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Scheduler.java,v 1.12 2001-04-10 17:45:07 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Scheduler.java,v 1.13 2001-04-10 19:36:55 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -108,71 +108,64 @@ public class Scheduler {
         releaseLock();
         try { Thread.sleep (waitInterval); } catch (Exception e) {}
       } else {
-        Date grandStart = new Date ();
-        System.out.println ("Starting to schedule " + problem +
-                            " at " + grandStart);
-        boolean canceled = ackProblem (1, null);
-        releaseLock();
-        if (canceled) {
-          System.out.println ("Canceled " + problem);
-          problem = null;
-          continue;
-        }
-        if (debug) System.out.println ("Did ack.");
-        timeOps = new TimeOps();
-        Date start = new Date();
-        error = readSpecs();
-        if (debug && (error == null)) System.out.println ("Read specs.");
+        try {
+          Date grandStart = new Date ();
+          System.out.println ("Starting to schedule " + problem +
+                              " at " + grandStart);
+          boolean canceled = ackProblem (1, null);
+          releaseLock();
+          if (canceled) {
+            System.out.println ("Canceled " + problem);
+            problem = null;
+            continue;
+          }
+          if (debug) System.out.println ("Did ack.");
+          timeOps = new TimeOps();
+          Date start = new Date();
+          error = readSpecs();
+          if (error != null)
+            throw error;
+          if (debug) System.out.println ("Read specs.");
 
-        if (error == null)
           error = readData();
-        if (debug && (error == null))
-          reportTime ("Scheduler read data in ", start);
+          if (error != null)
+            throw error;
+          if (debug)
+            reportTime ("Scheduler read data in ", start);
 
-        start = new Date();
-        if (error == null) {
+          start = new Date();
           specs.initializeData (data);
           data.initialize (specs);
           error = setupGA();
-        }
-        if (debug && (error == null)) reportTime ("Set up ga in ", start);
+          if (error != null)
+            throw error;
+          if (debug) reportTime ("Set up ga in ", start);
 
-        canceled = false;
-        if (error == null)
-          try {
-            start = new Date();
-            canceled = ga.execute (data, specs);
-            if (canceled)
-              System.out.println ("Canceled " + problem);
-          } catch (Exception e) {
-            System.err.println (e.getMessage());
-            e.printStackTrace();
-            error = e;
+          canceled = false;
+          start = new Date();
+          canceled = ga.execute (data, specs);
+          if (canceled)
+            System.out.println ("Canceled " + problem);
+          if (debug) {
+            reportTime ("GA finished, ran in ", start);
+            specs.reportTiming ();
           }
-        if (debug && (error == null))
-          reportTime ("GA finished, ran in ", start);
-        if (debug)
-          specs.reportTiming ();
 
-        start = new Date();
-        if ((error == null) && (! canceled)) {
-          try {
+          start = new Date();
+          if (! canceled) {
             writeSchedule();
-	    writeCapacities();
-          } catch (Exception e) {
-            System.err.println (e.getMessage());
-            e.printStackTrace();
-            error = e;
+            writeCapacities();
           }
-        }
-        if (debug && (error == null)) reportTime ("Wrote schedule in ", start);
-        ackProblem (100, error);
-        if (error == null)
+          if (debug) reportTime ("Wrote schedule in ", start);
+          ackProblem (100, null);
           reportTime ("Finished scheduling at " + new Date() +
                       ", it took ", grandStart);
-        else
+        } catch (Exception e) {
+          ackProblem (100, e);
           System.out.println ("Aborted scheduling, message is: " +
-                              error.getMessage());
+                              e.getMessage());
+          e.printStackTrace();
+        }
         problem = null;
       }
     }
