@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Task.java,v 1.3 2001-04-12 17:50:31 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Task.java,v 1.4 2001-05-31 22:32:11 gvidaver Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -22,7 +22,8 @@ public class Task extends SchObject {
   private HashSet groupableTasks = new HashSet();
   private static int num = 0;
   private int myNum = 0;
-
+  private boolean groupable = false;
+  
   public Task (TimeOps timeOps) {
     super (timeOps);
     myNum = ++num;
@@ -46,7 +47,18 @@ public class Task extends SchObject {
 
   public boolean isGroupable()  { return groupableTasks.size() > 0; }
 
+  public void setGroupable (boolean val) {
+	groupable = val;
+  }
+  
+  /** 
+   * if there is no groupable spec, a task is promiscuously groupable 
+   * with any other task.
+   **/
   public boolean groupableWith (Task[] tasks) {
+	if (groupable)
+	  return true;
+	
     for (int i = 0; i < tasks.length; i++)
       if (! groupableTasks.contains (tasks[i]))
         return false;

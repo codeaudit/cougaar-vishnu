@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingSpecs.java,v 1.11 2001-04-12 17:50:31 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingSpecs.java,v 1.12 2001-05-31 22:32:11 gvidaver Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -476,6 +476,8 @@ public class SchedulingSpecs {
     return b.booleanValue();
   }
 
+  public boolean hasGroupableSpec () {	return groupable != null;  }
+  
   public boolean areLinks() {
     return linked != null;
   }

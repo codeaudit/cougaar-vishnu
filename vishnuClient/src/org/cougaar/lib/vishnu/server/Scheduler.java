@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Scheduler.java,v 1.17 2001-05-24 18:45:46 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Scheduler.java,v 1.18 2001-05-31 22:32:11 gvidaver Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -400,6 +400,8 @@ public class Scheduler {
    */
   public String runInternalToProcess (String problem) {
     try {
+	  Date beginning = new Date ();
+
       timeOps = new TimeOps();
       specs = new SchedulingSpecs (timeOps);
       ga = new GeneticAlgorithm (this);
@@ -416,10 +418,14 @@ public class Scheduler {
 
       if (reportTiming) start = new Date ();
       specs.initializeData (data);
+      if (reportTiming)
+        reportTime ("Scheduler.runInternalToProcess - specs initialized " +
+                    "data in ", start);
+      if (reportTiming) start = new Date ();
       data.initialize (specs);
       if (reportTiming)
-        reportTime ("Scheduler.runInternalToProcess - initialized " +
-                    "data in ", start);
+        reportTime ("Scheduler.runInternalToProcess - data initialized " +
+                    " with specs in ", start);
       if (reportTiming) start = new Date ();
       ga.execute (data, specs);
       if (reportTiming)
@@ -458,6 +464,9 @@ public class Scheduler {
         }
       }
       text.append ("</ASSIGNMENTS>\n");
+      if (reportTiming)
+        reportTime ("Scheduler.runInternalToProcess - total time to process " + tasks.length + 
+					" tasks was ", beginning);
       return text.toString();
     } catch (Exception e) {
       System.err.println (e.getMessage());
