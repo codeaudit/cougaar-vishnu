@@ -1,13 +1,42 @@
+# This script starts the Vishnu Scheduler
+# 
+# The Vishnu Scheduler polls the Vishnu web server looking for problems to schedule.
+# When it finds a request has been posted, it gets the problem and its scheduling specs
+# and produces a schedule.  This schedule is then posted back to the web server.
+
+# CLASSPATH - the scheduler needs the vishnu jar and the xerces jar in the CLASSPATH
+
+# PROPERTIES -
+#  1) host - Vishnu web server
+#  2) path - path on host to php files
+#  3) user - user on the web server (mysql user)
+#  4) password - password on the web server (mysql password)
+#  5) showAssignments - dump to stdout xml that shows task to resource assignments
+#  6) waitInterval    - scheduler poll period
+#  7) machines - (Very Important) list of machines that can issue problems that 
+#     this scheduler will schedule.  If empty or not defined, scheduler will try to
+#     schedule all problems post to web server.
+#  8) problems - Specific problems this scheduler is restricted to handle
+#
+#  Debugging params (safe to ignore):
+#
+#  9) Scheduler.debug - specific debugging of Scheduler class
+#  10) TimeBlock.debug - debugging of TimeBlock
+#  11) debug - general debug
+#  12) debugXML - show XML sent and received over URLs 
+#      (scheduler will not actually process requests)
+
 java \
 -Dorg.cougaar.lib.vishnu.server.host=alp-107.alp.isotic.org \
 -Dorg.cougaar.lib.vishnu.server.path="/~demo/TOPS/vishnu/php/" \
--Dorg.cougaar.lib.vishnu.server.debug=false \
--Dorg.cougaar.lib.vishnu.server.Scheduler.debug=false \
--Dorg.cougaar.lib.vishnu.server.Scheduler.showAssignments=false \
--Dorg.cougaar.lib.vishnu.server.Scheduler.waitInterval=5000 \
--Dorg.cougaar.lib.vishnu.server.Scheduler.machines="" \
--Dorg.cougaar.lib.vishnu.server.TimeBlock.debug=false \
--Dorg.cougaar.lib.vishnu.server.debugXML=false \
 -Dorg.cougaar.lib.vishnu.server.user=root \
--Dorg.cougaar.lib.vishnu.server.password="" -Xms60m -Xmx100m org.cougaar.lib.vishnu.server.Scheduler 
+-Dorg.cougaar.lib.vishnu.server.password="" \
+-Dorg.cougaar.lib.vishnu.server.Scheduler.showAssignments=true \
+-Dorg.cougaar.lib.vishnu.server.Scheduler.waitInterval=1000 \
+-Dorg.cougaar.lib.vishnu.server.Scheduler.machines="" \
+-Dorg.cougaar.lib.vishnu.server.Scheduler.problems="" \
+-Dorg.cougaar.lib.vishnu.server.Scheduler.debug=false \
+-Dorg.cougaar.lib.vishnu.server.TimeBlock.debug=false \
+-Dorg.cougaar.lib.vishnu.server.debug=false \
+-Dorg.cougaar.lib.vishnu.server.debugXML=false -Xms60m -Xmx100m org.cougaar.lib.vishnu.server.Scheduler 
 
