@@ -2588,9 +2588,9 @@ different places.
 can go anywhere, but the php directory should go somewhere, or be linked
 to from somewhere, that is visible via the web server.  Perhaps the
 best way to do this on a UNIX machine is to type<br>
-> ln -s <fullpath>/php </home/httpd>/html/vishnu<br>
-where <fullpath> is the full pathname of the parent directory of php
-and </home/httpd> should be replaced with the home directory of Apache
+> ln -s &lt;fullpath&gt;/php &lt;/home/httpd&gt;/html/vishnu<br>
+where &lt;fullpath&gt; is the full pathname of the parent directory of php
+and &lt;/home/httpd&gt; should be replaced with the home directory of Apache
 if /home/httpd is not the home directory.
 <li> The vishnu.jar file should go on whatever machines are executing the
 server and/or compiler.  On these machines, make sure to add
@@ -2605,11 +2605,11 @@ This should initialize the tables in the MySQL database.
 Once you have run this once, you should not need to run it again.
 
 <p>To start the automated scheduler, execute the command<br>
-        java -Dorg.cougaar.lib.vishnu.server.host=[hostname]
-        -Dorg.cougaar.lib.vishnu.server.path=[pathname]
-        -Dorg.cougaar.lib.vishnu.server.user=[username]
-        -Dorg.cougaar.lib.vishnu.server.password=[password]
-        -Dorg.cougaar.lib.vishnu.server.port=[portnumber]
+        java -Dvishnu.host=[hostname]
+        -Dvishnu.path=[pathname]
+        -Dvishnu.user=[username]
+        -Dvishnu.password=[password]
+        -Dvishnu.port=[portnumber]
         org.cougaar.lib.vishnu.server.Scheduler<br>
         Start the formula compiler with the same command with
         ExpressionCompiler
@@ -2618,7 +2618,7 @@ Once you have run this once, you should not need to run it again.
         Some examples of such script files are given in the
         scripts directory.  Also note
         that the defaults are hostname=[localhost], path="/~vishnu/",
-        user=vishnu, password="\", and portnumber=80.
+        user=vishnu, password="", and portnumber=80.
 
 <p>You should now be set up to run.
 
@@ -2642,7 +2642,6 @@ considering:
    and access certain problems.  We should consider some way of better
 hiding the username and password used by the scheduler and compiler.
 <li> <b>Circularity Check</b> - We should ensure that the scheduler does not get stuck in an infinite loop due to circularities in the prerequisites of tasks.
-<li> <b>Multiple Resources Per Task</b> - It should be possible for a task to require multiple resources and hence have multiple assignments.
 <li> <b>Schedule Stability Soft Constraint</b> - It should be possible to express a preference for keeping the schedule the same as much as possible without
    freezing the assignments.
 <li> <b>Faster Execution of Formulas</b> - Instead of recursing through the parse trees of the formulas, the scheduler should create linear representations that it can iterate through.
@@ -2656,9 +2655,6 @@ view this data graphically.
 scheduler specifications, provide a way for the user to evaluate a
 formula for a constraint in a desired context (i.e., with the
 variables and assignments set appropriately).
-<li> <b>Best Time Either Start or End</b> - Instead of making the best
-time always be the start time of the task, provide a way to allow it
-alternatively to be the end time of the task.
 <li> <b>Internal Mode to Accept Objects Directly</b> - Currently, the
 mode where the automated scheduler is run internal to another Java process
 accepts the same XML input as the web-based mode.  It would give the

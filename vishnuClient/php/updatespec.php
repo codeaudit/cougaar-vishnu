@@ -111,7 +111,7 @@
       if (strcmp ($report, "SUCCESS") != 0)
         echo "<H2>" . "Error? Got back:<br>" . $report . "</H2>\n";
       else
-        echo "<H2>" . "Added to database:" . "</H2>\n";
+        echo "<H2>" . "Added to database" . "</H2>\n";
     }
     $result = mysql_db_query ("vishnu_central",
                 "delete from compiler_request " .
@@ -125,14 +125,14 @@
        "\">Save to file</a></h2>\n";
 
   echo "</DIV>\n";
-  if ($xml != "") {
-    echo "<BR><BR>The XML is<BR>\n";
-    $arr = explode ("\n", $xml);
-    for ($i = 0; $i < sizeof ($arr); $i++)
-      echo stripslashes (htmlentities ($arr[$i])) . "<BR>\n";
-  }
-	echo "<DIV align=CENTER><H2><a href=\"viewspecs.php" . 
-	"?problem=" . $problem . "\">" . "Return to specs</DIV></H2>";
+//  if ($xml != "") {
+//    echo "<BR><BR>The XML is<BR>\n";
+//    $arr = explode ("\n", $xml);
+//    for ($i = 0; $i < sizeof ($arr); $i++)
+//      echo stripslashes (htmlentities ($arr[$i])) . "<BR>\n";
+//  }
+  echo "<DIV align=CENTER><H2><a href=\"viewspecs.php" . 
+       "?problem=" . $problem . "\">" . "Return to specs</DIV></H2>";
   }
 ?>
 
