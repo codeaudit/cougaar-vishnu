@@ -611,7 +611,10 @@ public abstract class VishnuPlugin
       formatDoc = parser.getDocument ();
       Element formatDocRoot = formatDoc.getDocumentElement ();
       formatDocRoot.setAttribute ("name", comm.getProblem());
-      System.out.println ("name is " + comm.getProblem ());
+
+      if (isInfoEnabled()) {
+	info (getName () + ".prepareStoredObjectFormat - problem name is " + comm.getProblem ());
+      }
 
       attachAssociatedFiles (formatDoc); // attach vsh.xml, ga.xml, odf.xml files
 
