@@ -722,6 +722,32 @@ displayed on the schedule graphic.
         Whether task1 and task2 can be done as part of the same group
   </td>
  </tr>
+ <tr>
+  <td width=109 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
+        Linked</td>
+  <td width=72 style='padding:0in 5.4pt 0in 5.4pt' align=center
+        valign=top>boolean</td>
+  <td width=102 style='padding:0in 5.4pt 0in 5.4pt' align=center
+        valign=top>task1, task2</td>
+  <td width=66 style='padding:0in 5.4pt 0in 5.4pt' align=center
+        valign=top>false</td>
+  <td width=241 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
+        Whether the start time of <i>task2</i> is linked to the start time of <i>task1</i>
+  </td>
+ </tr>
+ <tr>
+  <td width=109 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
+        Link Time Difference</td>
+  <td width=72 style='padding:0in 5.4pt 0in 5.4pt' align=center
+        valign=top>number</td>
+  <td width=102 style='padding:0in 5.4pt 0in 5.4pt' align=center
+        valign=top>task1, task2</td>
+  <td width=66 style='padding:0in 5.4pt 0in 5.4pt' align=center
+        valign=top>0</td>
+  <td width=241 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
+        Number of seconds that the start time of <i>task2</i> must follow the start time of <i>task1</i>
+  </td>
+ </tr>
 </table>
 <br><b>Table 1. The Scheduling Constraints</b></div>
 

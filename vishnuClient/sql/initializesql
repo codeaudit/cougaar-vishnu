@@ -47,12 +47,12 @@ insert into color_defs values ("cornflowerblue", 100, 149, 237);
 insert into color_defs values ("chocolate", 226, 105, 30);
 
 
-create table constraint_descrip (name varchar(30) not null, 
-				 readable_name varchar(30) not null, 
-				 return_type varchar(30) not null, 
-				 defined_vars varchar(30) not null, 
-				 default_value varchar(30) not null, 
-				 description varchar(200));
+create table constraint_descrip (name varchar(60) not null, 
+				 readable_name varchar(60) not null, 
+				 return_type varchar(60) not null, 
+				 defined_vars varchar(60) not null, 
+				 default_value varchar(60) not null, 
+				 description varchar(250));
 
 insert into constraint_descrip values (	"opt_criterion",
 					"Optimization Criterion", 
@@ -145,6 +145,18 @@ insert into constraint_descrip values (	"groupable",
 					"task1, task2", 
 					"false", 
 	 				"Whether <i>task1</i> and <i>task2</i> can be done as part of the same group");
+insert into constraint_descrip values (	"linked",
+					"Linked", 
+				       	"boolean", 
+					"task1, task2", 
+					"false", 
+	 				"Whether the start time of <i>task2</i> is linked to the start time of <i>task1</i>");
+insert into constraint_descrip values (	"link_time_diff",
+					"Link Time Difference", 
+				       	"number", 
+					"task1, task2", 
+					"false", 
+	 				"Number of seconds that the start time of <i>task2</i> must follow the start time of <i>task1</i>");
 
 insert into constraint_descrip values (	"task_text",
 					"Task Text", 
