@@ -242,7 +242,7 @@
 <LITERAL value="M002" type="constant" datatype="string" />
 </OPERATOR>
 </COLORTEST>
-<COLORTEST color="beige" obj_type="setup" title="Deadhead" >
+<COLORTEST color="beige" obj_type="setup" title="Deadhead/Rest" >
 <LITERAL value="true" type="constant" datatype="boolean" />
 </COLORTEST>
 <COLORTEST color="lightblue" obj_type="wrapup" title="Crew Rest" >
