@@ -892,7 +892,7 @@ public abstract class VishnuPlugIn
   protected void setUIDToObjectMap (Collection objects, Map UIDtoObject) {
 	for (Iterator iter = objects.iterator (); iter.hasNext ();) {
 	  UniqueObject obj = (UniqueObject) iter.next ();
-	  StringKey key = new StringKey (obj.getUID().getUID());
+	  StringKey key = new StringKey (obj.getUID().toString());
 	  if (!UIDtoObject.containsKey (key)) {
 		UIDtoObject.put (key, obj);
 		// System.out.println("setUIDToObjectMap: added " + key + " = " + obj + " to map");

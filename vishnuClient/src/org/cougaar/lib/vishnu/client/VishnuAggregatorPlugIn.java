@@ -162,9 +162,20 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
   /*** Stuff for AggregationListener ***/
 
   /**
-   * Should almost always call interestingTask. Can't here because one isn't defined yet.
+   * Should almost always call interestingTask. 
    **/
-  public boolean interestingParentTask (Task t) { return interestingTask(t); }
+  public boolean interestingParentTask (Task t) { 
+	boolean isInteresting = interestingTask(t); 
+
+	if (!isInteresting && 
+		((t.getPlanElement().getReportedResult() != null) && 
+		 !t.getPlanElement().getReportedResult().isSuccess ())) {
+      System.out.println (getName () + ".interestingParentTask - ignoring failed task : " + t.getUID ());
+	}
+	
+	return isInteresting;
+  }
+
   /** implemented for AggregationListener */
   public boolean needToRescind (Aggregation agg) { return false; }
   /** implemented for AggregationListener */
@@ -273,9 +284,12 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
    * @see org.cougaar.lib.callback.UTILExpansionListener
    */
   public void reportChangedExpansion(Expansion exp) { 
-    if (myExtraExtraOutput)
+    if (myExtraExtraOutput || 
+		(exp.getReportedResult () != null && !exp.getReportedResult().isSuccess ()))
       System.out.println (getName () + 
-						  ".reportChangedExpansion : reporting changed expansion " + exp.getUID () + 
+						  ".reportChangedExpansion : reporting " + 
+						  (exp.getReportedResult().isSuccess () ? "" : " - FAILED - ") +
+						  " changed expansion " + exp.getUID () + 
 						  " of " + exp.getTask().getUID() + " to superior.");
       
     updateAllocationResult (exp); 

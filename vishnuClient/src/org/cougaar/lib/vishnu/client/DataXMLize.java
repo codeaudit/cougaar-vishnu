@@ -617,7 +617,7 @@ public class DataXMLize extends FormatXMLize {
 	  UID uniqueUID = unique.getUID ();
 	  String UIDString = "ERROR_novalue";
 	  try {
-		UIDString = uniqueUID.getUID ();
+		UIDString = uniqueUID.toString ();
 	  } catch (NullPointerException npe) {
 		System.out.println ("DataXMLize - null pointer on " + unique + 
 							" - no UID set?");
@@ -631,7 +631,7 @@ public class DataXMLize extends FormatXMLize {
 	  elem.setAttribute ("value", UIDString);
 	}
 	else if (UIDClass.isInstance(theObj)) {
-	  elem.setAttribute ("value", ((UID) theObj).getUID ());
+	  elem.setAttribute ("value", ((UID) theObj).toString ());
 	}
 	else if (isPrimitiveFloat(theObj.getClass()))
 	  elem.setAttribute ("value", getValueOfPrimitiveFloat (theObj));

@@ -59,7 +59,7 @@ public class ALPXMLize extends BaseXMLize {
 						 obj.getClass().toString() + " " + obj);
 	if (isUniqueObject (obj)) {
 	  Element item = doc.createElement("UID");
-      item.appendChild(doc.createTextNode(((UniqueObject)obj).getUID().getUID()));
+      item.appendChild(doc.createTextNode(((UniqueObject)obj).getUID().toString()));
 	  parentElement.appendChild(item);
 	} else {
 	  parentElement.appendChild(doc.createTextNode(obj.toString()));

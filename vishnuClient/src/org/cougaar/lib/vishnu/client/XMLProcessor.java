@@ -912,7 +912,7 @@ public class XMLProcessor {
       Task t = (Task) removedTasks.nextElement();
 
       Element unfreeze = doc.createElement("UNFREEZE");
-      unfreeze.setAttribute ("task", t.getUID ().getUID());
+      unfreeze.setAttribute ("task", t.getUID ().toString());
       newRoot.appendChild (unfreeze);
 
       Element obj = doc.createElement("OBJECT");
@@ -920,7 +920,7 @@ public class XMLProcessor {
       
       Element elem = doc.createElement("FIELD");
       elem.setAttribute ("name",  "id");
-      elem.setAttribute ("value", t.getUID().getUID());
+      elem.setAttribute ("value", t.getUID().toString());
       obj.appendChild (elem);
       deletedobjects.appendChild (obj);
     }
