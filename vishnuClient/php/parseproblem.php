@@ -143,6 +143,10 @@
                 "ID varchar(255) not null, " .
                 "value varchar(255) not null);");
       do_query ("prob_" . $problem, "setting up", "", $problem,
+                "create table capabilities (" .
+                "task_key varchar(255) not null, " .
+                "resource_key varchar(255) not null);");
+      do_query ("prob_" . $problem, "setting up", "", $problem,
                 "create table objects (" .
                 "name varchar(255) not null, " .
                 "is_predefined enum (\"true\", \"false\") not null, " .
