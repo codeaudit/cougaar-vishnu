@@ -107,6 +107,7 @@ public class DirectMode extends InternalMode {
 	// are needed for direct object writing.
 	TimeOps timeOps = sched.getTimeOps();
 	SchedulingData data = sched.getSchedulingData();
+	sched.clearCaches ();
 
 	// add tasks and resources to data
 	// vishnuTasks & Resources created in prepareData and set in prepareVishnuObjects
