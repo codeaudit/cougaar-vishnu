@@ -2,12 +2,14 @@
 setenv CVSROOT :ext:$USER@eiger.alpine.bbn.com:/cvs/alp/internal
 cvs -Q checkout vishnu
 cd vishnu
+cp /home/dmontana/vishnubuild/xerces.jar lib
 set BASEDIR=`pwd`
 set OLDCLASSPATH=$CLASSPATH
 setenv CLASSPATH .":"$BASEDIR/src":"$BASEDIR/lib/xerces.jar":"$CLASSPATH
 cd src
 javac org/cougaar/lib/vishnu/server/*.java
 jar cf vishnu.jar org
+rm org/cougaar/lib/vishnu/server/*.class
 setenv CLASSPATH $OLDCLASSPATH
 cd ../..
 tar cf vishnu.tar vishnu
