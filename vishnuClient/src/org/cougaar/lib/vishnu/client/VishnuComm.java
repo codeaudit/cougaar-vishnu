@@ -387,7 +387,8 @@ public class VishnuComm {
     sb.append ("user=" + myUser + "&");
     sb.append ("password=" + myPassword + "&");
     sb.append ("data=");
-    sb.append (java.net.URLEncoder.encode(data));
+    try { sb.append (java.net.URLEncoder.encode(data, "UTF-8"));
+    } catch (Exception e) { logger.error ("huh?", e);}
 
     Date start = new Date();
     String reply =
@@ -424,7 +425,8 @@ public class VishnuComm {
     sb.append ("user=" + myUser + "&");
     sb.append ("password=" + myPassword + "&");
     sb.append ("data=");
-    sb.append (java.net.URLEncoder.encode(data));
+    try { sb.append (java.net.URLEncoder.encode(data, "UTF-8"));
+    } catch (Exception e) { logger.error ("huh?", e);}
 
     String reply = postToURL (hostName, postProblemFile, sb.toString (), null, true);
 
@@ -618,7 +620,8 @@ public class VishnuComm {
       String url = "http://" + host + phpPath + fileToExec;
       if (testing) {
 	logger.info ("postToURL - (complete) Sending to : " + url);
-	logger.info (java.net.URLDecoder.decode(data));
+	try { logger.info (java.net.URLDecoder.decode(data, "UTF-8"));
+	} catch (Exception e) { logger.error ("huh?", e);}
       }
       else if (logger.isInfoEnabled()) {
 	logger.info ("postToURL - (partial) Sending to : " + url);
