@@ -18,7 +18,7 @@
  *  PERFORMANCE OF THE COUGAAR SOFTWARE.
  * </copyright>
  */
-/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/VishnuDomUtil.java,v 1.7 2001-08-23 15:25:00 mthome Exp $ */
+/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/VishnuDomUtil.java,v 1.8 2001-09-26 18:24:32 gvidaver Exp $ */
 
 package org.cougaar.lib.vishnu.client;
 
@@ -288,7 +288,7 @@ public class VishnuDomUtil {
 			 min + 
 			 ":" + ((sec < 10) ? "0":"") + sec + 
 			 ":" + ((millis < 10) ? "0":"") + millis + 
-			 " (Wall clock time)" + 
+			 " (Wall clock)" + 
 			 " free "  + (rt.freeMemory  ()/(1024*1024)) + "M" +
 			 " total " + (rt.totalMemory ()/(1024*1024)) + "M");
   }
