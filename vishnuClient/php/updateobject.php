@@ -60,7 +60,7 @@
                 $xml .= "<VALUE>\n" . $xml2 . "</VALUE>\n";
               $num++;
             }
-            for ($i2 = 0; $i2 < $values["add" . $prefix . $field2]; $i2++)
+            for ($i2 = 0; $i2 < $values[$prefix . $field2 . "yxqadd"]; $i2++)
               $xml .= "<VALUE>\n<OBJECT type=\"" . $datatypes [$field2] .
                       "\">\n</OBJECT>\n</VALUE>\n";
             $xml .= "</LIST>\n</FIELD>\n";

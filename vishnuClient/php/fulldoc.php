@@ -908,9 +908,10 @@ the genetic algorithm performance:
   <td width=80 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
         Parent Scalar</td>
   <td width=460 style='padding:0in 5.4pt 0in 5.4pt' valign=top>
-        This parameter controls the fitness pressure; the kth best
+        This parameter controls the fitness pressure; the k<sup>th</sup> best
         individual in the population is this times less likely than the
-        (k-1)st to be selected as a parent; this should always be less than
+        (k-1)<sup>st</sup>
+        to be selected as a parent; this should always be less than
         1; making this closer to 1 decreases the pressure and allows the
         genetic algorithm to search longer before converging on a single
         solution
@@ -1615,6 +1616,20 @@ Returns the sum of all delta evaluations for all the tasks already assigned to a
 </TABLE></div>
 
 <? makeSection ("XML Data Formats", "b", "B"); ?>
+
+<p>The following is a DTD showing the expected XML data formats
+for specifying a problem.<br>
+<br><pre>
+&lt;!-- Grammar specification for XML Problem Specification --&gt;
+
+&lt;!ELEMENT PROBLEM (DATAFORMAT,
+                   SPECS,
+                   GAPARMS)&gt;
+
+&lt;!-- sets up the object formats, i.e. metadata --&gt;
+&lt;!ELEMENT DATAFORMAT ()&gt;
+&lt;!ELEMENT messageType (#PCDATA)&gt;
+</pre>
 
 <? makeSection ("Test Problem Descriptions", "c", "C"); ?>
 
@@ -2441,7 +2456,9 @@ Once you have run this once, you should not need to run it again.
         Start the formula compiler with the same command with
         ExpressionCompiler
         substituted for Scheduler.  Note that it is best to make a small
-        script file for starting the scheduler and compiler.  Also note
+        script file for starting the scheduler and compiler.
+        Some examples of such script files are given in the
+        scripts directory.  Also note
         that the defaults are hostname=[localhost], path="/~vishnu/",
         user=vishnu, password="\", and portnumber=80.
 

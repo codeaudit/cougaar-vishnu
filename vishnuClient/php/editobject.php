@@ -49,8 +49,9 @@
       return $str . "<INPUT TYPE=text name=\"" . $field2 . "\" value =\"" .
              $default . "\" size=" . $textsize . "></TD></TR>\n";
     $str .= "<TABLE CELLPADDING=2>\n";
-    $str .= "<TR><TD colspan=2 align=left><B>Number of elements to add to " .
-            "list</B>&nbsp;&nbsp;&nbsp;<SELECT name=\"add" . $field2 . "\">\n";
+    $str .= "<TR><TD colspan=2 align=left><B>Number of elements to " .
+            "add to list</B>&nbsp;&nbsp;&nbsp;<SELECT name=\"" .
+            $field2 . "yxqadd\">\n";
     for ($i2 = 0; $i2 < 10; $i2++)
       $str .= "<OPTION" . ($i2 ? "" : " SELECTED") . "> $i2\n";
     $str .= "</SELECT></TD></TR>\n";
