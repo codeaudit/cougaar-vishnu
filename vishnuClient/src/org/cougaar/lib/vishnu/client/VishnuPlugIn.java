@@ -101,7 +101,7 @@ public abstract class VishnuPlugIn
   extends UTILBufferingPlugInAdapter 
   implements UTILAssetListener {
 
-  private static int INITIAL_INTERNAL_BUFFER_SIZE = 2097152; // 2 M
+  private static final int INITIAL_INTERNAL_BUFFER_SIZE = 16384; //2097152; // 2 M
   
   /**
    * Here all the various runtime parameters get set.  See documentation for details.
