@@ -44,8 +44,11 @@
 
   function getSubheader() { 
     global $name;
-    echo "Editing the specification for <font color=\"green\">" .
-         $name  . "</font>\n";
+
+    $name_no_space = str_replace (" ", "_", $name);
+
+    echo "Editing the specification for " . 
+	"<a href='fulldoc.php#" . $name_no_space . "'><font color=\"green\">" . $name  . "</font></a>";
   }
 
   function multiplechoice ($options, $default) {
