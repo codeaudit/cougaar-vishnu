@@ -376,7 +376,6 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
 							role);
 		
     publishAdd(allocation);
-
     return allocation;
   }
 

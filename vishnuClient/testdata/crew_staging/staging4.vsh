@@ -1,5 +1,9 @@
 <?xml version='1.0'?>
-<PROBLEM name="staging4_m2_c6_bal" description="This problem is the same as the last problem except that there\\nis an even balance between the deadhead times and the late mission\\ntimes.\\nNote that a single deadhead leg does a lot to help keep the\\nmissions moving." >
+<PROBLEM name="staging4_m2_c6_bal" description="This problem is the same as the last problem except that there
+\\nis an even balance between the deadhead times and the late mission
+\\ntimes.
+\\nNote that a single deadhead leg does a lot to help keep the
+\\nmissions moving." >
 <DATAFORMAT>
 <OBJECTFORMAT name="Leg" is_task="true" is_resource="false" >
 <FIELDFORMAT name="id" datatype="string" is_subobject="false" is_globalptr="false" is_list="false" is_key="true" />

@@ -1,5 +1,13 @@
 <?xml version='1.0'?>
-<PROBLEM name="jobshop_mt06" description="This is the classic Muth-Thompson 6x6 job-shop scheduling problem.\\nThere are six machines and six jobs.\\nEach job has six different steps, with each step being a separate\\ntask and each step capable of being performed by only one machine.\\nFor each job, there is exactly one step matched with each machine.\\nThe steps for each job must be performed in a specific order.\\nEach step requires a specified amount of time.\\nThe optimization criterion is the makespan, i.e. the\\ntime at which the last step/task completes." >
+<PROBLEM name="jobshop_mt06" description="This is the classic Muth-Thompson 6x6 job-shop scheduling problem.
+\\nThere are six machines and six jobs.
+\\nEach job has six different steps, with each step being a separate
+\\ntask and each step capable of being performed by only one machine.
+\\nFor each job, there is exactly one step matched with each machine.
+\\nThe steps for each job must be performed in a specific order.
+\\nEach step requires a specified amount of time.
+\\nThe optimization criterion is the makespan, i.e. the
+\\ntime at which the last step/task completes." >
 <DATAFORMAT>
 <OBJECTFORMAT name="machine" is_task="false" is_resource="true" >
 <FIELDFORMAT name="id" datatype="string" is_subobject="false" is_globalptr="false" is_list="false" is_key="true" />

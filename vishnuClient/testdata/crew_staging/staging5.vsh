@@ -1,5 +1,9 @@
 <?xml version='1.0'?>
-<PROBLEM name="staging5_m3_c8_lt10" description="This problem has three missions and eight crews.\\nThe third mission starts 12 hours after the second mission and is\\notherwise identical to the other two.\\nThe weight is heavier on mission late times, so a lot of\\ndeadheading is used to keep the missions moving." >
+<PROBLEM name="staging5_m3_c8_lt10" description="This problem has three missions and eight crews.
+\\nThe third mission starts 12 hours after the second mission and is
+\\notherwise identical to the other two.
+\\nThe weight is heavier on mission late times, so a lot of
+\\ndeadheading is used to keep the missions moving." >
 <DATAFORMAT>
 <OBJECTFORMAT name="Leg" is_task="true" is_resource="false" >
 <FIELDFORMAT name="id" datatype="string" is_subobject="false" is_globalptr="false" is_list="false" is_key="true" />

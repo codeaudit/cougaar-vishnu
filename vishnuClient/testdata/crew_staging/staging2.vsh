@@ -1,5 +1,9 @@
 <?xml version='1.0'?>
-<PROBLEM name="staging2_m2_c4_dh10" description="This is the same problem as staging1 except that the deadhead\\ntimes are weighted ten times more than the mission late times\\nrather than the other way around.\\nIn this case, the automated scheduler finds the solution that\\nkeeps each crew with the mission despite the delays due to rest." >
+<PROBLEM name="staging2_m2_c4_dh10" description="This is the same problem as staging1 except that the deadhead
+\\ntimes are weighted ten times more than the mission late times
+\\nrather than the other way around.
+\\nIn this case, the automated scheduler finds the solution that
+\\nkeeps each crew with the mission despite the delays due to rest." >
 <DATAFORMAT>
 <OBJECTFORMAT name="Leg" is_task="true" is_resource="false" >
 <FIELDFORMAT name="id" datatype="string" is_subobject="false" is_globalptr="false" is_list="false" is_key="true" />

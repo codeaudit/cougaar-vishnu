@@ -428,7 +428,7 @@ public abstract class BaseXMLize {
       (aClass == org.cougaar.planning.ldm.plan.RelationshipScheduleImpl.class) || 
       (aClass == org.cougaar.planning.ldm.plan.AspectValue.class) ||
       (aClass == org.cougaar.planning.ldm.plan.AllocationImpl.class) ||
-      (org.cougaar.core.plugin.PluginAdapter.class.isAssignableFrom (aClass)) ||
+      (org.cougaar.planning.plugin.legacy.PluginAdapter.class.isAssignableFrom (aClass)) ||
       (org.cougaar.planning.ldm.asset.LockedPG.class.isAssignableFrom (aClass));
   }
   

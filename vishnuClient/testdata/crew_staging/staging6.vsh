@@ -1,5 +1,8 @@
 <?xml version='1.0'?>
-<PROBLEM name="staging6_m3_c8_bal" description="This is the same as the last problem except that the mission late\\ntimes and deadhead times are weighted evenly.\\nThe result is that there is one less deadhead leg, but the second\\nand third missions are each two hours late." >
+<PROBLEM name="staging6_m3_c8_bal" description="This is the same as the last problem except that the mission late
+\\ntimes and deadhead times are weighted evenly.
+\\nThe result is that there is one less deadhead leg, but the second
+\\nand third missions are each two hours late." >
 <DATAFORMAT>
 <OBJECTFORMAT name="Leg" is_task="true" is_resource="false" >
 <FIELDFORMAT name="id" datatype="string" is_subobject="false" is_globalptr="false" is_list="false" is_key="true" />

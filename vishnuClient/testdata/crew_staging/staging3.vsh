@@ -1,5 +1,8 @@
 <?xml version='1.0'?>
-<PROBLEM name="staging3_m2_c6_lt10" description="This is the same as the first problem except that there are 6\\ncrews instead of 4.\\nWith one extra crew, it is possible to have the missions be on time.\\nNote that there are 3 deadhead legs to achieve this." >
+<PROBLEM name="staging3_m2_c6_lt10" description="This is the same as the first problem except that there are 6
+\\ncrews instead of 4.
+\\nWith one extra crew, it is possible to have the missions be on time.
+\\nNote that there are 3 deadhead legs to achieve this." >
 <DATAFORMAT>
 <OBJECTFORMAT name="Leg" is_task="true" is_resource="false" >
 <FIELDFORMAT name="id" datatype="string" is_subobject="false" is_globalptr="false" is_list="false" is_key="true" />
