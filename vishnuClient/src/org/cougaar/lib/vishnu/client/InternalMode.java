@@ -74,14 +74,29 @@ public class InternalMode extends ExternalMode {
    */
   public void handleRemovedTasks(Enumeration removedTasks) {
     if (incrementalScheduling) {
-      Document docToSend = xmlProcessor.prepareRescind(removedTasks);
+      Vector knownTasks = new Vector();
+      for (;removedTasks.hasMoreElements();) {
+	Task task = (Task) removedTasks.nextElement();
+
+	if (sched.getSchedulingData().getTask(task.getUID().toString()) != null)
+	  knownTasks.add (task);
+      }
+
+      Document docToSend = xmlProcessor.prepareRescind(knownTasks.elements());
 
       comm.serializeAndPostData (docToSend);
 
-      if (logger.isDebugEnabled())
-	logger.debug ("InternalMode.handleRemovedTasks - telling scheduler " + sched + " to remove tasks");
+      if (logger.isInfoEnabled())
+	logger.info ("InternalMode.handleRemovedTasks - telling scheduler " + sched + " to remove tasks.");
 
-      sched.setupInternal (comm.getBuffer(), false);
+      //      try {
+	sched.setupInternal (comm.getBuffer(), false);
+	//      } catch (Exception e) {
+	//	if (logger.isDebugEnabled())
+	//	  logger.debug ("InternalMode.handleRemovedTasks - " + 
+	//			"got exception related to a task that the scheduler didn't know about.\n" +
+	//			" Is this innocuous?");
+	//      }
       comm.clearBuffer ();
     }
   }

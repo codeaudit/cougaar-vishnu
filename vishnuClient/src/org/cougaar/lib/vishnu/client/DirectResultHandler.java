@@ -189,7 +189,6 @@ public class DirectResultHandler extends PluginHelper implements ResultHandler {
 	  boolean assetWasUsedBefore = false;
 
 	  for (int j = 0; j < multi.length; j++) {
-	    //  com.bbn.vishnu.objects.Task [] multiTasks = (com.bbn.vishnu.objects.Task []) multi[j].getTasks().toArray();
 	    Vector tasks = new Vector ();
 	    MultitaskAssignment assign = multi[j];
 
@@ -197,9 +196,7 @@ public class DirectResultHandler extends PluginHelper implements ResultHandler {
 	      logger.debug (getName () + " for resource " + resources[i].getKey() +
 			    " multi assign #" + j + " had " +multi[j].getTasks().size() + " tasks");
 			
-	    //	    for (int k = 0; k < multiTasks.length; k++) {
 	    for (Iterator iter = multi[j].getTasks().iterator(); iter.hasNext(); ) {
-	      //	      Task task = getTaskFromAssignment(multiTasks[k].getKey());
 	      com.bbn.vishnu.objects.Task vishnuTask = (com.bbn.vishnu.objects.Task) iter.next();
 	      Task task = getTaskFromAssignment(vishnuTask.getKey());
 	      if (task != null) 
