@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Operator.java,v 1.6 2001-07-20 14:24:46 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Operator.java,v 1.7 2001-08-10 22:37:31 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -906,13 +906,7 @@ public class Operator implements ResultProducer {
       resource = (Resource) args[0].getResult (data);
       if (resource == null)
         return null;
-      a = resource.getAssignments();
-      int imax = Integer.MIN_VALUE;
-      for (int i = 0; i < a.length; i++) {
-        int wrapup2 = a[i].getEndTime();
-        if (imax < wrapup2)
-          imax = wrapup2;
-      }
+      int imax = resource.completeTime();
       return ((imax == Integer.MIN_VALUE) ?
               data.get ("start_time") : reuse.getInteger (imax));
 

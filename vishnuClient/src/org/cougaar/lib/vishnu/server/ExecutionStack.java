@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/ExecutionStack.java,v 1.1 2001-08-10 21:34:42 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/ExecutionStack.java,v 1.2 2001-08-10 22:37:31 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -26,6 +26,9 @@ public class ExecutionStack {
   public static final int JUMP = 202;
   public static final int JUMPNULL = 203;
   public static final int JUMPIF = 4;
+  public static final int ITER_INIT = 214;
+  public static final int ITER_START = 215;
+  public static final int ITER_END = 216;
   public static final int EQ = 5;
   public static final int NE = 6;
   public static final int LT_FLT = 7;
@@ -47,8 +50,11 @@ public class ExecutionStack {
   public static final int DIVIDE = 17;
   public static final int MAX = 18;
   public static final int MIN = 19;
-  public static final int LIST = 20;
-  public static final int COMPLETE = 21;
+  public static final int ADD_TO_LIST = 20;
+  public static final int NEW_LIST = 211;
+  public static final int APPEND_LIST = 21;
+  public static final int APPEND_STRING = 22;
+  public static final int COMPLETE = 23;
 
   private ArrayList tempCommands = new ArrayList();
   private int[] commands;
@@ -269,11 +275,20 @@ public class ExecutionStack {
             curr = dataStack[dataPtr];
           break;
 
-        case LIST:
-          dataPtr -= args2[cmdPtr];
+        case NEW_LIST:
+          curr = reuse.getList();
+          break;
+
+        case ADD_TO_LIST:
+          dataPtr--;
+          ((ArrayList) dataStack[dataPtr]).add (curr);
+          curr = dataStack[dataPtr];
           break;
 
         case COMPLETE:
+          int compInt = ((Resource) curr).completeTime();
+          curr = ((compInt == Integer.MIN_VALUE) ?
+                  data.get ("start_time") : reuse.getInteger (compInt));
           break;
 
         default:

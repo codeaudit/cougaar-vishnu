@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Resource.java,v 1.12 2001-08-03 12:34:23 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Resource.java,v 1.13 2001-08-10 22:37:31 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -228,6 +228,11 @@ public class Resource extends SchObject {
       total += (start - setup) + (wrapup - end);
     }
     return total;
+  }
+
+  public int completeTime() {
+    return ((schedule.size() == 0) ? Integer.MIN_VALUE :
+            ((TimeBlock) schedule.last()).getEndTime());
   }
 
   public ArrayList getGroup (ArrayList list, Task task) {
