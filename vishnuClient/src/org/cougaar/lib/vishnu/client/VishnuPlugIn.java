@@ -89,7 +89,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import org.cougaar.lib.vishnu.server.Assignment;
-import org.cougaar.lib.vishnu.server.GroupingInfo;
 import org.cougaar.lib.vishnu.server.Resource;
 import org.cougaar.lib.vishnu.server.Scheduler;
 import org.cougaar.lib.vishnu.server.SchedulingData;
@@ -569,7 +568,7 @@ public abstract class VishnuPlugIn
 	* calls prepareVishnuObjects to populate <tt>vishnuTasks</tt> and 
 	* <tt>vishnuResources</tt> lists with Vishnu objects.  Also sends
 	* header with the time window information, and any other data to scheduler
-	* via the internal buffer.
+	* via the internal buffer. <p>
 	*
 	* @see #prepareVishnuObjects
 	* @see #sendDataToVishnu
@@ -610,7 +609,7 @@ public abstract class VishnuPlugIn
 
 	   Date start = new Date ();
 	   
-	   prepareVishnuObjects (stuffToSend, vishnuTasks, vishnuResources, objectFormatDoc, sched.getTimeOps(), null);
+	   prepareVishnuObjects (stuffToSend, vishnuTasks, vishnuResources, objectFormatDoc, sched.getTimeOps());
 
 	   if (showTiming)
 		 domUtil.reportTime (".prepareData - prepared vishnu objects in ", start);
@@ -1063,9 +1062,18 @@ public abstract class VishnuPlugIn
   }
 
 
-  /** creates list of Vishnu objects */
-  protected void prepareVishnuObjects (List tasks, List vishnuTasks, List vishnuResources, Document objectFormat, TimeOps timeOps,
-									   GroupingInfo groupingInfo) { 
+  /** 
+   * Creates lists of Vishnu objects. <p>
+   *
+   * Does NOTHING by default.
+   *
+   * @param tasksAndResources - Cougaar tasks and resources to translate
+   * @param vishnuTasks - list to add Vishnu tasks to 
+   * @param vishnuResources - list to add Vishnu resources to 
+   * @param objectFormat - contains field type info necessary to create fields on Vishnu objects
+   * @param timeOps - time object used when making Vishnu dates
+   */
+  protected void prepareVishnuObjects (List tasksAndResources, List vishnuTasks, List vishnuResources, Document objectFormat, TimeOps timeOps) { 
 	System.err.println (getName ()+ ".prepareVishnuObjects - ERROR - don't run directly if you haven't defined this method.");
   }
 
