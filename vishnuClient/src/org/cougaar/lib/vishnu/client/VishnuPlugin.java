@@ -922,8 +922,9 @@ public abstract class VishnuPlugin
 			  " tasks.");
 
     for (Iterator iter = impossibleTasks.iterator (); iter.hasNext ();) {
-      publishAdd (allocHelper.makeFailedDisposition (this, ldmf, 
-						     (Task) iter.next ()));
+      Object obj = allocHelper.makeFailedDisposition (this, ldmf, 
+						      (Task) iter.next ()); 
+      publishAddWithCheck (obj);
     }
 
     if (stopOnFailure && !impossibleTasks.isEmpty()) {
@@ -1148,9 +1149,9 @@ public abstract class VishnuPlugin
     }
     
     for (Iterator i = subtasks.iterator (); i.hasNext ();) {
-      publishAdd (i.next());
+      publishAddWithCheck (i.next());
     }
-    publishAdd(exp);
+    publishAddWithCheck(exp);
 
     if (isDebugEnabled()){
       debug(getName() + ".handleTask: Expansion published. Workflow has " + 
@@ -1180,6 +1181,13 @@ public abstract class VishnuPlugin
     preps.addElement(prepHelper.makePrepositionalPhrase(ldmf, 
 							"VISHNU", getClassName(this)));
     return preps;
+  }
+
+  protected void publishAddWithCheck (Object obj) {
+    if (!publishAdd(obj)) {
+      error (getName () + " - publish add of " + obj + 
+	     " failed, perhaps already on blackboard?");
+    }
   }
 
   // ------------- MODES ------------------------ 

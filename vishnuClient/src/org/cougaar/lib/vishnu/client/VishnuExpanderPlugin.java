@@ -107,7 +107,8 @@ public class VishnuExpanderPlugin extends VishnuPlugin implements UTILExpanderPl
    */
   public void handleIllFormedTask (Task t) {
     reportIllFormedTask(t);
-    publishAdd (expandHelper.makeFailedExpansion (null, ldmf, t));
+    Object obj = expandHelper.makeFailedExpansion (null, ldmf, t);
+    publishAddWithCheck (obj);
   }
 
   /**

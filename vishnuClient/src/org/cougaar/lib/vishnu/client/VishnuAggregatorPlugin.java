@@ -300,7 +300,7 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
    */
   public void handleMultiAssignment (Vector tasks, Asset asset, 
 				     Date start, Date end, Date setupStart, Date wrapupEnd, boolean assetWasUsedBefore) {
-    if (isWarnEnabled()) {
+    if (isDebugEnabled()) {
       debug (getName() + ".handleMultiAssignment : ");
       debug ("\nAssigned tasks : ");
       for (int i = 0; i < tasks.size (); i++) {
@@ -413,15 +413,27 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
       if (makeSetupAndWrapupTasks) {
 	if (setupStart.getTime() < start.getTime()) {
 	  Task setupTask = getEncapsulatedTask (anAsset, setupStart, start);
-	  // step 2 - add to d.o. of setup
-	  ((NewTask) setupTask).setDirectObject (directObject);
-	  publishChange (setupTask);
+	  if (setupTask == null)
+	    logger.warn (getBindingSite().getAgentIdentifier () + " - previous task " + 
+			 previousTask.getUID() + " missing a setup task from " + setupStart + " to " +
+			 start + "?");
+	  else {
+	    // step 2 - add to d.o. of setup
+	    ((NewTask) setupTask).setDirectObject (directObject);
+	    publishChange (setupTask);
+	  }
 	}
 	if (wrapupEnd.getTime() > end.getTime()) {
 	  Task wrapupTask = getEncapsulatedTask (anAsset, end, wrapupEnd);
-	  // step 3 - add to d.o. of wrapup
-	  ((NewTask) wrapupTask).setDirectObject (directObject);
-	  publishChange (wrapupTask);
+	  if (wrapupTask == null)
+	    logger.warn (getBindingSite().getAgentIdentifier () + " - previous task " + 
+			 previousTask.getUID() + " missing a wrapup task from " + end + " to " +
+			 wrapupEnd + "?");
+	  else {
+	    // step 3 - add to d.o. of wrapup
+	    ((NewTask) wrapupTask).setDirectObject (directObject);
+	    publishChange (wrapupTask);
+	  }
 	}
       }
       MPTask mpTask = getMPTask (previousTask.getParentTaskUID ());
@@ -436,7 +448,7 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 
       // step 6 - make aggregations for connecting parent tasks to MPTask
       NewComposition comp = (NewComposition) mpTask.getComposition ();
-      addAggregations (comp, parentsVector, start, end);
+      addAggregations (comp, tasklist, start, end);
       publishChange (comp);
       
       return true;
@@ -528,7 +540,7 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 	debug ("VishnuAggregatorPlugin.makeAggregation - Making aggregation for task " + 
 	       parentTask.getUID () + 
 	       " agg " + agg.getUID());
-      publishAdd (agg);
+      publishAddWithCheck(agg);
       comp.addAggregation (agg);
     }
   }
@@ -829,7 +841,7 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 	((NewComposition) next_o).setIsPropagating(propagateRescindPastAggregation);
       }
 	  
-      boolean success = publishAdd(next_o);
+      publishAddWithCheck(next_o);
     }
   }
 

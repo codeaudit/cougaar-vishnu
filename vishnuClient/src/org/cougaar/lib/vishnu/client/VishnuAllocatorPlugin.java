@@ -112,7 +112,8 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
    */
   public void handleIllFormedTask (Task t) {
     reportIllFormedTask(t);
-    publishAdd (allocHelper.makeFailedDisposition (null, ldmf, t));
+    Object obj = allocHelper.makeFailedDisposition (null, ldmf, t);
+    publishAddWithCheck (obj);
   }
 
   /**
@@ -374,7 +375,10 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
 							confidence,
 							role);
 		
-    publishAdd(allocation);
+    if (!publishAdd(allocation))
+      error (getName () + ".createAllocation - publish add of " + allocation + 
+	     " failed, perhaps already on blackboard?");
+
     return allocation;
   }
 
