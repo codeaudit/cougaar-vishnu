@@ -335,17 +335,4 @@ public class VishnuAllocationResultAggregator implements AllocationResultAggrega
       return currentar;
     }
   }
-
-  int[] K02 = new int[] {0,2};
-  int[] K012 = new int[] {0,1,2};
-  int[] K0126 = new int[] {0,1,2,6};
-  
-  protected HashMap hack = new HashMap();
-  
-  final class KeyHolder implements Serializable {
-    int[] keys;
-    KeyHolder(int keys[]) {
-      this.keys = keys;
-    }
-  }
 }
