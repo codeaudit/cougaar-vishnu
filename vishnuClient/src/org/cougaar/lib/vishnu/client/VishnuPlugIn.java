@@ -94,9 +94,8 @@ public abstract class VishnuPlugIn
   extends UTILBufferingPlugInAdapter 
   implements UTILAssetListener {
 
-  private final SimpleDateFormat format =
-    new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");
-
+  private static int INITIAL_INTERNAL_BUFFER_SIZE = 2097152; // 2 M
+  
   /**
    * Here all the various runtime parameters get set.  See documentation for details.
    */
@@ -749,16 +748,21 @@ public abstract class VishnuPlugIn
 		System.out.println (getName () + ".sendDataToVishnu, from " + totalSent + " to " + toIndex);
 	  
 	  Document docToSend = 
-		xmlProcessor.prepareDocument (chunk, dataXMLizer, clearDatabase, sendingChangedObjects, assetClassName,
-									  sentOtherDataAlready, config.getOtherData());
-	  if (!runInternal && incrementalScheduling)
-	    sentOtherDataAlready = true;
+		xmlProcessor.prepareDocument (chunk, dataXMLizer, clearDatabase, sendingChangedObjects, assetClassName);
 
 	  comm.serializeAndPostData (docToSend, runInternal, internalBuffer);
 
 	  if (clearDatabase) clearDatabase = false; // flip bit after first one
 	  totalSent += sendDataChunkSize;
 	}
+
+	// send other data, if it hasn't already been sent
+	if (!sentOtherDataAlready)
+	  comm.serializeAndPostData (xmlProcessor.getOtherDataDoc (config.getOtherData ()), 
+								 runInternal, 
+								 internalBuffer);
+	if (!runInternal && incrementalScheduling)
+	  sentOtherDataAlready = true;
   }
 
 
@@ -810,7 +814,7 @@ public abstract class VishnuPlugIn
   }
 
   protected void clearInternalBuffer () {
-	internalBuffer = new StringBuffer ();
+	internalBuffer = new StringBuffer (INITIAL_INTERNAL_BUFFER_SIZE);
   }
 
   /**
@@ -1254,4 +1258,6 @@ public abstract class VishnuPlugIn
   protected String singleAssetClassName;
   protected XMLProcessor xmlProcessor;
   protected VishnuConfig config;
+  private final SimpleDateFormat format =
+    new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");
 }
