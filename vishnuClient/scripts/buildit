@@ -1,13 +1,15 @@
 #/usr/bin/csh
-cvs checkout vishnu
-cd vishnu/src
+setenv CVSROOT :ext:$USER@eiger.alpine.bbn.com:/cvs/alp/internal
+cvs -Q checkout vishnu
+cd vishnu
 set BASEDIR=`pwd`
 set OLDCLASSPATH=$CLASSPATH
-setenv CLASSPATH .":"$BASEDIR":"$CLASSPATH
-javac `find -name "*.java"`
-jar cvf vishnu.jar org
+setenv CLASSPATH .":"$BASEDIR/src":"$BASEDIR/lib/xerces.jar":"$CLASSPATH
+cd src
+javac org/cougaar/lib/vishnu/server/*.java
+jar cf vishnu.jar org
 setenv CLASSPATH $OLDCLASSPATH
 cd ../..
-mv vishnu/src/vishnu.jar vishnu
-tar cvfz vishnu.tar.gz vishnu
+tar cf vishnu.tar vishnu
+gzip vishnu.tar
 rm -r vishnu
