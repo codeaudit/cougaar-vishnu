@@ -35,47 +35,59 @@
                             "delete from activities;");
 
   function startHandler ($parser, $name, $attribs) {
-    global $problem;
+    global $problem, $tasks, $gattribs;
 
     if ($name == "ASSIGNMENT") {
-      $result = mysql_db_query ("vishnu_prob_" . $problem,
-                                "insert into assignments values (\"" .
-                                $attribs["TASK"] . "\", \"" .
-                                $attribs["RESOURCE"] . "\", \"" .
-                                $attribs["SETUP"] . "\", \"" .
-                                $attribs["START"] . "\", \"" .
-                                $attribs["END"] . "\", \"" .
-                                $attribs["WRAPUP"] . "\", \"" .
-                                $attribs["FROZEN"] . "\", \"" .
-                                $attribs["COLOR"] . "\", \"" .
-                                $attribs["TEXT"] . "\");");
+      mysql_db_query ("vishnu_prob_" . $problem,
+                      "insert into assignments values (\"" .
+                      $attribs["TASK"] . "\", \"" .
+                      $attribs["RESOURCE"] . "\", \"" .
+                      $attribs["SETUP"] . "\", \"" .
+                      $attribs["START"] . "\", \"" .
+                      $attribs["END"] . "\", \"" .
+                      $attribs["WRAPUP"] . "\", \"" .
+                      $attribs["FROZEN"] . "\", \"" .
+                      $attribs["COLOR"] . "\", \"" .
+                      $attribs["TEXT"] . "\");");
     }
     else if ($name == "MULTITASK") {
-      $result = mysql_db_query ("vishnu_prob_" . $problem,
-                                "insert into multitaskassignments values (\"" .
-                                $attribs["TASKS"] . "\", \"" .
-                                $attribs["RESOURCE"] . "\", \"" .
-                                $attribs["CAPACITIES_USED"] . "\", \"" .
-                                $attribs["CAPACITIES"] . "\", \"" .
-                                $attribs["SETUP"] . "\", \"" .
-                                $attribs["START"] . "\", \"" .
-                                $attribs["END"] . "\", \"" .
-                                $attribs["WRAPUP"] . "\", \"" .
-                                $attribs["COLOR"] . "\", \"" .
-                                $attribs["TEXT"] . "\");");
+      $tasks = "";
+      $gattribs = $attribs;
+    }
+    else if ($name == "TASK") {
+      if ($tasks)
+        $tasks .= "*%*" . $attribs["TASK"];
+      else
+        $tasks .= $attribs["TASK"];
     }
     else if ($name == "ACTIVITY") {
-      $result = mysql_db_query ("vishnu_prob_" . $problem,
-                                "insert into activities values (\"" .
-                                $attribs["RESOURCE"] . "\", \"" .
-                                $attribs["START"] . "\", \"" .
-                                $attribs["END"] . "\", \"" .
-                                $attribs["COLOR"] . "\", \"" .
-                                $attribs["TEXT"] . "\");");
+      mysql_db_query ("vishnu_prob_" . $problem,
+                      "insert into activities values (\"" .
+                      $attribs["RESOURCE"] . "\", \"" .
+                      $attribs["START"] . "\", \"" .
+                      $attribs["END"] . "\", \"" .
+                      $attribs["COLOR"] . "\", \"" .
+                      $attribs["TEXT"] . "\");");
     }
   }
 
   function endHandler ($parser, $name) {
+    global $problem, $tasks, $gattribs;
+    if ($name == "MULTITASK") {
+      $attribs = $gattribs;
+      mysql_db_query ("vishnu_prob_" . $problem,
+                      "insert into multitaskassignments values " .
+                      "(\"" . $tasks . "\", \"" .
+                      $attribs["RESOURCE"] . "\", \"" .
+                      $attribs["CAPACITIES_USED"] . "\", \"" .
+                      $attribs["CAPACITIES"] . "\", \"" .
+                      $attribs["SETUP"] . "\", \"" .
+                      $attribs["START"] . "\", \"" .
+                      $attribs["END"] . "\", \"" .
+                      $attribs["WRAPUP"] . "\", \"" .
+                      $attribs["COLOR"] . "\", \"" .
+                      $attribs["TEXT"] . "\");");
+    }
   }
 
   $parser = xml_parser_create();

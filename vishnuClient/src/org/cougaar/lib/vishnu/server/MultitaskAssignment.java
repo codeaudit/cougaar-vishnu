@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/MultitaskAssignment.java,v 1.3 2001-04-12 17:50:30 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/MultitaskAssignment.java,v 1.4 2001-08-06 15:23:29 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -80,17 +80,17 @@ public class MultitaskAssignment extends Assignment {
   }
 
   public String toString() {
-    return ("<MULTITASK " + attributesString() + " />");
+    String str = "<MULTITASK " + attributesString() + ">\n";
+    for (int i = 0; i < tasks.length; i++)
+      str = str + "<TASK task=\"" + tasks[i].getKey() + "\"/>\n";
+    str = str + "</MULTITASK>\n";
+    return str;
   }
 
   public String attributesString() {
-    String str1 = "";
-    for (int i = 0; i < tasks.length; i++)
-      str1 = str1 + ((i == 0) ? "" : "*%*") + tasks[i].getKey();
-    return ("tasks=\"" + str1
-            + "\" capacities_used=\"" + arrayToString (capacities)
-            + "\" capacities=\"" + arrayToString (resource.getCapacities())
-            + "\" " + super.attributesString());
+    return ("capacities_used=\"" + arrayToString (capacities) +
+            "\" capacities=\"" + arrayToString (resource.getCapacities()) +
+            "\" " + super.attributesString());
   }
 
   private String arrayToString (float[] arr) {
