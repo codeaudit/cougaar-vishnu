@@ -55,7 +55,7 @@ public class FormatXMLize extends BaseXMLize {
   protected String latitudeString="latlong";
 
   // any field of type string is no shorter than this
-  private static final int MIN_STRING_LENGTH=16;
+  //  private static final int MIN_STRING_LENGTH=16;
   // controls how deep down the object hierarchy to go
   protected final int RECURSION_DEPTH=9;
   // the first instance of a string field found will have it's length multiplied by this
@@ -194,9 +194,9 @@ public class FormatXMLize extends BaseXMLize {
 	  System.out.println("Object traversed already/max depth: " + 
 						 obj.getClass().toString() + " " + obj);
 	if (isUID (obj)) {
-	  Element item = createFieldFormat (doc, "UID", "string(40)", false, false);
+	  Element item = createFieldFormat (doc, "UID", "string", false, false);
 	  if (debug) 
-		System.out.println ("maxDepth - " + "UID" + " - " + "string(40)");
+		System.out.println ("maxDepth - " + "UID" + " - " + "string");
 
 	  parentElement.appendChild(item);
 	} else {
@@ -422,7 +422,7 @@ public class FormatXMLize extends BaseXMLize {
 	String objAsString = theObj.toString ();
 
 	if (objAsString.length () == 0)
-	  return "string(16)";
+	  return "string";
 
 	char firstChar = objAsString.charAt (0);
 	
@@ -458,23 +458,7 @@ public class FormatXMLize extends BaseXMLize {
 		return numberString;
 	}
 
-	if (stringClass.isInstance(theObj)) {
-	  int len = MULTIPLIER*((String)theObj).length();
-	  if (len > 255)
-		len = 255;
-	  if (len < MIN_STRING_LENGTH)
-		  len = MIN_STRING_LENGTH;
-	  return "string(" + len + ")";
-	}
-
-	//	if (debug)
-	//	  System.out.println ("got here - " + objAsString + " - " + theObj.getClass ());
-	
-	int len = MULTIPLIER*objAsString.length();
-	if (len > 255)
-	  len = 255;
-	
-	return "string" + "(" + len + ")";
+	return "string";
   }
   
   protected boolean skipObject (Object theObj) {
