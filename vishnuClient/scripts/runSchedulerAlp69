@@ -1,0 +1,12 @@
+java \
+-Dorg.cougaar.lib.vishnu.server.host=alp-69.alp.isotic.org \
+-Dorg.cougaar.lib.vishnu.server.path="/php/" \
+-Dorg.cougaar.lib.vishnu.server.debug=false \
+-Dorg.cougaar.lib.vishnu.server.Scheduler.debug=true \
+-Dorg.cougaar.lib.vishnu.server.Scheduler.php4=true \
+-Dorg.cougaar.lib.vishnu.server.Scheduler.showAssignments=true \
+-Dorg.cougaar.lib.vishnu.server.TimeBlock.debug=false \
+-Dorg.cougaar.lib.vishnu.server.debugXML=false \
+-Dorg.cougaar.lib.vishnu.server.user=root \
+-Dorg.cougaar.lib.vishnu.server.password="vishnu" -Xms60m -Xmx100m org.cougaar.lib.vishnu.server.Scheduler 
+
