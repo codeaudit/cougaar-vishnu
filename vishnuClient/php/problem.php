@@ -18,9 +18,11 @@
   }
 
   function getHeader() {
+    global $problem;
+    echo "Main Page for <font color=\"000099\">$problem</font>";
   }
 
-  function getSubheader() { 
+  function getSubheader() {
   }
 
   function selectBoxes ($viewall = 0) {
@@ -57,12 +59,6 @@
     }
     mysql_free_result ($result);
 ?>
-
-<font size=+3>
-<font color="000099"><? echo $problem ?></font><br></font>
-
-<TABLE CELLPADDING=1><TR><TD><TD></TR></TABLE>
-<TABLE CELLPADDING=1><TR><TD><TD></TR></TABLE>
 
 <table COLS=2 WIDTH=700 >
 <tr>
@@ -272,13 +268,14 @@
 <tr>
 <td ALIGN=CENTER>
 <font size=+2>
-<a href="loadproblem2.php?problem=<? echo $problem; ?>"/>Upload</a>
+<a href="loadproblem2.php?problem=<? echo $problem; ?>"/>
+Update from File</a>
 </font>
 </td>
 
 <td ALIGN=CENTER>
 <font size=+2>
-<a href="saveproblem.php?problem=<? echo $problem; ?>"/>Download</a>
+<a href="saveproblem.php?problem=<? echo $problem; ?>"/>Save to File</a>
 </font>
 </td>
 </tr>
