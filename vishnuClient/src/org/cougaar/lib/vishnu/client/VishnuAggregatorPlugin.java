@@ -1037,8 +1037,10 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
     parentsNotRepresentedInMPTask.removeAll (mpTaskDOVector);
     if (!parentsNotRepresentedInMPTask.isEmpty()) {
       for (Iterator iter = parentsNotRepresentedInMPTask.iterator(); iter.hasNext(); ) {
-	error (getName() + " - MPTask " + mpTask.getUID() + 
-	       " d.o. is missing parent's d.o. " + iter.next());
+	if (isInfoEnabled()) {
+	  info (getName() + " - MPTask " + mpTask.getUID() + 
+		" d.o. is missing parent's d.o. " + iter.next());
+	}
       }
     }
 
@@ -1047,8 +1049,10 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
       excessAssetsInMPTaskDO.removeAll (parentDirectObjects);
       if (!excessAssetsInMPTaskDO.isEmpty()) {
 	for (Iterator iter = excessAssetsInMPTaskDO.iterator(); iter.hasNext(); ) {
-	  error (getName() + " - MPTask " + mpTask.getUID() + 
-		 " d.o. has extra asset that is not in any parent " + iter.next());
+	  if (isInfoEnabled()) {
+	    info (getName() + " - MPTask " + mpTask.getUID() + 
+		   " d.o. has extra asset that is not in any parent " + iter.next());
+	  }
 	}
       }
     }
