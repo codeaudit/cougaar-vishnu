@@ -1,4 +1,4 @@
-/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/VishnuDomUtil.java,v 1.2 2001-02-16 20:50:59 gvidaver Exp $ */
+/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/VishnuDomUtil.java,v 1.3 2001-06-28 23:27:43 gvidaver Exp $ */
 
 package org.cougaar.lib.vishnu.client;
 
@@ -30,25 +30,21 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Text;
 
-import org.xml.sax.AttributeList;
-import org.xml.sax.HandlerBase;
 import org.xml.sax.InputSource;
-import org.xml.sax.Parser;
 import org.xml.sax.SAXException;
-import org.xml.sax.helpers.ParserFactory;
 
-import org.cougaar.core.cluster.ClusterServesPlugIn;
+import org.cougaar.util.ConfigFinder;
 
-import org.cougaar.lib.param.ParamTable;
+import org.cougaar.lib.param.ParamMap;
 
 public class VishnuDomUtil {
-  public VishnuDomUtil (ParamTable myParamTable, String name, ClusterServesPlugIn cluster) {
+  public VishnuDomUtil (ParamMap myParamTable, String name, ConfigFinder configFinder) {
 	this.myParamTable = myParamTable;
 	this.name = name;
-	this.cluster = cluster;
+	this.configFinder = configFinder;
   }
   
-  protected ParamTable getMyParams () {	return myParamTable;  }
+  protected ParamMap getMyParams () {	return myParamTable;  }
 
   protected void localSetup () 
   {
@@ -107,7 +103,7 @@ public class VishnuDomUtil {
 							String filename) {
     try {
       DOMParser parser = new DOMParser ();
-      InputStream inputStream = cluster.getConfigFinder ().open(filename);
+      InputStream inputStream = configFinder.open(filename);
       parser.parse (new InputSource(inputStream));
       Document appendDoc = parser.getDocument ();
 
@@ -131,7 +127,7 @@ public class VishnuDomUtil {
 									  String filename) {
     try {
       DOMParser parser = new DOMParser ();
-      InputStream inputStream = cluster.getConfigFinder ().open(filename);
+      InputStream inputStream = configFinder.open(filename);
       parser.parse (new InputSource(inputStream));
       Document appendDoc = parser.getDocument ();
 
@@ -277,9 +273,9 @@ public class VishnuDomUtil {
 			 " total " + (rt.totalMemory ()/(1024*1024)) + "M");
   }
 
-  protected ParamTable myParamTable;
+  protected ParamMap myParamTable;
 
   boolean showTiming;
   String name;
-  ClusterServesPlugIn cluster;
+  ConfigFinder configFinder;
 }
