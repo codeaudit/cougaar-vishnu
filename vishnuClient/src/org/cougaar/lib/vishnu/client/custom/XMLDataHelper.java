@@ -28,6 +28,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import org.cougaar.domain.planning.ldm.asset.Asset;
+import org.cougaar.domain.planning.ldm.plan.Schedule;
 import org.cougaar.domain.planning.ldm.plan.RoleSchedule;
 import org.cougaar.domain.planning.ldm.plan.PlanElement;
 import org.cougaar.util.TimeSpan;
@@ -35,6 +36,7 @@ import org.cougaar.util.TimeSpan;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Calendar;
 import java.util.Date;
@@ -78,7 +80,30 @@ public class XMLDataHelper implements DataHelper {
 	Element list = doc.createElement("LIST");
 	field.appendChild (list);
 
-	for (Iterator iter = unavail.getEncapsulatedRoleSchedule(0, endOfWorld.getTime()).iterator (); iter.hasNext();) {
+	createScheduleFields (unavail.getEncapsulatedRoleSchedule(0, endOfWorld.getTime()),
+						  list,
+						  true);
+  }
+
+  public void createAvailableScheduleListField (Object object, String name, Asset asset) {
+	Element field = doc.createElement("FIELD");
+	field.setAttribute ("name",  name);
+	((Element)object).appendChild (field);
+	Element list = doc.createElement("LIST");
+	field.appendChild (list);
+
+	Schedule availSchedule = asset.getRoleSchedule().getAvailableSchedule ();
+	Collection coll = availSchedule.getEncapsulatedScheduleElements (0,endOfWorld.getTime());
+	if (coll.isEmpty ())
+	  System.out.println("XMLDataHelper -- availSchedule is empty");
+
+	createScheduleFields (availSchedule.getEncapsulatedScheduleElements (0,endOfWorld.getTime()), 
+						  list, 
+						  false);
+  }
+
+  protected void createScheduleFields (Collection schedule, Element list, boolean isRole) {
+	for (Iterator iter = schedule.iterator (); iter.hasNext();) {
 	  TimeSpan span = (TimeSpan) iter.next ();
 
 	  Element value = doc.createElement("VALUE");
@@ -90,7 +115,8 @@ public class XMLDataHelper implements DataHelper {
 
 	  createField (interval, "interval", "start", format.format (new Date(span.getStartTime())));
 	  createField (interval, "interval", "end",   format.format (new Date(span.getEndTime())));
-	  createField (interval, "interval", "label1", "" +((PlanElement)span).getTask().getVerb());
+	  if (isRole)
+		createField (interval, "interval", "label1", "" +((PlanElement)span).getTask().getVerb());
 	}
   }
 

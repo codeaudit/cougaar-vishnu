@@ -35,6 +35,7 @@ import org.w3c.dom.NodeList;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashMap;
@@ -43,6 +44,7 @@ import java.util.Iterator;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.cougaar.domain.planning.ldm.plan.Schedule;
 import org.cougaar.domain.planning.ldm.plan.RoleSchedule;
 import org.cougaar.domain.planning.ldm.plan.PlanElement;
 import org.cougaar.util.TimeSpan;
@@ -137,18 +139,37 @@ public class DirectDataHelper implements DataHelper {
 
 	resource.addListField (name);
 
-	for (Iterator iter = unavail.getEncapsulatedRoleSchedule(0, endOfWorld.getTime()).iterator (); iter.hasNext();) {
+	createScheduleFields (unavail.getEncapsulatedRoleSchedule(0, endOfWorld.getTime()), 
+						  resource, name, true);
+  }
+
+  public void createAvailableScheduleListField (Object object, String name, Asset asset) {
+	SchObject resource = (SchObject)object;
+	resource.addListField (name);
+
+	Schedule availSchedule = asset.getRoleSchedule().getAvailableSchedule ();
+	Collection coll = availSchedule.getEncapsulatedScheduleElements (0,endOfWorld.getTime());
+	if (coll.isEmpty ())
+	  System.out.println("DirectDataHelper -- availSchedule is empty");
+	
+	createScheduleFields (availSchedule.getEncapsulatedScheduleElements (0,endOfWorld.getTime()), 
+						  resource, name, false);
+  }
+  
+  protected void createScheduleFields (Collection schedule, SchObject resource, String name, boolean isRole) {
+	for (Iterator iter = schedule.iterator (); iter.hasNext();) {
 	  TimeSpan span = (TimeSpan) iter.next ();
 	  SchObject interval = new SchObject (timeOps);
 
 	  interval.addDateMillis ("start",  span.getStartTime());
 	  interval.addDateMillis ("end",    span.getEndTime());
-	  interval.addField ("label1", "string", ((PlanElement)span).getTask().getVerb().toString(), false, false);
+	  if (isRole)
+		interval.addField ("label1", "string", ((PlanElement)span).getTask().getVerb().toString(), false, false);
 
       resource.addField (name, "interval", interval, false, true);
 	}
   }
-
+  
   /** 
    * Translate a Cougaar GeolocLocation into the equivalent Vishnu structure.
    *

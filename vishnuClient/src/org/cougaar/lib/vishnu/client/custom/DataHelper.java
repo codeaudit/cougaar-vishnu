@@ -38,5 +38,6 @@ public interface DataHelper {
   void createFloatField   (Object parent, String name, float val);
   void createGeoloc (Object parent, String parentFieldName, GeolocLocation loc);
   void createRoleScheduleListField (Object object, String name, Asset asset);
+  void createAvailableScheduleListField (Object object, String name, Asset asset);
 }
 
