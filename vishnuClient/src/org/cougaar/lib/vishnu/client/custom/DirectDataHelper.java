@@ -150,12 +150,18 @@ public class DirectDataHelper implements DataHelper {
     resource.addListField (name);
 
     Schedule availSchedule = asset.getRoleSchedule().getAvailableSchedule ();
-    Collection coll = availSchedule.getEncapsulatedScheduleElements (0,endOfWorld.getTime());
-    if (coll.isEmpty ())
-      logger.debug("DirectDataHelper -- availSchedule is empty");
+
+    if (availSchedule == null) {
+      if (logger.isDebugEnabled())
+	logger.debug ("No available schedule on asset " + asset);
+    } else {
+      Collection coll = availSchedule.getEncapsulatedScheduleElements (0,endOfWorld.getTime());
+      if (coll.isEmpty ())
+	logger.debug("DirectDataHelper -- availSchedule is empty");
 	
-    createScheduleFields (availSchedule.getEncapsulatedScheduleElements (0,endOfWorld.getTime()), 
-			  resource, name);
+      createScheduleFields (availSchedule.getEncapsulatedScheduleElements (0,endOfWorld.getTime()), 
+			    resource, name);
+    }
   }
   
   protected void createScheduleFields (Collection schedule, SchObject resource, String name) {
@@ -361,7 +367,7 @@ public class DirectDataHelper implements DataHelper {
     ObjectInfo oi = (ObjectInfo) objects.get (parentType);
     if (oi == null) {
       if (!isPredefined(parentType))
-	logger.error ("DirectDataHelper.isKey - ERROR - missing parent type " + parentType);
+	logger.error ("DirectDataHelper.isKey - ERROR - missing parent type " + parentType + " name " +name);
       return false;
     }
 	
@@ -372,7 +378,7 @@ public class DirectDataHelper implements DataHelper {
     ObjectInfo oi = (ObjectInfo) objects.get (parentType);
     if (oi == null) {
       if (!isPredefined(parentType))
-	logger.error ("DirectDataHelper.isList - ERROR - missing parent type " + parentType);
+	logger.error ("DirectDataHelper.isList - ERROR - missing parent type " + parentType + " name " +name);
       return false;
     }
     return oi.lists.contains (name);
@@ -392,7 +398,7 @@ public class DirectDataHelper implements DataHelper {
     ObjectInfo oi = (ObjectInfo) objects.get (parentType);
     if (oi == null) {
       if (!isPredefined(parentType))
-	logger.error ("DirectDataHelper.getType - ERROR - missing parent type " + parentType);
+	logger.error ("DirectDataHelper.getType - ERROR - missing parent type " + parentType + " name " +name);
       return parentType;// probably wrong...
     }
     return (String) oi.nameToType.get (name);

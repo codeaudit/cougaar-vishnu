@@ -108,13 +108,18 @@ public class XMLDataHelper implements DataHelper {
     field.appendChild (list);
 
     Schedule availSchedule = asset.getRoleSchedule().getAvailableSchedule ();
-    Collection coll = availSchedule.getEncapsulatedScheduleElements (0,endOfWorld.getTime());
-    if (coll.isEmpty ())
-      logger.warn("XMLDataHelper -- availSchedule for " + asset + " is empty");
+    if (availSchedule == null) {
+      if (logger.isDebugEnabled())
+	logger.debug ("No available schedule on asset " + asset);
+    } else {
+      Collection coll = availSchedule.getEncapsulatedScheduleElements (0,endOfWorld.getTime());
+      if (coll.isEmpty ())
+	logger.warn("XMLDataHelper -- availSchedule for " + asset + " is empty");
 
-    createScheduleFields (availSchedule.getEncapsulatedScheduleElements (0,endOfWorld.getTime()), 
-			  list, 
-			  false);
+      createScheduleFields (availSchedule.getEncapsulatedScheduleElements (0,endOfWorld.getTime()), 
+			    list, 
+			    false);
+    }
   }
 
   /** 
