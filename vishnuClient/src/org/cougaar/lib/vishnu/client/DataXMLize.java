@@ -463,7 +463,7 @@ public class DataXMLize extends FormatXMLize {
    * @param items collection of items to translate
    * @return result document
    */
-  protected synchronized Document createDoc (Collection items, String assetClassName) {
+  public synchronized Document createDoc (Collection items, String assetClassName) {
       Document doc = new DocumentImpl(); 
       Element root = doc.createElement("PROBLEM");
 	doc.appendChild (root);
