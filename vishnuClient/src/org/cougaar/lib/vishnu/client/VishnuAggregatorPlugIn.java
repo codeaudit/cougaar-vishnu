@@ -107,6 +107,10 @@ import org.cougaar.util.StringKey;
  */
 public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregatorPlugIn, UTILExpansionListener {
 
+  protected XMLResultHandler createXMLResultHandler () {
+	return new AggregateXMLResultHandler (this, comm, xmlProcessor, domUtil, config, getMyParams ());
+  }
+
   public void localSetup() {     
     super.localSetup();
 
@@ -313,6 +317,7 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
    * @see org.cougaar.lib.vishnu.client.VishnuPlugIn#readXML
    * @see org.cougaar.lib.vishnu.client.VishnuPlugIn#parseAnswer
    */
+  /*
   protected void parseAnswer() {
     if (myExtraOutput)
       System.out.println ("VishnuPlugIn.waitTillFinished - Vishnu scheduler result returned!");
@@ -332,17 +337,19 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
 	  e.printStackTrace ();
     }
   }
+  */
 
-  private final SimpleDateFormat format =
-    new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");
+  //  private final SimpleDateFormat format =
+  //    new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");
 
-  protected Asset assignedAsset;
-  protected Date start, end, setup, wrapup;
-  protected Vector alpTasks = new Vector ();
+  //  protected Asset assignedAsset;
+  //  protected Date start, end, setup, wrapup;
+  //  protected Vector alpTasks = new Vector ();
 
   /**
    * 
    */
+  /*
   protected void parseStartElement (String name, Attributes atts) {
 	try {
 	  if (myExtraExtraOutput)
@@ -437,8 +444,22 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
 	  npe.printStackTrace ();
 	}
   }
+  */
 
-  protected void handleMultiAssignment (Vector tasks, Asset asset, Date start, Date end, Date setupStart, Date wrapupEnd) {
+  /** 
+   * define in subclass -- create an aggregation
+   *
+   * The parameters are what got returned from the vishnu scheduler.
+   *
+   * @param tasks  tasks to be aggregated together and assigned to asset
+   * @param asset asset handling task
+   * @param start of main task
+   * @param end   of main task
+   * @param setupStart start of setup task
+   * @param wrapupEnd end of wrapup task
+   */
+  public void handleMultiAssignment (Vector tasks, Asset asset, 
+									 Date start, Date end, Date setupStart, Date wrapupEnd) {
 	if (myExtraOutput) {
 	  System.out.println (getName() + ".handleMultiAssignment : ");
 	  System.out.println ("\nAssigned tasks : ");

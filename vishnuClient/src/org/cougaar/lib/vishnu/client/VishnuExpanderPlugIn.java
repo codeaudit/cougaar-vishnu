@@ -229,9 +229,9 @@ public class VishnuExpanderPlugIn extends VishnuPlugIn implements UTILExpanderPl
    *
    * debugging may come on automatically
    */
-  public void handleImpossibleTasks (List unallocatedTasks) {
-    super.handleImpossibleTasks (unallocatedTasks);
-  }
+  //  public void handleImpossibleTasks (List unallocatedTasks) {
+  //    super.handleImpossibleTasks (unallocatedTasks);
+  //  }
 
   public void handleAssignment (Task task, Asset asset, Date start, Date end, Date setupStart, Date wrapupEnd) {
 	makeSetupWrapupExpansion (task, asset, start, end, setupStart, wrapupEnd);

@@ -75,6 +75,8 @@ public class VishnuComm {
 
 	setProblemName ();
 
+	this.runInternal = runInternal;
+	
 	// clears any pending jobs for this problem
 	if (!runInternal) {
 	  postCancel ();
@@ -152,31 +154,31 @@ public class VishnuComm {
     catch(Exception e) {maxWaitCycles = 10;}
   }
 
-  protected void serializeAndPostData (Document doc, boolean runInternal, StringBuffer internalBuffer) {
+  public void serializeAndPostData (Document doc) {
       serializeAndPost (doc, true, runInternal, internalBuffer);
   }
 
-  protected void serializeAndPostProblem (Document doc, boolean runInternal, StringBuffer internalBuffer) {
+  public void serializeAndPostProblem (Document doc) {
       serializeAndPost (doc, false, runInternal, internalBuffer);
   }
 
   /**
    * post the Document <code>doc</code> to a URL.                            <p>
    *                                                                        <br>
-   * If <code>writeXMLToFile</code> is set, will write a copy of what is     <p>
-   * sent to the URL to a file named ClusterName_type_number, where type is  <p>
-   * problem (the problem definition) or data (the tasks and resources), and <p>
+   * If <code>writeXMLToFile</code> is set, will write a copy of what is     
+   * sent to the URL to a file named ClusterName_type_number, where type is  
+   * problem (the problem definition) or data (the tasks and resources), and 
    * number is a counter that keeps the file names unique                    <p>
    *                                                                        <br>
-   * What's written to the file is human readable, whereas if                <p>
-   * <code>writeEncodedXMLToFile</code> is set, a different file is written, <p>
-   * named ClusterName_encoded_number.  This file contains exactly what is   <p>
-   * sent to the web server, after URL encoding has been performed.
+   * What's written to the file is human readable, whereas if                
+   * <code>writeEncodedXMLToFile</code> is set, a different file is written, 
+   * named ClusterName_encoded_number.  This file contains exactly what is   
+   * sent to the web server, after URL encoding has been performed.          <p>
    *
    * @param doc - DOM doc to send to URL
    * @param postData - true if posting data 
    */
-  public void serializeAndPost (Document doc, boolean postData, 
+  protected void serializeAndPost (Document doc, boolean postData, 
 								   boolean runInternal, StringBuffer internalBuffer) {
 	serializeAndPost (domUtil.getDocAsArray (doc).toString(), postData, runInternal, internalBuffer);
 
@@ -193,8 +195,8 @@ public class VishnuComm {
 	}
   }
 
-  public void serializeAndPost (String doc, boolean postData, 
-								boolean runInternal, StringBuffer internalBuffer) {
+  protected void serializeAndPost (String doc, boolean postData, 
+								   boolean runInternal, StringBuffer internalBuffer) {
 	if (runInternal)
 	  appendToInternalBuffer( doc, internalBuffer);
 	else {
@@ -205,8 +207,11 @@ public class VishnuComm {
 	  }
 	  else
 		postProblem (doc);
-
 	}
+  }
+
+  public void appendToBuffer (String data) {
+	appendToInternalBuffer (data, internalBuffer);
   }
 
   protected void appendToInternalBuffer (String data, StringBuffer internalBuffer) {
@@ -215,6 +220,14 @@ public class VishnuComm {
 	  String stuff = data.substring (index+2);
 	  internalBuffer.append (stuff);
 	}
+  }
+
+  public void clearBuffer () {
+	internalBuffer = new StringBuffer (INITIAL_INTERNAL_BUFFER_SIZE);
+  }
+
+  public String getBuffer () {
+	return new String (internalBuffer);
   }
 
   protected void showPostDataWarning () {
@@ -738,4 +751,7 @@ public class VishnuComm {
   protected int numFilesWritten = 0; // how many files have been written out via the writeEncodedXMLToFile flag
 
   protected ParamMap myParamTable;
+  protected boolean runInternal;
+  private static final int INITIAL_INTERNAL_BUFFER_SIZE = 16384; //2097152; // 2 M
+  protected StringBuffer internalBuffer = new StringBuffer ();
 }

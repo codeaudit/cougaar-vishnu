@@ -76,7 +76,7 @@ public class CustomVishnuAllocatorPlugIn extends VishnuAllocatorPlugIn {
    * @param objectFormat - contains field type info necessary to create fields on Vishnu objects
    * @param timeOps - time object used when making Vishnu dates
    */
-  protected void prepareVishnuObjects (List alpObjects, Collection changed, 
+  public void prepareVishnuObjects (List alpObjects, Collection changed, 
 									   List vishnuTasks, List vishnuResources, 
 									   List changedVishnuResources,
 									   Document formatDoc, TimeOps timeOps) { 
