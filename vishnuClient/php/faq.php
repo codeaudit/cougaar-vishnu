@@ -86,7 +86,7 @@
         mysql -u[username] -p[password] &lt; initializesql<br>
         Start the scheduler with the command<br>
         java -Dorg.cougaar.lib.vishnu.server.host=[hostname]
-        -Dorg.cougaar.lib.vishnu.server.path=[pathname] -Dorg.cougaar.lib.vishnu.server.user=[username]
++-        -Dorg.cougaar.lib.vishnu.server.path=[pathname] -Dorg.cougaar.lib.vishnu.server.user=[username]
         -Dorg.cougaar.lib.vishnu.server.password=[password]
         -Dorg.cougaar.lib.vishnu.server.port=[portnumber] org.cougaar.lib.vishnu.server.Scheduler<br>
         Start the formula compiler with the same command with
@@ -129,11 +129,9 @@
         "On the problem page, there is a Download link.  If you click
         here, you will be given four different options of what to save.
         If you select \"Problem definition and data\", everything
-        (metadata, scheduling specs, and data) get saved.  If you
-        click \"Just problem definition\", just the metadata and
-        scheduling specs will be saved.  If you click \"Just
-        problem specs\", only the scheduling specs will be saved.
-        If you click \"Just data\", only the data will be saved.",
+        (metadata, scheduling specs, and data) gets saved.
+        This is also described in <a href=\"fulldoc.php#gui\">Section
+        6</a> of the full documentation.",
         "saving");
   addq ("How do I install the web server?",
         "The easiest way to install the Apache/MySQL/PHP/GD
@@ -168,7 +166,7 @@
         get the benefits of parallel execution.");
   addq ("Why must there be a single object type for tasks and a single
         object type for resources?",
-        "The formula compiler must know what type of object each tasks
+        "The formula compiler must know what type of object each task
         and resource is going to be in order to be able to do its
         consistency checks and ensure that the formulas make sense.");
   addq ("What happens if I have resources (or tasks) of different
