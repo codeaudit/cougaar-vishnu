@@ -11,6 +11,7 @@
   require ("browserlink.php");
   require_once ("utilities.php");
   require ("parsedata.php");
+  require ("editobject.php");
   require ("navigation.php");
 
   function getTitle () {
@@ -36,15 +37,17 @@
   }
 
   function xmlForObject (&$xml, $values, $prefix, $objecttype) {
-    global $problem;
+    global $problem, $added;
     $result = mysql_db_query ("vishnu_prob_" . $problem,
-                "select field_name, datatype, is_list from object_fields " .
-                "where object_name=\"" . $objecttype . "\";");
+                "select field_name, datatype, is_list, is_key from " .
+                "object_fields where object_name=\"$objecttype\";");
     $datatypes = array();
     $islists = array();
+    $iskeys = array();
     while ($value = mysql_fetch_row ($result)) {
       $datatypes [$value[0]] = $value[1];
       $islists [$value[0]] = $value[2] == "true";
+      $iskeys [$value[0]] = $value[3] == "true";
     }
     $subobjects = array();
     $psize = strlen ($prefix);
@@ -65,15 +68,21 @@
               $xml2 = "";
               xmlForObject ($xml2, $values, $listobjname,
                             $datatypes [$field2]);
+              if (substr ($xml2, 0, 5) == "Error") {
+                $xml = $xml2;
+                return;
+              }
               if (! strpos ($xml2, "FIELD"))
                 break;
               if (! $values ["delete" . $listobjname])
                 $xml .= "<VALUE>\n" . $xml2 . "</VALUE>\n";
               $num++;
             }
-            for ($i2 = 0; $i2 < $values[$prefix . $field2 . "yxqadd"]; $i2++)
+            for ($i2 = 0; $i2 < $values[$prefix . $field2 . "yxqadd"]; $i2++) {
+              $added = 1;
               $xml .= "<VALUE>\n<OBJECT type=\"" . $datatypes [$field2] .
                       "\">\n</OBJECT>\n</VALUE>\n";
+            }
             $xml .= "</LIST>\n</FIELD>\n";
           }
         }
@@ -103,6 +112,8 @@
           }
           $xml .= "<FIELD name=\"" . $field . "\" value=\"" .
                   $val . "\" />\n";
+          if ($iskeys[$field])
+            $newname = $val;
         }
         else {
           $field2 = substr ($field, 0, $pos);
@@ -119,15 +130,16 @@
       }
     }
     $xml .= "</OBJECT>\n";
+    return $newname;
   }
 
   function mainContent () { 
     global $objectname, $objecttype, $action, $key;
-    global $problem, $HTTP_POST_VARS, $delete, $global;
+    global $problem, $HTTP_POST_VARS, $delete, $global, $added;
 
     if (! $delete) {
       $cxml = "";
-      xmlForObject ($cxml, $HTTP_POST_VARS, "field", $objecttype);
+      $newname = xmlForObject ($cxml, $HTTP_POST_VARS, "field", $objecttype);
       if (substr ($cxml, 0, 5) == "Error") {
         echo "<h1>" . $cxml . "</h1>";
         return;
@@ -156,7 +168,12 @@
       parsedata ($xml, $problem, 0);
     }
 
-    echo "<h2>" . $action . " " . ($global ? $global : $objecttype) .
-         " complete<h2>";
+    if (! $added)
+      echo "<h2>" . $action . " " . ($global ? $global : $objecttype) .
+           " complete</h2>";
+    else {
+      echo "<h2>Need to fill in new list objects</h2>";
+      editobject ($objecttype, $newname, $problem, $key, $global);
+    }
   }
 ?>
