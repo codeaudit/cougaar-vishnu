@@ -1186,10 +1186,7 @@ public abstract class VishnuPlugin
   }
 
   protected void publishAddWithCheck (Object obj) {
-    if (!publishAdd(obj)) {
-      error (getName () + " - publish add of " + obj + 
-	     " failed, perhaps already on blackboard?");
-    }
+    publishAdd(obj);
   }
 
   // ------------- MODES ------------------------ 

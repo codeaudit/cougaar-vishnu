@@ -375,9 +375,7 @@ public class VishnuAllocatorPlugin extends VishnuPlugin implements UTILAllocator
 							confidence,
 							role);
 		
-    if (!publishAdd(allocation))
-      error (getName () + ".createAllocation - publish add of " + allocation + 
-	     " failed, perhaps already on blackboard?");
+    publishAdd(allocation);
 
     return allocation;
   }
