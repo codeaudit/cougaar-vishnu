@@ -419,14 +419,18 @@ public abstract class VishnuPlugIn
 
 	 Date start = new Date();
 
-	 if (!sentFormatAlready) {
-	   if (useStoredFormat)
+	 if (useStoredFormat) {
+	   // only generate the document once
+	   if (objectFormatDoc == null)
 		 objectFormatDoc = prepareStoredObjectFormat (tasks);
-	   else 
+	   if (!sentFormatAlready)
+		 comm.serializeAndPost (objectFormatDoc, false, runInternal, internalBuffer);
+	 } else {
+	   if (!sentFormatAlready)
 		 prepareObjectFormat (tasks);
-
-	   sentFormatAlready = incrementalScheduling || runInternal;
 	 }
+	   
+	 sentFormatAlready = incrementalScheduling || !runInternal;
 
 	 setUIDToObjectMap (tasks, myTaskUIDtoObject);
 
@@ -525,8 +529,6 @@ public abstract class VishnuPlugIn
 	   formatDocRoot.setAttribute ("name", comm.getProblem());
 
 	   attachAssociatedFiles (formatDoc); // attach vsh.xml, ga.xml, odf.xml files
-
-	   comm.serializeAndPost (formatDoc, false, runInternal, internalBuffer);
 
 	   if (showTiming)
 		 domUtil.reportTime (" - Vishnu completed format XML processing in ", start);
