@@ -1,4 +1,4 @@
-/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/Attic/VishnuPlugIn.java,v 1.5 2001-02-14 00:15:46 gvidaver Exp $ */
+/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/Attic/VishnuPlugIn.java,v 1.6 2001-02-15 22:30:43 gvidaver Exp $ */
 
 package org.cougaar.lib.vishnu.client;
 
@@ -90,7 +90,9 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.ParserFactory;
 
 import org.cougaar.lib.vishnu.server.Scheduler;
-	
+import org.cougaar.lib.vishnu.client.VishnuComm;
+import org.cougaar.lib.vishnu.client.VishnuDomUtil;
+
 /**
  * <pre>
  * ALP-Vishnu bridge.
@@ -158,9 +160,6 @@ public abstract class VishnuPlugIn
 
     try {testing = getMyParams().getBooleanParam("testing");}    
     catch(Exception e) {testing = false;}
-
-    try {showALPXML = getMyParams().getBooleanParam("showALPXML");}    
-    catch(Exception e) {showALPXML = false;}
 
     try {showFormatXML = getMyParams().getBooleanParam("showFormatXML");}    
     catch(Exception e) {showFormatXML = false;}
@@ -243,6 +242,10 @@ public abstract class VishnuPlugIn
 	
     URL = "http://" + hostName + phpPath;
 
+	domUtil = new VishnuDomUtil (showTiming, getName(), getCluster());
+	comm    = new VishnuComm (showTiming, testing, myExtraOutput, writeEncodedXMLToFile, phpPath,
+							  getName (), getClusterName (), domUtil);
+	
 	// helpful for debugging connection configuration problems
 	if (runInternal)
 	  System.out.println (getName () + " - will run internal Vishnu Scheduler.");
@@ -486,14 +489,11 @@ public abstract class VishnuPlugIn
    * 4) Starts the scheduler
    * 5) Waits for a result
    * 
-   * Parameters that effect behavior:
+   * (Outdated) Parameters that effect behavior:
    * 
-   * 1) showALPXML - shows the XML that comes from XMLize on alp
-   *    objects.  No XML gets sent to Vishnu.  This XML is equivalent
-   *    to what you get from TASKS.PSP
-   * 2) sendSpecsEveryTime - sends the specs and object format every time
+   * 1) sendSpecsEveryTime - sends the specs and object format every time
    *    useful if debugging problems with XSL.
-   * 3) alwaysClearDatabase - clears the Vishnu database for the problem
+   * 2) alwaysClearDatabase - clears the Vishnu database for the problem
    *    This is problematic.  It's inefficient to send all the assets 
    *    with every problem, but there's currently no way to just 
    *    clear the tasks, so if you don't clear, you get back assignments 
@@ -516,15 +516,6 @@ public abstract class VishnuPlugIn
 	  
 	  Date start = new Date();
       
-	  if (showALPXML) {
-		Collection formatTemplates = getAssetTemplatesForTasks(tasks);
-		formatTemplates.addAll (getTemplateTasks(tasks));
-	  
-		Document trDoc = getDoc (formatTemplates);
-		System.out.println (getDocAsString (trDoc));
-		return;
-	  }
-      
 	  if (!sentFormatAlready || sendSpecsEveryTime) {
 		Collection formatTemplates = getAssetTemplatesForTasks(tasks);
 		formatTemplates.addAll (getTemplateTasks(tasks));
@@ -541,7 +532,7 @@ public abstract class VishnuPlugIn
 		if (!runInternal)
 		  sentFormatAlready = true;
 		if (showTiming)
-		  reportTime (" - Vishnu completed format XML processing in ", start);
+		  domUtil.reportTime (" - Vishnu completed format XML processing in ", start);
 	  }
       
 	  setUIDToObjectMap (tasks, myTaskUIDtoObject);
@@ -579,8 +570,8 @@ public abstract class VishnuPlugIn
 						alwaysClearDatabase, 
 						false /* send assets as NEWOBJECTS */, null);
 	  if (showTiming) {
-		reportTime (" - Vishnu completed data XML processing in ", dataStart);
-		reportTime (" - Vishnu completed XML processing in ", start);
+		domUtil.reportTime (" - Vishnu completed data XML processing in ", dataStart);
+		domUtil.reportTime (" - Vishnu completed XML processing in ", start);
 	  }
 
 	  if (runInternal) {
@@ -593,7 +584,7 @@ public abstract class VishnuPlugIn
 							  "timed out waiting for scheduler to finish.");
 	  }
 	  if (showTiming)
-		reportTime (" - Vishnu did " + numTasks + " tasks in ", start);
+		domUtil.reportTime (" - Vishnu did " + numTasks + " tasks in ", start);
 	} // end of synchronized
   }
 
@@ -688,29 +679,6 @@ public abstract class VishnuPlugIn
 	return templateTasks;
   }
 
-  /** 
-   * Prints out time since <code>start</code> with prefix <code>prefix</code>
-   * @param start since when
-   * @param prefix meaning of time difference
-   */
-  protected void reportTime (String prefix, Date start) 
-  {
-    Runtime rt = Runtime.getRuntime ();
-    Date end = new Date ();
-    long diff = end.getTime () - start.getTime ();
-    long min  = diff/60000l;
-    long sec  = (diff - (min*60000l))/1000l;
-    long millis = diff - (min*60000l) - (sec*1000l);
-	if (min < 1l && sec < 1l && millis < 500l) return;
-    System.out.println  (getName() + prefix +
-			 min + 
-			 ":" + ((sec < 10) ? "0":"") + sec + 
-			 ":" + ((millis < 10) ? "0":"") + millis + 
-			 " (Wall clock time)" + 
-			 " free "  + (rt.freeMemory  ()/(1024*1024)) + "M" +
-			 " total " + (rt.totalMemory ()/(1024*1024)) + "M");
-  }
-  
   /**
    * <pre>
    * Using the task list, figure out which assets are relevant to 
@@ -809,10 +777,10 @@ public abstract class VishnuPlugIn
 	  Document problemFormatDoc = getFormatDoc (templates);
 
 	  if (showFormatXML) {
-		System.out.println (getDocAsString(problemFormatDoc));
+		System.out.println (domUtil.getDocAsString(problemFormatDoc));
 	  }
 	  if (showTiming)
-		reportTime (" - Vishnu completed format XML transform in ", start);
+		domUtil.reportTime (" - Vishnu completed format XML transform in ", start);
 	  
       // must remove duplicate OBJECTFORMATS
       
@@ -842,7 +810,7 @@ public abstract class VishnuPlugIn
 			System.out.println (getName () + ".sendFormat -  appending " + 
 								otherDataFormat + " other data format file");
 
-		  appendDoc (problemFormatDoc, 
+		  domUtil.appendDoc (problemFormatDoc, 
 					 (Element)((Element)root).getFirstChild(), // OBJECTFORMAT tag
 					 otherDataFormat);
 		}
@@ -863,7 +831,7 @@ public abstract class VishnuPlugIn
 		  System.out.println (getName () + ".sendFormat - appending " + 
 							  specsFile + " vishnu specs xml file");
 
-		appendDoc (problemFormatDoc, specsFile);
+		domUtil.appendDoc (problemFormatDoc, specsFile);
 	  }
 
       // append the ga specs
@@ -873,7 +841,7 @@ public abstract class VishnuPlugIn
 		System.out.println (getName () + ".sendFormat - appending " + 
 							specsFile + " vishnu ga specs xml file");
 
-      appendDoc (problemFormatDoc, specsFile);
+      domUtil.appendDoc (problemFormatDoc, specsFile);
 
       // send to postdata URL
       serializeAndPostProblem (problemFormatDoc);
@@ -888,14 +856,16 @@ public abstract class VishnuPlugIn
    * Get a document that is equivalent to <code>taskAndAssets</code> 
    * collection
    */
+  /*
   protected Document getDoc (Collection taskAndAssets) {
     Document doc = new DocumentImpl(); 
     Element root = doc.createElement("CHANGEDOBJECTS");
     doc.appendChild(root);
-    addObjectsToDocument (taskAndAssets.iterator (), doc, root);
+    domUtil.addObjectsToDocument (taskAndAssets.iterator (), doc, root);
 
     return doc;
   }
+  */
 
   /** uses formatXMLizer to generate XML for Vishnu */
   protected Document getFormatDoc (Collection taskAndAssets) {
@@ -1298,7 +1268,7 @@ public abstract class VishnuPlugIn
 			}
 			*/
 
-			Node clone = createClone(fieldFormat, doc);
+			Node clone = domUtil.createClone(fieldFormat, doc);
 			String newname = fieldName + SEPARATOR + distinctNames++;
 		  
 			descrip.addNewNameType (fieldName, newname, newtype);
@@ -1361,150 +1331,6 @@ public abstract class VishnuPlugIn
     }
 
   /**
-   * appends the document at filename onto originalDoc.
-   *
-   * @param originalDoc - doc to append the filename doc to
-   * @param filename    - name of the document to append
-   */
-  protected void appendDoc (Document originalDoc, String filename) {
-    Element originalRoot = originalDoc.getDocumentElement ();
-	appendDoc (originalDoc, originalRoot, filename);
-  }
-
-  /**
-   * appends the document at filename onto originalDoc.
-   *
-   * @param originalDoc - doc to append the filename doc to
-   * @param filename    - name of the document to append
-   */
-  protected void appendDoc (Document originalDoc, Element originalAppendLoc,
-							String filename) {
-    try {
-      DOMParser parser = new DOMParser ();
-      InputStream inputStream = getCluster().getConfigFinder ().open(filename);
-      parser.parse (new InputSource(inputStream));
-      Document appendDoc = parser.getDocument ();
-
-      Element appendDocRoot = appendDoc.getDocumentElement ();
-      merge (originalAppendLoc, appendDocRoot);
-
-    } catch (SAXException sax) {
-      System.out.println (getName () + ".appendDoc - Got sax exception:\n" + sax);
-    } catch (IOException ioe) {
-      System.out.println ("Could not open file : \n" + ioe);
-    }
-  }
-
-  /**
-   * appends the document at filename onto originalDoc.
-   *
-   * @param originalDoc - doc to append the filename doc to
-   * @param filename    - name of the document to append
-   */
-  protected void appendChildrenToDoc (Document originalDoc, Element originalAppendLoc,
-									  String filename) {
-    try {
-      DOMParser parser = new DOMParser ();
-      InputStream inputStream = getCluster().getConfigFinder ().open(filename);
-      parser.parse (new InputSource(inputStream));
-      Document appendDoc = parser.getDocument ();
-
-      Element appendDocRoot = appendDoc.getDocumentElement ();
-	  
-	  if (appendDocRoot.getTagName().equals ("GLOBAL_DATA_LIST")) {
-		
-		NodeList nlist = appendDocRoot.getChildNodes();
-
-		for (int i = 0; i < nlist.getLength(); i++) {
-		  Node rootChild = nlist.item (i);
-		  merge (originalAppendLoc, rootChild);
-		}
-	  }
-	  else
-		merge (originalAppendLoc, appendDoc.getDocumentElement ());
-	  
-    } catch (SAXException sax) {
-      System.out.println (getName () + ".appendDoc - Got sax exception:\n" + sax);
-    } catch (IOException ioe) {
-      System.out.println ("Could not open file : \n" + ioe);
-    }
-  }
-
-  /**
-   * <pre>
-   * Takes two nodes of xml documents and makes the rootToAdd
-   * node as a child of the placeToAdd node.  
-   *
-   * On the first call, these two nodes are the roots of two
-   * separate xml documents.
-   *
-   * It recurses down the tree to be added.
-   *
-   * Note that naively taking the root to be added and
-   * adding it directly by doing appendChild doesn't work,
-   * since all DOM Nodes have an "owner document," and all
-   * nodes in a tree must have the same owner.  Since the
-   * rootToAdd node comes from a different document, you'll get
-   * a "Wrong Document Err" when you try to do this.
-   * 
-   * So you have to create copies with the target document's
-   * createElement method and add those.
-   *
-   * BOZO : probably better way to do this!
-   * </pre>
-   * @param placeToAdd - the root of the destination document
-   * @param rootToAdd  - the root of the document to merge into the first
-   *                     doc
-   * 
-   */
-  protected void merge (Node placeToAdd, Node rootToAdd) {
-    Document targetDoc = placeToAdd.getOwnerDocument ();
-
-    // clone the node to be added
-
-    if (rootToAdd.getNodeType() == Node.ELEMENT_NODE) {
-      Node clonedNode = createClone (rootToAdd, targetDoc);
-
-      placeToAdd.appendChild (clonedNode);
-
-      NodeList nlist = rootToAdd.getChildNodes();
-      int nlength = nlist.getLength();
-
-      for(int i = 0; i < nlength; i++){
-		Node child = nlist.item(i);
-		merge (clonedNode, child);
-      }
-    }
-    else if (rootToAdd.getNodeType() == Node.TEXT_NODE) {
-      String data = rootToAdd.getNodeValue ().trim();
-      if (data.length () > 0) {
-		Text textNode = targetDoc.createTextNode (data);
-		placeToAdd.appendChild (textNode);
-      }
-    }
-  }
-
-  /**
-   * Clone a node (only its attributes)
-   *
-   * @param toClone - the node to copy
-   * @param doc     - is the factory for new nodes
-   * @return the clone
-   */
-  protected Node createClone (Node toClone, Document doc) {
-    Element clonedNode = doc.createElement (toClone.getNodeName ());
-
-    // clone the attributes
-    NamedNodeMap attrs = toClone.getAttributes ();
-    for(int i = 0; i < attrs.getLength (); i++) {
-      Attr attrNode = (Attr) attrs.item (i);
-      clonedNode.setAttribute (attrNode.getName (), attrNode.getValue ());
-    }
-    
-    return clonedNode;
-  }
-
-  /**
    * send the data section of the problem to the postdata URL.
    *
    * Handles sending changed objects.
@@ -1523,7 +1349,7 @@ public abstract class VishnuPlugIn
       Document dataDoc = getDataDoc (tasks, nameToDescrip);
 	  
 	  if (showDataXML)
-		System.out.println (getDocAsString(dataDoc));
+		System.out.println (domUtil.getDocAsString(dataDoc));
 
       Node root = dataDoc.getDocumentElement ();
       ((Element)root).setAttribute ("NAME", myProblem);
@@ -1586,7 +1412,7 @@ public abstract class VishnuPlugIn
 		  System.out.println (getName () + " appending " + 
 							  otherData + " other data file");
 
-		appendChildrenToDoc (dataDoc, 
+		domUtil.appendChildrenToDoc (dataDoc, 
 							 placeToAdd, // NEWOBJECTS tag
 							 otherData);
 	  }
@@ -1682,14 +1508,14 @@ public abstract class VishnuPlugIn
    */
   protected void serializeAndPost (Document doc, boolean postData) {
 	if (runInternal)
-	  appendToInternalBuffer( getDocAsArray (doc).toString());
+	  appendToInternalBuffer( domUtil.getDocAsArray (doc).toString());
 	else {
 	  if (postData) {
 		//	  postData (doc);
-		postData (getDocAsArray (doc).toString());
+		postData (domUtil.getDocAsArray (doc).toString());
 	  } else {
 		//		postProblem (getDocAsString (doc));
-		postProblem (getDocAsArray (doc).toString());
+		postProblem (domUtil.getDocAsArray (doc).toString());
 	  }
 	  if (writeXMLToFile) {
 		String suffix = (postData) ? "data" : "problem";
@@ -1697,7 +1523,7 @@ public abstract class VishnuPlugIn
 		System.out.println (getName () + ".serializeAndPost - Writing XML to file " + fileName);
 		try {
 		  FileOutputStream temp = new FileOutputStream (fileName);
-		  writeDocToStream (doc, temp);
+		  domUtil.writeDocToStream (doc, temp);
 		} catch (FileNotFoundException fnfe) { /* never happen */ }
 	  }
 	}
@@ -1709,47 +1535,6 @@ public abstract class VishnuPlugIn
 	  String stuff = data.substring (index+2);
 	  internalBuffer.append (stuff);
 	}
-  }
-
-  protected String getDocAsString (Document doc) {
-    StringWriter sw = new StringWriter();
-
-    OutputFormat of = new OutputFormat (doc, OutputFormat.Defaults.Encoding, true);
-    of.setLineWidth (150);
-    XMLSerializer serializer = new XMLSerializer (sw, of);
-    try {
-	  Date start = new Date();
-      serializer.serialize (doc);
-	  if (showTiming)
-		reportTime (" - got doc as string in ", start);
-    } catch (IOException ioe) {System.out.println ("Exception " + ioe);}
-
-	return sw.toString ();
-  }
-  
-  protected CharArrayWriter getDocAsArray (Document doc) {
-    CharArrayWriter sw = new CharArrayWriter();
-
-    OutputFormat of = new OutputFormat (doc);
-	of.setPreserveSpace (false);
-	
-	XMLSerializer serializer = new XMLSerializer (sw, of);
-    try {
-      serializer.serialize (doc);
-    } catch (IOException ioe) {System.out.println ("Exception " + ioe);}
-
-	return sw;
-  }
-
-  protected void addObjectsToDocument (Iterator iter, Document doc, Element nodeToAddTo) {
-    Element element   = null;
-    XMLizable xmlable = null;
-
-    while  (iter.hasNext ()) {
-      xmlable = (XMLizable) iter.next ();
-      element = xmlable.getXML (doc);
-      nodeToAddTo.appendChild (element);
-    }
   }
 
   public void postData (String data) {
@@ -1764,9 +1549,9 @@ public abstract class VishnuPlugIn
 
 	Date start = new Date();
     String reply =
-      postToURL (hostName, postDataFile, sb.toString (), null, true);
+      comm.postToURL (hostName, postDataFile, sb.toString (), null, true);
 	if (showTiming)
-	  reportTime (" - did post of data string to URL in ", start);
+	  domUtil.reportTime (" - did post of data string to URL in ", start);
 	
     if (myExtraOutput)
       System.out.println (getName () + ".postData - Reply to post data <" + reply.trim() + ">");
@@ -1783,9 +1568,9 @@ public abstract class VishnuPlugIn
 
 	Date start = new Date();
     String reply =
-      postToURL (hostName, postDataFile, sb.toString (), dataDoc, true);
+      comm.postToURL (hostName, postDataFile, sb.toString (), dataDoc, true);
 	if (showTiming)
-	  reportTime (" - did post of data Doc to URL in ", start);
+	  domUtil.reportTime (" - did post of data Doc to URL in ", start);
 	
 	if (!reply.startsWith ("SUCCESS"))
       System.out.println (getName () + ".postData - ERROR : Reply to post data was <" + reply + ">");
@@ -1807,7 +1592,7 @@ public abstract class VishnuPlugIn
     sb.append (java.net.URLEncoder.encode(data));
 
     String reply =
-      postToURL (hostName, postProblemFile, sb.toString (), null, true);
+	  comm.postToURL (hostName, postProblemFile, sb.toString (), null, true);
 
     if (myExtraOutput)
       System.out.println (getName() + ".postProblem - reply was <" + reply.trim() + ">");
@@ -1821,7 +1606,7 @@ public abstract class VishnuPlugIn
     sb.append ("password=" + myPassword + "&");
     sb.append ("ferris=bueller");
 
-    String reply = postToURL (hostName, kickoffFile, sb.toString (), null, true);
+    String reply = comm.postToURL (hostName, kickoffFile, sb.toString (), null, true);
     if (myExtraOutput)
 	System.out.println (getName () + ".startScheduling - reply to kickoff was " + reply.trim());
   }
@@ -1838,7 +1623,7 @@ public abstract class VishnuPlugIn
     boolean gotAnswer = false;
     for (int i = 0; i < maxWaitCycles; i++) {
       String response = 
-	  postToURL (hostName, readStatusFile, postVars, null, true);
+	  comm.postToURL (hostName, readStatusFile, postVars, null, true);
       if (response.indexOf (done) != -1) {
 		gotAnswer = true;
 		break;
@@ -1882,7 +1667,7 @@ public abstract class VishnuPlugIn
 		if (myExtraOutput)
 		  System.out.println (getName () + ".parseAnswer - reading from " + url);
 
-		readXML (aURL, new AssignmentHandler ());
+		comm.readXML (aURL, new AssignmentHandler ());
 
 		if (myExtraOutput)
 		  System.out.println (getName () + ".parseAnswer - created successful plan elements for " +
@@ -1921,82 +1706,6 @@ public abstract class VishnuPlugIn
     return "username=" + myUser;
   }
 
-  public URLConnection getConnection (String host,
-									  String fileToExec,
-									  String data,
-									  Document doc,
-									  boolean readResponse) {
-    try {
-      String url = "http://" + host + phpPath + fileToExec;
-      URL newURL = new URL (url);
-      URLConnection connection = newURL.openConnection();
-      connection.setDoOutput (true);
-      connection.setDoInput  (readResponse);
-
-	  return connection;
-    } catch (Exception e) {
-      System.out.println ("BAD URL : " + e);
-	  e.printStackTrace ();
-      return null;
-    }
-  }
-
-  public String postToURL (String host,
-						   String fileToExec,
-						   String data,
-						   Document doc,
-						   boolean readResponse) {
-    try {
-      String url = "http://" + host + phpPath + fileToExec;
-      if (testing) {
-		System.out.println ("postToURL - (complete) Sending to : " + url);
-		System.out.println (java.net.URLDecoder.decode(data));
-      }
-      else if (myExtraOutput) {
-		System.out.println ("postToURL - (partial) Sending to : " + url);
-		System.out.println (data.substring (0,
-											(data.length () > 100) ? 100 : data.length()));
-      }
-      return postToURL (new URL (url), 
-						data, doc,
-						readResponse);
-    } catch (Exception e) {
-      System.out.println ("BAD URL : " + e);
-	  e.printStackTrace ();
-      return "";
-    }
-  }
-
-  public String postToURL (URL aURL,
-						   String data,
-						   Document doc,
-						   boolean readResponse) {
-    try {
-      URLConnection connection = aURL.openConnection();
-      connection.setDoOutput (true);
-      connection.setDoInput  (readResponse);
-
-	  Date start = new Date();
-      sendData (connection, data, doc);
-	  if (showTiming)
-		reportTime (" - postToURL sent " + data.length() + " chars of data in ", start);
-
-      if (readResponse) {
-		start = new Date();
-		String response = getResponse (connection);
-		if (showTiming)
-		  reportTime (" - postToURL read response of " + response.length() + " in ", start);
-		return response;
-	  }
-    }
-    catch(Exception e) {
-      System.err.println ("VishnuPlugIn.postToURL -- exception sending data to URL : " + aURL +
-			  "\n" + e.getMessage());
-      e.printStackTrace();
-    }
-    return "";
-  }
-
   protected void clearInternalBuffer () {
 	internalBuffer = new StringBuffer ();
   }
@@ -2016,7 +1725,7 @@ public abstract class VishnuPlugIn
     byte [] bytes = data.getBytes ();
     os.write(bytes);
 	if (doc != null) {
-	  writeDocToStream (doc, os);
+	  domUtil.writeDocToStream (doc, os);
 	  /*
 	  if (writeXMLToFile) {
 		String fileName = getClusterName () + "_" + numFilesWritten++;
@@ -2037,103 +1746,6 @@ public abstract class VishnuPlugIn
 	
     os.flush ();
     os.close ();
-  }
-
-  protected void writeDocToStream (Document doc, OutputStream os) {
-    OutputFormat of = new OutputFormat (doc, "UTF-8", true);
-	of.setLineWidth (150);
-	
-	XMLSerializer serializer = new XMLSerializer (os, of);
-
-    try {
-      serializer.serialize (doc);
-    } catch (IOException ioe) {System.out.println ("Exception " + ioe);}
-  }
-  
-  /**
-   * <pre>
-   * Returns response as string.
-   *
-   * If there is IOException on the input stream, will try two more times.
-   *
-   * </pre>
-   * @param  connection the url connection to get data from
-   * @return String reponse from URL
-   */
-
-  public String getResponse(URLConnection connection) throws IOException {
-    StringBuffer sb = new StringBuffer ();
-	int numTries = 3;
-	boolean madeInputStream = false;
-    InputStream is = null;
-	
-	while (numTries > 0 && !madeInputStream) {
-	  try {
-		is = connection.getInputStream();
-		madeInputStream = true;
-	  } catch (IOException ioe) {
-		System.out.println (getName () + ".getResponse - IO Exception on reading from URL, trying again.");
-		numTries--;
-		try { Thread.sleep (500l); } catch (Exception e) {}
-	  }
-	}
-	if (!madeInputStream)
-		System.out.println (getName () + ".getResponse - ERROR : could not read from URL " + connection);
-
-    byte b[] = new byte[1024];
-    int len;
-    while ((len = is.read(b)) > -1)
-      sb.append (new String(b, 0, len));
-
-    return sb.toString ();
-  }
-
-  private static String socketPostToURL (String hostName,
-					 String phpPath,
-					 String url,
-					 String data, 
-					 boolean readResponse) {
-    try {
-      Socket socket = new Socket (hostName, 80);
-      OutputStream os = socket.getOutputStream();
-      String request = "POST " + phpPath + url + " HTTP/1.0\r\n" +
-        "Content-Type: application/x-www-form-urlencoded\r\n" +
-        "Content-Length: " + data.length() + "\r\n\r\n" + data + "\r\n\r\n";
-      os.write (request.getBytes());
-      if (! readResponse)
-        return "";
-      InputStream is = socket.getInputStream();
-      String result = "";
-      byte[] b = new byte[1];
-      while ((b[0] = (byte) is.read()) != -1)
-        result = result + new String (b);
-      return result;
-    }
-    catch(Exception e) {
-      System.err.println (e.getMessage());
-      e.printStackTrace();
-    }
-    return "";
-  }
-
-  protected void readXML (URL aURL, HandlerBase handler) {
-    try {
-      if (myExtraOutput) {
-	  URLConnection connection = aURL.openConnection();
-	  connection.setDoOutput (false);
-	  connection.setDoInput  (true);
-
-	  System.out.println (getResponse (connection));
-      }
-
-      Parser parser = new SAXParser();
-      parser.setDocumentHandler (handler);
-      parser.parse (aURL.toString());
-    }
-    catch(Exception e) {
-      System.err.println (e.getMessage());
-      e.printStackTrace();
-    }
   }
 
   /**
@@ -2534,7 +2146,6 @@ public abstract class VishnuPlugIn
   protected String done            = "percent_complete=100";
 
   protected boolean testing = false;
-  protected boolean showALPXML = false;
   protected boolean showFormatXML = false;
   protected boolean showDataXML = false;
   protected boolean ignoreSpecsFile = false;
@@ -2554,5 +2165,7 @@ public abstract class VishnuPlugIn
   protected String vishnuEpochEndTime;
 
   private boolean debugParseAnswer = false;
-}
 
+  protected VishnuComm comm;
+  protected VishnuDomUtil domUtil;
+}
