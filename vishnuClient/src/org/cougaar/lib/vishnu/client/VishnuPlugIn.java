@@ -29,9 +29,10 @@ import org.cougaar.util.StringKey;
 import org.cougaar.util.UnaryPredicate;
 import org.cougaar.util.TimeSpan;
 
+import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.StringReader;
 
 import java.text.ParseException;
@@ -59,10 +60,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import org.xml.sax.AttributeList;
-import org.xml.sax.HandlerBase;
+import org.xml.sax.helpers.DefaultHandler;
+import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
-import org.xml.sax.Parser;
 import org.xml.sax.SAXException;
 
 import org.cougaar.lib.vishnu.server.Scheduler;
@@ -98,8 +98,6 @@ public abstract class VishnuPlugIn
   private static String GA_SUFFIX = ".ga.xml";
   private static String OTHER_FORMAT_SUFFIX = ".odf.xml";
   private static String OTHER_DATA_SUFFIX = ".odd.xml";
-
-  //  private static Map clusterToInstance = new HashMap ();
 
   /**
    * Here all the various runtime parameters get set.  See documentation for details.
@@ -179,7 +177,7 @@ public abstract class VishnuPlugIn
     try {sendDataChunkSize = getMyParams().getIntParam("sendDataChunkSize");}    
     catch(Exception e) {sendDataChunkSize = 100;}
 	
-	domUtil = new VishnuDomUtil (getMyParams(), getName(), getCluster());
+	domUtil = new VishnuDomUtil (getMyParams(), getName(), getConfigFinder());
 	comm    = new VishnuComm    (getMyParams(), getName(), getClusterName(), domUtil, runInternal);
 
 	// helpful for debugging connection configuration problems
@@ -498,8 +496,9 @@ public abstract class VishnuPlugIn
 	if (myExtraOutput)
 	  System.out.println(getName () + ".runInternally - scheduled assignments were : " + assignments);
 	
-	Parser parser = new SAXParser();
-	parser.setDocumentHandler (new AssignmentHandler ());
+	SAXParser parser = new SAXParser();
+	//	parser.setDocumentHandler (new AssignmentHandler ());
+	parser.setContentHandler (new AssignmentHandler ());
 	try {
 	  parser.parse (new InputSource (new StringReader (assignments)));
 	} catch (SAXException sax) {
@@ -692,7 +691,8 @@ public abstract class VishnuPlugIn
       // appending any global other data object formats 
       String otherDataFormat = getOtherDataFormat();
 	  try {
-		if (getCluster().getConfigFinder ().open (otherDataFormat) != null) {
+		//		if (getCluster().getConfigFinder ().open (otherDataFormat) != null) {
+		if (getConfigFinder ().open (otherDataFormat) != null) {
 		  if (myExtraOutput)
 			System.out.println (getName () + ".sendFormat -  appending " + 
 								otherDataFormat + " other data format file");
@@ -1002,23 +1002,19 @@ public abstract class VishnuPlugIn
       Node other = (Node) nodes.get (i);
       if (first == other)
 		continue;  // ignore self to tell if duplicate
-	  boolean thisIsResource = 
-		first.getAttributes().getNamedItem ("is_resource").getNodeValue().equals("true");
-	  boolean otherIsNotResource = 
-		other.getAttributes().getNamedItem ("is_resource").getNodeValue().equals("false");
-	  if (thisIsResource && otherIsNotResource)
-		continue;
 
       NodeList otherChildNodes = other.getChildNodes ();
 
-      if (firstChildNodes.getLength () > otherChildNodes.getLength ())
-		continue; // can't be a subset if more fields
+	  if (firstChildNodes.getLength () > otherChildNodes.getLength ())
+	  	continue; // can't be a subset if more fields
 
-      Map fieldNames = new HashMap ();
+	  // create name->type mapping for other node
+      Map otherFieldToType = new HashMap ();
+
       for (int k = 0; k < otherChildNodes.getLength (); k++) {
 		String field = otherChildNodes.item (k).getAttributes().getNamedItem ("name").getNodeValue();
 		String type  = otherChildNodes.item (k).getAttributes().getNamedItem ("datatype").getNodeValue();
-		fieldNames.put (field, type);
+		otherFieldToType.put (field, type);
       }
 
       boolean allFound = true;
@@ -1026,10 +1022,20 @@ public abstract class VishnuPlugIn
       for (int k = 0; k < firstChildNodes.getLength (); k++) {
 		String firstChildName = 
 		  firstChildNodes.item (k).getAttributes().getNamedItem ("name").getNodeValue();
+		String otherType = (String) otherFieldToType.get (firstChildName);
 
-		if (fieldNames.get (firstChildName) == null) {
+		if (otherType == null) {
 		  allFound = false;
 		  break;
+		}
+		else {
+		  String firstChildType = 
+			firstChildNodes.item (k).getAttributes().getNamedItem ("datatype").getNodeValue();
+
+		  if (!firstChildType.equals (otherType)) {
+			allFound = false;
+			break;
+		  }
 		}
       }
 	  
@@ -1038,8 +1044,30 @@ public abstract class VishnuPlugIn
       if (allFound) {
 		if (myExtraExtraOutput) {
 		  String name  = first.getAttributes().getNamedItem ("name").getNodeValue();
-		  System.out.println ("Found a duplicate " + first.getNodeName () + " " + name);
+		  System.out.println ("VishnuPlugIn.duplicateNode - Found a duplicate " + first.getNodeName () + " " + name);
 		}
+		boolean thisIsResource = 
+		  first.getAttributes().getNamedItem ("is_resource").getNodeValue().equals("true");
+		boolean otherIsNotResource = 
+		  other.getAttributes().getNamedItem ("is_resource").getNodeValue().equals("false");
+		if (thisIsResource && otherIsNotResource) {
+		  if (myExtraExtraOutput) {
+			String name  = first.getAttributes().getNamedItem ("name").getNodeValue();
+			System.out.println ("VishnuPlugIn.duplicateNode - setting resource attribute for duplicate " + name);
+		  }
+		  
+		  other.getAttributes().getNamedItem ("is_resource").setNodeValue("true");
+
+		  // set is_key attribute on other object format
+		  for (int k = 0; k < otherChildNodes.getLength (); k++) {
+			String field = otherChildNodes.item (k).getAttributes().getNamedItem ("name").getNodeValue();
+			if (field.equals("UID")) {
+			  otherChildNodes.item (k).getAttributes().getNamedItem ("is_key").setNodeValue("true");
+			  break;
+			}
+		  }
+		}
+		
 		nodes.remove (first);
 		return true;
       }
@@ -1317,8 +1345,9 @@ public abstract class VishnuPlugIn
   protected void appendOtherData (Document dataDoc, Element placeToAdd) {
 	String otherData = getOtherData ();
 	try {
-	  if (getCluster().getConfigFinder ().open (otherData) != null) {
-		if (myExtraOutput)
+	  //	  if (getCluster().getConfigFinder ().open (otherData) != null) {
+	  if (getConfigFinder ().open (otherData) != null) {
+	  if (myExtraOutput)
 		  System.out.println (getName () + " appending " + 
 							  otherData + " other data file");
 
@@ -1507,17 +1536,17 @@ public abstract class VishnuPlugIn
   /**
    * this is where we look up unique ids
    */
-  public class AssignmentHandler extends HandlerBase {
+  public class AssignmentHandler extends DefaultHandler {
 	/**
-	 * 
+	 * just calls parseStartElement in plugin
 	 */
-    public void startElement (String name, AttributeList atts) {
+	public void startElement (String uri, String local, String name, Attributes atts) throws SAXException {
 	  parseStartElement (name, atts);
     }
 	/**
-	 * 
+	 * just calls parseEndElement in plugin
 	 */
-    public void endElement (String name) {
+	public void endElement (String uri, String local, String name) throws SAXException {
 	  parseEndElement (name);
     }
   }
@@ -1526,8 +1555,8 @@ public abstract class VishnuPlugIn
   protected Date start, end, setup, wrapup;
   protected Vector alpTasks = new Vector ();
 
-  protected void parseStartElement (String name, AttributeList atts) {
-	try {
+  protected void parseStartElement (String name, Attributes atts) {
+  try {
 	  if (myExtraExtraOutput || debugParseAnswer)
 		System.out.println (getName() + ".parseStartElement got " + name);
 	  
