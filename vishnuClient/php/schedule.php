@@ -73,16 +73,18 @@
     echo "<TABLE CELLPADDING=5>\n";
     $t = time();
     $first = 1;
-    if ((! $ignoretime) && (! $ismultitask)) {
+    if (! $ignoretime) {
       echo "<TR><TD colspan=2 align=center nowrap>";
       imageControls ("schedule", $problem, $resourceobject, $taskobject,
                      $resourcekey, $taskkey, "", $start_time, $end_time,
                      $win_start, $win_end, $task_start, $task_end);
       echo "</TD></TR>";
-      echo "<TR><TD></TD><TD align=center>";
-      echo "<IMG SRC=\"legend.php?data=" . getlegenddata ($problem) . 
-           "&t=" . $t . "\"><BR><BR>";
-      echo "</TD></TR>\n";
+      if (! $ismultitask) {
+        echo "<TR><TD></TD><TD align=center>";
+        echo "<IMG SRC=\"legend.php?data=" . getlegenddata ($problem) . 
+             "&t=" . $t . "\"><BR><BR>";
+        echo "</TD></TR>\n";
+      }
     }
     for ($i = 0; $i < sizeof ($resources); $i++) {
       $resourcename = $resources[$i];
