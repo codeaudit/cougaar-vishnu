@@ -77,7 +77,6 @@ import org.xml.sax.Attributes;
 import org.cougaar.util.StringKey;
 import org.cougaar.util.UnaryPredicate;
 import org.cougaar.core.util.UID;
-import org.cougaar.core.plugin.PluginBindingSite;
 
 /**
  * Aggregator version of ALP-Vishnu Bridge.
@@ -387,7 +386,7 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 						getPrepPhrasesForAgg(anAsset, tasklist),
 						getDirectObjectsForAgg(tasklist),
 						getPreferencesForAgg(anAsset, tasklist, start, end),
-						((PluginBindingSite) getBindingSite()).getAgentIdentifier(),
+						getAgentIdentifier(),
 						getAspectValuesMap(tasklist, start, end),
 						allocHelper.MEDIUM_CONFIDENCE);
     publishList(aggResults);
@@ -414,7 +413,7 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 	if (setupStart.getTime() < start.getTime()) {
 	  Task setupTask = getEncapsulatedTask (anAsset, setupStart, start);
 	  if (setupTask == null)
-	    logger.warn (getBindingSite().getAgentIdentifier () + " - previous task " + 
+	    logger.warn (getAgentIdentifier () + " - previous task " + 
 			 previousTask.getUID() + " missing a setup task from " + setupStart + " to " +
 			 start + "?");
 	  else {
@@ -426,7 +425,7 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 	if (wrapupEnd.getTime() > end.getTime()) {
 	  Task wrapupTask = getEncapsulatedTask (anAsset, end, wrapupEnd);
 	  if (wrapupTask == null)
-	    logger.warn (getBindingSite().getAgentIdentifier () + " - previous task " + 
+	    logger.warn (getAgentIdentifier () + " - previous task " + 
 			 previousTask.getUID() + " missing a wrapup task from " + end + " to " +
 			 wrapupEnd + "?");
 	  else {
