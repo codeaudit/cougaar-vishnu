@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedMutation.java,v 1.1 2001-01-10 19:29:55 rwu Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedMutation.java,v 1.2 2001-01-25 20:49:38 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -13,7 +13,7 @@ import java.util.Arrays;
 
 public class OrderedMutation implements GAOperator {
 
-  private float maxToSwitch = 0.0f;
+  private float maxToSwitch = 1.0f;
 
   public int numParents()  { return 1; }
 

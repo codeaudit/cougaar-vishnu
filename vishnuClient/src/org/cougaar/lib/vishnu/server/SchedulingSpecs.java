@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingSpecs.java,v 1.2 2001-01-18 23:03:48 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingSpecs.java,v 1.3 2001-01-25 20:49:38 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -41,6 +41,8 @@ public class SchedulingSpecs {
   private ResultProducer capacityContributions;
   private ResultProducer capacityThresholds;
   private ResultProducer groupable;
+  private ResultProducer linked;
+  private ResultProducer linkTimeDiff;
   private ResultProducer taskText;
   private ResultProducer groupedText;
   private ResultProducer activityText;
@@ -461,6 +463,34 @@ public class SchedulingSpecs {
     return b.booleanValue();
   }
 
+  public boolean areLinked (Task task1, Task task2) {
+    if (linked == null)
+      return false;
+    data.put ("task1", task1);
+    data.put ("task2", task2);
+    Boolean b = (Boolean) linked.getResult (data);
+    data.remove ("task1");
+    data.remove ("task2");
+    reuse.resetObjects();
+    if (b == null)
+      return false;
+    return b.booleanValue();
+  }
+
+  public float linkTimeDiff (Task task1, Task task2) {
+    if (linkTimeDiff == null)
+      return 0.0f;
+    data.put ("task1", task1);
+    data.put ("task2", task2);
+    Reusable.RFloat f = (Reusable.RFloat) linkTimeDiff.getResult (data);
+    data.remove ("task1");
+    data.remove ("task2");
+    reuse.resetObjects();
+    if (f == null)
+      return 0.0f;
+    return f.floatValue();
+  }
+
   public static String stringForObject (Object o) {
     if (o == null)
       return "";
@@ -726,6 +756,8 @@ public class SchedulingSpecs {
                (! name.equals ("CAPACITYCONTRIB")) &&
                (! name.equals ("CAPACITYTHRESH")) &&
                (! name.equals ("GROUPABLE")) &&
+               (! name.equals ("LINKED")) &&
+               (! name.equals ("LINKTIMEDIFF")) &&
                (! name.equals ("TASKTEXT")) &&
                (! name.equals ("GROUPEDTEXT")) &&
                (! name.equals ("ACTIVITYTEXT")) &&
@@ -763,6 +795,10 @@ public class SchedulingSpecs {
         capacityThresholds = rp;
       else if (name.equals ("GROUPABLE"))
         groupable = rp;
+      else if (name.equals ("LINKED"))
+        linked = rp;
+      else if (name.equals ("LINKTIMEDIFF"))
+        linkTimeDiff = rp;
       else if (name.equals ("TASKTEXT"))
         taskText = rp;
       else if (name.equals ("GROUPEDTEXT"))

@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.3 2001-01-16 15:23:18 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.4 2001-01-25 20:49:38 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -32,6 +32,8 @@ public class SchedulingData {
   private HashMap capacities = new HashMap();
   private HashMap globals = new HashMap (11);
   private HashMap globalTypes = new HashMap (11);
+  private ArrayList linkedGroups = new ArrayList();
+  private HashMap linkedGroupMap = new HashMap();
   private int startTime;
   private int endTime = Integer.MAX_VALUE;
   private TimeOps timeOps;
@@ -116,6 +118,7 @@ public class SchedulingData {
     initializeCapacities (specs);
     computePrerequisites (specs);
     computeGroupings (specs);
+    computeLinks (specs);
   }
 
   public void createActivities (SchedulingSpecs specs) {
@@ -159,6 +162,48 @@ public class SchedulingData {
         }
       }
     }
+  }
+
+  public void computeLinks (SchedulingSpecs specs) {
+    Task[] t = getTasks();
+    for (int i = 0; i < t.length; i++)
+      for (int j = 0; j < t.length; j++)
+        if (i != j)
+          if (specs.areLinked (t[i], t[j])) {
+            HashMap gi = (HashMap) linkedGroupMap.get (t[i]);
+            HashMap gj = (HashMap) linkedGroupMap.get (t[j]);
+            float timeDiff = specs.linkTimeDiff (t[i], t[j]);
+            if ((gi != null) && (gj != null)) {
+              if (gi != gj) {
+                linkedGroups.remove (gj);
+                java.util.Iterator iter = gj.keySet().iterator();
+                while (iter.hasNext()) {
+                  Object o = iter.next();
+                  float f = ((Float) gj.get (o)).floatValue();
+                  gi.put (o, new Float (f + timeDiff));
+                  linkedGroupMap.put (o, gi);
+                }
+              }
+            }
+            else if (gi != null) {
+              float f = ((Float) gi.get (t[i])).floatValue();
+              gi.put (t[j], new Float (f + timeDiff));
+              linkedGroupMap.put (t[j], gi);
+            }
+            else if (gj != null) {
+              float f = ((Float) gj.get (t[j])).floatValue();
+              gj.put (t[i], new Float (f - timeDiff));
+              linkedGroupMap.put (t[i], gj);
+            }
+            else {
+              HashMap group = new HashMap (11);
+              group.put (t[i], new Float (0.0f));
+              group.put (t[j], new Float (timeDiff));
+              linkedGroups.add (group);
+              linkedGroupMap.put (t[i], group);
+              linkedGroupMap.put (t[j], group);
+            }
+          }
   }
 
   public DefaultHandler getXMLHandler() {

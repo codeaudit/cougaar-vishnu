@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/ExpressionCompiler.java,v 1.1 2001-01-10 19:29:55 rwu Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/ExpressionCompiler.java,v 1.2 2001-01-25 20:49:38 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -94,6 +94,10 @@ public class ExpressionCompiler {
       return new String[] {"number", "list:number"};
     else if (spec.equals ("groupable"))
       return new String[] {"boolean"};
+    else if (spec.equals ("linked"))
+      return new String[] {"boolean"};
+    else if (spec.equals ("link_time_diff"))
+      return new String[] {"number"};
     else if (spec.equals ("task_text") ||
              spec.equals ("grouped_text") ||
              spec.equals ("activity_text"))
@@ -159,6 +163,14 @@ public class ExpressionCompiler {
       variables.put ("resource", "resource");
     }
     else if (spec.equals ("groupable")) {
+      variables.put ("task1", "task");
+      variables.put ("task2", "task");
+    }
+    else if (spec.equals ("linked")) {
+      variables.put ("task1", "task");
+      variables.put ("task2", "task");
+    }
+    else if (spec.equals ("link_time_diff")) {
       variables.put ("task1", "task");
       variables.put ("task2", "task");
     }
