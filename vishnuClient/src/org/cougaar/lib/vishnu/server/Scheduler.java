@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Scheduler.java,v 1.8 2001-03-27 18:19:20 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Scheduler.java,v 1.9 2001-04-03 19:26:17 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -86,13 +86,16 @@ public class Scheduler {
                         ClientComms.getHost());
     while (true) {
       Exception error = getProblem();
-      if ((error != null) || (problem == null))
+      if ((error != null) || (problem == null)) {
+        releaseLock();
         try { Thread.sleep (waitInterval); } catch (Exception e) {}
-      else {
+      } else {
         Date grandStart = new Date ();
         System.out.println ("Starting to schedule " + problem +
                             " at " + grandStart);
-        if (ackProblem (1, null)) {
+        boolean canceled = ackProblem (1, null);
+        releaseLock();
+        if (canceled) {
           System.out.println ("Canceled " + problem);
           problem = null;
           continue;
@@ -116,7 +119,7 @@ public class Scheduler {
         }
         if (debug && (error == null)) reportTime ("Set up ga in ", start);
 
-        boolean canceled = false;
+        canceled = false;
         if (error == null)
           try {
             start = new Date();
@@ -251,6 +254,11 @@ public class Scheduler {
     return excep;
   }
 
+
+  private void releaseLock() {
+    Map args = ClientComms.defaultArgs();
+    ClientComms.postToURL (args, "releaselock.php");
+  }
 
   /** returns true if canceled */
   boolean ackProblem (int percentComplete, String message) {
