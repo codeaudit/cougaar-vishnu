@@ -1,8 +1,8 @@
 <?
   $qs = array();
-  function addq ($question, $answer) {
+  function addq ($question, $answer, $name="") {
     global $qs;
-    $qs[] = array ($question, $answer);
+    $qs[] = array ($question, $answer, $name);
   }
 
   addq ("What is Vishnu?",
@@ -49,11 +49,14 @@
         "Vishnu was developed as part of the DARPA's Advanced Logistics
         Program (ALP).  The ALP program manager, Todd Carrico, challenged
         us to develop a generic (i.e., reconfigurable) scheduler for use
-        with COUGAAR, an infrastructure developed under ALP for building
+        with <a href=\"http://www.cougaar.org\">Cougaar</a>,
+        an infrastructure developed under ALP for building
         multiagent systems.  The goal was that a non-programmer should
-        be able to set up a COUGAAR agent to do scheduling.  We designed
+        be able to set up a <a href=\"http://www.cougaar.org\">Cougaar</a>
+        agent to do scheduling.  We designed
         Vishnu to work either as a standalone scheduler or as part of
-        COUGAAR.");
+        <a href=\"http://www.cougaar.org\">Cougaar</a>.",
+        "origin");
   addq ("What are the components of Vishnu?",
         "There are three components of Vishnu: the web server, the
         automated scheduler and the formula compiler.  The web server,
@@ -102,25 +105,25 @@
         scheduler on them and looking at the results.  Then try changing
         the scheduling specifications and rerunning the scheduler
         and see how the results change.  Don't worry about messing
-        up the problems; you can always reload them again from file.");
+        up the problems; you can always reload them again from file.
+        When you understand the sample problems, then try making a problem
+        of your own.");
   addq ("I am now ready to define a problem of my own.  How do I do it?",
-        "There are currently two ways, and it is a high priority to
-        develop a third.  One current way is to use the documented
-        XML specifications to create a file defining the metadata, data,
-        genetic algorithm parameters, and the scheduling specifications (if
-        they have already been defined).  You then load the problem from
-        the file into the web server.  If the scheduling specifications
-        have not yet been defined, you need to do so.<P>
-        A second approach is have an external client that feeds the
-        XML defining the problem into the web server.  The COUGAAR-Vishnu
-        bridge will define such a client largely automatically for the
-        case when you are working with the COUGAAR infrastructure.  However,
-        it is possible to write clients to feed data from arbitrary
-        systems and databases into Vishnu.<P>
-        The third approach that we hope to develop soon is the ability
-        to define a problem fully from a web browser.  Not only could
-        you define the scheduling specs, but you could also define the
-        metadata, data, and genetic algorithm parameters.");
+        "There are three ways to define a problem.
+        The first is to use a web browser.
+        How to do this is described in <a href=\"fulldoc.php#gui\">Section
+        6</a> of the full documentation.  A second approach is to load
+        a problem definition from a file.  How to do this loading is
+        described in <a href=\"fulldoc.php#gui\">Section
+        6</a> of the full documentation.  You can create such a file
+        either by <a href=\"faq.php#saving\">saving a problem that you
+        have created</a> or by creating it from scratch using the
+        format described in <a href=\"fulldoc.php#b\">Appendix B</a>
+        of the full documentation.  A third way to define a problem is
+        to have an external client feed the problem definition to the
+        web server.  You either need to write your own external client
+        or else utilize the <a href=\"faq.php#bridge\">Cougaar-Vishnu
+        bridge</a>");
   addq ("How do I save a problem to file for future use or for loading
         on another server?",
         "On the problem page, there is a Download link.  If you click
@@ -130,7 +133,8 @@
         click \"Just problem definition\", just the metadata and
         scheduling specs will be saved.  If you click \"Just
         problem specs\", only the scheduling specs will be saved.
-        If you click \"Just data\", only the data will be saved.");
+        If you click \"Just data\", only the data will be saved.",
+        "saving");
   addq ("How do I install the web server?",
         "The easiest way to install the Apache/MySQL/PHP/GD
         combination is to use Abriasoft (www.abriasoft.com).  They
@@ -174,8 +178,10 @@
         problem into independent separate problems, with each
         subproblem handling one type of resource.  Another possible
         solution is to divide the problem into interconnected subproblems,
-        with the connection implemented using the COUGAAR multiagent
-        infrastructure.  A third solution is to define a single
+        with the connection implemented using the
+        <a href=\"http://www.cougaar.org\">Cougaar</a> multiagent
+        infrastructure and the <a href=\"faq.php#bridge\">Cougaar-Vishnu
+        bridge</a>.  A third solution is to define a single
         \"superobject\" that contains the data fields from the different
         object types plus a field that tells which type of underlying
         object each superobject actually is.");
@@ -290,18 +296,20 @@
         for expressing constraints is more intuitive to those not
         trained in mathematics and computer programming.  This is
         important if we hope to eventually reach a large user community.");
-  addq ("What does the COUGAAR-Vishnu bridge do?",
-        "The bridge does the following things automatically.  It translates
-        the object structure and object data from a COUGAAR Logical Data
+  addq ("What does the Cougaar-Vishnu bridge do?",
+        "The bridge makes it very easy to define a scheduler to fit into
+        a <a href=\"http://www.cougaar.org\">Cougaar</a> infrastructure.
+        The bridge does the following things automatically.  It translates
+        the object structure and object data from a Cougaar Logical Data
         Model (LDM) into equivalent Vishnu metadata and data.  It writes
         a scheduling problem to Vishnu, starts the scheduler, and reads
-        back the assignments.  It then updates the allocations in the COUGAAR
+        back the assignments.  It then updates the allocations in the Cougaar
         LDM to reflect the assignments.  The main thing that it leaves to
-        you, the user, is defining the scheduling specifications.
-        This makes defining a scheduler to fit into a COUGAAR infrastructure
-        particularly easy.");
+        you, the user, is defining the scheduling specifications.",
+        "bridge");
   addq ("How do I use a bridge plugin within a COUGAAR society?",
-        "");
+        "This is described in <a href=\"fulldoc.php#bridge\">Section
+        7</a> of the full documentation.");
 
   require ("navigation.php");
 
@@ -317,13 +325,17 @@
   function mainContent () {
     global $qs;
     echo "<DIV align=left><OL>\n"; 
-    for ($i = 0; $i < sizeof ($qs); $i++)
-      echo "<li><a href=\"faq.php#q" . ($i + 1) . "\">" . $qs[$i][0] .
+    for ($i = 0; $i < sizeof ($qs); $i++) {
+      $ref = $qs[$i][2] ? $qs[$i][2] : ("q" . ($i + 1));
+      echo "<li><a href=\"faq.php#" . $ref . "\">" . $qs[$i][0] .
            "</a></li>\n";
+    }
     echo "</OL>\n<BR>\n";
-    for ($i = 0; $i < sizeof ($qs); $i++)
-      echo "<a name=\"q" . ($i + 1) . "\"><b>" . $qs[$i][0] .
+    for ($i = 0; $i < sizeof ($qs); $i++) {
+      $ref = $qs[$i][2] ? $qs[$i][2] : ("q" . ($i + 1));
+      echo "<a name=\"" . $ref . "\"><b>" . $qs[$i][0] .
            "</b></a></br>\n" . $qs[$i][1] . "<br><br>\n";
+    }
     echo "</DIV>\n";
   }
 ?>

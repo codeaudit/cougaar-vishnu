@@ -976,19 +976,19 @@ scheduling specifications requires first going to the page for viewing these spe
 
 <? makeSection ("Cougaar-Vishnu Bridge", "bridge"); ?>
 
-<p><a href="www.cougaar.org">Cougaar</a> is an architecture for construction
+<p><a href="http://www.cougaar.org">Cougaar</a> is an architecture for construction
 of large-scale, distributed multiagent systems.  Vishnu provides a way
 to easily integrate one or more Vishnu schedulers into a multiagent system
-based on <a href="www.cougaar.org">Cougaar</a>.  This section uses 
-<a href="www.cougaar.org">Cougaar</a> terminology and concepts extensively,
+based on <a href="http://www.cougaar.org">Cougaar</a>.  This section uses 
+<a href="http://www.cougaar.org">Cougaar</a> terminology and concepts extensively,
 so interested readers should first familiarize themselves with these
 first before attempting to read this section.
 
 <? makeSubsection ("Overview", "br1"); ?>
 
-<P>The Cougaar-Vishnu Bridge is used to connect a <a href="www.cougaar.org">Cougaar</a> plugin to the Vishnu Scheduling System.  The bridge is instantiated in the usual plugin flavors: expander, allocator, and aggregator. Typically an allocator would be used for a one-to-one scheduling problem and an aggregator for a many-to-one problem.  Sometimes a task-to-resource assignment needs to be made in an expander and that assignment recorded in prepositions on the new subtask of the expansion.</P>
+<P>The Cougaar-Vishnu Bridge is used to connect a <a href="http://www.cougaar.org">Cougaar</a> plugin to the Vishnu Scheduling System.  The bridge is instantiated in the usual plugin flavors: expander, allocator, and aggregator. Typically an allocator would be used for a one-to-one scheduling problem and an aggregator for a many-to-one problem.  Sometimes a task-to-resource assignment needs to be made in an expander and that assignment recorded in prepositions on the new subtask of the expansion.</P>
 
-<P>The Bridge interfaces between a <a href="www.cougaar.org">Cougaar</a> plugin and Vishnu by mapping <a href="www.cougaar.org">Cougaar</a> tasks and assets to Vishnu tasks and resources.  LDM objects are translated into XML of a form that Vishnu understands, and Vishnu assignments, expressed in XML, are used to create plan elements.</P>
+<P>The Bridge interfaces between a <a href="http://www.cougaar.org">Cougaar</a> plugin and Vishnu by mapping <a href="http://www.cougaar.org">Cougaar</a> tasks and assets to Vishnu tasks and resources.  LDM objects are translated into XML of a form that Vishnu understands, and Vishnu assignments, expressed in XML, are used to create plan elements.</P>
 
 <P>Each instance of a bridge plugin maps to a problem in the Vishnu database. When a bridge plugin receives a task for the first time, it sends its problem definition to Vishnu.  The problem definition is composed of the object format of the tasks and resources, the scheduling specs, the GA parameters, the object format of any other data that is neither task nor resource, and that other data itself.</P>
 
