@@ -675,27 +675,32 @@ public abstract class VishnuPlugIn
    protected void runInternally () {
 	 int unhandledTasks = prepareScheduler ();
 
-	 // sched is the scheduler...
-	 sched.scheduleInternal();
-
-	 String assignments = sched.getXMLAssignments(true);
-	 
-	 if (myExtraOutput) 
-	   System.out.println(getName () + ".runInternally - scheduled assignments were : " + assignments);
-
-	 SAXParser parser = new SAXParser();
-	 parser.setContentHandler (new AssignmentHandler ());
 	 try {
-	   parser.parse (new InputSource (new StringReader (assignments)));
-	 } catch (SAXException sax) {
-	   System.out.println (getName () + ".runInternally - Got sax exception:\n" + sax);
-	 } catch (IOException ioe) {
-	   System.out.println (getName () + ".runInternally - Could not open file : \n" + ioe);
-	 } catch (NullPointerException npe) {
-	   System.out.println (getName () + ".runInternally - ERROR - no assignments were made, badly confused : \n" + npe);
-	 }
+	   // sched is the scheduler...
+	   sched.scheduleInternal();
 
-	 cleanUpAfterScheduling (unhandledTasks);
+	   String assignments = sched.getXMLAssignments(true);
+	 
+	   if (myExtraOutput) 
+		 System.out.println(getName () + ".runInternally - scheduled assignments were : " + assignments);
+
+	   SAXParser parser = new SAXParser();
+	   parser.setContentHandler (new AssignmentHandler ());
+	   try {
+		 parser.parse (new InputSource (new StringReader (assignments)));
+	   } catch (SAXException sax) {
+		 System.out.println (getName () + ".runInternally - Got sax exception:\n" + sax);
+	   } catch (IOException ioe) {
+		 System.out.println (getName () + ".runInternally - Could not open file : \n" + ioe);
+	   } catch (NullPointerException npe) {
+		 System.out.println (getName () + ".runInternally - ERROR - no assignments were made, badly confused : \n" + npe);
+	   }
+	 } catch (Exception e) {
+	   System.out.println (getName () + ".runInternally - Got error running scheduler : " + e.getMessage ());
+	   e.printStackTrace ();
+	 } finally {
+	   cleanUpAfterScheduling (unhandledTasks);
+	 }
    }
 
   /**
@@ -733,16 +738,21 @@ public abstract class VishnuPlugIn
 	 // Call scheduleInternal after adding all the data
 	Date start2 = new Date ();
 
-	sched.scheduleInternal();
+	try {
+	  sched.scheduleInternal();
 
-	if (showTiming)
-	  domUtil.reportTime (".runDirectly - scheduler processed " +
-						  myTaskUIDtoObject.size () + " tasks in ", start2);
+	  if (showTiming)
+		domUtil.reportTime (".runDirectly - scheduler processed " +
+							myTaskUIDtoObject.size () + " tasks in ", start2);
 
-	// get the assignments the scheduler made, make plan elements
-	directlyHandleAssignments (sched, data, timeOps);
-
-	cleanUpAfterScheduling (unhandledTasks);
+	  // get the assignments the scheduler made, make plan elements
+	  directlyHandleAssignments (sched, data, timeOps);
+	} catch (Exception e) {
+	  System.out.println (getName () + ".runDirectly - Got error running scheduler : " + e.getMessage ());
+      e.printStackTrace ();
+	} finally {
+	  cleanUpAfterScheduling (unhandledTasks);
+	}
   }
 
    protected int prepareScheduler () {
