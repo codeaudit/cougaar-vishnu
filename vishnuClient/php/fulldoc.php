@@ -112,7 +112,7 @@ optimized schedules, and (optionally) application drivers that potentially
 provide the data and read back the generated schedules.</p>
 
 <div align=center>
-PUT IMAGE HERE
+<IMG SRC="arch.gif" width=564 height=161 >
 </div>
 
 <? makeSubsection ("Relational Database", "db"); ?>
