@@ -28,6 +28,7 @@ import org.apache.xerces.dom.DocumentImpl;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import org.cougaar.lib.vishnu.client.VishnuPlugIn.ObjectDescrip;
 
@@ -86,6 +87,11 @@ public class DataXMLize extends FormatXMLize {
     if (obj == null) {
       return;
     }
+
+	if (ignoreClass (obj.getClass())) {
+	  if (debug) System.out.println ("----> ignored " + obj.getClass ());
+	  return;
+	}
 
 	if (debug) {
 	  if (unique.containsKey (obj))
@@ -300,11 +306,39 @@ public class DataXMLize extends FormatXMLize {
   }
   
   /**
-   * Here we're creating a <FIELD> with an a <OBJECT> underneath it.
+   * <pre>
+   * Create a <FIELD> with an <OBJECT> underneath it.
    *
    * The object that is the OBJECT is propertyValue.
    *
    * Keeps track of global objects, and sets the field values to properly reference them.
+   * 
+   * Ignores longitude objects since they are handled with latitudes.
+   * Also skips creating an object tag for dates, latitudes, longitudes, and uids.
+   * Object tags are created for non globals and for the first instance of a global.
+   * Role Schedules get interval tags added to them.
+   *
+   * Globals get entered into two maps : one mapping object to DOM node, and one
+   * mapping object to the global's name.  Also, a class to instance map maps
+   * types to instances, so we can rename the globals properly.  I.e. the fifth
+   * TypeIdentificationPG becomes TypeIdentificationPG5.
+   *
+   * Subsequent encounters of the same object generate a value tag with that global's
+   * name.
+   *
+   * Recurses on propertyValue using addNodes.
+   * </pre>
+   * @see #addNodes
+   * @param doc the document to add nodes to
+   * @param parentElement append new nodes here
+   * @param propertyName classname of the propertyValue object
+   * @param propertyValue object that we're translating into XML
+   * @param searchDepth how deep in the tree we can still go
+   * @param isList is the object part of a list - IGNORED (used in Format)
+   * @param isFirst is the object the first elem in a list - IGNORED (used in Format)
+   * @param od object description - structure of object created in format xmlize,
+   *  used in field renaming
+   * @param od createdNodes - IGNORED
    */
   protected void generateNonLeaf (Document doc, Element parentElement, 
 								  String propertyName, Object propertyValue,
@@ -347,9 +381,13 @@ public class DataXMLize extends FormatXMLize {
 		addNodes(doc, propertyValue, objectNode, (searchDepth-1), createdNodes);
 
 		// check to see if it's a role schedule, in which case, we need to append plan elem info
+		// yes, this is a hack -- we remove the needless roleSchedule field and the scheduleElements
+		// these are useless
 		if (roleScheduleImplClass.isInstance(propertyValue)) {
 		  if (debug) 
 			System.out.println ("DataXMLize.nonLeaf - found role schedule");
+		  removeChildNamed (objectNode, "roleSchedule");
+		  removeChildNamed (objectNode, "scheduleElements");
 		  objectNode.appendChild(createInterval (doc, (RoleSchedule) propertyValue));
 		}
 		// if there are no fields in the object
@@ -611,15 +649,16 @@ public class DataXMLize extends FormatXMLize {
     Element listTag = createList (doc);
 	fieldElem.appendChild (listTag);
 
-	if (!rs.isEmpty ()) {
-	  for (Iterator iter = rs.iterator (); iter.hasNext (); ) {
-		TimeSpan elem = (TimeSpan) iter.next ();
-		Element value = createValue (doc);
-		listTag.appendChild (value);
-		value.appendChild (createLittleInterval (doc, 
-												 new Date (elem.getStartTime ()),
-												 new Date (elem.getEndTime   ())));
-	  }
+	// Must get a copy first, even though I know there will be no concurrent modification
+	List copy = new ArrayList (rs);
+	
+	for (Iterator iter = copy.iterator (); iter.hasNext (); ) {
+	  TimeSpan elem = (TimeSpan) iter.next ();
+	  Element value = createValue (doc);
+	  listTag.appendChild (value);
+	  value.appendChild (createLittleInterval (doc, 
+											   new Date (elem.getStartTime ()),
+											   new Date (elem.getEndTime   ())));
 	}
 	
 	return fieldElem;
