@@ -421,7 +421,7 @@ public abstract class VishnuPlugin
   }
   
   /**
-   * Place to handle rescinded tasks.
+   * Place to handle rescinded tasks. <p>
    *
    * Sends XML to unfreeze the task assignment and delete it.  Asks the mode to do this.
    *
@@ -430,10 +430,10 @@ public abstract class VishnuPlugin
    */
   protected void handleRemovedTasks(Enumeration removedTasks) {
     if (incrementalScheduling) {
-      //      mode.setupScheduler (); // doesn't do anything for internal
+      mode.setupScheduler (); // needed for rescinds after rehydration
 
-      //      if (useStoredFormat)
-      //	initializeWithStoredFormat ();// why doesn't it know the format already???
+      if (useStoredFormat)
+      	initializeWithStoredFormat ();// needed for rescinds after rehydration
       
       mode.handleRemovedTasks (removedTasks);
     }
