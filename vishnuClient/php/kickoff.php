@@ -22,9 +22,6 @@
     echo "Problem <font color=\"green\">" . $problem . "</font>";
   }
 
-  function mainContent () {
-  }
-
   function getSubheader() { 
     global $problem, $user;
     $page = "<A HREF=\"status.php?problem=" . $problem .

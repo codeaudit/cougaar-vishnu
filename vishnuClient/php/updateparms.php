@@ -17,9 +17,6 @@
     echo "Updated parameters for " . $problem;
   }
 
-  function mainContent () {
-  } 
-
   function getSubheader() {
     global $problem;
     echo "<BR><A href=\"parameters.php?problem=" . $problem . "\">" .

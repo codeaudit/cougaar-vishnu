@@ -204,9 +204,6 @@
 
   }
 
-  function getSubheader() { 
-  }
-
 
   function newEntry ($fields, $alignleft = array()) {
     global $problem, $object;

@@ -15,8 +15,7 @@
     global $problem;
     echo "Loading data for " . $problem;
   }
-  function getHeader() {
-  }
+
   function getSubheader() { 
     echo "Select file from which to load data";
   }

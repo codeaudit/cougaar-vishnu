@@ -33,9 +33,6 @@
       echo "Results of creating new " . $objecttype;
   } 
 
-  function getSubheader() { 
-  }
-
   function xmlForObject (&$xml, $values, $prefix, $objecttype) {
     global $problem, $added;
     $result = mysql_db_query ("vishnu_prob_" . $problem,

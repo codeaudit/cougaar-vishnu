@@ -47,9 +47,6 @@
     echo "Created problem $problem";
   }
 
-  function getSubheader() { 
-  }
-
   function mainContent () {
     global $problem, $error;
     if ($error)

@@ -328,10 +328,9 @@
   function getTitle () {
     echo "Vishnu FAQ";
   }
+
   function getHeader() {
     echo "Vishnu Frequently Asked Questions";
-  }
-  function getSubheader() { 
   }
 
   function mainContent () {

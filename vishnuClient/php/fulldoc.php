@@ -17,10 +17,9 @@
   function getTitle () {
     echo "Vishnu Documentation";
   }
+
   function getHeader() {
     echo "Vishnu Documentation";
-  }
-  function getSubheader() { 
   }
 
   $sectioncounter = 0;

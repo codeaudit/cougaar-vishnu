@@ -31,9 +31,6 @@
     echo "Deleted selected problems";
   }
 
-  function getSubheader() { 
-  }
-
   function mainContent () {
     global $HTTP_POST_VARS;
     if (sizeof ($HTTP_POST_VARS))

@@ -25,6 +25,7 @@
     else if ($action == "Create")
       echo "Creating new object";
   }
+
   function getHeader() {
     global $dataname, $action, $objecttype;
     if ($action == "View")
@@ -34,8 +35,6 @@
     else if ($action == "Create")
       echo "Creating new object" .
            ($objecttype ? (" of type " . $objecttype) : "");
-  }
-  function getSubheader() { 
   }
 
   function mainContent () {

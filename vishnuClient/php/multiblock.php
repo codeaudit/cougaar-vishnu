@@ -18,9 +18,6 @@
     echo "Assignments for " . $resourcename;
   }
 
-  function getHeader() {
-  }
-
   function getSubheader() { 
     global $resourcename;
     echo "Viewing simultaneous assignments for " . $resourcename;

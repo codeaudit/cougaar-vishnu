@@ -36,9 +36,6 @@
     echo "Problem <font color=\"green\">" . $problem . "</font>";
   }
 
-  function mainContent () {
-  }
-
   function reportTime () {
     $sec = getTimeDifference ();
     $min = floor($sec/60);

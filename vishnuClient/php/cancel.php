@@ -16,12 +16,6 @@
     echo "Canceling " . $problem;
   }
 
-  function getSubheader() {
-  }
-
-  function mainContent () {
-  }
-
   function getHeader() { 
     global $problem;
     mysql_db_query ("vishnu_central",
