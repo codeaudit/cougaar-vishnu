@@ -44,12 +44,12 @@
 <TR><TD></TD></TR>
 <? } ?>
 <tr><td align=center>
-<a href="vishnu_description.html"/>Full Vishnu Documentation</a>
+<a href="vishnu_description.html">Full Vishnu Documentation</a>
 </td></tr>
 <TR><TD></TD></TR>
 <TR><TD></TD></TR>
 <tr><td align=center>
-<a href="faq.php"/>Frequently Asked Questions</a>
+<a href="faq.php">Frequently Asked Questions</a>
 </td></tr>
 </table>
 </td>

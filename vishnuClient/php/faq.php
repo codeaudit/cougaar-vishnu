@@ -39,16 +39,6 @@
         schedule jobs in a flexible factory as calls for repairpeople.
         The flexibility to tailor a reconfigurable scheduler to your
         problem of interest is what makes it so powerful.");
-  addq ("What are the components of Vishnu?",
-        "There are three components of Vishnu: the web server, the
-        automated scheduler and the formula compiler.  The web server,
-        backed by a relational database, is at the center of it all.
-        It provides the data exchange mechanism between all the other
-        pieces (automated scheduler, formula compiler, human users, and
-        external clients), as well as the data for the web browsers that
-        provide the graphical interface.  The automated scheduler does
-        the optimized scheduling.  The formula compiler translates from
-        easily readable formulas to a form usable by the scheduler.");
   addq ("Why is it named Vishnu?",
         "The Hindu god Vishnu is the preserver.
         He acts whenever the good and evil in the world become unbalanced
@@ -64,6 +54,16 @@
         be able to set up a COUGAAR agent to do scheduling.  We designed
         Vishnu to work either as a standalone scheduler or as part of
         COUGAAR.");
+  addq ("What are the components of Vishnu?",
+        "There are three components of Vishnu: the web server, the
+        automated scheduler and the formula compiler.  The web server,
+        backed by a relational database, is at the center of it all.
+        It provides the data exchange mechanism between all the other
+        pieces (automated scheduler, formula compiler, human users, and
+        external clients), as well as the data for the web browsers that
+        provide the graphical interface.  The automated scheduler does
+        the optimized scheduling.  The formula compiler translates from
+        easily readable formulas to a form usable by the scheduler.");
   addq ("How do I get set up to use Vishnu?",
         "First, try to locate a properly configured web server that you
         can use.  If none exists, you will have to install one (see the
@@ -251,7 +251,9 @@
         The combination is available for free and has reached a high level
         of acceptance, so much so that Red Hat is distributing it
         bundled with its Linux 7.0 release.  PHP was not appropriate for
-        the scheduler, so we used Java due to its platform independence
+        the scheduler (partly because the scheduler does not necessarily
+        run on the same machine as the web server),
+        so we used Java due to its platform independence
         and the ease of development that Java provides.");
   addq ("Why did you not use an existing language, such as AMPL, for
         defining the scheduling problems?",
