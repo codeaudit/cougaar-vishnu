@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Resource.java,v 1.2 2001-01-29 20:00:47 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Resource.java,v 1.3 2001-01-30 16:18:35 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -295,12 +295,12 @@ public class Resource extends SchObject {
     while (! adjustEarliest2 (unavail, interval, duration, earliest)) {
       boolean found = false;
       for (int i = 0; i < linked.length; i++) {
-        int time = interval[0] + data.cachedLinkTimeDiff (task, linked[i]);
+        int time = interval[0] - data.cachedLinkTimeDiff (task, linked[i]);
         int time2 = OrderedDecoder.findEarliestTime
           (linked[i], time, data, specs, multitask, grouped);
         if (time != time2) {
           found = true;
-          earliest += (time2 - time);
+          earliest = interval[0] + (time2 - time);
           break;
         }
       }
@@ -469,12 +469,12 @@ public class Resource extends SchObject {
     while (! adjustLatest2 (unavail, interval, duration, latest)) {
       boolean found = false;
       for (int i = 0; i < linked.length; i++) {
-        int time = interval[0] + data.cachedLinkTimeDiff (task, linked[i]);
+        int time = interval[0] - data.cachedLinkTimeDiff (task, linked[i]);
         int time2 = OrderedDecoder.findLatestTime
           (linked[i], time, data, specs, multitask, grouped);
         if (time != time2) {
           found = true;
-          latest += (time2 - time);
+          latest = interval[0] +  (time2 - time);
           break;
         }
       }

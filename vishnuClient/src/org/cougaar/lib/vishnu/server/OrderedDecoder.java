@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedDecoder.java,v 1.6 2001-01-29 20:00:47 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedDecoder.java,v 1.7 2001-01-30 16:18:35 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -40,7 +40,7 @@ public class OrderedDecoder implements GADecoder {
       r[i].resetSumOfDeltas();
     assignFrozen (data, specs);
 
-    Task[] tasks2 = data.getUnfrozenTasks();
+    Task[] tasks2 = data.getPrimaryTasks();
     ArrayList tasks = new ArrayList (tasks2.length);
     for (int i = 0; i < tasks2.length; i++)
       tasks.add (tasks2 [((StringOfIntegers) chrom).getValues()[i]]);
@@ -51,7 +51,9 @@ public class OrderedDecoder implements GADecoder {
         boolean notReady = false;
         boolean readyButUnable = false;
         for (int j = 0; j < prereqs.length; j++) {
-          if ((prereqs[j] != null) && (tasks.contains (prereqs[j]))) {
+          if ((prereqs[j] != null) &&
+              (tasks.contains (prereqs[j]) ||
+               tasks.contains (data.getPrimaryLink (prereqs[j])))) {
             notReady = true;
             break;
           }
@@ -67,10 +69,11 @@ public class OrderedDecoder implements GADecoder {
         if (notReady)
           continue;
         Resource[] resources = specs.capableResources (task, data);
+        Task[] linked = data.getLinkedTasks (task);
         if (resources.length == 1) {
           if (resources[0].enoughCapacity (task.getCapacityContribs()) &&
               makeAssignment (task, resources[0], prereqs,
-                              specs, data, true, true)) {
+                              specs, data, true, true, linked)) {
             float delta = specs.evaluateSingleAssignment (task, resources[0]);
             if (delta != 0.0f)
               resources[0].addDelta (delta);
@@ -84,8 +87,8 @@ public class OrderedDecoder implements GADecoder {
             Resource resource = resources[j];
             if (! resource.enoughCapacity (task.getCapacityContribs()))
               continue;
-            boolean ok = makeAssignment (task, resource, prereqs,
-                                         specs, data, false, computeUnavail);
+            boolean ok = makeAssignment (task, resource, prereqs, specs,
+                                         data, false, computeUnavail, linked);
             computeUnavail = false;
             if (! ok)
               continue;
@@ -100,7 +103,7 @@ public class OrderedDecoder implements GADecoder {
           }
           if (bestResource != null) {
             makeAssignment (task, bestResource, prereqs, specs, data,
-                            true, false);
+                            true, false, linked);
             if (bestDelta != 0.0f)
               bestResource.addDelta (bestDelta);
           }
@@ -130,7 +133,7 @@ public class OrderedDecoder implements GADecoder {
   private boolean makeAssignment (Task task, Resource resource,
                                   Task[] prereqs, SchedulingSpecs specs,
                                   SchedulingData data, boolean doUpdates,
-                                  boolean firstResource) {
+                                  boolean firstResource, Task[] linked) {
     Resource.Block block = null;
     if (! ignoringTime) {
       int dur = specs.taskDuration (task, resource, firstResource);
@@ -153,14 +156,12 @@ public class OrderedDecoder implements GADecoder {
       block = resource.earliestAvailableBlock (task, dur, unavail, specs,
                                                multitask, grouped, bestTime,
                                                data.getStartTime(),
-                                               SchedulingData.emptyTaskArray,
-                                               data);
+                                               linked, data);
       if (bestTime > data.getStartTime()) {
         Resource.Block block2 =
           resource.latestAvailableBlock (task, dur, unavail, specs,
                                          multitask, grouped, bestTime + dur,
-                                         data.getEndTime(),
-                                         SchedulingData.emptyTaskArray, data);
+                                         data.getEndTime(), linked, data);
         if (block == null)
           block = block2;
         else if ((block2 != null) &&
@@ -181,6 +182,12 @@ public class OrderedDecoder implements GADecoder {
         return false;
     }
     makeAssignment2 (task, resource, block, doUpdates, false);
+    if (doUpdates) {
+      for (int j = 0; j < linked.length; j++) {
+        int timeDiff = data.cachedLinkTimeDiff (task, linked[j]);
+        assignAtTime (linked[j], block.start - timeDiff, data, specs);
+      }
+    }
     return true;
   }
 

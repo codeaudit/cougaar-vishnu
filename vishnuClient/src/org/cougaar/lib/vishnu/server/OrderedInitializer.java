@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedInitializer.java,v 1.1 2001-01-10 19:29:55 rwu Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedInitializer.java,v 1.2 2001-01-30 16:18:35 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class OrderedInitializer implements GAInitializer {
 
   public Chromosome generateIndividual (int num, SchedulingData data) {
-    int size = data.getUnfrozenTasks().length;
+    int size = data.getPrimaryTasks().length;
     int[] ordering = new int [size];
     ArrayList remaining = new ArrayList (size);
     for (int i = 0; i < size; i++)

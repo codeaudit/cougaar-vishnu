@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.6 2001-01-29 20:00:47 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.7 2001-01-30 16:18:36 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -28,13 +28,14 @@ public class SchedulingData {
   private HashMap tasks = new HashMap();
   private HashMap frozenTasks = new HashMap();
   private HashMap linkedToFrozenTasks = new HashMap();
-  private ArrayList unfrozenTasks = new ArrayList();
+  private ArrayList primaryTasks = new ArrayList();
   private HashMap resources = new HashMap();
   private HashMap capacities = new HashMap();
   private HashMap globals = new HashMap (11);
   private HashMap globalTypes = new HashMap (11);
   private ArrayList linkedGroups = new ArrayList();
   private HashMap linkedGroupMap = new HashMap();
+  private HashMap primaryLinks = new HashMap();
   private int startTime;
   private int endTime = Integer.MAX_VALUE;
   private TimeOps timeOps;
@@ -71,9 +72,10 @@ public class SchedulingData {
     return (Assignment) frozenTasks.get (task);
   }
 
-  public Task[] getUnfrozenTasks() {
-    Task[] arr = new Task [unfrozenTasks.size()];
-    return (Task[]) unfrozenTasks.toArray (arr);
+  /** Tasks that actually are represented in chromosome */
+  public Task[] getPrimaryTasks() {
+    Task[] arr = new Task [primaryTasks.size()];
+    return (Task[]) primaryTasks.toArray (arr);
   }
 
   public HashMap getLinkedToFrozenTasks () {
@@ -102,6 +104,10 @@ public class SchedulingData {
         arr[i++] = o;
     }
     return arr;
+  }
+
+  public Task getPrimaryLink (Task task) {
+    return (Task) primaryLinks.get (task);
   }
 
   public Resource getResource (String key) {
@@ -149,6 +155,7 @@ public class SchedulingData {
     computeGroupings (specs);
     computeLinks (specs);
     computeLinkedToFrozen();
+    computePrimaryLinked (specs);
   }
 
   public void createActivities (SchedulingSpecs specs) {
@@ -236,9 +243,9 @@ public class SchedulingData {
           }
   }
 
-  public void computeLinkedToFrozen() {
-    for (int i = 0; i < unfrozenTasks.size(); i++) {
-      Object task = unfrozenTasks.get (i);
+  private void computeLinkedToFrozen() {
+    for (int i = 0; i < primaryTasks.size(); i++) {
+      Object task = primaryTasks.get (i);
       HashMap group = (HashMap) linkedGroupMap.get (task);
       if (group == null)
         continue;
@@ -247,8 +254,48 @@ public class SchedulingData {
         Object task2 = iter.next();
         if (frozenTasks.get (task2) != null) {
           linkedToFrozenTasks.put (task, task2);
-          unfrozenTasks.remove (task);
+          primaryTasks.remove (task);
           break;
+        }
+      }
+    }
+  }
+
+  private void computePrimaryLinked (SchedulingSpecs specs) {
+    for (int i = 0; i < linkedGroups.size(); i++) {
+      HashMap group = (HashMap) linkedGroups.get(i);
+      Task primaryTask = (Task) group.keySet().iterator().next();
+      if (primaryTasks.contains (primaryTask)) {
+        java.util.Iterator iter = group.keySet().iterator();
+        while (iter.hasNext()) {
+          Task task = (Task) iter.next();
+          Resource[] resources = specs.capableResources (task, this);
+          if ((resources.length > 0) &&
+              (specs.bestTime (task, resources[0], true) !=
+               Integer.MIN_VALUE)) {
+            primaryTask = task;
+            break;
+          }
+          java.util.Iterator iter2 = group.keySet().iterator();
+          boolean found = false;
+          while (iter2.hasNext()) {
+            Task task2 = (Task) iter2.next();
+            if ((task != task2) &&
+                specs.areLinked (task2, task)) {
+              found = true;
+              break;
+            }
+          }
+          if (! found)
+            primaryTask = task;
+        }
+        iter = group.keySet().iterator();
+        while (iter.hasNext()) {
+          Task task = (Task) iter.next();
+          if (primaryTask != task) {
+            primaryTasks.remove (task);
+            primaryLinks.put (task, primaryTask);
+          }
         }
       }
     }
@@ -325,7 +372,7 @@ public class SchedulingData {
                               atts.getValue ("task"));
           return;
         }
-        unfrozenTasks.remove (task);
+        primaryTasks.remove (task);
         frozenTasks.put (task, new Assignment
 		  (getTask (atts.getValue ("task")),
 		   getResource (atts.getValue ("resource")),
@@ -355,7 +402,7 @@ public class SchedulingData {
       }
       else if (name.equals ("TASK")) {
         tasks.put (keyValue, stack.pop ());
-        unfrozenTasks.add (tasks.get (keyValue));
+        primaryTasks.add (tasks.get (keyValue));
       }
       else if (name.equals ("RESOURCE")) {
         resources.put (keyValue, stack.pop ());
@@ -484,7 +531,7 @@ public class SchedulingData {
           if (ff.is_key && (object instanceof Task)) {
             Object key = ((Task) object).getKey();
             tasks.put (key, object);
-            unfrozenTasks.add (tasks.get (key));
+            primaryTasks.add (tasks.get (key));
           }
           if (ff.is_key && (object instanceof Resource))
             resources.put (((Resource) object).getKey(), object);
