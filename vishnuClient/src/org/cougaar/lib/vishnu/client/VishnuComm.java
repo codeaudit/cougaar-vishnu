@@ -29,17 +29,16 @@ import org.apache.xerces.parsers.SAXParser;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 
-import org.cougaar.lib.param.ParamTable;
+import org.cougaar.lib.param.ParamMap;
 
 import org.w3c.dom.Document;
 
-import org.xml.sax.HandlerBase;
-import org.xml.sax.Parser;
+import org.xml.sax.helpers.DefaultHandler;
 
 public class VishnuComm {
   private static Map clusterToInstance = new HashMap ();
 
-  public VishnuComm (ParamTable myParamTable,
+  public VishnuComm (ParamMap myParamTable,
 					 String name, 
 					 String clusterName,
 					 VishnuDomUtil domUtil,
@@ -60,7 +59,7 @@ public class VishnuComm {
 	  postCancel ();
   }
 
-  protected ParamTable getMyParams    () { return myParamTable; }
+  protected ParamMap   getMyParams    () { return myParamTable; }
   protected String     getName        () { return name;         }
   protected String     getClusterName () { return clusterName;  }
   protected String     getProblem     () { return myProblem;    }
@@ -332,7 +331,7 @@ public class VishnuComm {
 	return sb.toString ();
   }
   
-  public void getAnswer (HandlerBase assignmentHandler) {
+  public void getAnswer (DefaultHandler assignmentHandler) {
 	try {
 	  String url = "http://" + hostName + phpPath + assignmentsFile + getWaitPostVars();
 	  URL aURL = new URL (url);
@@ -540,7 +539,7 @@ public class VishnuComm {
     return "";
   }
 
-  protected void readXML (URL aURL, HandlerBase handler) {
+  protected void readXML (URL aURL, DefaultHandler handler) {
     try {
       if (myExtraOutput) {
 	  URLConnection connection = aURL.openConnection();
@@ -550,8 +549,8 @@ public class VishnuComm {
 	  System.out.println (getResponse (connection));
       }
 
-      Parser parser = new SAXParser();
-      parser.setDocumentHandler (handler);
+      SAXParser parser = new SAXParser();
+	  parser.setContentHandler(handler);
       parser.parse (aURL.toString());
     }
     catch(Exception e) {
@@ -593,5 +592,5 @@ public class VishnuComm {
   protected VishnuDomUtil domUtil;
   protected int numFilesWritten = 0; // how many files have been written out via the writeEncodedXMLToFile flag
 
-  protected ParamTable myParamTable;
+  protected ParamMap myParamTable;
 }
