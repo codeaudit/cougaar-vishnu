@@ -191,7 +191,7 @@ public class FormatXMLize extends BaseXMLize {
 	if (debug)
 	  System.out.println("Object traversed already/max depth: " + 
 						 obj.getClass().toString() + " " + obj);
-	if (isUID (obj)) {
+	if (isUniqueObject (obj)) {
 	  Element item = createFieldFormat (doc, "UID", "string", false, false);
 	  if (debug) 
 		System.out.println ("maxDepth - " + "UID" + " - " + "string");
@@ -264,7 +264,10 @@ public class FormatXMLize extends BaseXMLize {
 	  }
 	  if ((propertyName.charAt(0) == 'r') && propertyName.equals ("roleSchedule")) {
 		removeChildNamed (item, "scheduleElements");
-	  	addScheduleElements (doc, item);
+		removeChildNamed (item, "availableSchedule");
+
+	  	addIntervalNamed    ("scheduleElements", doc, item);
+	  	addIntervalNamed    ("availableSchedule", doc, item);
 	  }
 
 	  globals.add (propertyValue);
@@ -283,7 +286,7 @@ public class FormatXMLize extends BaseXMLize {
 	  }
 	}
   }
-	  
+
   /** all property groups become globals, except for item id pg */
   protected boolean isGlobal (Object obj) {
 	boolean isPropertyGroup = (obj instanceof org.cougaar.domain.planning.ldm.asset.PropertyGroup);
@@ -319,8 +322,12 @@ public class FormatXMLize extends BaseXMLize {
    * bean properties don't include them
    */
   protected void addScheduleElements (Document doc, Element item) {
+	addIntervalNamed ("scheduleElements", doc, item);
+  }
+
+  protected void addIntervalNamed (String name, Document doc, Element item) {
     Element elem = doc.createElement("FIELDFORMAT");
-	elem.setAttribute ("name", "scheduleElements");
+	elem.setAttribute ("name", name);
 	elem.setAttribute ("is_subobject", "true");
 	elem.setAttribute ("is_list", "true");
 	elem.setAttribute ("is_key", "false");

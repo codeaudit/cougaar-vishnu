@@ -13,6 +13,7 @@ package org.cougaar.lib.vishnu.client;
 
 import org.cougaar.domain.planning.ldm.measure.Latitude;
 import org.cougaar.domain.planning.ldm.measure.Longitude;
+import org.cougaar.domain.planning.ldm.plan.Schedule;
 import org.cougaar.domain.planning.ldm.plan.RoleSchedule;
 import org.cougaar.domain.planning.ldm.plan.ScheduleElement;
 
@@ -257,7 +258,7 @@ public class DataXMLize extends FormatXMLize {
 	if (debug)
 	  System.out.println("Object traversed already/max depth: " + 
 						 obj.getClass().toString() + " " + obj);
-	if (isUID (obj)) {
+	if (isUniqueObject (obj)) {
 	  Element item = createField (doc, "UID", "string(40)", false, od);
 	  if (debug) 
 		System.out.println ("maxDepth - " + "UID" + " - " + "string(40)");
@@ -389,7 +390,9 @@ public class DataXMLize extends FormatXMLize {
 			System.out.println ("DataXMLize.nonLeaf - found role schedule");
 		  removeChildNamed (objectNode, "roleSchedule");
 		  removeChildNamed (objectNode, "scheduleElements");
-		  objectNode.appendChild(createInterval (doc, (RoleSchedule) propertyValue));
+		  removeChildNamed (objectNode, "availableSchedule");
+		  objectNode.appendChild(createIntervalNamed ("scheduleElements",  doc, (Schedule) propertyValue));
+		  objectNode.appendChild(createIntervalNamed ("availableSchedule", doc, ((RoleSchedule) propertyValue).getAvailableSchedule()));
 		}
 		// if there are no fields in the object
 		if (objectNode.getChildNodes().getLength() == 0) {
@@ -659,26 +662,28 @@ public class DataXMLize extends FormatXMLize {
    * need to have special code to add plan element intervals to role schedule data, since
    * bean properties don't include them
    */
-  protected Element createInterval (Document doc,
-									RoleSchedule rs) {
+  protected Element createIntervalNamed (String name, Document doc, Schedule rs) {
     Element fieldElem = doc.createElement("FIELD");
-	fieldElem.setAttribute ("name", "scheduleElements");
+	fieldElem.setAttribute ("name", name);
     Element listTag = createList (doc);
 	fieldElem.appendChild (listTag);
 
 	// Must get a copy first, even though I know there will be no concurrent modification
-	List copy = new ArrayList (rs);
+	try {
+	  List copy = new ArrayList (rs);
 	
-	for (Iterator iter = copy.iterator (); iter.hasNext (); ) {
-	  TimeSpan elem = (TimeSpan) iter.next ();
-	  Element value = createValue (doc);
-	  listTag.appendChild (value);
-	  value.appendChild (createLittleInterval (doc, 
-											   new Date (elem.getStartTime ()),
-											   new Date (elem.getEndTime   ())));
+	  for (Iterator iter = copy.iterator (); iter.hasNext (); ) {
+		TimeSpan elem = (TimeSpan) iter.next ();
+		Element value = createValue (doc);
+		listTag.appendChild (value);
+		value.appendChild (createLittleInterval (doc, 
+												 new Date (elem.getStartTime ()),
+												 new Date (elem.getEndTime   ())));
+	  }
+	} catch (Exception e) {}
+	finally {
+	  return fieldElem;
 	}
-	
-	return fieldElem;
   }
   
   protected Element createLittleInterval (Document doc, Date start, Date end) {
