@@ -32,22 +32,31 @@ import java.util.Comparator;
 public class SchedulingData {
 
   private HashMap tasks = new HashMap();
-  private TreeSet frozenTasks = new TreeSet (new Comparator()
-                 { public int compare (Object o1, Object o2) {
-                   Task t1 = (Task) o1;
-                   Task t2 = (Task) o2;
-                   int i1 = t1.getAssignment().getTaskStartTime();
-                   int i2 = t2.getAssignment().getTaskStartTime();
-                   int diff = i1 - i2;
-                   if (diff != 0)
-                     return diff;
-                   i1 = o1.hashCode();
-                   i2 = o2.hashCode();
-                   diff = i1 - i2;
-                   if (diff != 0)
-                     return diff;
-                   return t1.getKey().hashCode() - t2.getKey().hashCode();
-                 }});
+  private TreeSet frozenTasks = new TreeSet (new Comparator() { 
+      public int compare (Object o1, Object o2) {
+	try {
+	  Task t1 = (Task) o1;
+	  Task t2 = (Task) o2;
+	  Assignment a1 = t1.getAssignment();
+	  int i1 = a1.getTaskStartTime();
+	  Assignment a2 = t2.getAssignment();
+	  int i2 = a2.getTaskStartTime();
+	  int diff = i1 - i2;
+	  if (diff != 0)
+	    return diff;
+	  i1 = o1.hashCode();
+	  i2 = o2.hashCode();
+	  diff = i1 - i2;
+	  if (diff != 0)
+	    return diff;
+	  return t1.getKey().hashCode() - t2.getKey().hashCode();
+	} catch (Exception e) {
+	  System.err.println ("Got exception comparing " + o1 + " and " + o2);
+	  e.printStackTrace();
+	  return 0;
+	}
+	}});
+
   private boolean frozenCacheValid = false;
   private boolean frozenNewTasks = false;
   private HashMap linkedToFrozenTasks;
@@ -99,9 +108,11 @@ public class SchedulingData {
   public void removeTask (String key) {
     Task task = getTask (key);
     tasks.remove (key);
-    primaryTasks.remove (task);
-    frozenTasks.remove (task);
-    frozenCacheValid = false;
+    if (task != null) {
+      primaryTasks.remove (task);
+      frozenTasks.remove (task);
+      frozenCacheValid = false;
+    }
   }
 
   public void replaceTask (Task task) {
@@ -541,69 +552,70 @@ public class SchedulingData {
                               String name, Attributes atts) {
       if (name.equals ("FIELD")) {
         fieldname = atts.getValue ("name");
-		Map fieldsForObject = (Map) formats.get (objectType);
-		try {
-		  FieldFormat ff = (FieldFormat) fieldsForObject.get (fieldname);
-		  if (ff == null) {
-			if (throwExceptionOnMissingField) {
-			  throw new RuntimeException ("Undefined field named " +
-										  fieldname + " for object type " +
-										  objectType);
-			}
-			else {
-			  if (debug)
-				System.out.println ("SchedulingData.startElement - NOTE : " +
-									"found undefined field " + fieldname +
-									" for object type " + objectType +
-									". Ignoring.");
-			  prefixes.push (prefix);
-			  return;
-			}
-		  }
+	Map fieldsForObject = (Map) formats.get (objectType);
+	try {
+	  FieldFormat ff = (FieldFormat) fieldsForObject.get (fieldname);
+	  if (ff == null) {
+	    if (throwExceptionOnMissingField) {
+	      throw new RuntimeException ("Undefined field named " +
+					  fieldname + " for object type " +
+					  objectType);
+	    }
+	    else {
+	      if (debug)
+		System.out.println ("SchedulingData.startElement - NOTE : " +
+				    "found undefined field " + fieldname +
+				    " for object type " + objectType +
+				    ". Ignoring.");
+	      prefixes.push (prefix);
+	      return;
+	    }
+	  }
 
-		  prefixes.push (prefix);
-		  if (ff.is_list) {
-			listFormats.push (listFormat);
-			listFormat = new ListFormat();
-			listFormat.name = prefix + fieldname;
-			listFormat.type = ff.datatype;
-			listFormat.hasObjects = ff.is_subobject;
-			listFormat.object = object;
-			object.addListField (listFormat.name);
-			objects.push (object);
-			object = null;
-			prefix = "";
-		  }
-		  else if (ff.is_subobject) {
-			prefix = prefix + fieldname + ".";
-		  }
-		  else {
-			object.addField (prefix + fieldname, ff.datatype,
-							 atts.getValue ("value"), ff.is_key, false);
-			if (ff.is_key && (object instanceof Task)) {
-			  if (doingDeleted)
-				removeTask (((Task) object).getKey());
-			  else if (doingChanged)
-				replaceTask ((Task) object);
-			  else if (doingNew)
-				addTask ((Task) object);
-			}
-			if (ff.is_key && (object instanceof Resource)) {
-			  if (doingDeleted)
-				removeResource (((Resource) object).getKey());
-			  else if (doingChanged)
-				replaceResource ((Resource) object);
-			  else if (doingNew)
-				addResource ((Resource) object);
-			}
-			if (predefined != null)
-			  predefined.addField (fieldname, ff.datatype,
-								   atts.getValue ("value"), false, false);
-		  }
-		} catch (NullPointerException npe) {
-		  throw new RuntimeException ("ERROR : SchedulingData.startElement - No object format for type " +
-									  objectType);
-		}
+	  prefixes.push (prefix);
+	  if (ff.is_list) {
+	    listFormats.push (listFormat);
+	    listFormat = new ListFormat();
+	    listFormat.name = prefix + fieldname;
+	    listFormat.type = ff.datatype;
+	    listFormat.hasObjects = ff.is_subobject;
+	    listFormat.object = object;
+	    object.addListField (listFormat.name);
+	    objects.push (object);
+	    object = null;
+	    prefix = "";
+	  }
+	  else if (ff.is_subobject) {
+	    prefix = prefix + fieldname + ".";
+	  }
+	  else {
+	    object.addField (prefix + fieldname, ff.datatype,
+			     atts.getValue ("value"), ff.is_key, false);
+	    if (ff.is_key && (object instanceof Task)) {
+	      if (doingDeleted)
+		removeTask (((Task) object).getKey());
+	      else if (doingChanged)
+		replaceTask ((Task) object);
+	      else if (doingNew)
+		addTask ((Task) object);
+	    }
+	    if (ff.is_key && (object instanceof Resource)) {
+	      if (doingDeleted)
+		removeResource (((Resource) object).getKey());
+	      else if (doingChanged)
+		replaceResource ((Resource) object);
+	      else if (doingNew)
+		addResource ((Resource) object);
+	    }
+	    if (predefined != null)
+	      predefined.addField (fieldname, ff.datatype,
+				   atts.getValue ("value"), false, false);
+	  }
+	} catch (NullPointerException npe) {
+	  npe.printStackTrace ();
+	  throw new RuntimeException ("ERROR : SchedulingData.startElement - No object format for type " +
+				      objectType);
+	}
       }
       else if (name.equals ("OBJECT")) {
         objectTypes.push (objectType);
