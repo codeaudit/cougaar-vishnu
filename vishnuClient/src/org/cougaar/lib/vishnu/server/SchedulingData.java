@@ -229,8 +229,14 @@ public class SchedulingData {
   }
 
   /** 
-   * only does n^2 pair-wise grouping check when there is a grouping spec 
-   * 
+   * <pre>
+   * No longer does n^2 pair-wise grouping check.
+   *
+   * Gives each task a reference to the specs so the tasks can do
+   * lazy evaluation of the groupable constraint.
+   *
+   * </pre>
+   * @param specs Scheduling Specs to give to task
    **/
   public void computeGroupings (SchedulingSpecs specs) {
 	if (!specs.hasGroupableSpec ()) {
@@ -245,6 +251,9 @@ public class SchedulingData {
     Task[] t = getTasks();
     for (int i = 0; i < t.length; i++) {
       Task task1 = t[i];
+	  task1.setSpecs (specs);
+	  
+	  /*
       for (int j = i + 1; j < t.length; j++) {
         Task task2 = t[j];
         if (specs.areGroupable (task1, task2) &&
@@ -253,6 +262,7 @@ public class SchedulingData {
           task2.addGroupableTask (task1);
         }
       }
+	  */
     }
   }
 
