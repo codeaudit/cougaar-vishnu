@@ -69,6 +69,7 @@ import org.xml.sax.SAXException;
 public class InternalMode extends ExternalMode {
   protected boolean writeXMLToFile = false;
   protected boolean newDecoder = false;
+  protected boolean writeVSHToFile = false;
 
   /** just calls localSetup */
   public InternalMode (ModeListener parent, VishnuComm comm, XMLProcessor xmlProcessor, 
@@ -82,6 +83,11 @@ public class InternalMode extends ExternalMode {
 	  myParamTable.getBooleanParam("writeXMLToFile");    
       else 
 	writeXMLToFile = false;
+
+      if (myParamTable.hasParam("writeVSHToFile"))
+	writeVSHToFile = myParamTable.getBooleanParam("writeVSHToFile");
+      else
+	writeVSHToFile = false;
 
       if (myParamTable.hasParam("newDecoder"))    
 	newDecoder = myParamTable.getBooleanParam("newDecoder");    
@@ -245,6 +251,11 @@ public class InternalMode extends ExternalMode {
 
   /** Method to hide domain-specific output routines */
   protected void dumpPostProcess() {
+    if (writeVSHToFile) {
+      if (logger.isInfoEnabled())
+	logger.info(getName () + ".run - writing complete Vishnu problem to VSH file (vishnu XML format).");
+      comm.writeBufferToFile_withBackup("complete", ".vsh", sched.toXML());
+    }
   }
 
   /** 
