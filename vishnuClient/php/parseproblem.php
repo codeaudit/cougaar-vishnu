@@ -6,8 +6,10 @@
 
   // function to take problem specs in XML format and put into database
   // everything else below is just support
-  function parseproblem ($data, $user="vishnu", $password="vishnu") {
+  function parseproblem ($data, $user="vishnu", $password="vishnu",
+                         $specifiedname="") {
     global $problem, $continue;
+    $problem = $specifiedname;
 
     $data = StripSlashes ($data);
     $data2 = strstr ($data, "<DATA>");
@@ -125,7 +127,8 @@
       return;
 
     if ($name == "PROBLEM") {
-      $problem = $attribs["NAME"];
+      if (! $problem)
+        $problem = $attribs["NAME"];
       safe_query ("central", "setting up", "", $problem,
                   "insert into problems values (\"" . $problem . "\");");
       $result = mysql_drop_db ("vishnu_prob_" . $problem);
