@@ -92,7 +92,7 @@ create table constraint_descrip (name varchar(60) not null,
 				 return_type varchar(60) not null, 
 				 defined_vars varchar(60) not null, 
 				 default_value varchar(60) not null, 
-				 description varchar(250));
+				 description BLOB);
 
 insert into constraint_descrip values (	"opt_criterion",
 					"Optimization Criterion", 
@@ -245,3 +245,15 @@ insert into constraint_descrip values (	"best_time",
 					"task, resource, duration", 
 					"", 
 	 				"Optimal time for the task to begin");
+insert into constraint_descrip values (	"setup_display",
+					"Setup Display", 
+				       	"multiple choice", 
+					"N/A", 
+					"left", 
+	 				"Must be left (left diagonal striping), right (right diagonal striping), line (single dotted line), or color (use color specs)");
+insert into constraint_descrip values (	"wrapup_display",
+					"Wrapup Display", 
+				       	"multiple choice", 
+					"N/A", 
+					"right", 
+	 				"Must be left (left diagonal striping), right (right diagonal striping), line (single dotted line), or color (use color specs)");
