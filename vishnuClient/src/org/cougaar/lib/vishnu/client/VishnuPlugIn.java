@@ -1,4 +1,4 @@
-/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/Attic/VishnuPlugIn.java,v 1.1 2001-01-10 19:29:55 rwu Exp $ */
+/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/Attic/VishnuPlugIn.java,v 1.2 2001-01-17 00:57:04 gvidaver Exp $ */
 
 package org.cougaar.lib.vishnu.client;
 
@@ -123,9 +123,6 @@ public abstract class VishnuPlugIn
 
   private static Map clusterToInstance = new HashMap ();
 
-  public  static String formatTransform;
-  public  static String dataTransform;
-
   public void localSetup() {     
     super.localSetup();
 
@@ -140,12 +137,6 @@ public abstract class VishnuPlugIn
 
     try { myPassword = getMyParams().getStringParam("password");} 
 	catch(Exception e) {myPassword = "vishnu";}
-
-    try {formatTransform = getMyParams().getStringParam("formatTransform");}    
-    catch(Exception e) {formatTransform = "formatTransform.xsl";}
-
-    try {dataTransform = getMyParams().getStringParam("dataTransform");}    
-    catch(Exception e) {dataTransform = "dataTransform.xsl";}
 
     try {postProblemFile = getMyParams().getStringParam("postProblemFile");}    
     catch(Exception e) {postProblemFile = "postproblem" + PHP_SUFFIX;}
@@ -505,122 +496,144 @@ public abstract class VishnuPlugIn
    * @param tasks the tasks to handle
    */
   public void processTasks (List tasks) {
-	System.out.println (getName () + ".processTasks - received " + 
-						tasks.size () + " tasks");
-	if (runInternal)
-	  //	  internalBuffer.append (java.net.URLEncoder.encode("<root>"));
-	  internalBuffer.append ("<root>");
+	synchronized (static_mutex) {
+	  System.out.println (getName () + ".processTasks - received " + 
+						  tasks.size () + " tasks");
+	  if (runInternal)
+		internalBuffer.append ("<root>");
 
-	if (myExtraOutput)
-	  for (int i = 0; i < tasks.size (); i++)
-		System.out.print ("" + ((Task) tasks.get(i)).getUID () + ", ");
-      
-	Date start = new Date();
-      
-	if (showALPXML) {
-	  Collection formatTemplates = getAssetTemplatesForTasks(tasks);
-	  formatTemplates.addAll (getTemplateTasks(tasks));
+	  if (myExtraOutput)
+		for (int i = 0; i < tasks.size (); i++)
+		  System.out.print ("" + ((Task) tasks.get(i)).getUID () + ", ");
 	  
-	  Document trDoc = getDoc (formatTemplates);
-	  System.out.println (getDocAsString (trDoc));
-	  return;
-	}
+	  Date start = new Date();
       
-	if (!sentFormatAlready || sendSpecsEveryTime) {
-	  Collection formatTemplates = getAssetTemplatesForTasks(tasks);
-	  formatTemplates.addAll (getTemplateTasks(tasks));
-	  if (myExtraOutput) {
-		System.out.println (getName () + ".processTasks - " + formatTemplates.size() + " unique assets : ");
-		for (Iterator iter = formatTemplates.iterator (); iter.hasNext(); )
-			System.out.print ("\t" + iter.next().getClass ());
-		System.out.println ("");
+	  if (showALPXML) {
+		Collection formatTemplates = getAssetTemplatesForTasks(tasks);
+		formatTemplates.addAll (getTemplateTasks(tasks));
+	  
+		Document trDoc = getDoc (formatTemplates);
+		System.out.println (getDocAsString (trDoc));
+		return;
 	  }
+      
+	  if (!sentFormatAlready || sendSpecsEveryTime) {
+		Collection formatTemplates = getAssetTemplatesForTasks(tasks);
+		formatTemplates.addAll (getTemplateTasks(tasks));
+		if (myExtraOutput) {
+		  System.out.println (getName () + ".processTasks - " + formatTemplates.size() + " unique assets : ");
+		  for (Iterator iter = formatTemplates.iterator (); iter.hasNext(); )
+			System.out.print ("\t" + iter.next().getClass ());
+		  System.out.println ("");
+		}
 
-	  Map [] nameInfo = sendFormat (formatTemplates);
-	  myNameToDescrip   = nameInfo[0];
-	  myTypesToNodes    = nameInfo[1];
-	  if (!runInternal)
-		sentFormatAlready = true;
-	  if (showTiming)
-		reportTime (" - Vishnu completed format XML processing in ", start);
-	}
+		Map [] nameInfo = sendFormat (formatTemplates);
+		myNameToDescrip   = nameInfo[0];
+		myTypesToNodes    = nameInfo[1];
+		if (!runInternal)
+		  sentFormatAlready = true;
+		if (showTiming)
+		  reportTime (" - Vishnu completed format XML processing in ", start);
+	  }
       
-	setUIDToObjectMap (tasks, myTaskUIDtoObject);
+	  setUIDToObjectMap (tasks, myTaskUIDtoObject);
       
-	if (myExtraOutput)
-	  System.out.println (getName () + ".processTasks - sending " + 
-						  myTaskUIDtoObject.values ().size () + " tasks.");
-	int numTasks = myTaskUIDtoObject.values ().size ();
-      
-	Date dataStart = new Date();
-      
-	if (!mySentAssetDataAlready) {
-	  Collection allAssets = getAllAssets();
 	  if (myExtraOutput)
 		System.out.println (getName () + ".processTasks - sending " + 
-							allAssets.size () + " assets.");
-	  
-	  tasks.addAll (allAssets);
-	  
-	  if (myExtraExtraOutput) 
-		for (Iterator iter = tasks.iterator (); iter.hasNext (); ) {
-		  Object obj = iter.next ();
-		  
-		  System.out.println (getName () + ".processTasks sending stuff " + 
-							  ((UniqueObject) obj).getUID ());
-		}
-	  
-	  setUIDToObjectMap (allAssets, myAssetUIDtoObject);
-	  
-	  if (!alwaysClearDatabase)
-		mySentAssetDataAlready = true;
-	}
+							myTaskUIDtoObject.values ().size () + " tasks.");
+	  int numTasks = myTaskUIDtoObject.values ().size ();
       
-	sendDataToVishnu (tasks, myNameToDescrip, myTypesToNodes, 
-					  alwaysClearDatabase, 
-					  false /* send assets as NEWOBJECTS */, null);
-	if (showTiming)
-	  reportTime (" - Vishnu completed data XML processing in ", dataStart);
-	if (showTiming)
-	  reportTime (" - Vishnu completed XML processing in ", start);
-	
-	if (runInternal) {
-	    synchronized (static_mutex) {
-		Scheduler internal = new Scheduler ();
+	  Date dataStart = new Date();
+      
+	  if (!mySentAssetDataAlready) {
+		Collection allAssets = getAllAssets();
 		if (myExtraOutput)
-		  System.out.println (getName () + ".processTasks - internal buffer is " + internalBuffer);
+		  System.out.println (getName () + ".processTasks - sending " + 
+							  allAssets.size () + " assets.");
+	  
+		tasks.addAll (allAssets);
+	  
+		if (myExtraExtraOutput) 
+		  for (Iterator iter = tasks.iterator (); iter.hasNext (); ) {
+			Object obj = iter.next ();
+		  
+			System.out.println (getName () + ".processTasks sending stuff " + 
+								((UniqueObject) obj).getUID ());
+		  }
+	  
+		setUIDToObjectMap (allAssets, myAssetUIDtoObject);
+	  
+		if (!alwaysClearDatabase)
+		  mySentAssetDataAlready = true;
+	  }
+      
+	  sendDataToVishnu (tasks, myNameToDescrip, myTypesToNodes, 
+						alwaysClearDatabase, 
+						false /* send assets as NEWOBJECTS */, null);
+	  if (showTiming) {
+		reportTime (" - Vishnu completed data XML processing in ", dataStart);
+		reportTime (" - Vishnu completed XML processing in ", start);
+	  }
 
-		//internalBuffer.append (java.net.URLEncoder.encode("</root>"));
-		internalBuffer.append ("</root>");
-		if (myExtraOutput)
-		  System.out.println(getName () + ".processTasks - sending stuff " + internalBuffer.toString());
-
-		String assignments = internal.runInternalToProcess (internalBuffer.toString());
-		Parser parser = new SAXParser();
-		parser.setDocumentHandler (new AssignmentHandler ());
-		try {
-		    parser.parse (new InputSource (new StringReader (assignments)));
-		} catch (SAXException sax) {
-		    System.out.println (getName () + ".processTasks - Got sax exception:\n" + sax);
-		} catch (IOException ioe) {
-		    System.out.println ("Could not open file : \n" + ioe);
-		} catch (NullPointerException npe) {
-		    System.out.println (getName () + ".processTasks - ERROR - no assignments were made, badly confused : \n" + npe);
-		}
-		clearInternalBuffer ();
-	    }
-	} else {
-	  startScheduling ();
+	  if (runInternal) {
+		runInternally ();
+	  } else {
+		startScheduling ();
 	
-	  if (!waitTillFinished ())
-		System.out.println ("VishnuPlugIn.processTasks -- " + 
-							"timed out waiting for scheduler to finish.");
-	}
-	if (showTiming)
-	  reportTime (" - Vishnu did " + numTasks + " tasks in ", start);
+		if (!waitTillFinished ())
+		  System.out.println ("VishnuPlugIn.processTasks -- " + 
+							  "timed out waiting for scheduler to finish.");
+	  }
+	  if (showTiming)
+		reportTime (" - Vishnu did " + numTasks + " tasks in ", start);
+	} // end of synchronized
   }
 
-    protected static Object static_mutex = new Object ();
+  /** 
+   * Run internally.  Create a new scheduler, and give it the contents of <p>
+   * the internalBuffer, which has captured all the xml output that would <p>
+   * normally go to the various URLs.  Then, parse the results using a SAX <p>
+   * Parser and the AssignmentHandler, which just calls parseStartElement and <p>
+   * parseEndElement.  The AssignmentHandler will create plan elements for
+   * each assignment.
+   *
+   * @see #parseStartElement
+   * @see #parseEndElement
+   */
+  protected void runInternally () {
+	Scheduler internal = new Scheduler ();
+	if (myExtraOutput)
+	  System.out.println (getName () + ".runInternally - internal buffer is " + internalBuffer);
+
+	internalBuffer.append ("</root>");
+	if (myExtraOutput)
+	  System.out.println(getName () + ".runInternally - sending stuff " + internalBuffer.toString());
+
+	int unhandledTasks = myTaskUIDtoObject.size ();
+
+	String assignments = internal.runInternalToProcess (internalBuffer.toString());
+	Parser parser = new SAXParser();
+	parser.setDocumentHandler (new AssignmentHandler ());
+	try {
+	  parser.parse (new InputSource (new StringReader (assignments)));
+	} catch (SAXException sax) {
+	  System.out.println (getName () + ".runInternally - Got sax exception:\n" + sax);
+	} catch (IOException ioe) {
+	  System.out.println (getName () + ".runInternally - Could not open file : \n" + ioe);
+	} catch (NullPointerException npe) {
+	  System.out.println (getName () + ".runInternally - ERROR - no assignments were made, badly confused : \n" + npe);
+	}
+	clearInternalBuffer ();
+
+	if (myExtraOutput)
+	  System.out.println (getName () + ".runInternally - created successful plan elements for " +
+						  (unhandledTasks-myTaskUIDtoObject.size ()) + " tasks.");
+
+	handleImpossibleTasks (myTaskUIDtoObject.values ());
+	myTaskUIDtoObject.clear ();
+  }
+  
+  protected static Object static_mutex = new Object ();
 
   protected void setUIDToObjectMap (Collection objects, Map UIDtoObject) {
 	for (Iterator iter = objects.iterator (); iter.hasNext ();) {
@@ -678,10 +691,12 @@ public abstract class VishnuPlugIn
     long diff = end.getTime () - start.getTime ();
     long min  = diff/60000l;
     long sec  = (diff - (min*60000l))/1000l;
-	if (min < 1 && sec < 1) return;
+    long millis = diff - (min*60000l) - (sec*1000l);
+	if (min < 1l && sec < 1l && millis < 500l) return;
     System.out.println  (getName() + prefix +
 			 min + 
 			 ":" + ((sec < 10) ? "0":"") + sec + 
+			 ":" + ((millis < 10) ? "0":"") + millis + 
 			 " (Wall clock time)" + 
 			 " free "  + (rt.freeMemory  ()/(1024*1024)) + "M" +
 			 " total " + (rt.totalMemory ()/(1024*1024)) + "M");
@@ -769,8 +784,6 @@ public abstract class VishnuPlugIn
    *
    * Each of the items in the template collection will be translated
    * into an xml OBJECTFORMAT tag.
-   *
-   * Uses xsl transforms to do most of the work.
    *
    * </pre>
    * @param templates -- a collection of all the template resources 
@@ -1948,8 +1961,6 @@ public abstract class VishnuPlugIn
     return "";
   }
 
-  StringBuffer internalBuffer = new StringBuffer ();
-
   protected void clearInternalBuffer () {
 	internalBuffer = new StringBuffer ();
   }
@@ -1982,7 +1993,7 @@ public abstract class VishnuPlugIn
 
   protected void writeDocToStream (Document doc, OutputStream os) {
     OutputFormat of = new OutputFormat (doc);
-	of.setPreserveSpace (false);
+	of.setPreserveSpace (indentXMLSentToVishnu);
 	of.setIndenting     (indentXMLSentToVishnu);
 	
 	XMLSerializer serializer = new XMLSerializer (os, of);
@@ -2423,6 +2434,7 @@ public abstract class VishnuPlugIn
     public Map getFields () { return fields; }
   }
 
+  protected StringBuffer internalBuffer = new StringBuffer ();
   protected Map myTypesToNodes, myNameToDescrip;
 
   protected String myProblem  = "testProblem";
