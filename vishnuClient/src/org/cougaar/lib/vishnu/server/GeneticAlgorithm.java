@@ -1,5 +1,3 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/GeneticAlgorithm.java,v 1.8 2001-07-29 21:34:43 gvidaver Exp $
-
 package org.cougaar.lib.vishnu.server;
 
 import org.xml.sax.helpers.DefaultHandler;
@@ -58,11 +56,11 @@ public class GeneticAlgorithm {
   private static boolean explain = 
     ("true".equals (System.getProperty ("vishnu.explain")));
 
-  public static float getRandomFloat() {
+  public static synchronized float getRandomFloat() {
     return random.nextFloat();
   }
 
-  public static int getRandomInt (int range) {
+  public static synchronized int getRandomInt (int range) {
     return Math.abs (random.nextInt()) % range;
   }
 
