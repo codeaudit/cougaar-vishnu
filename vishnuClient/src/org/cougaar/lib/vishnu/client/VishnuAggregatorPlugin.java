@@ -62,9 +62,11 @@ import java.net.URL;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -188,15 +190,52 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 	  if (getSubscription().getRemovedList().hasMoreElements ()) {
 	    Enumeration removedtasks = getSubscription().getRemovedList();
 	    while (removedtasks.hasMoreElements()) {
-	      Task t = (Task) removedtasks.nextElement();
+	      MPTask mpt = (MPTask) removedtasks.nextElement();
 
-	      if (uidToMPTask.remove (t.getUID()) == null) {
+	      if (uidToMPTask.remove (mpt.getUID()) == null) {
 		if (isWarnEnabled ()) {
-		  warn ("no mp task in map with uid " + t.getUID ());
+		  warn ("no mp task in map with uid " + mpt.getUID ());
 		}
 	      }
-	      else if (isInfoEnabled ()) {
-		info ("uidToMPTask - removing mp task uid " + t.getUID() + " from map");
+	      else {
+		if (isInfoEnabled ()) {
+		  info ("uidToMPTask - removing mp task uid " + mpt.getUID() + " from map");
+		}
+		// OK somehow there's a race where we can add a parent to an MPTask
+		// and then immediately after the MPTask is removed, WITHOUT the Aggregation being
+		// removed.  How this is possible, I don't completely understand...
+		Collection parentsToReplan = new HashSet ();
+
+		for (Enumeration enum = ((MPTask)mpt).getParentTasks(); enum.hasMoreElements(); ) {
+		  Task parent = (Task) enum.nextElement();
+		  if (parent.getPlanElement () != null) {
+		    if (isInfoEnabled ()) {
+		      info ("uidToMPTask - from MPTask parent enum - removing plan element from parent " + parent.getUID());
+		    }
+		    parentsToReplan.add (parent);
+		  }
+		}
+
+		for (Iterator iter = mpt.getComposition ().getParentTasks ().iterator(); iter.hasNext(); ) {
+		  Task parent = (Task) iter.next();
+		  if (parent.getPlanElement () != null) {
+		    if (isInfoEnabled ()) {
+		      info ("uidToMPTask - from composition parent tasks - removing plan element from parent " + parent.getUID());
+		    }
+		    parentsToReplan.add (parent);
+		  }
+		}
+
+		for (Iterator iter = parentsToReplan.iterator (); iter.hasNext(); ) {
+		  Task parent = (Task) iter.next();
+		  publishRemove (parent.getPlanElement());
+		  publishChange (parent);
+		}
+
+		if (!parentsToReplan.isEmpty ()) {
+		  // remember to tell scheduler to forget about them too!
+		  handleRemovedTasks (Collections.enumeration(parentsToReplan));
+		}
 	      }
 	    }
 	  }
@@ -544,8 +583,8 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
       String taskKey = anAsset.getUID().toString() + "-" + prefHelper.getReadyAt(subtask).getTime() + "-" + 
 	prefHelper.getBestDate(subtask).getTime();
 
-      if (tripletToTask.get (taskKey) == null) {
-	rememberTripletToTask (taskKey, subtask);
+      Task alreadyTask;
+      if ((alreadyTask = (Task) tripletToTask.get (taskKey)) == null) {
 	if (isInfoEnabled ()) {
 	  info (getName ()+ " mapping " + taskKey + " to " + subtask.getUID() + " mptask " + mpTask.getUID());
 	}
@@ -553,9 +592,11 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
       else {
 	if (isWarnEnabled ()) {
 	  warn (getName () + " - unexpected : there already is a task " + 
-		subtask.getUID() + " in table with key " +taskKey);
+		subtask.getUID() + " in table with key " +taskKey + " it was " + alreadyTask.getUID());
 	}
       }
+
+      rememberTripletToTask (taskKey, subtask);
     }
   }
 
@@ -624,21 +665,6 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 	}
 	// do expensive blackboard query
 	mpTask = getMPTask (previousTask.getParentTaskUID ());
-      }
-      else {
-	// must do this, unfortunately
-	if (mpTaskCallback.getSubscription().getCollection().contains(mpTask)) {
-	  if (isInfoEnabled ()) {
-	    info (" - mptask " + mpTask.getUID() + " is on blackboard ");
-	  }
-	}
-	else {
-	  if (isInfoEnabled ()) {
-	    info (" - mptask " + mpTask.getUID() + " is NOT on blackboard ");
-	  }
-	  uidToMPTask.remove (mpTask.getUID());
-	  return false;
-	}
       }
 
       if (mpTask == null) {
