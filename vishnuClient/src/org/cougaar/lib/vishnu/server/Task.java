@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Task.java,v 1.6 2001-06-19 20:43:39 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Task.java,v 1.7 2001-07-29 21:33:01 gvidaver Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -21,12 +21,16 @@ public class Task extends SchObject {
   private Task[] prerequisites;
   private boolean[] groupableTasks = null;
   private boolean[] ungroupableTasks = null;
-  private static int num = 0;
   private int myNum = 0;
 
+  private static int num = 0;
+  private Object mutex = new Object(); // synchronizes access to num
+  
   public Task (TimeOps timeOps) {
     super (timeOps);
-    myNum = ++num;
+	synchronized (mutex) {
+	  myNum = ++num;
+	}
   }
 
   public Assignment getAssignment()  { return assignment; }
@@ -52,8 +56,10 @@ public class Task extends SchObject {
 
   public boolean groupableWith (Task task, SchedulingSpecs specs) {
     if (groupableTasks == null) {
-      groupableTasks = new boolean [num + 1];
-      ungroupableTasks = new boolean [num + 1];
+	  synchronized (mutex) {
+		groupableTasks = new boolean [num + 1];
+		ungroupableTasks = new boolean [num + 1];
+	  }
       if (! specs.hasGroupableSpec()) {
         java.util.Arrays.fill (groupableTasks, true);
         return true;
