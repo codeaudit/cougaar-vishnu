@@ -62,7 +62,8 @@ public class SchedulingData {
   private int startTime;
   private int endTime = Integer.MAX_VALUE;
   private TimeOps timeOps;
-
+  public static boolean reportUnknownTaskToUnfreeze =
+    ("true".equals (System.getProperty ("vishnu.reportUnknownTaskToUnfreeze")));
   public static boolean debug = 
     ("true".equals (System.getProperty ("vishnu.debug")));
   private static boolean throwExceptionOnMissingField =
@@ -149,10 +150,24 @@ public class SchedulingData {
     }
   }
 
+  /** 
+   * Unfreeze task with key <tt>key</tt> 
+   *
+   * Adds the task to the list of primaryTasks and removes it from
+   * the list of frozen tasks.  <tt>frozenCacheValid</tt> is set to false.
+   *
+   * If the key doesn't correspond to a known task, only complain
+   * if <tt>reportUnknownTaskToUnfreeze</tt> is true.
+   *
+   * @param key of the task to unfreeze
+   */
   public void unfreezeTask (String key) {
     Task task = getTask (key);
     if (task == null) {
-      System.out.println ("Unknown task to unfreeze: " + key);
+	  // This can happen as a reaction to rehydration.
+	  // It's basically innocuous, so let's not dump a lot to stdout.
+	  if (reportUnknownTaskToUnfreeze)
+		System.out.println ("Unknown task to unfreeze: " + key);
       return;
     }
     primaryTasks.add (task);
