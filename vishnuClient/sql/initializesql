@@ -203,4 +203,4 @@ insert into constraint_descrip values (	"best_time",
 				       	"number", 
 					"task", 
 					"", 
-	 				"Defines the best time for the <i>task</i> to arrive");
+	 				"Optimal time for the task to begin");
