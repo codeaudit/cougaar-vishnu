@@ -706,6 +706,7 @@ public abstract class VishnuPlugIn
 	  if (assignedAsset != null) {
 		handleMultiAssignment (alpTasks, assignedAsset, start, end, setup, wrapup);
 		alpTasks.clear ();
+		assignedAsset = null;
 	  }
 	}
 	
@@ -1002,8 +1003,9 @@ public abstract class VishnuPlugIn
 	  
 	if (isMultiTask) {
 	  if (assignedAsset != thisAssignedAsset) {
-		if (assignedAsset != null)
+		if (assignedAsset != null) {
 		  handleMultiAssignment (alpTasks, assignedAsset, start, end, setup, wrapup);
+		}
 		
 		alpTasks.clear ();
 
