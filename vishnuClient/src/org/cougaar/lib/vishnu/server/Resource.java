@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Resource.java,v 1.5 2001-02-05 20:52:00 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Resource.java,v 1.6 2001-03-27 13:57:48 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -153,7 +153,8 @@ public class Resource extends SchObject {
   public float[] getCapacities()  { return capacities; }
 
   public void addCapacityContribs (float[] contribs) {
-    for (int i = 0; i < contribs.length; i++)
+    int len = Math.min (capacitiesUsed.length, contribs.length);
+    for (int i = 0; i < len; i++)
       capacitiesUsed[i] += contribs[i];
   }
 
@@ -165,6 +166,8 @@ public class Resource extends SchObject {
   }
 
   public boolean enoughCapacity (float[] contribs) {
+    if (contribs.length > capacitiesUsed.length)
+      return false;
     for (int i = 0; i < contribs.length; i++)
       if (capacitiesUsed[i] + contribs[i] > capacities[i])
         return false;
