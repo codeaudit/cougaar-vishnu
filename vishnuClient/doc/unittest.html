@@ -1,0 +1,230 @@
+<HTML>
+<HEAD> 
+<TITLE>Vishnu Unit Testing</TITLE> 
+</HEAD>
+<BODY bgcolor="white">
+<table border=0 cellpadding=5>
+<tr><td width=60 align=center valign=top bgcolor="#E0D0B0">
+<img width=45 height=45 src="logo3.gif"></td>
+<td width=100%>
+<div align=center><H1>Unit Testing Procedures for Vishnu</h1></div>
+<font size=+1>
+
+<b>Test #1: Web-based with browser data feed - Jobshop</b><br>
+<ul>
+<li><b>Input:</b> testjs.vsh
+<li><b>Output:</b> web page Gantt chart
+<li><b>Output Correctness test:</b> There should be three tasks assigned to
+machine 1: cutting 1, welding 1, and welding 2.  All three tasks
+should have one minute of setup time.  They can be in any order
+as long as cutting 1 is earlier than welding 1.  The end time of
+the final task of the three should be 09:26:00.  The cutting task
+should be green, and the two welding tasks should be red.
+There should be two tasks (painting 1 and painting 2) and one
+activity (Jam) assigned to machine 2.  The two tasks should be blue,
+and the activity should be yellow.  The activity should last from
+9:05:00 to 9:10:00; the task painting 1 should last from
+9:10:00 to 9:20:00; the task painting 2 should last from
+9:25:31 to 9:32:31.
+<li><b>Required software:</b> web server, automated scheduler, browser
+<li><b>Procedure:</b>
+At the start of the test, the web server should be running and
+an automated scheduler should be running and pointed at this web
+server.
+The tester should have a browser pointed at the main page of
+Vishnu.  The tester loads the problem <i>jobshop_testjs</i>
+from the file testjs.vsh, starts the scheduler running on this
+problem, and then checks the results for correctness when the
+scheduler completes by examining the Gantt charts.
+</ul>
+
+<b>Test #2: Web-based with browser data feed - Grouped</b><br>
+<ul>
+<li><b>Input:</b> testgrouped.vsh
+<li><b>Output:</b> web page Gantt chart
+<li><b>Output Correctness test:</b>
+The Gantt chart for machine 2 should have
+<ul>
+<li>a yellow activity from 9:05:00 to 9:10:00 with the text "Jam"
+<li>a red assignment from 9:10:00 to 9:33:00 with the text "1";
+clicking on this task should reveal that it is painting 1
+<li>a purple activity from 9:50:00 to 10:00:00 with the text "Repair"
+<li>a red assignment from 10:00:00 to 10:20:00 with the text "1";
+clicking on this task should reveal that it is painting 2
+</ul>
+The Gantt chart for machine 1 should have
+<ul>
+<li>a purple activity from 9:00:00 to 9:02:00
+<li>two green assignments, one should have the text "3" and the other
+should have either the text "2" or the text "3"
+<li>one red assignment if both green tasks have the text "3" and two
+red assignments otherwise
+<li>the assignment for welding 1 (which will be in one of the
+green assignments if they are both "3" and one of the red assignments
+otherwise) should occur after cutting 1
+</ul>
+<li><b>Required software:</b> web server, automated scheduler, browser
+<li><b>Procedure:</b>
+At the start of the test, the web server should be running and
+an automated scheduler should be running and pointed at this web
+server.
+The tester should have a browser pointed at the main page of
+Vishnu.  The tester loads the problem <i>jobshop_grouped</i>
+from the file testgrouped.vsh, starts the scheduler running on this
+problem, and then checks the results for correctness when the
+scheduler completes by examining the Gantt charts.
+</ul>
+
+<b>Test #3: Web-based with browser data feed - Multitask</b><br>
+<ul>
+<li><b>Input:</b> testmultitask.vsh
+<li><b>Output:</b> web page Gantt chart
+<li><b>Output Correctness test:</b>
+The Gantt chart for machine 1 should have 3 assignment areas
+<ul>
+<li>full height from 9:00:00 to 9:04:00 containing welding 2 and
+cutting 1 (click on the area to see the contained tasks)
+<li>half height from 9:04:00 to 9:14:00 containg cutting 1
+<li>half height from 9:14:00 to 9:19:00 containg welding 1
+</ul>
+The Gantt chart for machine 2 should have two assignment areas
+<ul>
+<li>half height from 9:00:00 to 9:09:00 containg painting 1
+<li>half height from 9:19:31 to 9:25:31 containg painting 2
+</ul>
+<li><b>Required software:</b> web server, automated scheduler, browser
+<li><b>Procedure:</b>
+At the start of the test, the web server should be running and
+an automated scheduler should be running and pointed at this web
+server.
+The tester should have a browser pointed at the main page of
+Vishnu.  The tester loads the problem <i>jobshop_multitask</i>
+from the file testmultitask.vsh, starts the scheduler running on this
+problem, and then checks the results for correctness when the
+scheduler completes by examining the Gantt charts.
+</ul>
+
+<b>Test #4: Web-based with automated client data feed - Jobshop</b><br>
+<ul>
+<li><b>Input:</b> testjs.vsh
+<li><b>Output:</b> Textual description of assignments made
+<li><b>Output Correctness test:</b>  There should be three tasks assigned to
+machine 1: cutting 1, welding 1, and welding 2.  All three tasks
+should have one minute of setup time.  They can be in any order
+as long as cutting 1 is earlier than welding 1.  The end time of
+the final task of the three should be 09:26:00.
+There should be two tasks (painting 1 and painting 2)
+assigned to machine 2.  The task painting 1 should last from
+9:10:00 to 9:20:00; the task painting 2 should last from
+9:25:31 to 9:32:31.
+<li><b>Required software:</b> web server, automated scheduler,
+Jobshop.java, runJobshop
+<li><b>Procedure:</b>
+At the start of the test, the web server should be running and
+an automated scheduler should be running and pointed at this web
+server.
+Furthermore, the file Jobshop.java in the directory
+testdata/jobshop should be compiled, and the script runJobshop
+in the same directory should be configured for the correct
+host, username, password, etc.
+The tester should execute runJobshop and examine the textual output
+for correctness.
+</ul>
+
+<b>Test #5: Web-based with automated client data feed - Grouped</b><br>
+<ul>
+<li><b>Input:</b> testgrouped.vsh
+<li><b>Output:</b> Textual description of assignments made
+<li><b>Output Correctness test:</b>
+The assignments for machine 2 should be: (i)
+painting 1 from 9:10:00 to 9:33:00 and (ii)
+painting 2 from 10:00:00 to 10:20:00.
+There should be a total of seven tasks assigned to machine 1 in either
+3 or 4 groups.  The assignment for welding 1 should be later than
+cutting 1.
+<li><b>Required software:</b> web server, automated scheduler,
+Grouped.java, runGrouped
+<li><b>Procedure:</b>
+At the start of the test, the web server should be running and
+an automated scheduler should be running and pointed at this web
+server.
+Furthermore, the file Grouped.java in the directory
+testdata/jobshop should be compiled, and the script runGrouped
+in the same directory should be configured for the correct
+host, username, password, etc.
+The tester should execute runJobshop and examine the textual output
+for correctness.
+</ul>
+
+<b>Test #6: Internal Automated Scheduler - sequence</b><br>
+<ul>
+<li><b>Input:</b> testjs.vsh, testjs.update.vsh
+<li><b>Output:</b> Textual description of assignments made
+after each step of the process
+<li><b>Output Correctness test:</b>
+This test actually runs through seven steps automatically.
+Each step consists of adding some data and then running the
+scheduler to create a new schedule.
+After each step, a textual description of all the assignments
+of the current schedule is output, followed by a line
+saying that the step is complete.
+For each step, here is what the schedule should look like:
+<ol>
+<li><b>initial:</b>
+The output should be the same as for Test #4.
+<li><b>freezeall:</b>
+All the assignments should be exactly the same as after
+the previous step.  (It requires multiple runs of the
+test to verify with reasonable confidence that the tasks are
+frozen, since there is a 1/3 probability that they will be
+the same even if they aren't frozen.)
+<li><b>unfreezeall:</b>
+The output should be as described in Test #4 but different
+from the previous step.  (It may require multiple runs of the
+test to see the assignments change,
+since there is a 1/3 probability that they will be
+the same even if the unfreeze worked.)
+<li><b>freeze some:</b>
+The assignments should all be the same as after the previous
+step.  (Note that the freezing of one task locks in all the others.
+Again, this requires multiple runs to verify.)
+<li><b>unfreeze some:</b>
+The output should be as described in Test #4 but different
+from the previous step.  (Again, this may require multiple runs
+to see the assignments change.)
+<li><b>updated:</b>
+There should be four tasks (welding 1, welding 2, welding 3, and
+cutting 4) assigned to machine 3 and one task (painting 1)
+assigned to machine 1.
+<li><b>clearing database:</b>
+There should be no assignments.
+</ol>
+<li><b>Required software:</b> JobshopInternal.java
+<li><b>Procedure:</b>
+Ensure that JobshopInternal.java in the directory testdata/jobshop
+is compiled.  Execute JobshopInternal, and check the textual
+output for correctness.  Execute JobshopInternal two or
+three more times to verify that the frozen assignments truly
+were frozen and were not just the same as the previous schedule
+due to random chance.
+</ul>
+
+<b>Test #7: Internal Automated Scheduler - prefrozen</b><br>
+<ul>
+<li><b>Input:</b> frozen.vsh
+<li><b>Output:</b> Textual description of the assignments made
+<li><b>Output Correctness test:</b>
+There should be five assignments made.  The key one is that of
+the task welding 2, which should have its setup time at 9:22:00
+and its end time at 9:27:00.
+<li><b>Required software:</b> FreezeInternal.java
+<li><b>Procedure:</b>
+Ensure that FreezeInternal.java in the directory testdata/jobshop
+is compiled.  Execute FreezeInternal, and check the textual
+output for correctness.
+</ul>
+
+</font>
+</td></tr></table>
+</BODY>
+</HTML>
