@@ -1,5 +1,3 @@
-/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/Attic/VishnuPlugIn.java,v 1.13 2001-03-07 02:58:43 gvidaver Exp $ */
-
 package org.cougaar.lib.vishnu.client;
 
 import org.cougaar.domain.glm.ldm.Constants;
@@ -1241,6 +1239,8 @@ public abstract class VishnuPlugIn
 	  if (clearDatabase) clearDatabase = false; // flip bit after first one
 	  totalSent += sendDataChunkSize;
 	}
+
+	mySentOtherDataAlready = false;
   }
 
   protected void sendDocument (Collection tasks, 
@@ -1289,7 +1289,7 @@ public abstract class VishnuPlugIn
 
 		if (!mySentOtherDataAlready) {
 		  appendOtherData (dataDoc, (Element) newobject);
-		  //			mySentOtherDataAlready = true;
+		  mySentOtherDataAlready = true;
 		}
 
 		if (sendingChangedObjects) {
@@ -1797,10 +1797,12 @@ public abstract class VishnuPlugIn
    *         prep with the asset
    */
   protected Vector getPrepPhrases(Task parentTask, Asset a) {
-    Vector preps = UTILAllocate.enumToVector(parentTask.getPrepositionalPhrases());
-    preps.addElement(UTILPrepPhrase.makePrepositionalPhrase(ldmf, 
-															Constants.Preposition.WITH, 
-															a));
+    Vector preps = new Vector (UTILAllocate.enumToVector(parentTask.getPrepositionalPhrases()));
+	if (!UTILPrepPhrase.hasPrepNamed (parentTask, Constants.Preposition.WITH))
+	  preps.addElement(UTILPrepPhrase.makePrepositionalPhrase(ldmf, 
+															  Constants.Preposition.WITH, 
+															  a));
+
     preps.addElement(UTILPrepPhrase.makePrepositionalPhrase(ldmf, 
 															"VISHNU", getClassName(this)));
 	return preps;

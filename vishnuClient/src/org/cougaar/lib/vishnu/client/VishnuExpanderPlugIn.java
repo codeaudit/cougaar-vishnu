@@ -1,5 +1,3 @@
-/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/Attic/VishnuExpanderPlugIn.java,v 1.1 2001-01-10 19:29:55 rwu Exp $ */
-
 package org.cougaar.lib.vishnu.client;
 
 import org.cougaar.domain.glm.ldm.Constants;
@@ -228,6 +226,8 @@ public class VishnuExpanderPlugIn extends VishnuPlugIn implements UTILExpanderPl
    * @param t the task to be expanded.
    */
   public void handleTask(Task t) {}
+
+  public void handleRemovedTask(Task t) {}
 
   /**
    * Implemented for UTILExpanderPlugIn interface

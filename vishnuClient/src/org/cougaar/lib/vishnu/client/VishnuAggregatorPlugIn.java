@@ -6,13 +6,17 @@ import org.cougaar.domain.planning.ldm.plan.Aggregation;
 import org.cougaar.domain.planning.ldm.plan.AspectScorePoint;
 import org.cougaar.domain.planning.ldm.plan.AspectType;
 import org.cougaar.domain.planning.ldm.plan.AspectValue;
+import org.cougaar.domain.planning.ldm.plan.Composition;
+import org.cougaar.domain.planning.ldm.plan.Expansion;
 import org.cougaar.domain.planning.ldm.plan.MPTask;
+import org.cougaar.domain.planning.ldm.plan.NewComposition;
 import org.cougaar.domain.planning.ldm.plan.PlanElement;
 import org.cougaar.domain.planning.ldm.plan.PrepositionalPhrase;
 import org.cougaar.domain.planning.ldm.plan.Preference;
 import org.cougaar.domain.planning.ldm.plan.ScoringFunction;
 import org.cougaar.domain.planning.ldm.plan.Task;
 import org.cougaar.domain.planning.ldm.plan.Verb;
+import org.cougaar.domain.planning.ldm.plan.Workflow;
 
 import org.cougaar.domain.glm.ldm.Constants;
 
@@ -20,6 +24,8 @@ import org.cougaar.lib.callback.UTILAggregationCallback;
 import org.cougaar.lib.callback.UTILFilterCallback;
 import org.cougaar.lib.callback.UTILGenericListener;
 import org.cougaar.lib.callback.UTILWorkflowCallback;
+import org.cougaar.lib.callback.UTILExpansionCallback;
+import org.cougaar.lib.callback.UTILExpansionListener;
 
 import org.cougaar.lib.filter.UTILAggregatorPlugIn;
 
@@ -78,7 +84,14 @@ import org.cougaar.util.StringKey;
  *       1         2         3         4         5         6         7         8
  * -->
  */
-public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregatorPlugIn {
+public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregatorPlugIn, UTILExpansionListener {
+
+  public void localSetup() {     
+    super.localSetup();
+
+    try {propagateRescindPastAggregation = getMyParams().getBooleanParam("propagateRescindPastAggregation");}    
+    catch(Exception e) {propagateRescindPastAggregation = true;}
+  }
 
   /** adds the aggregation filter */
   public void setupFilters () {
@@ -88,6 +101,11 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
       System.out.println (getName () + " : Filtering for Aggregations...");
 
     addFilter (myAggCallback    = createAggCallback    ());
+
+    if (myExtraOutput)
+      System.out.println (getName () + " : Filtering for Expansions...");
+
+    addFilter (new UTILExpansionCallback (this));
   }
 
 
@@ -156,6 +174,49 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
     publishChange (changedTask);
   }
   
+  /** 
+   * Implemented for ExpansionListener 
+   *
+   * Interested in expansions created by this plugin, labeled with a VISHNU prep.
+   * (That's how it knows which to be interested in.)
+   */
+  public boolean interestingExpandedTask(Task t) { 
+	Expansion exp = (Expansion) t.getPlanElement();
+	if (exp == null)
+	  return false;
+	
+	Workflow wf = exp.getWorkflow();
+	Object firstTask = wf.getTasks().nextElement();
+	if (firstTask != null)
+	  return UTILPrepPhrase.hasPrepNamed ((Task)firstTask, "VISHNU"); 
+	else
+	  return false;
+  }
+
+  public boolean wantToChangeExpansion(Expansion exp) { return false; }
+  public void changeExpansion(Expansion exp) {}
+  public void publishChangedExpansion(Expansion exp) { publishChange (exp); }
+
+  public void handleConstraintViolation(Expansion exp, List violatedConstraints) {}
+  public void handleFailedExpansion(Expansion exp, List failedSubTasks) { reportChangedExpansion (exp); }
+  public void handleSuccessfulExpansion(Expansion exp, List successfulSubtasks) {}
+  
+  /**
+   * Implemented for ExpansionListener
+   * Report to superior that the expansion has changed. Usually just a pass
+   * through to the UTILPlugInAdapter's updateAllocationResult.
+   *
+   * @param exp Expansion that has changed.
+   * @see org.cougaar.lib.callback.UTILExpansionListener
+   */
+  public void reportChangedExpansion(Expansion exp) { 
+    if (myExtraExtraOutput)
+      System.out.println (getName () + 
+						  ".reportChangedExpansion : reporting changed expansion " + exp.getUID () + 
+						  " of " + exp.getTask().getUID() + " to superior.");
+      
+    updateAllocationResult (exp); 
+  }
 
   public void handleIllFormedTask (Task t) { reportIllFormedTask(t); }
 
@@ -451,7 +512,9 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
    *         prep with the asset
    */
   protected Vector getPrepPhrasesForAgg(Asset a, List g) {
-    Vector preps = UTILAllocate.enumToVector(((Task)g.get(0)).getPrepositionalPhrases());
+	Vector firstTaskPreps = UTILAllocate.enumToVector(((Task)g.get(0)).getPrepositionalPhrases());
+    Vector preps = new Vector (firstTaskPreps);
+	
     preps.addElement(UTILPrepPhrase.makePrepositionalPhrase(ldmf, 
 															Constants.Preposition.WITH, 
 															a));
@@ -574,10 +637,16 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
 		  UTILExpand.showPlanElement (taskToPublish);
 		}
 	  }
+	  else if (next_o instanceof Composition) {
+		if (propagateRescindPastAggregation)
+		  ((NewComposition) next_o).setIsPropagating();
+	  }
+	  
       boolean success = publishAdd(next_o);
     }
   }
 
   boolean debugParseAnswer = false;
+  boolean propagateRescindPastAggregation;
 }
 

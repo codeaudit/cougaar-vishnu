@@ -78,12 +78,16 @@ public class VishnuAllocationResultAggregator implements AllocationResultAggrega
     }
 
 	int tstSize = tst.size ();
+	int totalSkipped = 0;
+	
 	for (int i = 0; i < tstSize; i++) {
 	  Task t = tst.getTask (i);
 
 	  // found a task with Transit verb -- ignore, since it's indirect
-	  if (t.getVerb ().equals (Constants.Verb.Transit))
+	  if (t.getVerb ().equals (Constants.Verb.Transit)) {
+		totalSkipped++;
 		continue;
+	  }
 
       AllocationResult ar = tst.getAllocationResult(i);
 
@@ -164,9 +168,9 @@ public class VishnuAllocationResultAggregator implements AllocationResultAggrega
     } // end of looping through all subtasks
       
     acc[DURATION] = acc[END_TIME] - acc[START_TIME];
-    acc[CUSTOMER_SATISFACTION] /= tstSize;
+    acc[CUSTOMER_SATISFACTION] /= (tstSize-totalSkipped);
 
-    rating /= tstSize;
+    rating /= (tstSize-totalSkipped);
 
     boolean delta = false;
     //for (int i = 0; i <= _LAST_ASPECT; i++) {

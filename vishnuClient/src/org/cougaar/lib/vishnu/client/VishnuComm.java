@@ -1,5 +1,3 @@
-/* $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/client/VishnuComm.java,v 1.6 2001-04-11 20:48:40 gvidaver Exp $ */
-
 package org.cougaar.lib.vishnu.client;
 
 import java.io.CharArrayReader;
