@@ -32,6 +32,7 @@ import org.cougaar.util.TimeSpan;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.IOException;
 import java.io.StringReader;
 
@@ -54,6 +55,7 @@ import java.util.TreeSet;
 import java.util.Vector;
 
 import org.apache.xerces.dom.DocumentImpl;
+import org.apache.xerces.parsers.DOMParser;
 import org.apache.xerces.parsers.SAXParser;
 
 import org.w3c.dom.Document;
@@ -104,19 +106,6 @@ public abstract class VishnuPlugIn
     try {hostName = getMyParams().getStringParam("hostName");}    
     catch(Exception e) {hostName = "dante.bbn.com";}
 
-    try {testing = getMyParams().getBooleanParam("testing");}    
-    catch(Exception e) {testing = false;}
-
-    try {showFormatXML = getMyParams().getBooleanParam("showFormatXML");}    
-    catch(Exception e) {showFormatXML = false;}
-
-	//    try {ignoreSpecsFile = getMyParams().getBooleanParam("ignoreSpecsFile");}  
-	//    catch(Exception e) {ignoreSpecsFile = false;}
-
-	//    try {sendSpecsEveryTime = 
-	//		   getMyParams().getBooleanParam("sendSpecsEveryTime");}    
-	//    catch(Exception e) {sendSpecsEveryTime = false;}
-
     try {alwaysClearDatabase = 
 		   getMyParams().getBooleanParam("alwaysClearDatabase");}    
     catch(Exception e) {alwaysClearDatabase = true;}
@@ -124,10 +113,6 @@ public abstract class VishnuPlugIn
     try {showTiming = 
 		   getMyParams().getBooleanParam("showTiming");}    
     catch(Exception e) {showTiming = true;}
-
-    try {sendRoleScheduleUpdates = 
-		   getMyParams().getBooleanParam("sendRoleScheduleUpdates");}    
-    catch(Exception e) {sendRoleScheduleUpdates = false;}
 
     try {makeSetupAndWrapupTasks = 
 		   getMyParams().getBooleanParam("makeSetupAndWrapupTasks");}    
@@ -137,12 +122,9 @@ public abstract class VishnuPlugIn
 		   getMyParams().getBooleanParam("runInternal");}    
     catch(Exception e) {runInternal = false;}
 
-	// writes the XML sent to Vishnu web server to a file (human readable)
-	/*
-    try {writeXMLToFile = 
-		   getMyParams().getBooleanParam("writeXMLToFile");}    
-    catch(Exception e) {writeXMLToFile = false;}
-	*/
+    try {useStoredFormat = 
+		   getMyParams().getBooleanParam("useStoredFormat");}    
+    catch(Exception e) {useStoredFormat = true;}
 
     // how many of the input tasks to use as templates when producing the 
 	// OBJECT FORMAT for tasks
@@ -152,10 +134,10 @@ public abstract class VishnuPlugIn
     try {sendDataChunkSize = getMyParams().getIntParam("sendDataChunkSize");}    
     catch(Exception e) {sendDataChunkSize = 100;}
 	
-	domUtil = new VishnuDomUtil (getMyParams(), getName(), getConfigFinder());
-	comm    = new VishnuComm    (getMyParams(), getName(), getClusterName(), domUtil, runInternal);
-	xmlProcessor = new XMLProcessor (getMyParams(), getName(), getClusterName(), domUtil, comm, getConfigFinder());
-	config  = new VishnuConfig  (getMyParams(), getName(), getClusterName());
+	domUtil = createVishnuDomUtil ();
+	comm    = createVishnuComm ();
+	xmlProcessor = createXMLProcessor ();
+	config  = createVishnuConfig ();
 	
 	// helpful for debugging connection configuration problems
 	if (runInternal)
@@ -165,6 +147,19 @@ public abstract class VishnuPlugIn
 						  hostName);
   }
 
+  protected VishnuDomUtil createVishnuDomUtil () { 
+	return new VishnuDomUtil (getMyParams(), getName(), getConfigFinder()); 
+  }
+  protected VishnuComm    createVishnuComm    () { 
+	return new VishnuComm    (getMyParams(), getName(), getClusterName(), domUtil, runInternal); 
+  }
+  protected XMLProcessor  createXMLProcessor  () { 
+	return new XMLProcessor (getMyParams(), getName(), getClusterName(), domUtil, comm, getConfigFinder()); 
+  }
+  protected VishnuConfig createVishnuConfig () { 
+	return new VishnuConfig  (getMyParams(), getName(), getClusterName()); 
+  }
+  
   /****************************************************************
    ** Setup Filters...
    **/
@@ -353,7 +348,10 @@ public abstract class VishnuPlugIn
 
 	Date start = new Date();
       
-	prepareObjectFormat (tasks);
+	if (useStoredFormat)
+	  prepareStoredObjectFormat (tasks);
+	else
+	  prepareObjectFormat (tasks);
       
 	setUIDToObjectMap (tasks, myTaskUIDtoObject);
 
@@ -400,6 +398,46 @@ public abstract class VishnuPlugIn
 		sentFormatAlready = true;
 	  if (showTiming)
 		domUtil.reportTime (" - Vishnu completed format XML processing in ", start);
+	}
+  }
+  
+  /** 
+   * Like VishnuPlugIn.prepareObjectFormat                           <p>
+   *
+   * Send the file called <Cluster>.dff.xml as the default object format 
+   * for the problem.                                                     <p>
+   * Does NOT discover the object format from sampling the tasks.         <p>
+   * 
+   * This file can also be indicated by setting the parameter <code>defaultFormat</code>.
+   *
+   * @param ignoredTasks does NOT use the input tasks to discover format
+   **/
+  protected void prepareStoredObjectFormat (List ignoredTasks) {
+	Date start = new Date();
+
+	try {
+	  if (!sentFormatAlready) {
+		String defaultFormat = config.getNeededFile ("defaultFormat", ".dff.xml");
+
+		DOMParser parser = new DOMParser ();
+		InputStream inputStream = getConfigFinder().open(defaultFormat);
+		parser.parse (new InputSource(inputStream));
+		Document formatDoc = parser.getDocument ();
+		Element formatDocRoot = formatDoc.getDocumentElement ();
+		formatDocRoot.setAttribute ("name", comm.getProblem());
+
+		attachAssociatedFiles (formatDoc); // attach vsh.xml, ga.xml, odf.xml files
+
+		comm.serializeAndPost (formatDoc, false, runInternal, internalBuffer);
+
+		if (!runInternal)
+		  sentFormatAlready = true;
+	  }
+
+	  if (showTiming)
+		domUtil.reportTime (" - Vishnu completed format XML processing in ", start);
+	} catch (Exception e) {
+	  System.out.println (getName () + ".prepareObjectFormat - ERROR with file " + e.getMessage());
 	}
   }
   
@@ -555,7 +593,21 @@ public abstract class VishnuPlugIn
 	if (showTiming)
 	  domUtil.reportTime (" - Vishnu completed format XML transform in ", start);
 
-      // append any global other data object formats 
+	attachAssociatedFiles (problemFormatDoc);
+
+	// send to postdata URL
+	comm.serializeAndPostProblem (problemFormatDoc, runInternal, internalBuffer);
+
+    return nameInfo;
+  }
+
+  /** 
+   * - attach global object format file 
+   * - attach specs file 
+   * - attach ga parameters file 
+   **/
+  protected void attachAssociatedFiles (Document problemFormatDoc) {
+	// append any global other data object formats 
 	appendGlobalDataFormat (problemFormatDoc);
 
 	// append the scheduling specs
@@ -575,13 +627,8 @@ public abstract class VishnuPlugIn
 						  specsFile + " vishnu ga specs xml file");
 
 	domUtil.appendDoc (problemFormatDoc, specsFile);
-
-      // send to postdata URL
-	comm.serializeAndPostProblem (problemFormatDoc, runInternal, internalBuffer);
-
-    return nameInfo;
   }
-
+  
   protected void appendGlobalDataFormat (Document problemFormatDoc) {
 	String otherDataFormat = config.getOtherDataFormat();
 	try {
@@ -590,18 +637,18 @@ public abstract class VishnuPlugIn
 		  System.out.println (getName () + ".sendFormat -  appending " + 
 							  otherDataFormat + " other data format file");
 
-		Node root = problemFormatDoc.getDocumentElement ();
-		domUtil.appendDoc (problemFormatDoc, 
-						   (Element)((Element)root).getFirstChild(), // OBJECTFORMAT tag
-						   otherDataFormat);
+		Element dataFormatNode = (Element)
+		  problemFormatDoc.getElementsByTagName ("DATAFORMAT").item(0);
+		
+		domUtil.appendDoc (problemFormatDoc, dataFormatNode, otherDataFormat);
 	  }
 	} catch (FileNotFoundException fnf) {
 	  if (myExtraOutput)
 		System.out.println (getName () + 
-							".sendFormat could not find optional file : " + 
+							".appendGlobalDataFormat - could not find optional file : " + 
 							otherDataFormat );
     } catch (Exception ioe) {
-      System.out.println (getName() + ".sendFormat - Exception " + ioe.getMessage());
+      System.out.println (getName() + ".appendGlobalDataFormat - Exception " + ioe.getMessage());
       ioe.printStackTrace ();
     }
   }
@@ -628,7 +675,7 @@ public abstract class VishnuPlugIn
 	int totalTasks = tasks.size ();
 	int totalSent  = 0;
 
-	DataXMLize dataXMLizer = xmlProcessor.getDataXMLizer (nameToDescrip, assetClassName);
+	XMLizer dataXMLizer = xmlProcessor.getDataXMLizer (nameToDescrip, assetClassName);
 	boolean sentOtherData = false;
 	
 	while (totalSent < totalTasks) {
@@ -1088,8 +1135,9 @@ public abstract class VishnuPlugIn
 	return preps;
   }
 
+  protected boolean runInternal = true;
   protected StringBuffer internalBuffer = new StringBuffer ();
-  protected Map myTypesToNodes, myNameToDescrip;
+  protected Map myNameToDescrip;
 
   protected UTILAssetCallback         myAssetCallback;
   protected int firstTemplateTasks;
@@ -1103,24 +1151,17 @@ public abstract class VishnuPlugIn
 
   protected String hostName = "dante.bbn.com";
 
-  protected boolean testing = false;
-  protected boolean showFormatXML = false;
-
-  protected boolean ignoreSpecsFile = false;
-  protected boolean sendSpecsEveryTime = false;
   protected boolean alwaysClearDatabase = false;
   protected boolean showTiming = true;
 
-  protected int numFilesWritten = 0; // how many files have been written out via the writeXMLToFile flag
-  protected boolean sendRoleScheduleUpdates = false;
   protected boolean makeSetupAndWrapupTasks = true;
-  protected boolean runInternal = true;
+  protected boolean useStoredFormat = false;
 
   private boolean debugParseAnswer = false;
 
   protected VishnuComm comm;
   protected VishnuDomUtil domUtil;
   protected String singleAssetClassName;
-  XMLProcessor xmlProcessor;
-  VishnuConfig config;
+  protected XMLProcessor xmlProcessor;
+  protected VishnuConfig config;
 }
