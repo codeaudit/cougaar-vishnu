@@ -74,6 +74,7 @@ public class ClientComms {
       OutputStream os = socket.getOutputStream();
       String data = convertArgs (args, false);
       String request = "POST " + path + pagename + " HTTP/1.0\r\n" +
+        "Host: " + host + "\r\n" +
         "Content-Type: application/x-www-form-urlencoded\r\n" +
         "Content-Length: " + data.length() + "\r\n\r\n" + data + "\r\n\r\n";
       os.write (request.getBytes());
