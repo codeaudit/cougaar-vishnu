@@ -35,6 +35,7 @@ import org.cougaar.lib.util.UTILExpand;
 import org.cougaar.lib.util.UTILPlugInException;
 import org.cougaar.lib.util.UTILPreference;
 import org.cougaar.lib.util.UTILPrepPhrase;
+import org.cougaar.lib.util.UTILRuntimeException;
 
 import java.net.URL;
 
@@ -497,8 +498,13 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
 																					UTILPreference.getLateDate(firstParentTask)));
 	long totalQuantity = 0l;
 	if (UTILPreference.hasPrefWithAspectType(firstParentTask, AspectType.QUANTITY)) {
-	  for (Iterator iter = g.iterator (); iter.hasNext (); )
-		totalQuantity += UTILPreference.getQuantity ((Task) iter.next());
+	  for (Iterator iter = g.iterator (); iter.hasNext (); ) {
+		try {
+		  totalQuantity += UTILPreference.getQuantity ((Task) iter.next());
+		} catch (UTILRuntimeException re) {
+		  totalQuantity += 1; // the task didn't have a quantity preference
+		}
+	  }
 
 	  prefs = 
 		UTILPreference.replacePreference (prefs, UTILPreference.makeQuantityPreference (ldmf, totalQuantity));
