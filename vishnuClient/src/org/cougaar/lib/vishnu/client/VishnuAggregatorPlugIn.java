@@ -163,12 +163,43 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
 
   /** implemented for AggregationListener */
   public void handleRemovedAggregation (Aggregation agg) {	
-    System.out.println("VishnuAggregatorPlugIn.handleRemovedAggregation called");
+    // System.out.println("VishnuAggregatorPlugIn.handleRemovedAggregation called");
 
     Vector removedTasks = new Vector();
-    removedTasks.addAll(agg.getComposition().getParentTasks());
+    removedTasks.add(agg.getTask());
 
     handleRemovedTasks(removedTasks.elements());
+
+
+//      Composition composition = agg.getComposition();
+
+//      // Add newly rescinded compositions to a hash table and send rescind XML
+//      if (!compositionToNumberTasks.containsKey(composition)) {
+     
+//        int aggSize = composition.getAggregations().size();
+//        System.out.println("VishnuAggregatorPlugIn.handleRemovedAggregation - got composition of size " + aggSize);
+//        compositionToNumberTasks.put(composition, new Integer(aggSize));
+
+//        Vector removedTasks = new Vector();
+
+//        removedTasks.addAll(agg.getComposition().getParentTasks());
+
+//        handleRemovedTasks(removedTasks.elements()); 
+//      }
+
+//      // Decrement the number of aggregations handled for this rescinded composition
+//      // If the value reaches zero, remove the composition from the hash table
+//      int numAggregationsLeft = ((Integer) compositionToNumberTasks.get(composition)).intValue();
+
+//      if (numAggregationsLeft <= 1) {
+//        compositionToNumberTasks.remove(composition);
+//        System.out.println("VishnuAggregatorPlugIn.handleRemovedAggregation - removing Composition.");
+//      } else {
+//        compositionToNumberTasks.put(composition, 
+//  				   new Integer(numAggregationsLeft - 1));
+//        System.out.println("VishnuAggregatorPlugIn.handleRemovedAggregation - decrementing Composition.");
+//      }
+
 	/*
 	sendUpdatedRoleSchedule(null, 
 							getAssetFromMPTask (agg.getComposition().getCombinedTask ()), 
@@ -686,6 +717,7 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
     }
   }
 
+  private Map compositionToNumberTasks = new HashMap();
   boolean debugParseAnswer = false;
   boolean propagateRescindPastAggregation;
 }
