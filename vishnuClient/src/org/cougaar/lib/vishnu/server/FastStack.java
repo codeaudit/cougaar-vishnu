@@ -5,7 +5,6 @@ import java.util.Random;
 import java.util.Stack;
 import java.util.List;
 import java.util.ArrayList;
-import org.cougaar.lib.vishnu.server.FastStack;
 
 /**
  * Faster implementation of a stack than java.util.Stack
