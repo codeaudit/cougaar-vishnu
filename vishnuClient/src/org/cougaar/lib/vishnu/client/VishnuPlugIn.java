@@ -20,48 +20,11 @@
  */
 package org.cougaar.lib.vishnu.client;
 
-import org.cougaar.domain.glm.ldm.Constants;
-
-import org.cougaar.lib.callback.UTILAssetCallback;
-import org.cougaar.lib.callback.UTILAssetListener;
-import org.cougaar.lib.filter.UTILBufferingPlugInAdapter;
-import org.cougaar.lib.param.ParamException;
-import org.cougaar.lib.util.UTILAllocate;
-import org.cougaar.lib.util.UTILExpand;
-import org.cougaar.lib.util.UTILPreference;
-import org.cougaar.lib.util.UTILPrepPhrase;
-import org.cougaar.lib.util.UTILRuntimeException;
-
-import org.cougaar.domain.planning.ldm.asset.Asset;
-
-import org.cougaar.domain.planning.ldm.plan.AllocationResultAggregator;
-import org.cougaar.domain.planning.ldm.plan.Expansion;
-import org.cougaar.domain.planning.ldm.plan.NewTask;
-import org.cougaar.domain.planning.ldm.plan.PlanElement;
-import org.cougaar.domain.planning.ldm.plan.PrepositionalPhrase;
-import org.cougaar.domain.planning.ldm.plan.Role;
-import org.cougaar.domain.planning.ldm.plan.Task;
-import org.cougaar.domain.planning.ldm.plan.Workflow;
-
-import org.cougaar.core.society.UniqueObject;
-
-import org.cougaar.util.StringKey;
-import org.cougaar.util.UnaryPredicate;
-import org.cougaar.util.TimeSpan;
-
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.io.IOException;
-import java.io.StringReader;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -70,39 +33,77 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
-import java.util.TreeSet;
 import java.util.Vector;
 
-import org.apache.xerces.dom.DocumentImpl;
 import org.apache.xerces.parsers.DOMParser;
-import org.apache.xerces.parsers.SAXParser;
+
+import org.cougaar.core.society.UniqueObject;
+
+import org.cougaar.domain.glm.ldm.Constants;
+
+import org.cougaar.domain.planning.ldm.asset.Asset;
+import org.cougaar.domain.planning.ldm.plan.AllocationResultAggregator;
+import org.cougaar.domain.planning.ldm.plan.Expansion;
+import org.cougaar.domain.planning.ldm.plan.NewTask;
+import org.cougaar.domain.planning.ldm.plan.PlanElement;
+import org.cougaar.domain.planning.ldm.plan.PrepositionalPhrase;
+import org.cougaar.domain.planning.ldm.plan.Task;
+import org.cougaar.domain.planning.ldm.plan.Workflow;
+
+import org.cougaar.lib.callback.UTILAssetCallback;
+import org.cougaar.lib.callback.UTILAssetListener;
+import org.cougaar.lib.filter.UTILBufferingPlugInAdapter;
+import org.cougaar.lib.util.UTILAllocate;
+import org.cougaar.lib.util.UTILExpand;
+import org.cougaar.lib.util.UTILPreference;
+import org.cougaar.lib.util.UTILPrepPhrase;
+import org.cougaar.lib.vishnu.server.TimeOps;
+
+import org.cougaar.util.StringKey;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
-import org.xml.sax.helpers.DefaultHandler;
-import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
-import org.cougaar.lib.vishnu.server.Assignment;
-import org.cougaar.lib.vishnu.server.Resource;
-import org.cougaar.lib.vishnu.server.Scheduler;
-import org.cougaar.lib.vishnu.server.SchedulingData;
-import org.cougaar.lib.vishnu.server.MultitaskAssignment;
-import org.cougaar.lib.vishnu.server.TimeOps;
-
-import org.cougaar.lib.vishnu.client.VishnuComm;
-import org.cougaar.lib.vishnu.client.VishnuDomUtil;
 
 /**
  * <pre>
  * ALP-Vishnu bridge.
  *
  * Base class for interacting with the Vishnu scheduler.
+ *
+ * There are 3 main dimensions of behavior for this plugin: 
+ *  - SchedulerMode (External, Internal, or Direct)
+ *  - Job type      (Batch or Incremental)
+ *  - Translation   (Automatic or Custom)
+ *
+ * Supports three main scheduler modes : External, Internal, and Direct.  These
+ * are classes which implement the SchedulerLifecycle interface.  They
+ * orchestrate the steps to use the Vishnu Scheduler.  The VishnuPlugIn
+ * is a ModeListener and its as a mode listener that the modes communicate
+ * with the plugin.
+ * <p>
+ * <p>
+ * <b>External</b> mode uses the web server and expects the scheduling to be 
+ * done by a separate Vishnu Scheduler process.  All communication is done with 
+ * XML.
+ * <b>Internal</b> mode uses an internal Vishnu Scheduler process, but 
+ * communicates exclusively through XML.
+ * <b>Direct</b> mode extends internal mode, but directly translates between
+ * Cougaar objects and Vishnu scheduling objects.
+ *
+ * The results of a scheduling job are handled by a ResultHandler, which
+ * can be either an XMLResultHandler, or a DirectResultHandler. Each mode is a
+ * ResultListener and communicates with its result handler.
+ *
+ * Orthogonal to the scheduling modes, the scheduling jobs can be either 
+ * batch or incremental.  Batch starts from scratch every time, but 
+ * incremental mode maintains scheduler state from previous batches.
+ *
+ * Further, XML translation can either be automatic or custom.  Automatic
+ * mode uses introspection to determine the object format of the problem,
+ * whereas custom forces the developer to define it and participate in 
+ * the translation process.
  *
  * Abstract because it does not define :
  *  - createThreadCallback
@@ -118,10 +119,8 @@ import org.cougaar.lib.vishnu.client.VishnuDomUtil;
  */
 public abstract class VishnuPlugIn 
   extends UTILBufferingPlugInAdapter 
-  implements UTILAssetListener, DirectResultListener {
+  implements UTILAssetListener, DirectModeListener, ResultListener {
 
-  //  private static final int INITIAL_INTERNAL_BUFFER_SIZE = 16384; //2097152; // 2 M
-  
   /**
    * Here all the various runtime parameters get set.  See documentation for details.
    */
@@ -144,13 +143,6 @@ public abstract class VishnuPlugIn
     try {incrementalScheduling = 
 		   getMyParams().getBooleanParam("incrementalScheduling");}    
     catch(Exception e) {incrementalScheduling = false;}
-
-    try {alwaysClearDatabase = 
-		   getMyParams().getBooleanParam("alwaysClearDatabase");}    
-    catch(Exception e) {alwaysClearDatabase = true;}
-
-    // Don't clear database on each send if scheduling incrementally
-    if (incrementalScheduling) alwaysClearDatabase = false;
 
     try {showTiming = 
 		   getMyParams().getBooleanParam("showTiming");}    
@@ -181,6 +173,7 @@ public abstract class VishnuPlugIn
 	if (runInternal) {
 	  if (runDirectly) {
 		System.out.print (getName () + " - will run direct translation internal Vishnu Scheduler.");
+		resultHandler = createDirectResultHandler ();
 		mode = createDirectMode ();
 	  }
 	  else {
@@ -232,11 +225,15 @@ public abstract class VishnuPlugIn
   }
 
   protected SchedulerLifecycle createDirectMode () {
-	return new DirectMode (this, comm, xmlProcessor, domUtil, config, getMyParams ());
+	return new DirectMode (this, comm, xmlProcessor, domUtil, config, resultHandler, getMyParams ());
   }
 
   protected XMLResultHandler createXMLResultHandler () {
 	return new XMLResultHandler (this, comm, xmlProcessor, domUtil, config, getMyParams ());
+  }
+
+  protected DirectResultHandler createDirectResultHandler () {
+	return new DirectResultHandler (this, comm, xmlProcessor, domUtil, config, getMyParams ());
   }
 
   public boolean getRunDirectly () {
@@ -246,7 +243,8 @@ public abstract class VishnuPlugIn
    /****************************************************************
 	** Setup Filters...
 	**/
-
+  
+  /** filter for assets */
    public void setupFilters () {
 	 super.setupFilters ();
 
@@ -257,12 +255,13 @@ public abstract class VishnuPlugIn
    }
 
    /**
-	* Is the task interesting to the plugin?  This is the inner-most part of <br> 
+	* Is the task interesting to the plugin?  This is the inner-most part of 
 	* the predicate.                                                         <br>
 	* By default, it ignores tasks produced from this plugin                 <br>                    
 	* If you redefine this, it's good to call this using super.
 	*
 	* @param t - the task begin checked
+	* @see org.cougaar.lib.callback.UTILGenericListener#interestingTask
 	*/
    public boolean interestingTask (Task t) { 
 	 PrepositionalPhrase pp = UTILPrepPhrase.getPrepNamed (t, "VISHNU"); 
@@ -271,28 +270,38 @@ public abstract class VishnuPlugIn
 	 return true;
    }
 
+  /** 
+   * Implemented for UTILTaskChecker interface.
+   * <p>
+   * DEFAULT : Don't do anything with ill-formed tasks.
+   * 
+   * @see org.cougaar.lib.filter.UTILTaskChecker#handleIllFormedTask
+   */
    public void handleIllFormedTask (Task t) {}
 
-   protected UTILAssetCallback getAssetCallback    () { return myAssetCallback; }
+  /** @return UTILAssetCallback that was previously created and has this plugin as a listener */
+  protected UTILAssetCallback getAssetCallback    () { return myAssetCallback; }
 
    /**
-	* Standard Asset callback
+	* Create the standard Asset callback
 	*
-	* @see org.cougaar.lib.callback.UTILPhysicalAssetCallback
-	* @see org.cougaar.lib.callback.UTILNotOrganizationCallback
+	* @return UTILAssetCallback that was created and has this plugin as a listener
 	*/
    protected UTILAssetCallback createAssetCallback () { 
 	 return new UTILAssetCallback  (this); 
    } 
 
    /**
-	* <pre>
 	* Implemented for UTILAssetListener
-	*
-	* OVERRIDE to see which assets you
-	* think are interesting
-	* </pre>
-	* @param a asset to check for notification
+	* <p>
+	* OVERRIDE to see which assets you think are interesting.
+	* <p>
+	* For instance, if you are scheduling trucks/ships/planes, 
+	* you'd want to check like this : 
+	* <code>
+	* return (GLMAsset).hasContainPG ();
+	* </code>
+	* @param a asset to check 
 	* @return boolean true if asset is interesting
 	*/
    public boolean interestingAsset(Asset a) {
@@ -300,12 +309,7 @@ public abstract class VishnuPlugIn
    }
 
    /**
-	* <pre>
-	* Place to handle new assets.
-	*
-	* Does nothing by default - reports new assets when myExtraOutput set.
-	*
-	* </pre>
+	* Collect new assets into a set to eventually give to scheduler (after translation).
 	* @param newAssets new assets found in the container
 	*/
    public void handleNewAssets(Enumeration newAssets) {
@@ -336,10 +340,21 @@ public abstract class VishnuPlugIn
 						   " changed assets.");
    }
 
+  /** 
+   * Implemented for ModeListener interface 
+   * <p>
+   * Which assets were changed since they were added as new assets?
+   * @return myChangedAssets set of assets on the changed list
+   */
   public Collection getChangedAssets () {
 	return myChangedAssets;
   }
 
+  /** 
+   * Implemented for ModeListener interface 
+   * <p>
+   * After the scheduler is informed of the changed assets, forget about them.
+   */
   public void clearChangedAssets () {
 	myChangedAssets.clear ();
   }
@@ -348,10 +363,11 @@ public abstract class VishnuPlugIn
 	* <pre>
 	* Place to handle rescinded tasks.
 	*
-	* Sends XML to unfreeze the task assignment and delete it.
+	* Sends XML to unfreeze the task assignment and delete it.  Asks the mode to do this.
 	*
 	* </pre>
 	* @param newAssets changed assets found in the container
+	* @see org.cougaar.lib.vishnu.client.SchedulerLifecycle#handleRemovedTasks
 	*/
    protected void handleRemovedTasks(Enumeration removedTasks) {
 	 mode.handleRemovedTasks (removedTasks);
@@ -359,14 +375,23 @@ public abstract class VishnuPlugIn
 
    /**
 	* <pre>
+	* Heart of the plugin.
+	* 
 	* Deal with the tasks that we have accumulated.
 	* 
-	* Does, in order: 
-	* 1) Sends the problem's object format, if it hasn't already been sent.
-	* 2) Records tasks so can unfreeze them later.
-	* 3) Sends the data (obtained from tasks and assets)
-	* 4) Starts the scheduler
-	* 5) Waits for a result
+	* Does: 
+	* 1) Sets up the scheduler
+	* 2) Sends the problem's object format, if it hasn't already been sent.
+	*    - generated introspectively or from a file
+	*    - will keep sending the object format if running in batch mode
+	* 3) Prepares and sends the data (obtained from tasks and assets)
+	*    - ask the mode to translate the tasks and assets
+	* 4) Waits for a result (all in the mode)
+	*    - start the scheduler
+	*    - wait for a result
+	*    - call handleAssignment on each returned assignment
+	*    - deal with un-assigned tasks
+	*    - clear tasks, ready to start on a new batch
 	* 
 	* </pre>
 	*
@@ -382,7 +407,7 @@ public abstract class VishnuPlugIn
 	 mode.setupScheduler ();
 
 	 if (useStoredFormat) {
-	   // only generate the document once
+	   // only generate format the document once
 	   if (objectFormatDoc == null)
 		 objectFormatDoc = prepareStoredObjectFormat (tasks);
 	   if (!sentFormatAlready) {
@@ -393,18 +418,21 @@ public abstract class VishnuPlugIn
 	   if (!sentFormatAlready)
 		 prepareObjectFormat (tasks);
 	 }
-	   
-	 sentFormatAlready = incrementalScheduling || !runInternal;
+	
+	 // send again if in batch mode
+	 sentFormatAlready = incrementalScheduling;
 
+	 // remember these tasks come assignment-time
 	 setUIDToObjectMap (tasks, myTaskUIDtoObject);
 
 	 if (myExtraOutput)
 	   System.out.println (getName () + ".processTasks - sending " + 
 						   myTaskUIDtoObject.values ().size () + " tasks.");
 
-	 int numTasks = myTaskUIDtoObject.values ().size ();
+	 int numTasks = getNumTasks ();
 	 Date dataStart = new Date();
 
+	 // translate
 	 prepareData (tasks, objectFormatDoc);
 
 	 if (showTiming) {
@@ -412,13 +440,24 @@ public abstract class VishnuPlugIn
 	   domUtil.reportTime (" - Vishnu completed XML processing in ", start);
 	 }
 
+	 // run, get answer, make plan elements
 	 waitForAnswer ();
 
 	 if (showTiming)
 	   domUtil.reportTime (" - Vishnu did " + numTasks + " tasks in ", start);
    }
 
-
+  /** 
+   * Automatically generate object format from Cougaar input tasks (and assets). 
+   * <p>
+   * Calls VishnuConfig to get representative sample of input tasks and assets to
+   * use as the base for automatic translation.  Also gets the class name of the
+   * resource asset.
+   * <p>
+   * Sends the object format and creates a data xmlizer, if needed.
+   *
+   * @param tasks - tasks to examine
+   */
   protected void prepareObjectFormat (List tasks) {
 	Date start = new Date();
 
@@ -436,7 +475,7 @@ public abstract class VishnuPlugIn
 	formatTemplates.addAll (config.getTemplateTasks(tasks, firstTemplateTasks));
 
 	if (myExtraOutput) {
-	  System.out.println (getName () + ".processTasks - " + formatTemplates.size() + " unique assets : ");
+	  System.out.println (getName () + ".processObjectFormat - " + formatTemplates.size() + " unique assets : ");
 	  for (Iterator iter = formatTemplates.iterator (); iter.hasNext(); )
 		System.out.print ("\t" + iter.next().getClass ());
 	  System.out.println ("");
@@ -496,19 +535,14 @@ public abstract class VishnuPlugIn
    }
 
    /**
-	* Tasks a list of tasks and object format document and sends the data to
-	* the scheduler.  If incremental scheduling, appends assets to the 
+	* Tasks a list of tasks and the object format document and sends the data 
+	* to the scheduler.  If incremental scheduling, appends assets to the 
 	* list of data if they haven't been sent before.  Otherwise if not 
 	* in incremental mode, always sends assets.<p>
 	*
-	* Handles direct mode and normal mode differently.  In direct mode,
-	* calls prepareVishnuObjects to populate <tt>vishnuTasks</tt> and 
-	* <tt>vishnuResources</tt> lists with Vishnu objects.  Also sends
-	* header with the time window information, and any other data to scheduler
-	* via the internal buffer. <p>
-	*
-	* @see #prepareVishnuObjects
-	* @see #sendDataToVishnu
+	* @see ExternalMode#prepareData
+	* @see DirectMode#prepareVishnuObjects
+	* @see ExternalMode#sendDataToVishnu
 	* @param stuffToSend - initially the list of tasks to send to scheduler
 	* @param objectFormatDoc - optional object format used by data xmlizers
 	*  to determine types for fields when running directly
@@ -536,6 +570,19 @@ public abstract class VishnuPlugIn
 	mode.prepareData (stuffToSend, objectFormatDoc);
   }
 
+  /** 
+   * Ask the mode to run, which includes handling the assignments.  <p>
+   * Deal with un-scheduled tasks, and then forget about them.
+   * Any tasks not handled = any which are left in the
+   * <code>myTaskUIDtoObject</code> map get sent to <code>handleImpossibleTasks</code>.
+   * @see SchedulerLifecycle#run
+   * @see ExternalMode#run
+   * @see InternalMode#run
+   * @see DirectMode#run
+   * @see #getTasks
+   * @see #handleImpossibleTasks
+   * @see #clearTasks
+   */
   protected void waitForAnswer () {
 	mode.run ();
 
@@ -543,6 +590,12 @@ public abstract class VishnuPlugIn
 	clearTasks ();
   }
 
+  /** 
+   * Utility for setting up UID to object map.  Uses StringKeys for speed.
+   *
+   * @param objects     to add to map 
+   * @param UIDtoObject map to populate
+   */
   protected void setUIDToObjectMap (Collection objects, Map UIDtoObject) {
 	for (Iterator iter = objects.iterator (); iter.hasNext ();) {
 	  UniqueObject obj = (UniqueObject) iter.next ();
@@ -574,7 +627,7 @@ public abstract class VishnuPlugIn
 
   /**
    * <pre>
-   * send the dataformat section of the problem to the postdata
+   * Send the dataformat section of the problem to the postdata
    * URL.
    *
    * This will define the structure of input tasks and resources,
@@ -583,9 +636,12 @@ public abstract class VishnuPlugIn
    * Each of the items in the template collection will be translated
    * into an xml OBJECTFORMAT tag.
    *
+   * Attaches associated files.
+   *
    * </pre>
    * @param templates -- a collection of all the template resources 
    *                     and a template task.
+   * @param assetClassName - used to figure out which asset is to be the Vishnu resource
    * @return map of the object types to their object descriptions
    */
   protected Map sendFormat (Collection templates, String assetClassName) {
@@ -612,9 +668,12 @@ public abstract class VishnuPlugIn
   }
 
   /** 
-   * - attach global object format file 
-   * - attach specs file 
-   * - attach ga parameters file 
+   * Attaches various files to format document. <p>
+   *
+   * - attach global object format file         <br>
+   * - attach specs file                        <br>
+   * - attach ga parameters file                <br>
+   * @param problemFormatDoc - document to add to 
    **/
   protected void attachAssociatedFiles (Document problemFormatDoc) {
 	// append any global other data object formats 
@@ -629,7 +688,7 @@ public abstract class VishnuPlugIn
 
 	domUtil.appendDoc (problemFormatDoc, specsFile);
 
-      // append the ga specs
+	// append the ga specs
 	specsFile = config.getGASpecsFile(); 
 
 	if (myExtraOutput)
@@ -638,7 +697,12 @@ public abstract class VishnuPlugIn
 
 	domUtil.appendDoc (problemFormatDoc, specsFile);
   }
-  
+
+  /** 
+   * Talks to VishnuConfig to find out if there is an other data format file. <br>
+   * If there is, appends it to problem format doc.  Adds it beneath DATAFORMAT tag.
+   * @param problemFormatDoc document to add other data format to
+   */
   protected void appendGlobalDataFormat (Document problemFormatDoc) {
 	String otherDataFormat = config.getOtherDataFormat();
 	try {
@@ -664,9 +728,11 @@ public abstract class VishnuPlugIn
   }
   
   /** 
-   * Creates lists of Vishnu objects. <p>
-   *
-   * Does NOTHING by default.
+   * Creates lists of Vishnu objects.
+   * <p>
+   * Complains that you need to define this method by default.
+   * <p>
+   * Implemented for DirectResultListener interface.
    *
    * @param tasksAndResources - Cougaar tasks and resources to translate
    * @param vishnuTasks - list to add Vishnu tasks to 
@@ -681,37 +747,44 @@ public abstract class VishnuPlugIn
   }
 
 
+  /** implemented for ModeListener interface */
   public int getNumTasks () {
 	return myTaskUIDtoObject.size();
   }
 
-  public void clearTasks () {
+  protected void clearTasks () {
 	myTaskUIDtoObject.clear();
   }
 
+  /** implemented for ResultListener interface */
   public Task getTaskForKey (StringKey key) {
 	return (Task)  myTaskUIDtoObject.get (key);
   }
 
+  /** implemented for ResultListener interface */
   public void removeTask (StringKey key) {
 	myTaskUIDtoObject.remove (key);
   }
   
+  /** implemented for ModeListener interface */
   public Collection getTasks () {
 	return myTaskUIDtoObject.values();
   }
 
+  /** implemented for ModeListener interface */
   public int getNumAssets () {
 	return myAssetUIDtoObject.size();
   }
 
+  /** implemented for ResultListener interface */
   public Asset getAssetForKey (StringKey key) {
 	return (Asset)  myAssetUIDtoObject.get (key);
   }
 
   /**
-   * Given a collection of impossible tasks, make failed dispositions for each.
-   *
+   * Given a collection of impossible tasks, make failed disposition for each. 
+   * <p>
+   * If <code>stopOnFailure</code> is true, exits.
    * @param impossibleTasks -- tasks that the scheduler couldn't figure out 
    *                           what to do with
    */
@@ -734,10 +807,14 @@ public abstract class VishnuPlugIn
   }
 
   /** 
-   * define in subclass -- create an allocation 
+   * <pre>
+   * Should define in subclass -- create an allocation 
    *
    * The parameters are what got returned from the vishnu scheduler.
    *
+   * implemented for ResultListener interface 
+   * </pre>
+   * @see VishnuAllocatorPlugIn#handleAssignment
    * @param task  task that was assigned to asset
    * @param asset asset handling task
    * @param start of main task
@@ -749,10 +826,14 @@ public abstract class VishnuPlugIn
 								Date start, Date end, Date setupStart, Date wrapupEnd) {}
 
   /** 
-   * define in subclass -- create an aggregation
+   * <pre>
+   * Should define in subclass -- create an aggregation
    *
    * The parameters are what got returned from the vishnu scheduler.
    *
+   * implemented for ResultListener interface 
+   * </pre>
+   * @see VishnuAggregatorPlugIn#handleMultiAssignment
    * @param tasks  tasks to be aggregated together and assigned to asset
    * @param asset asset handling task
    * @param start of main task
@@ -763,7 +844,8 @@ public abstract class VishnuPlugIn
   public void handleMultiAssignment (Vector tasks, Asset asset, 
 									 Date start, Date end, Date setupStart, Date wrapupEnd) {}
 
-  /** must use a special allocation result aggregator that does NOT include the transit (setup, wrapup) tasks
+  /** 
+   * Must use a special allocation result aggregator that does NOT include the transit (setup, wrapup) tasks
    * in it's time calculations.
    */
   protected AllocationResultAggregator skipTransitARA = new VishnuAllocationResultAggregator ();
@@ -781,6 +863,7 @@ public abstract class VishnuPlugIn
    * @param end   of main task
    * @param setupStart start of setup task
    * @param wrapupEnd end of wrapup task
+   * @return List of subtasks created
    */
   protected List makeSetupWrapupExpansion (Task task, Asset asset, Date start, Date end, Date setupStart, Date wrapupEnd) {
     if (myExtraOutput)
@@ -917,10 +1000,11 @@ public abstract class VishnuPlugIn
 
   /** 
    * This method Expands the given Task.
+   *
+   * @param wantConfidence set the confidence to 100% on expansion
    * @param t the task to be expanded.
    * @param subtasks the expanded subtasks
    */
-
   public void publishSubtasks (boolean wantConfidence, Task t, List subtasks) {
     if (myExtraOutput){
       System.out.println(getName() + ".handleTask: Subtask(s) created for task :" + 
@@ -979,37 +1063,64 @@ public abstract class VishnuPlugIn
 	return preps;
   }
 
-  protected int total = 0;
+  // ------------- MODES ------------------------ 
+  /** determines whether to run in internal or external (with web server) mode */
   protected boolean runInternal = true;
+  /** determines whether to do XML or direct translation of Cougaar objects */
+  protected boolean runDirectly = false;
+  /** incremental or batch mode */
   protected boolean incrementalScheduling = false;
 
-  protected UTILAssetCallback myAssetCallback;
+  // ------------- TASKS -------------------------
+  /** how many tasks to examine to automatically determine format in automatic translation mode */
   protected int firstTemplateTasks;
-  protected boolean sentFormatAlready = false;
+  /** memory for which tasks are being processed in this batch -- used when assignments are returned */
+  protected Map myTaskUIDtoObject  = new HashMap ();
 
-  protected Map myTaskUIDtoObject = new HashMap ();
+  // ------------- ASSETS ------------------------ 
+  /** assets to use */
+  protected UTILAssetCallback myAssetCallback;
+  /** memory of which assets are available -- used when assignments are returned */
   protected Map myAssetUIDtoObject = new HashMap ();
-
-  protected boolean alwaysClearDatabase = false;
-  protected boolean showTiming = true;
-
-  protected boolean makeSetupAndWrapupTasks = true;
-  protected boolean useStoredFormat = false;
-  protected boolean stopOnFailure = false;
-  protected boolean runDirectly = false;
-
-  protected Document objectFormatDoc;
+  /** recently received assets to tell the scheduler about */
   protected Set myNewAssets = new HashSet ();
+  /** changed assets to tell the scheduler about */
   protected Set myChangedAssets = new HashSet ();
 
-  // helper objects
-  protected VishnuComm comm;
-  protected VishnuDomUtil domUtil;
-  protected XMLProcessor xmlProcessor;
-  protected VishnuConfig config;
+  // ------------- FLAGS ------------------------ 
 
+  /** option : create setup and wrapup tasks, in addition to assignment task */
+  protected boolean makeSetupAndWrapupTasks = true;
+  /** controls whether to use custom translation */
+  protected boolean useStoredFormat = false;
+  /** controls whether to do exit on failure, sometimes useful for debugging */
+  protected boolean stopOnFailure = false;
+  /** report debug output showing timing info */
+  protected boolean showTiming = true;
+
+  // ------------- STATE ---------------------------------
+  /** sent the format already?  Send it only once unless in batch mode */
+  protected boolean sentFormatAlready = false;
+  /** object format doc, either generated or from a file */
+  protected Document objectFormatDoc;
+
+  /** total tasks received */
+  protected int total = 0;
+
+  // ------------- HELPER OBJECTS ------------------------
+  /** mode - manages scheduler lifecycle */
   protected SchedulerLifecycle mode;
-  protected XMLResultHandler resultHandler;
+  /** handles results, calls methods in plugin to create plan elements */
+  protected ResultHandler resultHandler;
+
+  /** manages communication with URLs or internally */
+  protected VishnuComm comm;
+  /** utility functions for manipulating DOM documents */
+  protected VishnuDomUtil domUtil;
+  /** automatic translator */
+  protected XMLProcessor xmlProcessor;
+  /** config files, gets representative tasks and assets for automatic translation */
+  protected VishnuConfig config;
 }
 
 
