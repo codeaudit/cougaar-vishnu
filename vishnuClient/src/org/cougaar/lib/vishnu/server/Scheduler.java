@@ -187,7 +187,7 @@ public class Scheduler {
   /** Write all the XML representation of assignments to a URL */
   private void writeSchedule() {
     Map args = getArgs();
-    String str = textForSchedule();
+    String str = getXMLAssignments();
     if (showAssignments)
       System.out.println ("Scheduler.writeSchedule - " + str);
 
@@ -196,8 +196,8 @@ public class Scheduler {
   }
 
   /** Compute the XML representation of assignments */
-  private String textForSchedule () {
-	Date start = new Date ();
+  public String getXMLAssignments () {
+    Date start = new Date ();
     Task[] tasks = data.getTasks();
     StringBuffer text = new StringBuffer (tasks.length * 200);
     text.append ("<?xml version='1.0'?>\n<ASSIGNMENTS>\n");
@@ -213,8 +213,8 @@ public class Scheduler {
           maxTime = assign.getEndTime();
       }
     }
-	if (debug) reportTime ("\t\tWrote tasks in ", start);
-	start = new Date ();
+    if (debug) reportTime ("\t\tWrote tasks in ", start);
+    start = new Date ();
     Resource[] resources = data.getResources();
     for (int i = 0; i < resources.length; i++) {
       TimeBlock[] activities = resources[i].getActivities();
@@ -231,7 +231,7 @@ public class Scheduler {
         }
     }
     text.append ("</ASSIGNMENTS>\n");
-	if (debug) reportTime ("\t\tWrote resources in ", start);
+    if (debug) reportTime ("\t\tWrote resources in ", start);
     return text.toString();
   }
 
@@ -265,12 +265,12 @@ public class Scheduler {
       new StringBuffer (tasks.length * data.getResources().length * 20);
     text.append ("<?xml version='1.0'?>\n<CAPABILITIES>\n");
     for (int i = 0; i < tasks.length; i++) {
-	  if (!data.isFrozen (tasks[i])) {
-		Resource[] resources = specs.capableResources (tasks[i], data);
-		for (int j = 0; j < resources.length; j++)
-		  text.append ("<CAPABILITY task=\"" + tasks[i].getKey() +
-					   "\" resource=\"" + resources[j].getKey() + "\" />\n");
-	  }
+      if (!data.isFrozen (tasks[i])) {
+        Resource[] resources = specs.capableResources (tasks[i], data);
+        for (int j = 0; j < resources.length; j++)
+          text.append ("<CAPABILITY task=\"" + tasks[i].getKey() +
+                       "\" resource=\"" + resources[j].getKey() + "\" />\n");
+      }
     }
     text.append ("</CAPABILITIES>\n");
     if (showAssignments)
@@ -509,66 +509,6 @@ public class Scheduler {
     return runInternalToProcess (problem, true);
   }
 
-  /**
-   * The function called to return the assignments in XML after running
-   * the scheduler internally
-   * @return XML representation of all the assignments
-   */
-  public String getXMLAssignments() {
-    try {
-      Task[] tasks = data.getTasks();
-      StringBuffer text = new StringBuffer (tasks.length * 150);
-      text.append ("<?xml version='1.0'?>\n<ASSIGNMENTS>\n");
-      if (specs.getMultitasking() != SchedulingSpecs.MULTITASKING_GROUPED) {
-        for (int i = 0; i < tasks.length; i++) {
-          Assignment assign = tasks[i].getAssignment();
-          if (assign != null) {
-            text.append ("<ASSIGNMENT task=\"");
-            text.append (assign.getTask().getKey());
-            text.append ("\" resource=\"");
-            sharedTaskText (text, assign);
-            text.append ("\" />\n");
-          }
-        }
-      }
-      else {
-        Resource[] resources = data.getResources();
-        for (int i = 0; i < resources.length; i++) {
-          MultitaskAssignment[] multi = resources[i].getMultitaskAssignments();
-          for (int j = 0; j < multi.length; j++) {
-            text.append ("<MULTITASK resource=\"");
-            sharedTaskText (text, multi[j]);
-            text.append ("\" >\n");
-            Task[] tasks2 = multi[j].getTasks();
-            for (int k = 0; k < tasks2.length; k++) {
-              text.append ("<TASK task=\"");
-              text.append (tasks2[k].getKey());
-              text.append ("\" />\n");
-            }
-            text.append ("</MULTITASK>\n");
-          }
-        }
-      }
-      text.append ("</ASSIGNMENTS>\n");
-      return text.toString();
-    } catch (Exception e) {
-      System.err.println (e.getMessage());
-      e.printStackTrace();
-    }
-    return null;
-  }
-
-  private void sharedTaskText (StringBuffer text, Assignment assign) {
-    text.append (assign.getResource().getKey());
-    text.append ("\" start=\"");
-    text.append (timeOps.timeToString (assign.getTaskStartTime()));
-    text.append ("\" end=\"");
-    text.append (timeOps.timeToString (assign.getTaskEndTime()));
-    text.append ("\" setup=\"");
-    text.append (timeOps.timeToString (assign.getStartTime()));
-    text.append ("\" wrapup=\"");
-    text.append (timeOps.timeToString (assign.getEndTime()));
-  }
 
   private class ProblemHandler extends DefaultHandler {
     DefaultHandler dataHandler = data.getXMLHandler();
