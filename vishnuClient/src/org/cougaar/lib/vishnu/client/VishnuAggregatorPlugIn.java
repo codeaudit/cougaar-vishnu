@@ -299,7 +299,7 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
     }
   }
 
-  private static final SimpleDateFormat format =
+  private final SimpleDateFormat format =
     new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");
 
   protected Asset assignedAsset;
@@ -311,8 +311,8 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
    */
   protected void parseStartElement (String name, Attributes atts) {
 	try {
-	  if (myExtraExtraOutput || debugParseAnswer)
-		System.out.println (getName() + ".parseStartElement got " + name);
+	  if (myExtraExtraOutput)
+	  	System.out.println (getName() + ".parseStartElement got " + name);
 	  
 	  if (name.equals ("MULTITASK")) {
 		if (myExtraOutput || debugParseAnswer) {
@@ -395,9 +395,9 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
 		}
 	  }
 	  else if (name.equals ("TASK")) {}
-	  else if (debugParseAnswer) {
-		System.out.println (getName () + ".parseEndElement - ignoring tag " + name);
-	  }
+	  //	  else if (debugParseAnswer) {
+	  //		System.out.println (getName () + ".parseEndElement - ignoring tag " + name);
+	  //	  }
 	} catch (Exception npe) {
 	  System.out.println (getName () + ".parseEndElement - got bogus assignment " + npe.getMessage());
 	  npe.printStackTrace ();
@@ -718,7 +718,6 @@ public class VishnuAggregatorPlugIn extends VishnuPlugIn implements UTILAggregat
   }
 
   private Map compositionToNumberTasks = new HashMap();
-  boolean debugParseAnswer = false;
   boolean propagateRescindPastAggregation;
 }
 
