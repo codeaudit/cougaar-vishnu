@@ -3,6 +3,7 @@ package org.cougaar.lib.vishnu.client;
 import java.io.CharArrayReader;
 import java.io.CharArrayWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.IOException;
@@ -64,7 +65,7 @@ public class VishnuComm {
   protected ParamMap   getMyParams    () { return myParamTable; }
   protected String     getName        () { return name;         }
   protected String     getClusterName () { return clusterName;  }
-  protected String     getProblem     () { return myProblem;    }
+  public    String     getProblem     () { return myProblem;    }
   
   protected void localSetup () 
   {
@@ -155,28 +156,36 @@ public class VishnuComm {
    * @param doc - DOM doc to send to URL
    * @param postData - true if posting data 
    */
-  protected void serializeAndPost (Document doc, boolean postData, 
+  public void serializeAndPost (Document doc, boolean postData, 
 								   boolean runInternal, StringBuffer internalBuffer) {
+	serializeAndPost (domUtil.getDocAsArray (doc).toString(), postData, runInternal, internalBuffer);
+
+	if (writeXMLToFile) {
+	  String suffix = (postData) ? "data" : "problem";
+	  String fileName = getClusterName () + "_" + suffix + "_" + numFilesWritten++ + ".xml";
+	  System.out.println (getName () + ".serializeAndPost - Writing XML to file " + fileName);
+	  try {
+		FileOutputStream temp = new FileOutputStream (fileName);
+		domUtil.writeDocToStream (doc, temp);
+	  } 
+	  catch (FileNotFoundException fnfe) { /* never happen */ }
+	  catch (IOException ioe) { /* never happen */ }
+	}
+  }
+
+  public void serializeAndPost (String doc, boolean postData, 
+								boolean runInternal, StringBuffer internalBuffer) {
 	if (runInternal)
-	  appendToInternalBuffer( domUtil.getDocAsArray (doc).toString(), internalBuffer);
+	  appendToInternalBuffer( doc, internalBuffer);
 	else {
 	  if (postData) {
-		if (!postData (domUtil.getDocAsArray (doc).toString())) {
+		if (!postData (doc)) {
 		  showPostDataWarning ();
 		}
 	  }
 	  else
-		postProblem (domUtil.getDocAsArray (doc).toString());
+		postProblem (doc);
 
-	  if (writeXMLToFile) {
-		String suffix = (postData) ? "data" : "problem";
-		String fileName = getClusterName () + "_" + suffix + "_" + numFilesWritten++ + ".xml";
-		System.out.println (getName () + ".serializeAndPost - Writing XML to file " + fileName);
-		try {
-		  FileOutputStream temp = new FileOutputStream (fileName);
-		  domUtil.writeDocToStream (doc, temp);
-		} catch (FileNotFoundException fnfe) { /* never happen */ }
-	  }
 	}
   }
 
