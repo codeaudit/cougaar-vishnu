@@ -1,5 +1,3 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/GeneticAlgorithm.java,v 1.11 2001-08-09 16:14:13 gvidaver Exp $
-
 package org.cougaar.lib.vishnu.server;
 
 import org.xml.sax.helpers.DefaultHandler;
@@ -118,11 +116,13 @@ public class GeneticAlgorithm {
 
     if (explain || (topDogAge != 0) || !allTasksAssigned) {
       data.clearAssignments();
-	  if (!allTasksAssigned)
-		System.out.println ("GeneticAlgorithm.execute - explaining because not all tasks assigned.");
+	  if (!population.isEmpty()) {
+		if (!allTasksAssigned)
+		  System.out.println ("GeneticAlgorithm.execute - explaining because not all tasks assigned.");
 	  
-      decoder.generateAssignments (((Member) population.get(0)).chromosome,
-                                   data, specs, explain);
+		decoder.generateAssignments (((Member) population.get(0)).chromosome,
+									 data, specs, explain);
+	  }
     }
     return false;
   }
