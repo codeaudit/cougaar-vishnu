@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.22 2001-06-22 16:40:09 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingData.java,v 1.23 2001-07-20 14:24:46 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -342,8 +342,8 @@ public class SchedulingData {
           if (iskey)
             keyValue = atts.getValue ("value");
         }
-		names.push (atts.getValue ("name"));
-		types.push (atts.getValue ("type"));
+        names.push (atts.getValue ("name"));
+        types.push (atts.getValue ("type"));
       }
       else if (name.equals ("OBJECT")) {
         stack.push (new SchObject (timeOps));
@@ -364,9 +364,9 @@ public class SchedulingData {
           endTime = timeOps.stringToTime (atts.getValue ("end"));
       }
       else if (name.equals ("VALUE")) {
-		SchObject object = (SchObject) stack.peek();
-		String nameForList = (String) names.peek ();
-		String typeForList = (String) types.peek ();
+        SchObject object = (SchObject) stack.peek();
+        String nameForList = (String) names.peek ();
+        String typeForList = (String) types.peek ();
         object.addField (nameForList, typeForList,
                          atts.getValue ("value"), false, true);
       }

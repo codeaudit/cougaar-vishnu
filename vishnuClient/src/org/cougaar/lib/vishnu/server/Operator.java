@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Operator.java,v 1.5 2001-04-12 17:50:30 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/Operator.java,v 1.6 2001-07-20 14:24:46 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -90,7 +90,9 @@ public class Operator implements ResultProducer {
   private static final int APPEND = 46;
   private static final int STRING = 47;
   private static final int GROUPFOR = 48;
-  private static final int NUM_OPS = 49;
+  private static final int TASKSETUPTIME = 49;
+  private static final int TASKWRAPUPTIME = 50;
+  private static final int NUM_OPS = 51;
 
   private static final float EARTH_RADIUS = 3437.75f; // nmi
   private static final float DEGREES_TO_RADIANS = (3.1415927f / 180.0f);
@@ -231,6 +233,12 @@ public class Operator implements ResultProducer {
       opStrings [TASKENDTIME] = "taskendtime";
       numArgs [TASKENDTIME] = 1;
       opsScheduleDependent [TASKENDTIME] = true;
+      opStrings [TASKSETUPTIME] = "tasksetuptime";
+      numArgs [TASKSETUPTIME] = 1;
+      opsScheduleDependent [TASKSETUPTIME] = true;
+      opStrings [TASKWRAPUPTIME] = "taskwrapuptime";
+      numArgs [TASKWRAPUPTIME] = 1;
+      opsScheduleDependent [TASKWRAPUPTIME] = true;
       opStrings [RESOURCEFOR] = "resourcefor";
       numArgs [RESOURCEFOR] = 1;
       opsScheduleDependent [RESOURCEFOR] = true;
@@ -922,6 +930,20 @@ public class Operator implements ResultProducer {
       a2 = task.getAssignment();
       return (a2 == null) ? null : reuse.getInteger (a2.getTaskEndTime());
 
+    case TASKSETUPTIME:
+      task = (Task) args[0].getResult (data);
+      if (task == null)
+        return null;
+      a2 = task.getAssignment();
+      return (a2 == null) ? null : reuse.getInteger (a2.getStartTime());
+
+    case TASKWRAPUPTIME:
+      task = (Task) args[0].getResult (data);
+      if (task == null)
+        return null;
+      a2 = task.getAssignment();
+      return (a2 == null) ? null : reuse.getInteger (a2.getEndTime());
+
     case RESOURCEFOR:
       task = (Task) args[0].getResult (data);
       if (task == null)
@@ -1080,6 +1102,8 @@ public class Operator implements ResultProducer {
       return "boolean";
     case TASKSTARTTIME:
     case TASKENDTIME:
+    case TASKSETUPTIME:
+    case TASKWRAPUPTIME:
       return "datetime";
     case RESOURCEFOR:
       return "resource";
@@ -1216,6 +1240,8 @@ public class Operator implements ResultProducer {
       return argTypes[0].equals ("resource");
     case TASKSTARTTIME:
     case TASKENDTIME:
+    case TASKSETUPTIME:
+    case TASKWRAPUPTIME:
     case RESOURCEFOR:
     case GROUPFOR:
       return argTypes[0].equals ("task");

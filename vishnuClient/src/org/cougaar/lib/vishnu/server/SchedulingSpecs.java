@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingSpecs.java,v 1.13 2001-06-19 20:43:39 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingSpecs.java,v 1.14 2001-07-20 14:24:46 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -285,8 +285,13 @@ public class SchedulingSpecs {
     if (ids == null)
       return new Task[0];
     Task[] tasks = new Task [ids.size()];
-    for (int i = 0; i < ids.size(); i++)
+    for (int i = 0; i < ids.size(); i++) {
       tasks[i] = sd.getTask ((String) ids.get(i));
+      if (tasks[i] == null)
+        throw new RuntimeException
+          ("Prerequisite not found<br>\nPrerequiste " + ids.get(i) +
+           " does not exist for task " + task.getKey());
+    }
     return tasks;
   }
 

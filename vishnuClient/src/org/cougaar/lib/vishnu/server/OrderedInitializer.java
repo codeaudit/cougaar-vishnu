@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedInitializer.java,v 1.5 2001-06-28 17:57:23 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedInitializer.java,v 1.6 2001-07-20 14:24:46 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -67,6 +67,10 @@ public class OrderedInitializer implements GAInitializer {
         selected.add (task);
         break;
       }
+      if ((original.size() + i + 1) != ordering.length)
+        throw new RuntimeException
+          ("Dependency Loop<br>\nTry looking at the way you " +
+           "have your prerequisites set up");
     }
     return new StringOfIntegers (ordering);
   }
