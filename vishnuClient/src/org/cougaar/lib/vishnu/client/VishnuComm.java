@@ -187,7 +187,7 @@ public class VishnuComm {
 	}
   }
 
-  public void postData (String data) {
+  public boolean postData (String data) {
     StringBuffer sb = new StringBuffer ();
     sb.append ("?" + "bogus=ferris&");
     sb.append (getProblemPostVar ());
@@ -202,12 +202,18 @@ public class VishnuComm {
       postToURL (hostName, postDataFile, sb.toString (), null, true);
 	if (showTiming)
 	  domUtil.reportTime (" - did post of data string to URL in ", start);
+
+	if (!reply.startsWith ("SUCCESS")) {
+      System.out.println (getName () + ".postData - ERROR : Reply to post data was <" + reply + ">");
+	  return false;
+	}
+	else if (myExtraOutput)
+      System.out.println (getName () + ".postData - Reply to post data was <" + reply.trim() + ">");
 	
-    if (myExtraOutput)
-      System.out.println (getName() + ".postData - Reply to post data <" + reply.trim() + ">");
+	return true;
   }
 
-  public void postData (Document dataDoc) {
+  public boolean postData (Document dataDoc) {
     StringBuffer sb = new StringBuffer ();
     sb.append ("?" + "bogus=ferris&");
     sb.append (getProblemPostVar ());
@@ -222,10 +228,14 @@ public class VishnuComm {
 	if (showTiming)
 	  domUtil.reportTime (" - did post of data Doc to URL in ", start);
 	
-	if (!reply.startsWith ("SUCCESS"))
+	if (!reply.startsWith ("SUCCESS")) {
       System.out.println (getName () + ".postData - ERROR : Reply to post data was <" + reply + ">");
+	  return false;
+	}
 	else if (myExtraOutput)
       System.out.println (getName () + ".postData - Reply to post data was <" + reply.trim() + ">");
+
+	return true;
   }
 
   /**
