@@ -679,7 +679,8 @@ public abstract class VishnuPlugIn
 	   // sched is the scheduler...
 	   sched.scheduleInternal();
 
-	   String assignments = sched.getXMLAssignments(true);
+	   // the second argument controls whether to include frozen assignments in those returned
+	   String assignments = sched.getXMLAssignments(true, !incrementalScheduling);
 	 
 	   if (myExtraOutput) 
 		 System.out.println(getName () + ".runInternally - scheduled assignments were : " + assignments);
