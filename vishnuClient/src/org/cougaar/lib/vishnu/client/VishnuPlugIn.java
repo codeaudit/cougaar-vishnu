@@ -994,47 +994,6 @@ public abstract class VishnuPlugIn
    * @param nameToNodes list of DOM Nodes for type 
    * @param root DATAFORMAT tag which is the parent of all OBJECTFORMATs
    */
-  protected void pruneObjectFormat (Node root, Map nameToNodes, Set potentialDuplicates) {
-    Set toRemove = new HashSet ();
-	Set dupsToRemove = new HashSet ();
-    for (Iterator iter = potentialDuplicates.iterator (); iter.hasNext(); ){
-      String type = (String) iter.next();
-	  
-	  if (myExtraExtraOutput)
-		System.out.println (getName() + ".pruneObjectFormat - type " + type);
-	  
-	  List nodesForType = (List) nameToNodes.get (type);
-	  List copyOfNodesForType = new ArrayList (nodesForType);
-	  if (myExtraExtraOutput)
-		System.out.println ("nodes for type " + nodesForType);
-
-	  Set nameToNodeToRemove = new HashSet ();
-	  for (Iterator iter2 = copyOfNodesForType.iterator (); iter2.hasNext(); ){
-		Node objectFormat = (Node) iter2.next();
-		if (duplicateNode (objectFormat, nodesForType)) {
-		  if (myExtraExtraOutput)
-			System.out.println ("\tfound dup");
-		  toRemove.add (objectFormat);
-		}
-	  }
-	  if (nodesForType.size () == 1) {
-		if (myExtraExtraOutput)
-		  System.out.println ("\tremoving " + type);
-		dupsToRemove.add (type);
-	  }
-    }
-	if (myExtraExtraOutput)
-	  System.out.println (getName() + ".pruneObjectFormat - removing " + 
-						  dupsToRemove + " from " + potentialDuplicates);
-	potentialDuplicates.removeAll (dupsToRemove);
-	if (myExtraExtraOutput)
-	  System.out.println (getName () + ".pruneObjectFormat - " + 
-						  potentialDuplicates.size () + " potential dups remain.");
-
-    for (Iterator iter = toRemove.iterator (); iter.hasNext (); )
-      root.removeChild ((Node) iter.next ());
-  }
-
   protected void processObjectFormats (Node root, Map nameToNodes, Set potentialDuplicates, 
 									   FormatProcessor formatProcessor) {
     Set toRemove = new HashSet ();
@@ -1176,6 +1135,11 @@ public abstract class VishnuPlugIn
   }
 
   protected void mergeNode (Node first, List nodes, Iterator nodeListIter) {
+	if (myExtraOutput) {
+	  String name  = first.getAttributes().getNamedItem ("name").getNodeValue();
+	  System.out.println (getName() + ".mergeNode - examining " + first.getNodeName () + " " + name);
+	}
+
     if (nodes.size () == 1)
       return; // if no others to compare against, it's not a duplicate
 
@@ -1238,7 +1202,7 @@ public abstract class VishnuPlugIn
 		firstFieldToType.put (fieldName, namesInOther.get(fieldName));
 	  }
 
-	  if (myExtraExtraOutput) {
+	  if (myExtraOutput) {
 		String name  = first.getAttributes().getNamedItem ("name").getNodeValue();
 		System.out.println (getName() + ".mergeNode - Found a mergable node " + first.getNodeName () + " " + name);
 	  }
@@ -1546,7 +1510,6 @@ public abstract class VishnuPlugIn
   protected void appendOtherData (Document dataDoc, Element placeToAdd) {
 	String otherData = getOtherData ();
 	try {
-	  //	  if (getCluster().getConfigFinder ().open (otherData) != null) {
 	  if (getConfigFinder ().open (otherData) != null) {
 	  if (myExtraOutput)
 		  System.out.println (getName () + " appending " + 
@@ -1921,7 +1884,7 @@ public abstract class VishnuPlugIn
 
   protected List makeSetupWrapupExpansion (Task task, Asset asset, Date start, Date end, Date setupStart, Date wrapupEnd) {
     if (myExtraOutput)
-	  System.out.println (getName () + ".handleAssignment : " + 
+	  System.out.println (getName () + ".makeSetupWrapupExpansion : " + 
 			" assigning " + task.getUID() + 
 			"\nto " + asset.getUID () +
 			" from " + start + 
@@ -1936,12 +1899,18 @@ public abstract class VishnuPlugIn
 	
 	subtasks.add (createMainTask (task, asset, start, end, setupStart, wrapupEnd));
 
-	if (setupStart.getTime() < start.getTime()) {
-	  subtasks.add (createSetupTask (task, asset, start, end, setupStart, wrapupEnd));
-	}
+	if (makeSetupAndWrapupTasks) {
+	  if (setupStart.getTime() < start.getTime()) {
+		subtasks.add (createSetupTask (task, asset, start, end, setupStart, wrapupEnd));
+		if (myExtraOutput)
+		  System.out.println (getName () + ".makeSetupWrapupExpansion : making setup task for " + task.getUID());
+	  }
 
-	if (wrapupEnd.getTime() > end.getTime()) {
-	  subtasks.add (createWrapupTask (task, asset, start, end, setupStart, wrapupEnd));
+	  if (wrapupEnd.getTime() > end.getTime()) {
+		subtasks.add (createWrapupTask (task, asset, start, end, setupStart, wrapupEnd));
+		if (myExtraOutput)
+		  System.out.println (getName () + ".makeSetupWrapupExpansion : making wrapup task for " + task.getUID());
+	  }
 	}
 
     publishSubtasks (wantConfidence, task, subtasks);
