@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/TimeBlock.java,v 1.4 2001-07-23 14:36:15 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/TimeBlock.java,v 1.5 2001-08-06 14:15:32 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -49,15 +49,14 @@ public class TimeBlock {
   public void setText (String text)  { this.text = text; }
 
   public String activityString (Resource resource) {
-    return ("<ACTIVITY resource=\"" + resource.getKey() + "\" " +
-            attributesString() + " />");
+    return ("<ACTIVITY resource=\"" + resource.getKey() +
+            "\" start=\"" + timeOps.timeToString (getStartTime()) +
+            "\" end=\"" + timeOps.timeToString (getEndTime()) + "\" " +
+            displayAttributes() + " />");
   }
 
-  public String attributesString() {
-    return ("start=\"" + timeOps.timeToString (getStartTime())
-            + "\" end=\"" + timeOps.timeToString (getEndTime())
-            + "\" color=\"" + getColor()
-            + "\" text=\"" + getText() + "\"");
+  public String displayAttributes() {
+    return ("color=\"" + getColor() + "\" text=\"" + getText() + "\"");
   }
 
 }

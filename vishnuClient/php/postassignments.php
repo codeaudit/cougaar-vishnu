@@ -42,10 +42,10 @@
                                 "insert into assignments values (\"" .
                                 $attribs["TASK"] . "\", \"" .
                                 $attribs["RESOURCE"] . "\", \"" .
+                                $attribs["SETUP"] . "\", \"" .
                                 $attribs["START"] . "\", \"" .
-                                $attribs["TASKSTART"] . "\", \"" .
-                                $attribs["TASKEND"] . "\", \"" .
                                 $attribs["END"] . "\", \"" .
+                                $attribs["WRAPUP"] . "\", \"" .
                                 $attribs["FROZEN"] . "\", \"" .
                                 $attribs["COLOR"] . "\", \"" .
                                 $attribs["TEXT"] . "\");");
@@ -57,10 +57,10 @@
                                 $attribs["RESOURCE"] . "\", \"" .
                                 $attribs["CAPACITIES_USED"] . "\", \"" .
                                 $attribs["CAPACITIES"] . "\", \"" .
+                                $attribs["SETUP"] . "\", \"" .
                                 $attribs["START"] . "\", \"" .
-                                $attribs["TASKSTART"] . "\", \"" .
-                                $attribs["TASKEND"] . "\", \"" .
                                 $attribs["END"] . "\", \"" .
+                                $attribs["WRAPUP"] . "\", \"" .
                                 $attribs["COLOR"] . "\", \"" .
                                 $attribs["TEXT"] . "\");");
     }
