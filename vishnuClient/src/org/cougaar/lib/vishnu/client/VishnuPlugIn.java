@@ -141,9 +141,8 @@ public abstract class VishnuPlugIn
 		   getMyParams().getBooleanParam("makeSetupAndWrapupTasks");}    
     catch(Exception e) {makeSetupAndWrapupTasks = true;}
 
-    try {useStoredFormat = 
-		   getMyParams().getBooleanParam("useStoredFormat");}    
-    catch(Exception e) {useStoredFormat = false;}
+    try {useStoredFormat = getMyParams().getBooleanParam("useStoredFormat");}    
+    catch(Exception e) {  useStoredFormat = false;	}
 
     try {stopOnFailure = 
 		   getMyParams().getBooleanParam("stopOnFailure");}    
@@ -169,13 +168,18 @@ public abstract class VishnuPlugIn
 	// helpful for debugging connection configuration problems
 	if (runInternal) {
 	  if (runDirectly)
-		System.out.println (getName () + " - will run direct translation internal Vishnu Scheduler.");
+		System.out.print (getName () + " - will run direct translation internal Vishnu Scheduler.");
 	  else
-		System.out.println (getName () + " - will run internal Vishnu Scheduler.");
+		System.out.print (getName () + " - will run internal Vishnu Scheduler.");
 	}
+	else {
+	  System.out.print (getName () + " - will try to connect to Vishnu Web Server : " + 
+						  hostName + ".");
+	}
+	if (useStoredFormat)
+	  System.out.println (" Will send stored object format.");
 	else
-	  System.out.println (getName () + " - will try to connect to Vishnu Web Server : " + 
-						  hostName);
+	  System.out.println ("");
   }
 
   protected VishnuDomUtil createVishnuDomUtil () { 
@@ -414,7 +418,7 @@ public abstract class VishnuPlugIn
 	
 	if (useStoredFormat)
 	  objectFormatDoc = prepareStoredObjectFormat (tasks);
-	else
+	else 
 	  prepareObjectFormat (tasks);
       
 	setUIDToObjectMap (tasks, myTaskUIDtoObject);
@@ -448,6 +452,9 @@ public abstract class VishnuPlugIn
 	// scheduling.  The only time the problem format needs to be resent is when running
 	// internally.  
 	if (!sentFormatAlready) {
+	  if (myExtraOutput)
+		System.out.println (getName () + ".prepareObjectFormat - discovering object format introspectively.");
+
 	  List assetClassName = new ArrayList(); // just a way of returning a second return value from function
 	  Collection formatTemplates = config.getAssetTemplatesForTasks(tasks, assetClassName, getAllAssets());
 	  singleAssetClassName = (String) assetClassName.get(0);
@@ -493,6 +500,9 @@ public abstract class VishnuPlugIn
 	try {
 	  if (!sentFormatAlready) {
 		String defaultFormat = config.getNeededFile ("defaultFormat", ".dff.xml");
+
+		if (myExtraOutput)
+		  System.out.println (getName () + ".prepareStoredObjectFormat - sending format file " + defaultFormat);
 
 		DOMParser parser = new DOMParser ();
 		InputStream inputStream = getConfigFinder().open(defaultFormat);
