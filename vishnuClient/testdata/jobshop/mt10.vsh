@@ -1,3 +1,52 @@
+<?xml version='1.0'?>
+<PROBLEM name="jobshop_mt10" >
+<DATAFORMAT>
+<OBJECTFORMAT name="machine" is_task="false" is_resource="true" >
+<FIELDFORMAT name="id" datatype="string" is_subobject="false" is_list="false" is_key="true" />
+</OBJECTFORMAT>
+<OBJECTFORMAT name="step" is_task="true" is_resource="false" >
+<FIELDFORMAT name="id" datatype="string" is_subobject="false" is_list="false" is_key="true" />
+<FIELDFORMAT name="job" datatype="string" is_subobject="false" is_list="false" is_key="false" />
+<FIELDFORMAT name="step" datatype="string" is_subobject="false" is_list="false" is_key="false" />
+<FIELDFORMAT name="duration_in_seconds" datatype="number" is_subobject="false" is_list="false" is_key="false" />
+<FIELDFORMAT name="assigned_machine" datatype="string" is_subobject="false" is_list="false" is_key="false" />
+<FIELDFORMAT name="preceeding_steps" datatype="string" is_subobject="false" is_list="true" is_key="false" />
+</OBJECTFORMAT>
+</DATAFORMAT>
+<SPECS direction="minimize" >
+<OPTCRITERION>
+<OPERATOR operation="-" >
+<OPERATOR operation="maxover" >
+<LITERAL value="resources" type="variable" datatype="list:resource" />
+<LITERAL value="resource" type="constant" datatype="string" />
+<OPERATOR operation="complete" >
+<LITERAL value="resource" type="variable" datatype="resource" />
+</OPERATOR>
+</OPERATOR>
+<LITERAL value="start_time" type="variable" datatype="datetime" />
+</OPERATOR>
+</OPTCRITERION>
+<TASKDURATION>
+<OPERATOR operation="get" >
+<LITERAL value="task" type="variable" datatype="task" />
+<LITERAL value="duration_in_seconds" type="constant" datatype="string" />
+<LITERAL value="" type="variable" datatype="number" />
+</OPERATOR>
+</TASKDURATION>
+<CAPABILITY>
+<OPERATOR operation="=" >
+<OPERATOR operation="get" >
+<LITERAL value="task" type="variable" datatype="task" />
+<LITERAL value="assigned_machine" type="constant" datatype="string" />
+<LITERAL value="" type="variable" datatype="string" />
+</OPERATOR>
+<OPERATOR operation="get" >
+<LITERAL value="resource" type="variable" datatype="resource" />
+<LITERAL value="id" type="constant" datatype="string" />
+<LITERAL value="" type="variable" datatype="string" />
+</OPERATOR>
+</OPERATOR>
+</CAPABILITY>
 <PREREQUISITES>
 <OPERATOR operation="get" >
 <LITERAL value="task" type="variable" datatype="task" />
