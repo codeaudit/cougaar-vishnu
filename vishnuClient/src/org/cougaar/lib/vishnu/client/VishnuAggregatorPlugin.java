@@ -47,6 +47,7 @@ import org.cougaar.glm.ldm.Constants;
 
 import org.cougaar.lib.callback.UTILAggregationCallback;
 import org.cougaar.lib.callback.UTILFilterCallback;
+import org.cougaar.lib.callback.UTILFilterCallbackAdapter;
 import org.cougaar.lib.callback.UTILGenericListener;
 import org.cougaar.lib.callback.UTILWorkflowCallback;
 import org.cougaar.lib.callback.UTILExpansionCallback;
@@ -111,8 +112,10 @@ import org.cougaar.core.util.UID;
 public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregatorPlugin, UTILExpansionListener {
   // see explanation below for bug #11866
   protected Map tripletToTask = new HashMap ();
+  protected Map taskToTriplet = new HashMap ();
   // avoids blackboard query
-  protected Map taskToMPTask  = new HashMap ();
+  protected Map uidToMPTask   = new HashMap ();
+  protected UTILFilterCallback mpTaskCallback;
 
   boolean propagateRescindPastAggregation;
 
@@ -132,19 +135,112 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
     } catch(Exception e) {}
   }
 
-  /** adds the aggregation filter */
+  /** 
+   * adds the aggregation filter and two map filters 
+   *
+   * - one filter looks for MPTasks and keeps track of a map of uid->MPTask,
+   * which is used when we need to add new parent tasks to an existing MPTask.
+   *
+   * - one filter looks for subtasks of the MPTask and updates the triplet->task
+   * and task->triplet maps when tasks are removed.  These are also used
+   * when we need to add new parent tasks to an existing MPTask and its subtasks.
+   *
+   * @see #forgetTripletToTask
+   */
   public void setupFilters () {
     super.setupFilters ();
 
-    if (isInfoEnabled())
+    if (isInfoEnabled()) {
       info (getName () + " : Filtering for Aggregations...");
+    }
 
     addFilter (myAggCallback    = createAggCallback    ());
 
-    if (isInfoEnabled())
+    if (isInfoEnabled()) {
       info (getName () + " : Filtering for Expansions...");
+    }
 
     addFilter (new UTILExpansionCallback (this, logger));
+
+    addFilter (mpTaskCallback = new UTILFilterCallbackAdapter (this, logger) {
+	protected UnaryPredicate getPredicate () {
+	  return new UnaryPredicate() {
+	      public boolean execute(Object o) {
+		return ( o instanceof MPTask );
+	      }
+	    };
+	}
+	public void reactToChangedFilter () {
+	  Enumeration addedtasks = getSubscription().getAddedList();
+	  while (addedtasks.hasMoreElements()) {
+	    Task t = (Task) addedtasks.nextElement();
+
+	    if (!(t instanceof MPTask))
+	      error ("huh? " + t + " is not an MPTask??");
+
+	    if (isInfoEnabled ()) {
+	      info ("uidToMPTask - mapping mptask " + t.getUID());
+	    }
+
+	    uidToMPTask.put (t.getUID (), t);
+	  }
+
+	  if (getSubscription().getRemovedList().hasMoreElements ()) {
+	    Enumeration removedtasks = getSubscription().getRemovedList();
+	    while (removedtasks.hasMoreElements()) {
+	      Task t = (Task) removedtasks.nextElement();
+
+	      if (uidToMPTask.remove (t.getUID()) == null) {
+		if (isWarnEnabled ()) {
+		  warn ("no mp task in map with uid " + t.getUID ());
+		}
+	      }
+	      else if (isInfoEnabled ()) {
+		info ("uidToMPTask - removing mp task uid " + t.getUID() + " from map");
+	      }
+	    }
+	  }
+	}
+      }
+	       );
+
+    addFilter (new UTILFilterCallbackAdapter (this, logger) {
+	protected UnaryPredicate getPredicate () {
+	  return new UnaryPredicate() {
+	      public boolean execute(Object o) {
+		if (!(o instanceof Task))
+		  return false;
+		Task task = (Task) o;
+		PlanElement pe = task.getPlanElement ();
+		boolean hasPE = (pe != null);
+		if (hasPE && pe instanceof Aggregation)
+		  return false;
+		if (o instanceof MPTask)
+		  return false;
+		else // non-MPTasks that don't have aggregations
+		  return true;
+	      }
+	    };
+	}
+	public void reactToChangedFilter () {
+	  if (getSubscription().getRemovedList().hasMoreElements ()) {
+	    Enumeration removedtasks = getSubscription().getRemovedList();
+	    while (removedtasks.hasMoreElements()) {
+	      Task removed = (Task) removedtasks.nextElement();
+
+	      if (!forgetTripletToTask (removed)) {
+		if (isInfoEnabled ()) {
+		  info ("no task in map with uid " + removed.getUID ());
+		}
+	      }
+	      else if (isInfoEnabled ()) {
+		info ("removing task uid " + removed.getUID() + " from maps");
+	      }
+	    }
+	  }
+	}
+      }
+	       );
   }
 
 
@@ -160,8 +256,9 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
    * @return UTILFilterCallback -- an instance of UTILWorkflowCallback
    **/
   protected UTILFilterCallback createThreadCallback (UTILGenericListener bufferingThread) { 
-    if (isInfoEnabled())
+    if (isInfoEnabled()) {
       info (getName () + " Filtering for tasks with Workflows...");
+    }
 
     myWorkflowCallback = new UTILWorkflowCallback  (bufferingThread, logger); 
 
@@ -216,10 +313,12 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
     }
   }
 
-  /** implemented for AggregationListener */
+  /** 
+   * implemented for AggregationListener 
+   * 
+   * Cleans up maps of triplets to tasks, task to mptasks
+   */
   public void handleRemovedAggregation (Aggregation agg) {	
-    // debug("VishnuAggregatorPlugin.handleRemovedAggregation called");
-
     Vector removedTasks = new Vector();
     removedTasks.add(agg.getTask());
 
@@ -387,8 +486,10 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
       if (addToPrevious (tasklist, anAsset, start, end, setupStart, wrapupEnd))
 	return;
       else {
-	warn ("Though we believe " + anAsset + " was used before at " + start + 
-	      " we could not find the previous task, so making a new one.");
+	if (isInfoEnabled ()) {
+	  info ("Though we believe " + anAsset + " was used before at " + start + 
+		" we could not find the previous task, so making a new one.");
+	}
       }
     }
 
@@ -409,6 +510,13 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 
     Task mpTask = findMPTask (aggResults);
 
+    if (uidToMPTask.get (mpTask.getUID()) == null) {
+      if (isInfoEnabled()) {
+	info ("uidToMPTask - mapping mptask " + mpTask.getUID());
+      }
+      uidToMPTask.put (mpTask.getUID(), mpTask);
+    }
+
     // store each distinct assignment so we can get it later in addToPrevious
     //
     // Bug #11866:
@@ -424,7 +532,9 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
     // We need to remember the assignment locally through a map to avoid this problem.
 
     if (assetWasUsedBefore) {
-      warn ("asset was used before, but made a new mptask : " + mpTask.getUID());
+      if (isInfoEnabled()) {
+	info ("asset was used before, but made a new mptask : " + mpTask.getUID());
+      }
     }
 
     Collection subtasks = makeSetupWrapupExpansion (mpTask, anAsset, start, end, setupStart, wrapupEnd);
@@ -435,14 +545,16 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 	prefHelper.getBestDate(subtask).getTime();
 
       if (tripletToTask.get (taskKey) == null) {
-	tripletToTask.put (taskKey, subtask);
+	rememberTripletToTask (taskKey, subtask);
 	if (isInfoEnabled ()) {
-	  info (getName ()+ " mapping " + taskKey + " to " + subtask.getUID());
+	  info (getName ()+ " mapping " + taskKey + " to " + subtask.getUID() + " mptask " + mpTask.getUID());
 	}
-	taskToMPTask.put  (subtask, mpTask);
       }
       else {
-	warn (getName () + " - unexpected : there already is a task in table with key " +taskKey);
+	if (isWarnEnabled ()) {
+	  warn (getName () + " - unexpected : there already is a task " + 
+		subtask.getUID() + " in table with key " +taskKey);
+	}
       }
     }
   }
@@ -476,8 +588,9 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 	      " so looking in role schedule of " + anAsset.getUID());
       }
       previousTask = getEncapsulatedTask (anAsset, start, end); // look on asset's role schedule
-      if (previousTask != null)
-	tripletToTask.put (taskKey, previousTask);
+      if (previousTask != null) {
+	rememberTripletToTask (taskKey, previousTask);
+      }
     }
 
     if (previousTask != null) { // found transport task
@@ -498,14 +611,19 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 	  addToPreviousSetupWrapup (anAsset, directObject, end, wrapupEnd, "wrapup");
 	}
       }
-      MPTask mpTask = (MPTask) taskToMPTask.get (previousTask);
+
+      if (isInfoEnabled ()) {
+	info (getName() + " - looking task " + previousTask.getUID() + "'s mptask parent uid " + previousTask.getParentTaskUID());
+      }
+
+      MPTask mpTask = (MPTask) uidToMPTask.get (previousTask.getParentTaskUID());
       if (mpTask == null) { // should only happen after rehydration
 	if (isInfoEnabled ()) {
-	  info (getName() + " - looking for mptask parent of " + previousTask.getUID()+ " on blackboard via expensive query.");
+	  info (getName() + " - looking for mptask parent of " + previousTask.getUID()+ " on blackboard via expensive query, since parent uid " +
+		previousTask.getParentTaskUID() + " is not in " + uidToMPTask.keySet ());
 	}
 	// do expensive blackboard query
 	mpTask = getMPTask (previousTask.getParentTaskUID ());
-	taskToMPTask.put (previousTask, mpTask); // remember for next time 
       }
 
       if (mpTask == null) {
@@ -549,6 +667,12 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
    * First looks in the tripletToTask map, and if can't find the task there, looks at the 
    * asset's role schedule, which is problematic (the allocator must have run), see above
    * discussion.  The only time the tripletToTask map will be empty will be after rehydration.
+   *
+   * @param anAsset - first part of the triplet key
+   * @param start   - second part of the triplet key
+   * @param end     - third part of the triplet key
+   * @param directObject contains the additional assets to add to the direct object of the updated 
+   * task
    */
   protected void addToPreviousSetupWrapup (Asset anAsset, Asset directObject, Date start, Date end, String info) {
     Task setupTask;
@@ -565,15 +689,17 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
       }
       setupTask = getEncapsulatedTask (anAsset, start, end);
       if (setupTask != null)
-	tripletToTask.put (taskKey, setupTask);
+	rememberTripletToTask (taskKey, setupTask);
     }
 
     if (setupTask == null) { // shouldn't happen
-      warn (getAgentIdentifier () + " - " + 
-	    " on " + anAsset + 
-	    " missing a "+ info + 
-	    " task from " + start + 
-	    " to " + end + "?");
+      if (isWarnEnabled()) {
+	warn (getAgentIdentifier () + " - " + 
+	      " on " + anAsset + 
+	      " missing a "+ info + 
+	      " task from " + start + 
+	      " to " + end + "?");
+      }
     }
     else {
       ((NewTask) setupTask).setDirectObject (directObject);
@@ -584,8 +710,60 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
     }
   }
 
+  /**
+   * Update both tripletToTask and taskToTriplet maps - add the subtask to them
+   * with the asset-start-end triplet key.
+   */
+  protected void rememberTripletToTask (String taskKey, Task subtask) {
+    if (isInfoEnabled())
+      info ("remembering " + subtask.getUID() + " key " +taskKey);
+
+    tripletToTask.put (taskKey, subtask);
+    taskToTriplet.put (subtask, taskKey);
+  }
+
+  /**
+   * Update both tripletToTask and taskToTriplet maps - remove the subtask from them
+   */
+  protected boolean forgetTripletToTask (Object subtask) {
+    if (isInfoEnabled()) {
+      info ("forgetting " + ((Task)subtask).getUID());
+    }
+
+    boolean retval = true;
+
+    Object triplet = taskToTriplet.remove (subtask);
+    if (triplet != null) {
+      if (isInfoEnabled()) {
+	info ("forgetting key " + triplet);
+      }
+
+      if (tripletToTask.remove (triplet) == null) {
+	retval = false; 
+	if (isInfoEnabled()) {
+	  info ("no task for " + triplet);
+	}
+      }
+      
+    }
+    else {
+      retval = false;
+      if (isInfoEnabled()) {
+	info ("no triplet for " + subtask);
+      }
+    }
+ 
+    return retval;
+  }
+
   /** 
-   * look for a plan element that covers exactly the same span of time 
+   * Look for a plan element on the role schedule of the asset 
+   * that covers exactly the same span of time 
+   *
+   * @param asset to look at role schedule
+   * @param start time of pe on role schedule
+   * @param end time of pe on role schedule
+   * @return task that is on role schedule of asset from exactly start to end
    */
   protected Task getEncapsulatedTask (Asset asset, Date start, Date end) {
     Collection tasks = asset.getRoleSchedule().getEncapsulatedRoleSchedule (start.getTime(), 
@@ -627,6 +805,13 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
     return null;
   }
 
+  /**
+   * Add objects to task's direct object
+   *
+   * @param task to add the objects to
+   * @param objects to add to the task's d.o.
+   * @return AssetGroup with objects added to it
+   */
   protected AssetGroup addToDirectObject (Task task, Vector objects) {
     AssetGroup group = (AssetGroup) task.getDirectObject ();
     Vector assetsInGroup = group.getAssets ();
@@ -640,6 +825,7 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
 
   /** 
    * very expensive - must examine every object on the blackboard - avoid if possible 
+   *
    * @param parentUID - uid of MPTask we want from the blackboard
    * @return MPTask with UID equal to the param parentUID
    */
@@ -672,6 +858,9 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
     return oldParents.elements ();
   }
 
+  /**
+   * make and publish aggregations for parentTasks
+   */
   protected void addAggregations (NewComposition comp, Vector parentTasks, Date start, Date end) {
     Map avMap = getAspectValuesMap(parentTasks, start, end);
     // create aggregations for each parent task
@@ -682,7 +871,9 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
       boolean isSuccess = !allocHelper.exceedsPreferences (parentTask, aspectValues);
 
       if (!isSuccess) {
-	warn ("VishnuAggregatorPlugin.addAggregations - making failed aggregation for " + parentTask);
+	if (isWarnEnabled ()) {
+	  warn ("VishnuAggregatorPlugin.addAggregations - making failed aggregation for " + parentTask);
+	}
 	expandHelper.showPlanElement (parentTask);
       }
 	  
