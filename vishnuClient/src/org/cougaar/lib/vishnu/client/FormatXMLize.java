@@ -353,7 +353,7 @@ public class FormatXMLize extends BaseXMLize implements XMLizer {
    * creates an DOM Document out of the collection of items passed in, <br>
    * with the name of the resource class.
    **/
-  public Document createDoc (Collection items, String assetClassName) {
+  public Document createDoc (Collection items, Collection ignoredChangedItems, String assetClassName) {
     Document doc = new DocumentImpl(); 
     Element root = doc.createElement("PROBLEM");
 	doc.appendChild (root);

@@ -474,7 +474,7 @@ public class DataXMLize extends FormatXMLize {
    * @param items collection of items to translate
    * @return result document
    */
-  public synchronized Document createDoc (Collection items, String assetClassName) {
+  public synchronized Document createDoc (Collection items, Collection changedAssets, String assetClassName) {
       Document doc = new DocumentImpl(); 
       Element root = doc.createElement("PROBLEM");
 	doc.appendChild (root);
@@ -487,13 +487,19 @@ public class DataXMLize extends FormatXMLize {
 	
 	Element newobjects = doc.createElement("NEWOBJECTS");
 	df.appendChild (newobjects);
+
+	Element changedobjects = doc.createElement("CHANGEDOBJECTS");
+	df.appendChild (changedobjects);
 	
     Element element   = null;
 	Date start = new Date();
     for (Iterator iter = items.iterator(); iter.hasNext ();) {
-      Collection nodes = getPlanObjectXMLNodes (iter.next(), doc, RECURSION_DEPTH, assetClassName);
+	  Object obj = iter.next();
+	  boolean changed = changedAssets.contains (obj);
+      Collection nodes = getPlanObjectXMLNodes (obj, doc, RECURSION_DEPTH, assetClassName);
+	  Element placeToAdd = (changed) ? changedobjects : newobjects;
 	  for (Iterator iter2 = nodes.iterator(); iter2.hasNext ();)
-		newobjects.appendChild ((Element) iter2.next());
+		placeToAdd.appendChild ((Element) iter2.next());
     }
 	if (debug)  
 	  reportTime ("DataXMLize.createDoc - did addNodes in ", start);
@@ -741,5 +747,5 @@ public class DataXMLize extends FormatXMLize {
 	return elem;
   }
   
-  private boolean debug = false;
+  private boolean debug = "true".equals (System.getProperty ("vishnu.client.DataXMLize.debug"));
 }

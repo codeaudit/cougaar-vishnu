@@ -294,14 +294,12 @@ public abstract class VishnuPlugIn
 	* @param newAssets new assets found in the container
 	*/
    public void handleNewAssets(Enumeration newAssets) {
-	 if (myExtraOutput) {
-	   Set changed = new HashSet ();
-	   for (; newAssets.hasMoreElements (); ){
-		 Object asset = newAssets.nextElement ();
-		 changed.add (asset);
-	   }
-	   System.out.println (getName () + ".handleNewAssets - got new assets = " + changed);
+	 for (; newAssets.hasMoreElements (); ){
+	   Object asset = newAssets.nextElement ();
+	   myNewAssets.add (asset);
 	 }
+	 if (myExtraOutput)
+	   System.out.println (getName () + ".handleNewAssets - got " + myNewAssets.size ());
    }
 
    /**
@@ -314,8 +312,13 @@ public abstract class VishnuPlugIn
 	* @param newAssets changed assets found in the container
 	*/
    public void handleChangedAssets(Enumeration changedAssets) {
+	 for (; changedAssets.hasMoreElements (); ){
+	   Object asset = changedAssets.nextElement ();
+	   myChangedAssets.add (asset);
+	 }
 	 if (myExtraOutput)
-	   System.out.println (getName () + ".handleChangedAssets - got changed assets.");
+	   System.out.println (getName () + ".handleChangedAssets - got " + myChangedAssets.size () + 
+						   " changed assets.");
    }
 
    /**
@@ -577,21 +580,15 @@ public abstract class VishnuPlugIn
 	*  to determine types for fields when running directly
 	*/
   protected void prepareData (List stuffToSend, Document objectFormatDoc) {
-	// Add assets to the data unless you're scheduling incrementally
-	// and the assets have already been sent
-	if (!(incrementalScheduling && sentAssetsAlready)) {
-	  Collection allAssets = getAllAssets();
-	  if (myExtraOutput)
-		System.out.println (getName () + ".prepareData - sending " + 
-							allAssets.size () + " assets.");
+	Collection allAssets = getAllAssets();
+	if (myExtraOutput)
+	  System.out.println (getName () + ".prepareData - sending " + 
+						  allAssets.size () + " assets.");
 
-	  stuffToSend.addAll (allAssets);
+	stuffToSend.addAll (allAssets);
 
-	  if (incrementalScheduling)
-		sentAssetsAlready = true;
 
-	  setUIDToObjectMap (allAssets, myAssetUIDtoObject);
-	}
+	setUIDToObjectMap (allAssets, myAssetUIDtoObject);
 
 	if (myExtraExtraOutput) {
 	  for (Iterator iter = stuffToSend.iterator (); iter.hasNext (); ) {
@@ -606,11 +603,19 @@ public abstract class VishnuPlugIn
 	 if (runDirectly) {
 	   vishnuTasks     = new ArrayList ();
 	   vishnuResources = new ArrayList ();
+	   changedVishnuResources = new ArrayList ();
 
 	   Date start = new Date ();
 	   
-	   prepareVishnuObjects (stuffToSend, vishnuTasks, vishnuResources, objectFormatDoc, sched.getTimeOps());
+	   prepareVishnuObjects (stuffToSend, myChangedAssets, 
+							 vishnuTasks, vishnuResources, changedVishnuResources,
+							 objectFormatDoc, sched.getTimeOps());
+	   if (myExtraOutput)
+		 System.out.println (getName () + ".prepareData - clearing changed assets.");
 
+	   myChangedAssets.clear ();
+
+	   
 	   if (showTiming)
 		 domUtil.reportTime (".prepareData - prepared vishnu objects in ", start);
 	   
@@ -624,6 +629,7 @@ public abstract class VishnuPlugIn
 		 comm.serializeAndPostData (xmlProcessor.getOtherDataDoc (config.getOtherData ()), 
 									runInternal, 
 									internalBuffer);
+
 	   if (incrementalScheduling)
 		 sentOtherDataAlready = true;
 	 }
@@ -675,6 +681,12 @@ public abstract class VishnuPlugIn
 	 int unhandledTasks = prepareScheduler ();
 
 	 try {
+	   if (myExtraExtraOutput)
+		 for (int i = 0; i < sched.getSchedulingData().getResources ().length; i++) {
+		   System.out.println (getName () + ".runInternally - Known Resource #" + i + 
+							   " : \n" + sched.getSchedulingData().getResources()[i]);
+		 }
+
 	   // sched is the scheduler...
 	   sched.scheduleInternal();
 
@@ -733,7 +745,7 @@ public abstract class VishnuPlugIn
 
 	// add tasks and resources to data
 	// vishnuTasks & Resources created in prepareData and set in prepareVishnuObjects
-	addTasksDirectly (data, vishnuTasks, vishnuResources);
+	addTasksDirectly (data, vishnuTasks, vishnuResources, changedVishnuResources);
 
 	 // Call scheduleInternal after adding all the data
 	Date start2 = new Date ();
@@ -767,13 +779,15 @@ public abstract class VishnuPlugIn
 	  return myTaskUIDtoObject.size ();
    }
 
-  protected void addTasksDirectly (SchedulingData data, List vishnuTasks, List vishnuResources) {
+  protected void addTasksDirectly (SchedulingData data, List vishnuTasks, List vishnuResources,
+								   List changedVishnuResources) {
 	Date start = new Date ();
 
 	if (myExtraOutput || true) 
 	  System.out.println(getName () + ".runDirectly - adding " + 
 						 vishnuTasks.size() + " tasks, " +
-						 vishnuResources.size () + " resources to scheduler data.");
+						 vishnuResources.size () + " resources, " +
+						 changedVishnuResources.size () + " changed resources to scheduler data.");
 
 	for (int i = 0; i < vishnuTasks.size (); i++) {
 	  Object vishnuObject = vishnuTasks.get(i);
@@ -783,15 +797,15 @@ public abstract class VishnuPlugIn
 	  Object vishnuObject = vishnuResources.get(i);
 	  data.addResource ((Resource) vishnuObject);
 	}
-	/*
-	  if (vishnuTasks.size () != data.getTasks().length)
-	  System.out.println(getName () + ".runDirectly - ERROR - data says only " + 
-	  data.getTasks().length + " tasks.");
-
-	  if (vishnuResources.size () != data.getResources().length)
-	  System.out.println(getName () + ".runDirectly - ERROR - data says only " + 
-	  data.getResources().length + " resources.");
-	*/
+	for (int i = 0; i < changedVishnuResources.size (); i++) {
+	  Object vishnuObject = changedVishnuResources.get(i);
+	  data.replaceResource ((Resource) vishnuObject);
+	}
+	if (myExtraExtraOutput)
+	  for (int i = 0; i < data.getResources ().length; i++) {
+		System.out.println (getName () + ".addTasksDirectly - Known Resource #" + i + 
+							" : \n" + data.getResources()[i]);
+	  }
   }
 
    protected void directlyHandleAssignments (Scheduler sched, SchedulingData data,
@@ -900,21 +914,22 @@ public abstract class VishnuPlugIn
 	}
   }
 
-  protected Collection getAllAssets() {
-	return getAssetCallback().getSubscription ().getCollection();
-  }
-
-  /** 
-   * Utility method for finding all assets. 
-   * @return Iterator that iterates over assets.
+  /**
+   * If you're not in incremental mode, send all assets. <br>
+   * Otherwise, only send those that have come in on the subscription add list.
+   *
+   * @return Collection of assets to send to Vishnu
    */
-  protected final Iterator getAssets() {
-    Collection assets = getAllAssets();
+  protected Collection getAllAssets() {
+	Collection collection = getAssetCallback().getSubscription ().getCollection();
 
-    if (assets.size() != 0) {
-      return assets.iterator();
-    }
-    return new ArrayList ().iterator();
+	if (!incrementalScheduling)
+	  return collection;
+	else {
+	  Set newAssetsCopy = new HashSet (myNewAssets);
+	  myNewAssets.clear ();
+	  return newAssetsCopy;
+	}
   }
 
   /**
@@ -1027,10 +1042,16 @@ public abstract class VishnuPlugIn
 								   boolean clearDatabase, 
 								   boolean sendingChangedObjects,
 								   String assetClassName) {
-	int totalTasks = tasks.size ();
 	int totalSent  = 0;
 
 	XMLizer dataXMLizer = xmlProcessor.getDataXMLizer ();
+	
+	if (myExtraOutput) 
+	  System.out.println (getName () + ".sendDataToVishnu - Num tasks/assets before adding changed " + tasks.size ());
+	tasks.addAll (myChangedAssets);
+	if (myExtraOutput) 
+	  System.out.println (getName () + ".sendDataToVishnu - Num tasks/assets after adding changed  " + tasks.size ());
+	int totalTasks = tasks.size ();
 	
 	while (totalSent < totalTasks) {
 	  int toIndex = totalSent+sendDataChunkSize;
@@ -1043,13 +1064,14 @@ public abstract class VishnuPlugIn
 		System.out.println (getName () + ".sendDataToVishnu, from " + totalSent + " to " + toIndex);
 	  
 	  Document docToSend = 
-		xmlProcessor.prepareDocument (chunk, dataXMLizer, clearDatabase, sendingChangedObjects, assetClassName);
+		xmlProcessor.prepareDocument (chunk, myChangedAssets, dataXMLizer, clearDatabase, sendingChangedObjects, assetClassName);
 
 	  comm.serializeAndPostData (docToSend, runInternal, internalBuffer);
 
 	  if (clearDatabase) clearDatabase = false; // flip bit after first one
 	  totalSent += sendDataChunkSize;
 	}
+	myChangedAssets.clear ();
 
 	// send other data, if it hasn't already been sent
 	if (!sentOtherDataAlready && xmlProcessor.otherDataFileExists(config.getOtherData()))
@@ -1073,7 +1095,9 @@ public abstract class VishnuPlugIn
    * @param objectFormat - contains field type info necessary to create fields on Vishnu objects
    * @param timeOps - time object used when making Vishnu dates
    */
-  protected void prepareVishnuObjects (List tasksAndResources, List vishnuTasks, List vishnuResources, Document objectFormat, TimeOps timeOps) { 
+  protected void prepareVishnuObjects (List tasksAndResources, Collection changedAsssets,
+									   List vishnuTasks, List vishnuResources, List changedVishnuResources,
+									   Document objectFormat, TimeOps timeOps) { 
 	System.err.println (getName ()+ ".prepareVishnuObjects - ERROR - don't run directly if you haven't defined this method.");
   }
 
@@ -1410,15 +1434,15 @@ public abstract class VishnuPlugIn
 
 	if (makeSetupAndWrapupTasks) {
 	  if (setupStart.getTime() < start.getTime()) {
-		subtasks.add (createSetupTask (task, asset, start, end, setupStart, wrapupEnd));
 		if (myExtraOutput)
 		  System.out.println (getName () + ".makeSetupWrapupExpansion : making setup task for " + task.getUID());
+		subtasks.add (createSetupTask (task, asset, start, end, setupStart, wrapupEnd));
 	  }
 
 	  if (wrapupEnd.getTime() > end.getTime()) {
-		subtasks.add (createWrapupTask (task, asset, start, end, setupStart, wrapupEnd));
 		if (myExtraOutput)
 		  System.out.println (getName () + ".makeSetupWrapupExpansion : making wrapup task for " + task.getUID());
+		subtasks.add (createWrapupTask (task, asset, start, end, setupStart, wrapupEnd));
 	  }
 	}
 
@@ -1581,14 +1605,13 @@ public abstract class VishnuPlugIn
   protected boolean runInternal = true;
   protected boolean incrementalScheduling = false;
   protected StringBuffer internalBuffer = new StringBuffer ();
-  protected List vishnuTasks, vishnuResources;
+  protected List vishnuTasks, vishnuResources, changedVishnuResources;
   protected Map myNameToDescrip;
 
   protected UTILAssetCallback         myAssetCallback;
   protected int firstTemplateTasks;
   protected int sendDataChunkSize;
   protected boolean sentFormatAlready = false;
-  protected boolean sentAssetsAlready = false;
   protected boolean sentOtherDataAlready = false;
 
   protected boolean mySentAssetDataAlready = false;
@@ -1618,4 +1641,8 @@ public abstract class VishnuPlugIn
 
   protected Document objectFormatDoc;
   protected Scheduler sched;
+  protected Set myNewAssets = new HashSet ();
+  protected Set myChangedAssets = new HashSet ();
 }
+
+
