@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingSpecs.java,v 1.14 2001-07-20 14:24:46 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/SchedulingSpecs.java,v 1.15 2001-07-23 14:36:15 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -130,15 +130,16 @@ public class SchedulingSpecs {
   public int bestTime (Task task, Resource resource,
                        int duration, boolean schedChanged) {
     if (bestTimeCache == null)
-      return Integer.MIN_VALUE;
+      return Integer.MIN_VALUE + 1;
     data.put ("duration", new Reusable.RFloat ((float) duration));
     Reusable.RInteger i = (Reusable.RInteger)
       bestTimeCache.getResult (task, resource, schedChanged);
     data.remove ("duration");
     reuse.resetObjects();
     if (i == null)
-      return Integer.MIN_VALUE;
-    return i.intValue();
+      return Integer.MIN_VALUE + 1;
+    int v = i.intValue();
+    return (v > Integer.MIN_VALUE) ? v : (Integer.MIN_VALUE + 1);
   }
 
   public Resource[] capableResources (Task task, SchedulingData sdata) {

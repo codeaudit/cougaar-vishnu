@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedDecoder.java,v 1.15 2001-07-03 20:50:55 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/OrderedDecoder.java,v 1.16 2001-07-23 14:36:15 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -196,7 +196,7 @@ public class OrderedDecoder implements GADecoder {
               (task, prereqs, data.getStartTime(), data.getEndTime(),
                resource, dur, firstResource);
       }
-	  
+
       block = resource.earliestAvailableBlock (task, dur, unavail, specs,
                                                multitask, grouped, bestTime,
                                                data.getStartTime(),

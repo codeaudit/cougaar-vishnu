@@ -1,4 +1,4 @@
-// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/TimeBlock.java,v 1.3 2001-04-12 17:50:31 dmontana Exp $
+// $Header: /opt/rep/cougaar/vishnu/vishnuClient/src/org/cougaar/lib/vishnu/server/Attic/TimeBlock.java,v 1.4 2001-07-23 14:36:15 dmontana Exp $
 
 package org.cougaar.lib.vishnu.server;
 
@@ -27,9 +27,8 @@ public class TimeBlock {
     this.endTime = endTime;
     this.timeOps = timeOps;
     if (startTime > endTime)
-      System.out.println ("TimeBlock.ctor - Error : start " +
-                          timeOps.timeToString(startTime) +
-			  " after end " + timeOps.timeToString(endTime));
+      throw new RuntimeException
+        ("start after end of time block; please report bug to developers");
   }
 
   public TimeBlock (int startTime, int endTime, TimeOps timeOps,
