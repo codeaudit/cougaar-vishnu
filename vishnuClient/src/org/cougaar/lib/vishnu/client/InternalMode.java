@@ -317,6 +317,7 @@ public class InternalMode extends ExternalMode {
 	logger.debug (getName () + ".cleanUpAfterScheduling - sending freeze all.");
 
       serializeAndPostDoc (xmlProcessor.prepareFreezeAll ());
+      sched.getData().checkpointFrozen();
     }
 	  
     if (showTiming) {

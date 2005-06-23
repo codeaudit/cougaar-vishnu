@@ -145,256 +145,273 @@ public class DirectResultHandler extends PluginHelper implements ResultHandler {
       com.bbn.vishnu.scheduling.Task[] tasks = data.getTasks();
 
       for (int i = 0; i < tasks.length; i++) {
-	Assignment assign = tasks[i].getAssignment();
+        boolean hasChanged =
+            (!tasks[i].isFrozen() || data.changedSinceCheckpoint(tasks[i]));
+        if (!hasChanged)
+         continue;
 
-	if (logger.isDebugEnabled())
-	  logger.debug ("Assign was " + assign);
+        if (logger.isDebugEnabled()) {
+         logger.debug("Task " + tasks[i].getKey() +
+            " frozen " + tasks[i].isFrozen() +
+            " changed " + data.changedSinceCheckpoint(tasks[i]));
+        }
 
-	if (assign != null) {
-	  com.bbn.vishnu.scheduling.Task task = assign.getTask();
-	  Resource resource = assign.getResource();
-		 
-	  if (writeXMLToFile) {
-	    String assignXML = assign.toString(); // must repair since doesn't include task text
-	    assignXML = assignXML.replaceFirst ("text=\"\"", 
-						"text=\"" + sched.getSpecs().taskText(task) + "\"");
-	    buffer.append (assignXML);
-	  }
+        Assignment assign = tasks[i].getAssignment();
 
-	  parseAssignment (task.getKey(), 
-			   resource.getKey(),
-			   timeOps.timeToDate (assign.getTaskStartTime()),
-			   timeOps.timeToDate (assign.getTaskEndTime()),
-			   timeOps.timeToDate (assign.getStartTime()), // setup
-			   timeOps.timeToDate (assign.getEndTime()), // wrapup
-			   assign.getContribString(),
-			   sched.getSpecs().taskText(task));  
+        if (logger.isDebugEnabled())
+          logger.debug ("Assign was " + assign);
 
-	  /*
-	  TimeSpanSet timeSpanSet;
-	  if ((timeSpanSet = (TimeSpanSet) resourcesToTimeSpanSet.get(resource)) == null) {
-	    timeSpanSet = new NonOverlappingTimeSpanSet ();
-	    resourcesToTimeSpanSet.put (resource, timeSpanSet);
-	  }
+        if (assign != null) {
+          com.bbn.vishnu.scheduling.Task task = assign.getTask();
+          Resource resource = assign.getResource();
 
-	  MutableTimeSpan timeSpan = new MutableTimeSpan ();
-	  timeSpan.setTimeSpan (
-				timeOps.timeToDate (assign.getTaskStartTime()).getTime(),
-				timeOps.timeToDate (assign.getTaskEndTime()).getTime());
-	  try {
-	    timeSpanSet.add (timeSpan);
-	    System.out.println ("Adding task " + task.getKey() + " to resource " + resource.getKey() + " " + 
-				timeOps.timeToDate (assign.getTaskStartTime()) + "-" + 
-				timeOps.timeToDate (assign.getTaskEndTime()) + " Performance ");
-	  } catch (IllegalArgumentException iae) {
-	    logger.error (getName () + ".directlyHandleAssignments - overlapping time spans for resource " + 
-			  resource.getKey() + "\n\tTime spans were\n" + timeSpanSet + 
-			  "\n\tAnd overlapping new one was\n" + 
-			  new Date(timeSpan.getStartTime()) + "-" + new Date(timeSpan.getEndTime()));
-	  }
+          if (writeXMLToFile) {
+            String assignXML = assign.toString(); // must repair since doesn't include task text
+            assignXML = assignXML.replaceFirst ("text=\"\"",
+                "text=\"" + sched.getSpecs().taskText(task) + "\"");
+            buffer.append (assignXML);
+          }
 
-	  timeSpan = new MutableTimeSpan ();
-	  try {
-	    timeSpan.setTimeSpan (
-				  timeOps.timeToDate (assign.getStartTime()).getTime(), // setup
-				  timeOps.timeToDate (assign.getTaskStartTime()).getTime());
-	    System.out.println ("Adding task " + task.getKey() + " to resource " + resource.getKey() + " " + 
-				timeOps.timeToDate (assign.getStartTime()) + "-" + 
-				timeOps.timeToDate (assign.getTaskStartTime()) + " setup ");
-	  } catch (Exception e) {}
-	  try {
-	    timeSpanSet.add (timeSpan);
-	  } catch (IllegalArgumentException iae) {
-	    logger.error (getName () + ".directlyHandleAssignments - overlapping time spans for resource " + 
-			  resource.getKey() + "\n\tTime spans were\n" + timeSpanSet + 
-			  "\n\tAnd overlapping new one was\n" + 
-			  new Date(timeSpan.getStartTime()) + "-" + new Date(timeSpan.getEndTime()));
-	  }
+          parseAssignment (task.getKey(),
+              resource.getKey(),
+              timeOps.timeToDate (assign.getTaskStartTime()),
+              timeOps.timeToDate (assign.getTaskEndTime()),
+              timeOps.timeToDate (assign.getStartTime()), // setup
+              timeOps.timeToDate (assign.getEndTime()), // wrapup
+              assign.getContribString(),
+              sched.getSpecs().taskText(task));
 
-	  timeSpan = new MutableTimeSpan ();
-	  try {
-	    timeSpan.setTimeSpan (
-				  timeOps.timeToDate (assign.getTaskEndTime()).getTime(),
-				  timeOps.timeToDate (assign.getEndTime()).getTime());  // wrapup
-	    System.out.println ("Adding task " + task.getKey() + " to resource " + resource.getKey() + " " + 
-				timeOps.timeToDate (assign.getTaskEndTime()) + "-" + 
-				timeOps.timeToDate (assign.getEndTime()) + " wrapup ");
-	  } catch (Exception e) {}
-	  try {
-	    timeSpanSet.add (timeSpan);
-	  } catch (IllegalArgumentException iae) {
-	    logger.error (getName () + ".directlyHandleAssignments - overlapping time spans for resource " + 
-			  resource.getKey() + "\n\tTime spans were\n" + timeSpanSet + 
-			  "\n\tAnd overlapping new one was\n" +
-			  new Date(timeSpan.getStartTime()) + "-" + new Date(timeSpan.getEndTime()));
-	  }
+          /*
+          TimeSpanSet timeSpanSet;
+          if ((timeSpanSet = (TimeSpanSet) resourcesToTimeSpanSet.get(resource)) == null) {
+          timeSpanSet = new NonOverlappingTimeSpanSet ();
+          resourcesToTimeSpanSet.put (resource, timeSpanSet);
+          }
 
-	  int j=0;
-	  System.out.println ("resource " + resource.getKey()+ " role schedule now:");
+          MutableTimeSpan timeSpan = new MutableTimeSpan ();
+          timeSpan.setTimeSpan (
+          timeOps.timeToDate (assign.getTaskStartTime()).getTime(),
+          timeOps.timeToDate (assign.getTaskEndTime()).getTime());
+          try {
+          timeSpanSet.add (timeSpan);
+          System.out.println ("Adding task " + task.getKey() + " to resource " + resource.getKey() + " " +
+          timeOps.timeToDate (assign.getTaskStartTime()) + "-" +
+          timeOps.timeToDate (assign.getTaskEndTime()) + " Performance ");
+          } catch (IllegalArgumentException iae) {
+          logger.error (getName () + ".directlyHandleAssignments - overlapping time spans for resource " +
+          resource.getKey() + "\n\tTime spans were\n" + timeSpanSet +
+          "\n\tAnd overlapping new one was\n" +
+          new Date(timeSpan.getStartTime()) + "-" + new Date(timeSpan.getEndTime()));
+          }
 
-	  for (Iterator iter = timeSpanSet.iterator(); iter.hasNext(); ) {
-	    TimeSpan ts = (TimeSpan) iter.next();
-	    System.out.println ("#" + (j++) + " " + new Date(ts.getStartTime()) + "-" + new Date(ts.getEndTime()));
-	  }
-	  */
-	}
-	else
-	  logger.debug (getName () + ".directlyHandleAssignments - no assignment for task " + 
-			      tasks[i].getKey() + "?");
+          timeSpan = new MutableTimeSpan ();
+          try {
+          timeSpan.setTimeSpan (
+          timeOps.timeToDate (assign.getStartTime()).getTime(), // setup
+          timeOps.timeToDate (assign.getTaskStartTime()).getTime());
+          System.out.println ("Adding task " + task.getKey() + " to resource " + resource.getKey() + " " +
+          timeOps.timeToDate (assign.getStartTime()) + "-" +
+          timeOps.timeToDate (assign.getTaskStartTime()) + " setup ");
+          } catch (Exception e) {}
+          try {
+          timeSpanSet.add (timeSpan);
+          } catch (IllegalArgumentException iae) {
+          logger.error (getName () + ".directlyHandleAssignments - overlapping time spans for resource " +
+          resource.getKey() + "\n\tTime spans were\n" + timeSpanSet +
+          "\n\tAnd overlapping new one was\n" +
+          new Date(timeSpan.getStartTime()) + "-" + new Date(timeSpan.getEndTime()));
+          }
+
+          timeSpan = new MutableTimeSpan ();
+          try {
+          timeSpan.setTimeSpan (
+          timeOps.timeToDate (assign.getTaskEndTime()).getTime(),
+          timeOps.timeToDate (assign.getEndTime()).getTime());  // wrapup
+          System.out.println ("Adding task " + task.getKey() + " to resource " + resource.getKey() + " " +
+          timeOps.timeToDate (assign.getTaskEndTime()) + "-" +
+          timeOps.timeToDate (assign.getEndTime()) + " wrapup ");
+          } catch (Exception e) {}
+          try {
+          timeSpanSet.add (timeSpan);
+          } catch (IllegalArgumentException iae) {
+          logger.error (getName () + ".directlyHandleAssignments - overlapping time spans for resource " +
+          resource.getKey() + "\n\tTime spans were\n" + timeSpanSet +
+          "\n\tAnd overlapping new one was\n" +
+          new Date(timeSpan.getStartTime()) + "-" + new Date(timeSpan.getEndTime()));
+          }
+
+          int j=0;
+          System.out.println ("resource " + resource.getKey()+ " role schedule now:");
+
+          for (Iterator iter = timeSpanSet.iterator(); iter.hasNext(); ) {
+          TimeSpan ts = (TimeSpan) iter.next();
+          System.out.println ("#" + (j++) + " " + new Date(ts.getStartTime()) + "-" + new Date(ts.getEndTime()));
+          }
+          */
+        }
+        else
+          logger.debug (getName () + ".directlyHandleAssignments - no assignment for task " +
+              tasks[i].getKey() + "?");
       }
     } else {
       Resource[] resources = data.getResources();
 
-      if (logger.isDebugEnabled()) 
-	logger.debug (getName () + " scanning " + resources.length + " resources.");
+      if (logger.isDebugEnabled())
+        logger.debug (getName () + " scanning " + resources.length + " resources.");
 
       for (int i = 0; i < resources.length; i++) {
         MultitaskAssignment[] multi = resources[i].getMultitaskAssignments();
-	if (multi.length == 0) {
-	  if (logger.isDebugEnabled()) 
-	    logger.debug (getName () + " huh? " + resources[i] + " had no assignments?");
-	}
-	if (multi.length > 0) {
-	  if (logger.isInfoEnabled()) 
-	    logger.info (getName () + " for resource " + resources[i].getKey() +
-			 " got " + multi.length + " task groups assigned.");
+        if (multi.length == 0) {
+          if (logger.isDebugEnabled())
+            logger.debug (getName () + " huh? " + resources[i] + " had no assignments?");
+        }
+        if (multi.length > 0) {
+          if (logger.isInfoEnabled())
+            logger.info (getName () + " for resource " + resources[i].getKey() +
+                " got " + multi.length + " task groups assigned.");
 
-	  for (int j = 0; j < multi.length; j++) {
-	    boolean assetWasUsedBefore = false;
-	    Vector tasks = new Vector ();
-	    MultitaskAssignment assign = multi[j];
+          for (int j = 0; j < multi.length; j++) {
+            boolean assetWasUsedBefore = false;
+            Vector tasks = new Vector ();
+            MultitaskAssignment assign = multi[j];
 
-	    if (logger.isInfoEnabled()) {
-	      logger.info (getName () + " for resource " + resources[i].getKey() +
-			   " multi assign #" + j + " had " +multi[j].getTasks().size() + " tasks, start time was " +
-			   timeOps.timeToDate(assign.getTaskStartTime()) +  " end " + 
-			   timeOps.timeToDate (assign.getTaskEndTime())
-			   );
-	    }
+            if (logger.isInfoEnabled()) {
+              logger.info (getName () + " for resource " + resources[i].getKey() +
+                  " multi assign #" + j + " had " +multi[j].getTasks().size() + " tasks, start time was " +
+                  timeOps.timeToDate(assign.getTaskStartTime()) +  " end " +
+                  timeOps.timeToDate (assign.getTaskEndTime())
+              );
+            }
 
-	    String resourceKey = assign.getResource().getKey();
-	    boolean printedMsg = false;
-	    for (Iterator iter = multi[j].getTasks().iterator(); iter.hasNext(); ) {
-	      com.bbn.vishnu.scheduling.Task vishnuTask = (com.bbn.vishnu.scheduling.Task) iter.next();
-	      Task task = getTaskFromAssignment(vishnuTask.getKey());
-	      if (task != null) {
-		tasks.add (task);
-	      }
-	      else { // if this is a task from an earlier batch, then this resource was used before
-		if (logger.isInfoEnabled() && !printedMsg) {
-		  logger.info (getName() + " - asset " + resourceKey + " was used before at " + 
-			       timeOps.timeToDate(assign.getTaskStartTime()));
-		  printedMsg = true;
-		}
+            String resourceKey = assign.getResource().getKey();
+            boolean printedMsg = false;
+            for (Iterator iter = multi[j].getTasks().iterator(); iter.hasNext(); ) {
+              com.bbn.vishnu.scheduling.Task vishnuTask = (com.bbn.vishnu.scheduling.Task) iter.next();
 
-		assetWasUsedBefore = true;
-	      }
-	    }
+              boolean hasChanged =
+                (!vishnuTask.isFrozen() || data.changedSinceCheckpoint(vishnuTask));
+              if (!hasChanged)
+                continue;
 
-	    if (!tasks.isEmpty ()) {
-	      resultListener.handleMultiAssignment (tasks, 
-						    getAssignedAsset   (resourceKey),
-						    timeOps.timeToDate (assign.getTaskStartTime()),
-						    timeOps.timeToDate (assign.getTaskEndTime()),
-						    timeOps.timeToDate (assign.getStartTime()), // setup
-						    timeOps.timeToDate (assign.getEndTime()),// wrapup
-						    assetWasUsedBefore);  
+              Task task = getTaskFromAssignment(vishnuTask.getKey());
+              if (task != null) {
+                tasks.add (task);
+              }
+              else { // if this is a task from an earlier batch, then this resource was used before
+                if (logger.isInfoEnabled() && !printedMsg) {
+                  logger.info (getName() + " - asset " + resourceKey + " was used before at " +
+                      timeOps.timeToDate(assign.getTaskStartTime()));
+                  printedMsg = true;
+                }
 
-	      /*
-	      TimeSpanSet timeSpanSet;
-	      if ((timeSpanSet = (TimeSpanSet) resourcesToTimeSpanSet.get(assign.getResource())) == null) {
-		timeSpanSet = new NonOverlappingTimeSpanSet ();
-		resourcesToTimeSpanSet.put (assign.getResource(), timeSpanSet);
-	      }
+                assetWasUsedBefore = true;
+              }
+            }
 
-	      MutableTimeSpan timeSpan = new MutableTimeSpan ();
-	      timeSpan.setTimeSpan (
-				    timeOps.timeToDate (assign.getTaskStartTime()).getTime(),
-				    timeOps.timeToDate (assign.getTaskEndTime()).getTime());
-	      try {
-		timeSpanSet.add (timeSpan);
-	      } catch (IllegalArgumentException iae) {
-		logger.error (getName () + ".directlyHandleAssignments - (performance) overlapping time spans for resource " + 
-			      assign.getResource().getKey() + 
-			      "\n\tAnd overlapping new one was\n" + 
-			      new Date(timeSpan.getStartTime()) + "-" + new Date(timeSpan.getEndTime()));
-		int k=0;
-		logger.error ("resource " + assign.getResource().getKey()+ " role schedule now:");
+            if (!tasks.isEmpty ()) {
+              resultListener.handleMultiAssignment (tasks,
+                  getAssignedAsset   (resourceKey),
+                  timeOps.timeToDate (assign.getTaskStartTime()),
+                  timeOps.timeToDate (assign.getTaskEndTime()),
+                  timeOps.timeToDate (assign.getStartTime()), // setup
+                  timeOps.timeToDate (assign.getEndTime()),// wrapup
+                  assetWasUsedBefore);
 
-		java.util.Collection overlapped = timeSpanSet.intersectingSet (timeSpan);
+              /*
+              TimeSpanSet timeSpanSet;
+              if ((timeSpanSet = (TimeSpanSet) resourcesToTimeSpanSet.get(assign.getResource())) == null) {
+              timeSpanSet = new NonOverlappingTimeSpanSet ();
+              resourcesToTimeSpanSet.put (assign.getResource(), timeSpanSet);
+              }
 
-		for (Iterator iter = timeSpanSet.iterator(); iter.hasNext(); ) {
-		  TimeSpan ts = (TimeSpan) iter.next();
-		  boolean overlap = overlapped.contains(ts);
-		  logger.error ("#" + (k++) + " " + new Date(ts.getStartTime()) + "-" + new Date(ts.getEndTime()) + (overlap ? " OVERLAP!" : ""));
-		}
-	      }
+              MutableTimeSpan timeSpan = new MutableTimeSpan ();
+              timeSpan.setTimeSpan (
+              timeOps.timeToDate (assign.getTaskStartTime()).getTime(),
+              timeOps.timeToDate (assign.getTaskEndTime()).getTime());
+              try {
+              timeSpanSet.add (timeSpan);
+              } catch (IllegalArgumentException iae) {
+              logger.error (getName () + ".directlyHandleAssignments - (performance) overlapping time spans for resource " +
+              assign.getResource().getKey() +
+              "\n\tAnd overlapping new one was\n" +
+              new Date(timeSpan.getStartTime()) + "-" + new Date(timeSpan.getEndTime()));
+              int k=0;
+              logger.error ("resource " + assign.getResource().getKey()+ " role schedule now:");
 
-	      timeSpan = new MutableTimeSpan ();
-	      try {
-		timeSpan.setTimeSpan (
-				      timeOps.timeToDate (assign.getStartTime()).getTime(), // setup
-				      timeOps.timeToDate (assign.getTaskStartTime()).getTime());
-	      } catch (Exception e) {}
-	      try {
-		timeSpanSet.add (timeSpan);
-	      } catch (IllegalArgumentException iae) {
-		logger.error (getName () + ".directlyHandleAssignments - (setup) overlapping time spans for resource " + 
-			      assign.getResource().getKey() + 
-			      "\n\tAnd overlapping new one was\n" + 
-			      new Date(timeSpan.getStartTime()) + "-" + new Date(timeSpan.getEndTime()));
-		int k=0;
-		logger.error ("resource " + assign.getResource().getKey()+ " role schedule now:");
+              java.util.Collection overlapped = timeSpanSet.intersectingSet (timeSpan);
 
-		java.util.Collection overlapped = timeSpanSet.intersectingSet (timeSpan);
+              for (Iterator iter = timeSpanSet.iterator(); iter.hasNext(); ) {
+              TimeSpan ts = (TimeSpan) iter.next();
+              boolean overlap = overlapped.contains(ts);
+              logger.error ("#" + (k++) + " " + new Date(ts.getStartTime()) + "-" + new Date(ts.getEndTime()) + (overlap ? " OVERLAP!" : ""));
+              }
+              }
 
-		for (Iterator iter = timeSpanSet.iterator(); iter.hasNext(); ) {
-		  TimeSpan ts = (TimeSpan) iter.next();
-		  boolean overlap = overlapped.contains(ts);
-		  logger.error ("#" + (k++) + " " + new Date(ts.getStartTime()) + "-" + new Date(ts.getEndTime()) + (overlap ? " OVERLAP!" : ""));
-		}
-	      }
+              timeSpan = new MutableTimeSpan ();
+              try {
+              timeSpan.setTimeSpan (
+              timeOps.timeToDate (assign.getStartTime()).getTime(), // setup
+              timeOps.timeToDate (assign.getTaskStartTime()).getTime());
+              } catch (Exception e) {}
+              try {
+              timeSpanSet.add (timeSpan);
+              } catch (IllegalArgumentException iae) {
+              logger.error (getName () + ".directlyHandleAssignments - (setup) overlapping time spans for resource " +
+              assign.getResource().getKey() +
+              "\n\tAnd overlapping new one was\n" +
+              new Date(timeSpan.getStartTime()) + "-" + new Date(timeSpan.getEndTime()));
+              int k=0;
+              logger.error ("resource " + assign.getResource().getKey()+ " role schedule now:");
 
-	      timeSpan = new MutableTimeSpan ();
-	      try {
-		timeSpan.setTimeSpan (
-				      timeOps.timeToDate (assign.getTaskEndTime()).getTime(),
-				      timeOps.timeToDate (assign.getEndTime()).getTime());  // wrapup
-	      } catch (Exception e) {}
-	      try {
-		timeSpanSet.add (timeSpan);
-	      } catch (IllegalArgumentException iae) {
-		logger.error (getName () + ".directlyHandleAssignments - (wrapup) overlapping time spans for resource " + 
-			      assign.getResource().getKey() + 
-			      "\n\tAnd overlapping new one was\n" +
-			      new Date(timeSpan.getStartTime()) + "-" + new Date(timeSpan.getEndTime()) + "\n\tTime spans were\n");
-		int k=0;
-		logger.error ("resource " + assign.getResource().getKey()+ " role schedule now:");
+              java.util.Collection overlapped = timeSpanSet.intersectingSet (timeSpan);
 
-		java.util.Collection overlapped = timeSpanSet.intersectingSet (timeSpan);
+              for (Iterator iter = timeSpanSet.iterator(); iter.hasNext(); ) {
+              TimeSpan ts = (TimeSpan) iter.next();
+              boolean overlap = overlapped.contains(ts);
+              logger.error ("#" + (k++) + " " + new Date(ts.getStartTime()) + "-" + new Date(ts.getEndTime()) + (overlap ? " OVERLAP!" : ""));
+              }
+              }
 
-		for (Iterator iter = timeSpanSet.iterator(); iter.hasNext(); ) {
-		  TimeSpan ts = (TimeSpan) iter.next();
-		  boolean overlap = overlapped.contains(ts);
-		  logger.error ("#" + (k++) + " " + new Date(ts.getStartTime()) + "-" + new Date(ts.getEndTime()) + (overlap ? " OVERLAP!" : ""));
-		}
-	      }
-	      */
-		/*
-	      int j=0;
-	      System.out.println ("resource " + resource.getKey()+ " role schedule now:");
+              timeSpan = new MutableTimeSpan ();
+              try {
+              timeSpan.setTimeSpan (
+              timeOps.timeToDate (assign.getTaskEndTime()).getTime(),
+              timeOps.timeToDate (assign.getEndTime()).getTime());  // wrapup
+              } catch (Exception e) {}
+              try {
+              timeSpanSet.add (timeSpan);
+              } catch (IllegalArgumentException iae) {
+              logger.error (getName () + ".directlyHandleAssignments - (wrapup) overlapping time spans for resource " +
+              assign.getResource().getKey() +
+              "\n\tAnd overlapping new one was\n" +
+              new Date(timeSpan.getStartTime()) + "-" + new Date(timeSpan.getEndTime()) + "\n\tTime spans were\n");
+              int k=0;
+              logger.error ("resource " + assign.getResource().getKey()+ " role schedule now:");
 
-	      for (Iterator iter = timeSpanSet.iterator(); iter.hasNext(); ) {
-		TimeSpan ts = (TimeSpan) iter.next();
-		System.out.println ("#" + (j++) + " " + new Date(ts.getStartTime()) + "-" + new Date(ts.getEndTime()));
-	      }
-		*/
+              java.util.Collection overlapped = timeSpanSet.intersectingSet (timeSpan);
 
-	    }
-	  }
-	}
+              for (Iterator iter = timeSpanSet.iterator(); iter.hasNext(); ) {
+              TimeSpan ts = (TimeSpan) iter.next();
+              boolean overlap = overlapped.contains(ts);
+              logger.error ("#" + (k++) + " " + new Date(ts.getStartTime()) + "-" + new Date(ts.getEndTime()) + (overlap ? " OVERLAP!" : ""));
+              }
+              }
+              */
+              /*
+              int j=0;
+              System.out.println ("resource " + resource.getKey()+ " role schedule now:");
+
+              for (Iterator iter = timeSpanSet.iterator(); iter.hasNext(); ) {
+              TimeSpan ts = (TimeSpan) iter.next();
+              System.out.println ("#" + (j++) + " " + new Date(ts.getStartTime()) + "-" + new Date(ts.getEndTime()));
+              }
+              */
+
+            }
+          }
+        }
       }
-    } 
+    }
 
     if (writeXMLToFile)
       comm.writeBufferToFile ("assignment", buffer.toString());
