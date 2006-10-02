@@ -25,36 +25,28 @@
  */
 package org.cougaar.lib.vishnu.client.custom;
 
-import org.cougaar.planning.ldm.asset.Asset;
-
-import com.bbn.vishnu.scheduling.Resource;
 import com.bbn.vishnu.scheduling.SchObject;
 import com.bbn.vishnu.scheduling.SchedulingData;
-
 import org.cougaar.glm.ldm.plan.GeolocLocation;
 import org.cougaar.glm.ldm.plan.Position;
-
+import org.cougaar.planning.ldm.asset.Asset;
+import org.cougaar.planning.ldm.plan.PlanElement;
+import org.cougaar.planning.ldm.plan.RoleSchedule;
+import org.cougaar.planning.ldm.plan.Schedule;
+import org.cougaar.util.TimeSpan;
+import org.cougaar.util.log.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-
+import java.util.Calendar;
 import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Calendar;
-import java.util.Date;
-
-import org.cougaar.planning.ldm.plan.Schedule;
-import org.cougaar.planning.ldm.plan.RoleSchedule;
-import org.cougaar.planning.ldm.plan.PlanElement;
-import org.cougaar.util.TimeSpan;
-import org.cougaar.util.log.Logger;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Fills in the fields of Vishnu objects sent to the Vishnu Scheduler. <p>
@@ -71,12 +63,11 @@ import org.cougaar.util.log.Logger;
  */
 public class DirectDataHelper implements DataHelper {
 
-  /** 
+  /**
    * Sets up the endOfWorld time, used in createRoleScheduleListField.
    *
    * @see #createRoleScheduleListField
    * @param formatDoc - the object format document
-   * @param timeOps - the Time Operation object used whenever dates are created
    */
   public DirectDataHelper (Document formatDoc, SchedulingData schedData, Logger logger) {
     Calendar calendar = Calendar.getInstance();
@@ -88,7 +79,7 @@ public class DirectDataHelper implements DataHelper {
     this.logger = logger;
     scanFormatDoc (formatDoc);
   }
-  
+
   /** 
    * Scans the format document to determine the types of each field of data. 
    * 
@@ -259,8 +250,8 @@ public class DirectDataHelper implements DataHelper {
     SchObject objectParent = (SchObject) parent;
     
     // have to explicitly add these lines to the parent object!
-    objectParent.addFloat ("DesiredLocation.latitude", latDegrees);
-    objectParent.addFloat ("DesiredLocation.longitude", lonDegrees);
+    objectParent.addFloat (parentFieldName + ".latitude", latDegrees);
+    objectParent.addFloat (parentFieldName + ".longitude", lonDegrees);
 
     // fill in the fields on the root task/resource
     String val = objectParent.addField (parentFieldName, "latlong", latlong, false, false);
@@ -454,7 +445,7 @@ public class DirectDataHelper implements DataHelper {
   /** 
    * Holds object format info about objects, used in generic createField method 
    * 
-   * @see #createField
+   * @see DirectDataHelper#scanFormatDoc
    */
   protected class ObjectInfo {
     public Map nameToType = new HashMap ();
