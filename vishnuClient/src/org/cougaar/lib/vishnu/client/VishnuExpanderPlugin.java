@@ -25,46 +25,17 @@
  */
 package org.cougaar.lib.vishnu.client;
 
-import org.cougaar.glm.ldm.Constants;
-
-import org.cougaar.lib.callback.UTILAssetCallback;
-import org.cougaar.lib.callback.UTILAssetListener;
 import org.cougaar.lib.callback.UTILExpandableTaskCallback;
 import org.cougaar.lib.callback.UTILExpansionCallback;
 import org.cougaar.lib.callback.UTILFilterCallback;
 import org.cougaar.lib.callback.UTILGenericListener;
-
 import org.cougaar.lib.filter.UTILExpanderPlugin;
-import org.cougaar.lib.filter.UTILBufferingPluginAdapter;
-
-import org.cougaar.lib.param.ParamException;
-
-import org.cougaar.lib.util.UTILRuntimeException;
-
 import org.cougaar.planning.ldm.asset.Asset;
-import org.cougaar.planning.ldm.plan.AllocationResultAggregator;
 import org.cougaar.planning.ldm.plan.Expansion;
-import org.cougaar.planning.ldm.plan.NewTask;
 import org.cougaar.planning.ldm.plan.Task;
-import org.cougaar.planning.ldm.plan.Workflow;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-
-import java.net.MalformedURLException;
-import java.net.Socket;
-import java.net.URL;
-import java.net.URLConnection;
-
-import java.util.Collection;
 import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.Vector;
 
 /**
@@ -141,8 +112,8 @@ public class VishnuExpanderPlugin extends VishnuPlugin implements UTILExpanderPl
    *
    * Ideally, this will not happen very often, and when it does, we should hear about it.
    *
-   * @param expansion that failed
-   * @param list of Constraints that have been violated
+   * @param exp that failed
+   * @param violatedConstraints of Constraints that have been violated
    */
   public void handleConstraintViolation(Expansion exp, List violatedConstraints) {
   }
@@ -158,7 +129,7 @@ public class VishnuExpanderPlugin extends VishnuPlugin implements UTILExpanderPl
    *
    * Defaults to FALSE.
    *
-   * @param expansion to check
+   * @param exp to check
    * @return true if plugin wants to change expansion
    */
   public boolean wantToChangeExpansion(Expansion exp) {
@@ -171,7 +142,7 @@ public class VishnuExpanderPlugin extends VishnuPlugin implements UTILExpanderPl
    * Default does nothing.
    *
    * @see #wantToChangeExpansion
-   * @param expansion to change
+   * @param exp to change
    */
   public void changeExpansion(Expansion exp) {}
 
@@ -179,7 +150,7 @@ public class VishnuExpanderPlugin extends VishnuPlugin implements UTILExpanderPl
    * publish the change
    *
    * @see #wantToChangeExpansion
-   * @param expansion to change
+   * @param exp to change
    */
   public void publishChangedExpansion(Expansion exp) {
     publishChange (exp);
