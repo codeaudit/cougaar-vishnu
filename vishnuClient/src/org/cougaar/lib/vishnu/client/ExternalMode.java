@@ -25,42 +25,16 @@
  */
 package org.cougaar.lib.vishnu.client;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.IOException;
-import java.io.StringReader;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import org.cougaar.lib.param.ParamMap;
+import org.cougaar.util.log.Logger;
+import org.w3c.dom.Document;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
-
-import org.apache.xerces.dom.DocumentImpl;
-import org.apache.xerces.parsers.DOMParser;
-import org.apache.xerces.parsers.SAXParser;
-
-import org.cougaar.planning.ldm.asset.Asset;
-import org.cougaar.planning.ldm.plan.Task;
-import org.cougaar.lib.param.ParamMap;
-import com.bbn.vishnu.scheduling.Scheduler;
-import org.cougaar.util.StringKey;
-import org.cougaar.util.log.Logger;
-
-import org.w3c.dom.Document;
-
-import org.xml.sax.helpers.DefaultHandler;
-import org.xml.sax.Attributes;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 /** 
  * External mode.  
@@ -190,7 +164,7 @@ public class ExternalMode extends PluginHelper implements SchedulerLifecycle {
    * Place to handle rescinded tasks.
    *
    * Sends XML to unfreeze the task assignment and delete it.
-   * @param newAssets changed assets found in the container
+   * @param removedTasks changed assets found in the container
    */
   public void handleRemovedTasks(Enumeration removedTasks) {
     if (incrementalScheduling) {
@@ -282,6 +256,6 @@ public class ExternalMode extends PluginHelper implements SchedulerLifecycle {
   boolean alwaysClearDatabase;
   protected int sendDataChunkSize;
   ResultHandler resultHandler;
-  boolean incrementalScheduling;
+  protected boolean incrementalScheduling;
   protected boolean sentOtherDataAlready = false;
 }
