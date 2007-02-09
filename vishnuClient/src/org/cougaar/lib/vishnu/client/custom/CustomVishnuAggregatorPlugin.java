@@ -26,19 +26,14 @@
 package org.cougaar.lib.vishnu.client.custom;
 
 import com.bbn.vishnu.scheduling.SchedulingData;
+import org.cougaar.lib.vishnu.client.VishnuAggregatorPlugin;
+import org.cougaar.lib.vishnu.client.XMLProcessor;
+import org.cougaar.lib.vishnu.client.XMLizer;
+import org.w3c.dom.Document;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
-import org.cougaar.glm.ldm.asset.GLMAsset;
-import org.cougaar.planning.ldm.asset.Asset;
-
-import org.cougaar.lib.vishnu.client.VishnuAggregatorPlugin;
-import org.cougaar.lib.vishnu.client.XMLizer;
-import org.cougaar.lib.vishnu.client.XMLProcessor;
-
-import org.w3c.dom.Document;
 
 /**
  * Uses CustomDataXMLize to create Vishnu objects either directly or through XML. <p>

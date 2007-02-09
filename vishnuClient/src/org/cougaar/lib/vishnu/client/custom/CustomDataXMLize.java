@@ -25,40 +25,26 @@
  */
 package org.cougaar.lib.vishnu.client.custom;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-
+import com.bbn.vishnu.scheduling.Resource;
+import com.bbn.vishnu.scheduling.SchedulingData;
 import org.apache.xerces.dom.DocumentImpl;
-
-import org.cougaar.glm.ldm.asset.GLMAsset;
-import org.cougaar.glm.ldm.plan.GeolocLocation;
-import org.cougaar.glm.util.GLMPrepPhrase;
-import org.cougaar.planning.ldm.asset.AggregateAsset;
+import org.apache.xml.serialize.OutputFormat;
+import org.apache.xml.serialize.XMLSerializer;
+import org.cougaar.lib.vishnu.client.XMLizer;
 import org.cougaar.planning.ldm.asset.Asset;
 import org.cougaar.planning.ldm.plan.Task;
 import org.cougaar.planning.ldm.plan.Verb;
 import org.cougaar.util.log.Logger;
-
-import org.cougaar.lib.vishnu.client.XMLizer;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
-import org.apache.xml.serialize.OutputFormat;
-import org.apache.xml.serialize.XMLSerializer;
-
-import com.bbn.vishnu.scheduling.Resource;
-import com.bbn.vishnu.scheduling.SchObject;
-import com.bbn.vishnu.scheduling.SchedulingData;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Create either an XML document in the Vishnu Data format or Vishnu objects from ALP objects. <p>
