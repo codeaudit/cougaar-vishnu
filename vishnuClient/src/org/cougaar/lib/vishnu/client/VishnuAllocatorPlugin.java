@@ -25,29 +25,23 @@
  */
 package org.cougaar.lib.vishnu.client;
 
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Vector;
-
+import org.cougaar.lib.callback.UTILAllocationCallback;
+import org.cougaar.lib.callback.UTILFilterCallback;
+import org.cougaar.lib.callback.UTILGenericListener;
+import org.cougaar.lib.callback.UTILWorkflowCallback;
+import org.cougaar.lib.filter.UTILAllocatorPlugin;
 import org.cougaar.planning.ldm.asset.Asset;
-
 import org.cougaar.planning.ldm.plan.Allocation;
 import org.cougaar.planning.ldm.plan.AspectType;
 import org.cougaar.planning.ldm.plan.AspectValue;
 import org.cougaar.planning.ldm.plan.PlanElement;
 import org.cougaar.planning.ldm.plan.Role;
 import org.cougaar.planning.ldm.plan.Task;
-import org.cougaar.planning.ldm.plan.NewTask;
 
-import org.cougaar.glm.ldm.Constants;
-
-import org.cougaar.lib.callback.UTILAllocationCallback;
-import org.cougaar.lib.callback.UTILFilterCallback;
-import org.cougaar.lib.callback.UTILGenericListener;
-import org.cougaar.lib.callback.UTILWorkflowCallback;
-
-import org.cougaar.lib.filter.UTILAllocatorPlugin;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
 
 /**
  * Vishnu plugin that takes Vishnu assignments and creates allocations out of them
