@@ -32,15 +32,15 @@ import org.cougaar.util.log.Logger;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
-/** 
+/**
  * Keeps track of configuration files <p>
  * Also has methods for dealing with template tasks and prototypical resources for when in introspective mode. 
  */
@@ -61,7 +61,7 @@ public class VishnuConfig {
   protected String     getClusterName () { return clusterName;  }
   protected ParamMap   getMyParams    () { return myParamTable; }
   protected String     getName        () { return name;         }
-  
+
   /**
    * <pre>
    * Sets the set of template tasks.  Template tasks are examined
@@ -87,7 +87,7 @@ public class VishnuConfig {
     List templateTasks = new ArrayList ();
     int size = (tasks.size () < firstTemplateTasks) ?
       tasks.size () : firstTemplateTasks;
-	
+
     for (int i = 0; i < size; i++)
       templateTasks.add (tasks.get (i));
     return templateTasks;
@@ -102,20 +102,20 @@ public class VishnuConfig {
    *
    * NOTE that this could also be achieved by the Vishnu CAPABILITY CRITERION.
    * In general, that will be a more flexible way to go, if less efficient.
-   * 
+   *
    * If you want to do :
    *  getAssetCallback().getSubscription ().getCollection();
    * instead do :
    *  new HashSet( getAssetCallback().getSubscription ().getCollection());
    *
    * </pre>
-   * @param list of tasks to use to filter out relevant assets
+   * @param tasks of tasks to use to filter out relevant assets
    * @return Collection of assets to send to Vishnu
    */
   protected Collection getAssetTemplatesForTasks (List tasks, List assetClassName, Collection assetCollection) {
     return getDistinctAssetTypes (assetClassName, assetCollection);
   }
-  
+
   /**
    * <pre>
    * Looks through all assets and finds prototypical instances
@@ -135,12 +135,12 @@ public class VishnuConfig {
 
     for (Iterator iter = assetCollection.iterator (); iter.hasNext (); ) {
       Asset asset = (Asset) iter.next ();
-      String typeID = 
-	asset.getTypeIdentificationPG().getTypeIdentification();
+      String typeID =
+        asset.getTypeIdentificationPG().getTypeIdentification();
       StringKey typeKey = new StringKey (typeID);
-	  
+
       if (!typeIDToAsset.containsKey (typeKey))
-	typeIDToAsset.put (typeKey, asset);
+        typeIDToAsset.put (typeKey, asset);
     }
 
     Set distinctAssets = new HashSet (typeIDToAsset.values ());
@@ -152,50 +152,50 @@ public class VishnuConfig {
     Class currentClass = firstClass;
     Stack currentClasses = new Stack ();
     currentClasses.push (currentClass);
-	
+
     while ((currentClass = currentClass.getSuperclass()) != java.lang.Object.class) {
       if (logger.isDebugEnabled())
-	logger.debug (getName() + ".getDistinctAssetTypes : super " + currentClass);
+        logger.debug (getName() + ".getDistinctAssetTypes : super " + currentClass);
       currentClasses.push (currentClass);
     }
-	
+
     for (Iterator iter = distinctAssets.iterator(); iter.hasNext();) {
       Class assetClass = iter.next().getClass();
-	  
+
       if (assetClass != firstClass){
-	currentClass = assetClass;
-	Stack otherClasses  = new Stack ();
+        currentClass = assetClass;
+        Stack otherClasses  = new Stack ();
 
-	otherClasses.push (currentClass);
-		
-	while ((currentClass = currentClass.getSuperclass()) != java.lang.Object.class) {
-	  if (logger.isDebugEnabled())
-	    logger.debug (getName() + ".getDistinctAssetTypes : super " + currentClass);
-	  otherClasses.push (currentClass);
-	}
+        otherClasses.push (currentClass);
 
-	currentClasses.retainAll (otherClasses);
-		
-	if (logger.isInfoEnabled()) {
-	  for (int i = 0; i < currentClasses.size(); i++)
-	    logger.info (getName() + ".getDistinctAssetTypes : shared class " + currentClasses.get(i));
-	}
+        while ((currentClass = currentClass.getSuperclass()) != java.lang.Object.class) {
+          if (logger.isDebugEnabled())
+            logger.debug (getName() + ".getDistinctAssetTypes : super " + currentClass);
+          otherClasses.push (currentClass);
+        }
+
+        currentClasses.retainAll (otherClasses);
+
+        if (logger.isInfoEnabled()) {
+          for (int i = 0; i < currentClasses.size(); i++)
+            logger.info (getName() + ".getDistinctAssetTypes : shared class " + currentClasses.get(i));
+        }
       }
-		
+
     }
 
-    // return final name in complete class name, e.g. from org.cougaar.glm.ldm.asset.Truck, Truck
+    // return final name in complete class name, e.g. from org.cougaar.something.ldm.asset.Truck, Truck
     String classname = "" + currentClasses.get(0);
     int index = classname.lastIndexOf (".");
     classname = classname.substring (index+1, classname.length ());
-	
+
     assetClassName.add (classname);
-	
+
     if (logger.isInfoEnabled()) {
       for (int i = 0; i < currentClasses.size(); i++)
-	logger.info (getName() + ".getDistinctAssetTypes : result class " + currentClasses.get(i));
+        logger.info (getName() + ".getDistinctAssetTypes : result class " + currentClasses.get(i));
     }
-	
+
     if (distinctAssets.isEmpty())
       logger.error (getName () + ".getDistinctAssetTypes - ERROR? no templates assets?");
 
@@ -287,18 +287,18 @@ public class VishnuConfig {
    */
   public String getNeededFile (String paramName, String defaultSuffix) {
     String envFile  = null;
-	
+
     try {
       if (getMyParams().hasParam (paramName)) {
-	envFile = getMyParams().getStringParam (paramName);
-	if (logger.isInfoEnabled())
-	  logger.info ("VishnuConfig.getNeededFile - envFile = " + envFile + 
-		       " - paramName - " + paramName);
-      } 
+        envFile = getMyParams().getStringParam (paramName);
+        if (logger.isInfoEnabled())
+          logger.info ("VishnuConfig.getNeededFile - envFile = " + envFile +
+            " - paramName - " + paramName);
+      }
       else
-	envFile = getClusterName () + defaultSuffix; // no parameter, try default
+        envFile = getClusterName () + defaultSuffix; // no parameter, try default
     } catch (Exception pe) {}
-	
+
     return envFile;
   }
 
