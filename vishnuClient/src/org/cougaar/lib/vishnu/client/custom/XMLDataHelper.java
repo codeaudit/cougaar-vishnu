@@ -25,28 +25,22 @@
  */
 package org.cougaar.lib.vishnu.client.custom;
 
-import org.cougaar.glm.ldm.plan.GeolocLocation;
-import org.cougaar.glm.ldm.plan.Position;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 import org.cougaar.planning.ldm.asset.Asset;
-import org.cougaar.planning.ldm.plan.Schedule;
-import org.cougaar.planning.ldm.plan.RoleSchedule;
 import org.cougaar.planning.ldm.plan.PlanElement;
+import org.cougaar.planning.ldm.plan.RoleSchedule;
+import org.cougaar.planning.ldm.plan.Schedule;
+import org.cougaar.planning.ldm.plan.NamedPosition;
+import org.cougaar.planning.ldm.plan.LatLonPoint;
 import org.cougaar.util.TimeSpan;
 import org.cougaar.util.log.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 
 /**
  * Fills in DOM document nodes given Cougaar Objects.
@@ -181,9 +175,9 @@ public class XMLDataHelper implements DataHelper {
    * @param parentFieldName - the base name of the geoloc field
    * @param loc - the Cougaar GeolocLocation to translate into a DOM structure
    */
-  public void createGeoloc (Object parent, String parentFieldName, GeolocLocation loc) {
+  public void createGeoloc (Object parent, String parentFieldName, NamedPosition loc) {
     Object geolocObject = createObject (parent, "geoloc");
-    createField(geolocObject, "geoloc", "geolocCode", loc.getGeolocCode ());
+    createField(geolocObject, "geoloc", "geolocCode", loc.getUid ());
     Object field = createField (geolocObject, "geoloc", "latlong");
     Object latlongObject = createObject (field, "latlong");
 
@@ -193,7 +187,7 @@ public class XMLDataHelper implements DataHelper {
 		"" + loc.getLongitude ().getDegrees());
   }
 
-  public void createLatLon (Object parent, String parentFieldName, Position loc) {
+  public void createLatLon (Object parent, String parentFieldName, LatLonPoint loc) {
     Object field = createField (parent, "latlong", parentFieldName);
     Object latlongObject = createObject (field, "latlong");
 

@@ -27,12 +27,12 @@ package org.cougaar.lib.vishnu.client.custom;
 
 import com.bbn.vishnu.scheduling.SchObject;
 import com.bbn.vishnu.scheduling.SchedulingData;
-import org.cougaar.glm.ldm.plan.GeolocLocation;
-import org.cougaar.glm.ldm.plan.Position;
 import org.cougaar.planning.ldm.asset.Asset;
 import org.cougaar.planning.ldm.plan.PlanElement;
 import org.cougaar.planning.ldm.plan.RoleSchedule;
 import org.cougaar.planning.ldm.plan.Schedule;
+import org.cougaar.planning.ldm.plan.NamedPosition;
+import org.cougaar.planning.ldm.plan.LatLonPoint;
 import org.cougaar.util.TimeSpan;
 import org.cougaar.util.log.Logger;
 import org.w3c.dom.Document;
@@ -204,28 +204,28 @@ public class DirectDataHelper implements DataHelper {
    * @param parentFieldName - the base name of the geoloc field
    * @param loc - the Cougaar GeolocLocation to translate into a Vishnu structure
    */
-  public void createGeoloc (Object parent, String parentFieldName, GeolocLocation loc) {
+  public void createGeoloc (Object parent, String parentFieldName, NamedPosition loc) {
     GeolocData geolocData = (GeolocData) geolocCodeCache.get(parentFieldName);
 
     if (geolocData == null) {
-      geolocData = new GeolocData (parentFieldName, loc);
+      geolocData = new GeolocData (parentFieldName);
       geolocCodeCache.put (parentFieldName, geolocData);
     }
       
     SchObject objectParent = (SchObject) parent;
 
-    objectParent.addField (geolocData.geoLocCode, "string", loc.getGeolocCode(), false, false);
+    objectParent.addField (geolocData.geoLocCode, "string", loc.getUid(), false, false);
 
     float latDegrees = (float) loc.getLatitude  ().getDegrees();
     float lonDegrees = (float) loc.getLongitude ().getDegrees();
 
     SchObject latLonObject;
-    if ((latLonObject = (SchObject) latLonCache.get (loc.getGeolocCode())) == null) {
+    if ((latLonObject = (SchObject) latLonCache.get (loc.getUid())) == null) {
       latLonObject = new SchObject ("latlong", schedData);
       // fill in the fields on the predefined type
       latLonObject.addFloat ("latitude",  latDegrees);
       latLonObject.addFloat ("longitude", lonDegrees);
-      latLonCache.put (loc.getGeolocCode (), latLonObject);
+      latLonCache.put (loc.getUid (), latLonObject);
     }
 
     // fill in the fields on the root task/resource
@@ -238,7 +238,7 @@ public class DirectDataHelper implements DataHelper {
     objectParent.addFloat (geolocData.lonName, lonDegrees);
   }
 
-  public void createLatLon (Object parent, String parentFieldName, Position loc) {
+  public void createLatLon (Object parent, String parentFieldName, LatLonPoint loc) {
     float latDegrees = (float) loc.getLatitude  ().getDegrees();
     float lonDegrees = (float) loc.getLongitude ().getDegrees();
 
@@ -268,7 +268,7 @@ public class DirectDataHelper implements DataHelper {
     public String latName;
     public String lonName;
 
-    public GeolocData (String parentFieldName, GeolocLocation loc) {
+    public GeolocData (String parentFieldName) {
       StringBuffer sb = new StringBuffer ();
       sb.append (parentFieldName);
       sb.append ('.');
