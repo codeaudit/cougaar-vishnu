@@ -25,10 +25,10 @@
  */
 package org.cougaar.lib.vishnu.client.custom;
 
-import org.cougaar.glm.ldm.plan.GeolocLocation;
-import org.cougaar.glm.ldm.plan.Position;
-
 import org.cougaar.planning.ldm.asset.Asset;
+import org.cougaar.planning.ldm.plan.LatLonPoint;
+import org.cougaar.planning.ldm.plan.NamedPosition;
+
 import java.util.Date;
 
 /**
@@ -83,10 +83,10 @@ public interface DataHelper {
   void createFloatField   (Object parent, String name, float val);
 
   /** Adds a latlong object to the parent object, and adds the geoloc object to the parent. */
-  void createGeoloc (Object parent, String parentFieldName, GeolocLocation loc);
+  void createGeoloc (Object parent, String parentFieldName, NamedPosition loc);
 
   /** Adds a latlong object to the parent object */
-  void createLatLon (Object parent, String parentFieldName, Position loc);
+  void createLatLon (Object parent, String parentFieldName, LatLonPoint loc);
 
   /** 
    * Translate TimeSpans(PlanElements) in the role schedule into 
