@@ -511,7 +511,7 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
    * mission, i.e. they are for the same conveyance and the same period 
    * of time.  It's better for memory footprint, simplicity, and the
    * asset usage display in the TPFDD Viewer.
-   * See bug #11866 : https://bugs.ultralog.net/show_bug.cgi?id=11866
+   * See bug #11866
    *
    * Makes an aggregation given a list of assignments.
    *
@@ -539,8 +539,6 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
    * @see org.cougaar.planning.ldm.plan.Aggregation
    * @see org.cougaar.planning.ldm.plan.MPTask
    * @see org.cougaar.lib.vishnu.client.VishnuPlugin#makeSetupWrapupExpansion
-   * @see <a href="http://www.cougaar.org/projects/vishnu/fulldoc.html#specs">
-   * Click here for more on setup and wrapup specifications.</a>
    * @see #addToPrevious
    */
   public void makePlanElement (Vector tasklist, Asset anAsset, Date start, Date end, Date setupStart, Date wrapupEnd,
@@ -596,7 +594,7 @@ public class VishnuAggregatorPlugin extends VishnuPlugin implements UTILAggregat
     //
     // Bug #11866:
     //
-    // The problem (https://bugs.ultralog.net/show_bug.cgi?id=11866) is that
+    // The problem is that
     // addToPrevious initially looks on the role schedule for mptasks assigned to an asset.  
     // BUT the allocator plugin has to get a chance to run to update the role schedule.  So
     // it may seem like no previous task has been assigned, if you just look at the role schedule,

@@ -90,14 +90,12 @@ public interface DataHelper {
 
   /** 
    * Translate TimeSpans(PlanElements) in the role schedule into 
-   * Vishnu intervals (see the link for more info). 
-   * @see <a href="http://www.cougaar.org/projects/vishnu/fulldoc.html#predefined">Vishnu interval definition</a> 
+   * Vishnu intervals
    */
   void createRoleScheduleListField (Object object, String name, Asset asset);
   /** 
    * Translate TimeSpans(PlanElements) in the available schedule into 
-   * Vishnu intervals (see the link for more info). 
-   * @see <a href="http://www.cougaar.org/projects/vishnu/fulldoc.html#predefined">Vishnu interval definition</a> 
+   * Vishnu intervals
    */
   void createAvailableScheduleListField (Object object, String name, Asset asset);
 }
