@@ -72,11 +72,8 @@ public class CustomVishnuAggregatorPlugin extends VishnuAggregatorPlugin {
   /** 
    * Creates lists of Vishnu objects.  
    *
-   * @param tasksAndResources - Cougaar tasks and resources to translate
    * @param vishnuTasks - list to add Vishnu tasks to 
    * @param vishnuResources - list to add Vishnu resources to 
-   * @param objectFormat - contains field type info necessary to create fields on Vishnu objects
-   * @param timeOps - time object used when making Vishnu dates
    */
   public void prepareVishnuObjects (List alpObjects, Collection changed, 
 				    List vishnuTasks, List vishnuResources, 

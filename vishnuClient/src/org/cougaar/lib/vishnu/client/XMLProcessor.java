@@ -128,6 +128,9 @@ public class XMLProcessor {
     catch(Exception e) {vishnuEpochEndTime = "2002-01-01 00:00:00";}
   }
 
+   /**
+    * @param nameToDescrip mapping of object type to object description (field names, etc.)
+    */
   public void createDataXMLizer (Map nameToDescrip, String assetClassName) {
     setDataXMLizer (new DataXMLize (dataXMLizeLogger));
     ((DataXMLize)dataXMLizer).setNameToDescrip (nameToDescrip);
@@ -157,7 +160,6 @@ public class XMLProcessor {
    * Passes nameToDescrip Map to dataXMLizer so can rename fields to be unique.
    *
    * @param taskAndAssets what to send
-   * @param nameToDescrip mapping of object type to object description (field names, etc.)
    */
   protected Document getDataDoc (Collection taskAndAssets, Collection changedAssets, XMLizer dataXMLizer, String assetClassName) {
     return dataXMLizer.createDoc (taskAndAssets, changedAssets, assetClassName);
@@ -351,7 +353,7 @@ public class XMLProcessor {
    * another object that is not a resource!
    *
    * @param first - the node itself
-   * @param nameToNodes - hash that records name -> object format node mappings
+   * @param nodes - hash that records name -> object format node mappings
    * @return true if it's a duplicate of one already seen
    */
   protected boolean duplicateNode (Node first, List nodes) {

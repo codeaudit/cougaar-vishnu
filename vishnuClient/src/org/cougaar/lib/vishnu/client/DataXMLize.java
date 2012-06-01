@@ -361,7 +361,7 @@ public class DataXMLize extends FormatXMLize {
    * @param isFirst is the object the first elem in a list - IGNORED (used in Format)
    * @param od object description - structure of object created in format xmlize,
    *  used in field renaming
-   * @param od createdNodes - IGNORED
+   * @param createdNodes - IGNORED
    */
   protected void generateNonLeaf (Document doc, Element parentElement, 
 				  String propertyName, Object propertyValue,

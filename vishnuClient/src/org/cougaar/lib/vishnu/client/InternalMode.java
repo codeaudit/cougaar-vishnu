@@ -154,7 +154,7 @@ public class InternalMode extends ExternalMode {
    * Place to handle unfrozen tasks. <p>
    *
    * Sends XML to unfreeze the task assignment
-   * @param newAssets changed assets found in the container
+   * @param tasks
    * @see com.bbn.vishnu.scheduling.Scheduler#setupInternal
    */
   public void unfreezeTasks(Collection tasks) {

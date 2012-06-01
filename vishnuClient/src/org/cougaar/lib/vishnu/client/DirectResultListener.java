@@ -47,7 +47,7 @@ public interface DirectResultListener extends ResultListener {
    * @param changedVishnuResources - list of changed Vishnu resources
    * @param timeOps - time object used when making Vishnu dates
    */
-  public void prepareVishnuObjects (List tasksAndResources, Collection changedAsssets,
+  public void prepareVishnuObjects (List tasksAndResources, Collection changedAssets,
 				    List vishnuTasks, List vishnuResources, List changedVishnuResources,
 				    Document objectFormat, SchedulingData data);
 }
